@@ -1,9 +1,14 @@
 package studio.fantasyit.ether_craft.recipe.factory;
 
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.Level;
+import net.neoforged.neoforge.common.crafting.SizedIngredient;
 import org.jetbrains.annotations.NotNull;
 import studio.fantasyit.ether_craft.base.TreeLike;
 import studio.fantasyit.ether_craft.util.EtherProcessorRecipeUtil;
@@ -16,11 +21,28 @@ import java.util.Map;
 public class EtherProcessFactoryRecipe implements Recipe<@NotNull EtherFactoryRecipeInput> {
     private static final String DIRECT_INPUT = "DIRECT_INPUT";
     //树配方。保证ID[0-n]为n个输入物品，且与input下标对应
-    protected final EtherProcessRecipeJson json;
-    protected final TreeLike<Integer, List<Ingredient>> process;
-    protected final ArrayList<Ingredient> input;
-    protected final ArrayList<Ingredient> output;
+    public final EtherProcessRecipeJson json;
+    public final TreeLike<Integer, List<SizedIngredient>> process;
+    public final ArrayList<SizedIngredient> input;
+    public final ArrayList<ItemStack> output;
     protected final Identifier res;
+
+    private static MapCodec<EtherProcessFactoryRecipe> CODEC = RecordCodecBuilder.mapCodec(
+            a -> a
+                    .group(
+                            Identifier.CODEC.fieldOf("res").forGetter(t -> t.res),
+                            EtherProcessRecipeJson.MAP_CODEC.fieldOf("json").forGetter(t -> t.json)
+                    ).apply(a, EtherProcessFactoryRecipe::new)
+    );
+    private static StreamCodec<RegistryFriendlyByteBuf, EtherProcessFactoryRecipe> STREAM_CODEC =
+            StreamCodec.composite(
+                    Identifier.STREAM_CODEC,
+                    t->t.res,
+                    EtherProcessRecipeJson.STREAM_CODEC,
+                    t->t.json,
+                    EtherProcessFactoryRecipe::new
+            );
+
 
     public EtherProcessFactoryRecipe(Identifier res, EtherProcessRecipeJson json) {
         this.json = json;
@@ -48,7 +70,7 @@ public class EtherProcessFactoryRecipe implements Recipe<@NotNull EtherFactoryRe
         }
 
         // Step 3: 建树
-        TreeLike<Integer, List<Ingredient>> recipeTree = new TreeLike<>(currentId[0], currentId[0]);
+        TreeLike<Integer, List<SizedIngredient>> recipeTree = new TreeLike<>(currentId[0], currentId[0]);
         for (EtherProcessRecipeJson.InputEntry entry : inputEntries) {
             int id = idMapping.get(entry.id());
             int dirId = idMapping.get(DIRECT_INPUT + entry.id());
@@ -61,7 +83,7 @@ public class EtherProcessFactoryRecipe implements Recipe<@NotNull EtherFactoryRe
         }
 
         // Step 4.1: 虚拟节点 -> 处理器列表
-        Map<Integer, List<Ingredient>> vid2ProcessIngredient = new HashMap<>();
+        Map<Integer, List<SizedIngredient>> vid2ProcessIngredient = new HashMap<>();
         for (EtherProcessRecipeJson.ProcessEntry entry : processEntries) {
             int id = idMapping.get(entry.id());
             vid2ProcessIngredient.put(id, entry.item()); // entry.item() 已经是 List<Ingredient>
@@ -102,11 +124,11 @@ public class EtherProcessFactoryRecipe implements Recipe<@NotNull EtherFactoryRe
         }
 
         // Step 5: 构建输入输出 Ingredient 列表
-        ArrayList<Ingredient> inputs = new ArrayList<>();
+        ArrayList<SizedIngredient> inputs = new ArrayList<>();
         for (EtherProcessRecipeJson.InputEntry entry : inputEntries) {
             inputs.add(entry.item());
         }
-        ArrayList<Ingredient> outputs = new ArrayList<>();
+        ArrayList<ItemStack> outputs = new ArrayList<>();
         for (EtherProcessRecipeJson.OutputEntry entry : outputEntries) {
             outputs.add(entry.item());
         }
@@ -125,6 +147,12 @@ public class EtherProcessFactoryRecipe implements Recipe<@NotNull EtherFactoryRe
     public ItemStack assemble(EtherFactoryRecipeInput itemStacks) {
         return ItemStack.EMPTY;
     }
+    public ItemStack getResultItem() {
+        if (!output.isEmpty()) {
+            return output.get(0).copy();
+        }
+        return null;
+    }
 
     @Override
     public boolean showNotification() {
@@ -137,8 +165,8 @@ public class EtherProcessFactoryRecipe implements Recipe<@NotNull EtherFactoryRe
     }
 
     @Override
-    public RecipeSerializer<@NotNull Recipe<@NotNull EtherFactoryRecipeInput>> getSerializer() {
-        return new RecipeSerializer();
+    public @NotNull RecipeSerializer<@NotNull EtherProcessFactoryRecipe> getSerializer() {
+        return new RecipeSerializer<>(CODEC, STREAM_CODEC);
     }
 
     @Override
@@ -147,12 +175,12 @@ public class EtherProcessFactoryRecipe implements Recipe<@NotNull EtherFactoryRe
     }
 
     @Override
-    public PlacementInfo placementInfo() {
-        return null;
+    public @NotNull PlacementInfo placementInfo() {
+        return PlacementInfo.NOT_PLACEABLE;
     }
 
     @Override
-    public RecipeBookCategory recipeBookCategory() {
-        return null;
+    public @NotNull RecipeBookCategory recipeBookCategory() {
+        return RecipeBookCategories.CRAFTING_MISC;
     }
 }

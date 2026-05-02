@@ -1,23 +1,18 @@
 package studio.fantasyit.ether_craft.util;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import net.minecraft.resources.Identifier;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
-import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Ingredient;
+import net.neoforged.neoforge.common.crafting.SizedIngredient;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import org.jetbrains.annotations.NotNull;
+import studio.fantasyit.ether_craft.base.GraphLike;
 import studio.fantasyit.ether_craft.base.TreeLike;
 import studio.fantasyit.ether_craft.item.ProcessChipItem;
 import studio.fantasyit.ether_craft.recipe.factory.EtherFactoryRecipeInput;
-import studio.fantasyit.ether_craft.recipe.factory.EtherProcessFactoryRecipe;
-import studio.fantasyit.ether_craft.recipe.factory.EtherProcessRecipeJson;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -59,7 +54,7 @@ public class EtherProcessorRecipeUtil {
         int[][] markMatrix = new int[rows][cols];
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < cols; j++) {
-                scanMatrix[i][j] = ContainerOps.getFromResourceHandler( input,i * cols + j + rows);
+                scanMatrix[i][j] = ContainerOps.getFromResourceHandler(input, i * cols + j + rows);
                 if (scanMatrix[i][j].isEmpty()) {
                     markMatrix[i][j] = 0;
                 } else if (scanMatrix[i][j].is(TagRegistry.ETHER_PROCESS_CHIP) || scanMatrix[i][j].is(TagRegistry.ETHER_PROCESS_SEPARATOR_TAG)) {
@@ -238,7 +233,7 @@ public class EtherProcessorRecipeUtil {
         }
     }
 
-    public static boolean isRecipeCompatible(TreeLike<Integer, List<Ingredient>> recipeProcess, List<Ingredient> recipeInputs, EtherFactoryRecipeInput input) {
+    public static boolean isRecipeCompatible(TreeLike<Integer, List<SizedIngredient>> recipeProcess, List<SizedIngredient> recipeInputs, EtherFactoryRecipeInput input) {
         if (input.inputs.size() != recipeInputs.size()) return false;
 
         Queue<TreeLike.TreeNode<List<Integer>, List<ItemStack>>> queue = new LinkedList<>();
@@ -253,7 +248,7 @@ public class EtherProcessorRecipeUtil {
                 //2.1:获取当前实际位置向前传播的边（输入边）
                 for (TreeLike.TreeEdge<List<Integer>, List<ItemStack>> edge : node.edges) {
                     //2.2:获取当前虚拟位置向前传播的边（配方边）
-                    for (TreeLike.TreeEdge<Integer, List<Ingredient>> recipeEdge : recipeProcess.getEdge(id)) {
+                    for (TreeLike.TreeEdge<Integer, List<SizedIngredient>> recipeEdge : recipeProcess.getEdge(id)) {
                         /*
                         此时，我们获取到了输入边可能是的一条配方边，此时对这种可能性进行验证。
                         * */
@@ -311,5 +306,22 @@ public class EtherProcessorRecipeUtil {
         } catch (Exception ignore) {
             return false;
         }
+    }
+
+    public static int[] getToCostCountByInputAndIngredient(List<ItemStack> input, List<SizedIngredient> ingredient) {
+        if (input.size() != ingredient.size())
+            throw new IllegalArgumentException("input size != ingredient size");
+        GraphLike<Integer> graph = new GraphLike<>();
+        for (int i = 0; i < input.size() * 2; i++)
+            graph.addNode(i);
+
+        for (int i = 0; i < input.size(); i++) {
+            for (int j = 0; j < input.size(); j++) {
+                if (ingredient.get(j).test(input.get(i))) {
+                    graph.addEdgeX(graph.getNode(i), graph.getNode(j + input.size()));
+                }
+            }
+        }
+        return SetUtil.biPartiteGraphMatchGetResult(graph);
     }
 }

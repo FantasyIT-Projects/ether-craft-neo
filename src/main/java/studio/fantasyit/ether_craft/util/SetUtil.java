@@ -3,6 +3,7 @@ package studio.fantasyit.ether_craft.util;
 
 import studio.fantasyit.ether_craft.base.GraphLike;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -39,8 +40,14 @@ public class SetUtil {
     }
     private static boolean biPartiteGraphMatchFull(GraphLike<Integer> graph){
         int[] a2b = new int[graph.getNodes().size() / 2];
-        for(int i=0;i<a2b.length;i++)a2b[i]=-1;
+        Arrays.fill(a2b, -1);
         return biPartiteGraphMatch(graph,a2b)==graph.getNodes().size()/2;
+    }
+    public static int[] biPartiteGraphMatchGetResult(GraphLike<Integer> graph) {
+        int[] a2b = new int[graph.getNodes().size() / 2];
+        Arrays.fill(a2b, -1);
+        biPartiteGraphMatch(graph,a2b);
+        return a2b;
     }
     private static int biPartiteGraphMatch(GraphLike<Integer> graph,int[] b2a) {
         boolean[] vis = new boolean[b2a.length];
