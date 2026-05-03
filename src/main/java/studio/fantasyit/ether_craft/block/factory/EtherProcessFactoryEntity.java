@@ -2,7 +2,12 @@ package studio.fantasyit.ether_craft.block.factory;
 
 import com.mojang.serialization.Codec;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.state.BlockState;
@@ -12,6 +17,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import studio.fantasyit.ether_craft.block.base.BaseIOBlockEntity;
 import studio.fantasyit.ether_craft.block.base.EtherContainer;
+import studio.fantasyit.ether_craft.menu.factory.EtherProcessFactoryContainerMenu;
 import studio.fantasyit.ether_craft.recipe.factory.EtherFactoryRecipeInput;
 import studio.fantasyit.ether_craft.recipe.factory.EtherProcessFactoryRecipe;
 import studio.fantasyit.ether_craft.register.ItemRegistry;
@@ -22,7 +28,7 @@ import java.util.Optional;
 
 import static studio.fantasyit.ether_craft.register.BlockEntityRegistry.ETHER_PROCESS_FACTORY_ENTITY;
 
-public class EtherProcessFactoryEntity extends BaseIOBlockEntity implements EtherContainer {
+public class EtherProcessFactoryEntity extends BaseIOBlockEntity implements EtherContainer, MenuProvider {
     private static int ROWS = 9;
     private static int COLS = 9;
     public int[] processingProgress;
@@ -56,7 +62,7 @@ public class EtherProcessFactoryEntity extends BaseIOBlockEntity implements Ethe
             for (int j = 0; j < COLS; j++) {
                 ItemStack itemStack = internalContainer.getItem(i * COLS + j);
                 @Nullable EtherProcessWorkingChip originalChip = slotChips[i][j];
-                if (originalChip != null && ItemStack.isSameItemSameComponents(itemStack,originalChip.item))
+                if (originalChip != null && ItemStack.isSameItemSameComponents(itemStack, originalChip.item))
                     continue;
                 if (itemStack.isEmpty() && originalChip == null)
                     continue;
@@ -162,4 +168,13 @@ public class EtherProcessFactoryEntity extends BaseIOBlockEntity implements Ethe
         super.saveAdditional(output);
     }
 
+    @Override
+    public Component getDisplayName() {
+        return Component.empty();
+    }
+
+    @Override
+    public @Nullable AbstractContainerMenu createMenu(int i, Inventory inventory, Player player) {
+        return new EtherProcessFactoryContainerMenu(i, player, this.worldPosition);
+    }
 }
