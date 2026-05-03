@@ -1,0 +1,25 @@
+
+
+{
+    "type": "ether_craft:ether_process",
+    "input": [
+      {
+        "id": "I",
+        "item": {
+          "item": "minecraft:diamond"
+        },
+        "next": "O"
+      }
+    ],
+    "process": [
+      
+    ],
+    "output": [
+      {
+        "id": "O",
+        "item": {
+          "item": "minecraft:coal"
+        }
+      }
+    ]
+  }

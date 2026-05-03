@@ -1,0 +1,51 @@
+
+
+{
+    "type": "ether_craft:ether_process",
+    "input": [
+      {
+        "id": "I",
+        "item": {
+          "item": "minecraft:gravel"
+        },
+        "next": "press1"
+      }
+    ],
+    "process": [
+      {
+        "id": "press1",
+        "next": "press2",
+        "item": [
+          {
+            "item": "ether_craft:stamping_component"
+          }
+        ]
+      },
+      {
+        "id": "press2",
+        "next": "press3",
+        "item": [
+          {
+            "item": "ether_craft:stamping_component"
+          }
+        ]
+      },
+      {
+        "id": "press3",
+        "next": "O",
+        "item": [
+          {
+            "item": "ether_craft:stamping_component"
+          }
+        ]
+      }
+    ],
+    "output": [
+      {
+        "id": "O",
+        "item": {
+          "item": "minecraft:sand"
+        }
+      }
+    ]
+  }

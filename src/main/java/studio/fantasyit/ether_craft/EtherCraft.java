@@ -32,7 +32,7 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import org.slf4j.Logger;
-import studio.fantasyit.ether_craft.register.BlockAttachmentDataRegistry;
+import studio.fantasyit.ether_craft.register.*;
 
 @Mod(EtherCraft.MODID)
 public class EtherCraft
@@ -42,6 +42,13 @@ public class EtherCraft
     public EtherCraft(IEventBus modEventBus, ModContainer modContainer)
     {
         BlockAttachmentDataRegistry.register(modEventBus);
+        BlockEntityRegistry.register(modEventBus);
+        BlockRegistry.register(modEventBus);
+        GuiRegistry.init(modEventBus);
+        ItemRegistry.register(modEventBus);
+        RecipeTypeRegistry.register(modEventBus);
+        CreativeTabRegistry.register(modEventBus);
+        DataComponentRegistry.register(modEventBus);
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
     }
     public static Identifier id(String path){

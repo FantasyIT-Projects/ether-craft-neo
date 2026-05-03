@@ -11,6 +11,7 @@ import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.common.crafting.SizedIngredient;
 import org.jetbrains.annotations.NotNull;
 import studio.fantasyit.ether_craft.base.TreeLike;
+import studio.fantasyit.ether_craft.register.ItemRegistry;
 import studio.fantasyit.ether_craft.util.EtherProcessorRecipeUtil;
 
 import java.util.ArrayList;
@@ -88,13 +89,13 @@ public class EtherProcessFactoryRecipe implements Recipe<@NotNull EtherFactoryRe
             int id = idMapping.get(entry.id());
             vid2ProcessIngredient.put(id, entry.item()); // entry.item() 已经是 List<Ingredient>
         }
-        vid2ProcessIngredient.put(currentId[0], List.of(Ingredient.of(ItemRegistry.DIRECT_INPUT_ITEM_CHIP.get())));
+        vid2ProcessIngredient.put(currentId[0], List.of(SizedIngredient.of(ItemRegistry.DIRECT_INPUT_ITEM_CHIP.get(),1)));
 
         // Step 4.2: 输入到 DirectInputItem 芯片的边
         for (EtherProcessRecipeJson.InputEntry entry : inputEntries) {
             int id = idMapping.get(entry.id());
             int dirId = idMapping.get(DIRECT_INPUT + entry.id());
-            recipeTree.addEdge(dirId, id, List.of(Ingredient.of(ItemRegistry.DIRECT_INPUT_ITEM_CHIP.get())));
+            recipeTree.addEdge(dirId, id, List.of(SizedIngredient.of(ItemRegistry.DIRECT_INPUT_ITEM_CHIP.get(),1)));
         }
 
         // Step 4.3: 加入边（输入和工序）

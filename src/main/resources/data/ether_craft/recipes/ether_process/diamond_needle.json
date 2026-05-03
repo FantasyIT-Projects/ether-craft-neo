@@ -1,0 +1,108 @@
+
+
+{
+    "type": "ether_craft:ether_process",
+    "input": [
+      {
+        "id": "I",
+        "item": {
+          "tag": "forge:gems/diamond"
+        },
+        "next": "Xpress1"
+      }
+    ],
+    "process": [
+      {
+        "id": "Xpress1",
+        "next": "Xpress2",
+        "item": [
+          {
+            "item": "ether_craft:stamping_component"
+          },
+          {
+            "item": "ether_craft:stamping_component"
+          }
+        ]
+      },
+      {
+        "id": "Xpress2",
+        "next": "Xpress3",
+        "item": [
+          {
+            "item": "ether_craft:stamping_component"
+          },
+          {
+            "item": "ether_craft:stamping_component"
+          }
+        ]
+      },
+      {
+        "id": "Xpress3",
+        "next": "Xpress4",
+        "item": [
+          {
+            "item": "ether_craft:stamping_component"
+          },
+          {
+            "item": "ether_craft:stamping_component"
+          }
+        ]
+      },
+      {
+        "id": "Xpress4",
+        "next": "Xpress5",
+        "item": [
+          {
+            "item": "ether_craft:stamping_component"
+          },
+          {
+            "item": "ether_craft:stamping_component"
+          }
+        ]
+      },
+      {
+        "id": "Xpress5",
+        "next": "Xcut1",
+        "item": [
+          {
+            "item": "ether_craft:stamping_component"
+          },
+          {
+            "item": "ether_craft:stamping_component"
+          }
+        ]
+      },
+      {
+        "id": "Xcut1",
+        "next": "Xcut2",
+        "item": [
+          {
+            "item": "ether_craft:cutting_component"
+          },
+          {
+            "item": "ether_craft:cutting_component"
+          }
+        ]
+      },
+      {
+        "id": "Xcut2",
+        "next": "O",
+        "item": [
+          {
+            "item": "ether_craft:cutting_component"
+          },
+          {
+            "item": "ether_craft:cutting_component"
+          }
+        ]
+      }
+    ],
+    "output": [
+      {
+        "id": "O",
+        "item": {
+          "item": "ether_craft:diamond_needle"
+        }
+      }
+    ]
+  }

@@ -1,0 +1,52 @@
+
+
+{
+    "type": "ether_craft:ether_process",
+    "input": [
+      {
+        "id": "I",
+        "item": {
+          "tag": "forge:ingots/gold"
+        },
+        "next": "cut1"
+      }
+    ],
+    "process": [
+      {
+        "id": "cut1",
+        "next": "cut2",
+        "item": [
+          {
+            "item": "ether_craft:cutting_component"
+          }
+        ]
+      },
+      {
+        "id": "cut2",
+        "next": "cut3",
+        "item": [
+          {
+            "item": "ether_craft:cutting_component"
+          }
+        ]
+      },
+      {
+        "id": "cut3",
+        "next": "O",
+        "item": [
+          {
+            "item": "ether_craft:cutting_component"
+          }
+        ]
+      }
+    ],
+    "output": [
+      {
+        "id": "O",
+        "item": {
+          "item": "ether_craft:gold_screw"
+        },
+        "count":2
+      }
+    ]
+  }

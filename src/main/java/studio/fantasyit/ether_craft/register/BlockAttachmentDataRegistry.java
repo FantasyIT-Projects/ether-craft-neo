@@ -15,9 +15,6 @@ public class BlockAttachmentDataRegistry {
     public static final Supplier<AttachmentType<Long>> ETHER_CONTAINER = ATTACHMENT_TYPES.register(
             "ether_container", () -> AttachmentType.builder(() -> 0L).serialize(Codec.LONG.fieldOf("ether_container")).build()
     );
-    public static final Supplier<AttachmentType<ItemStacksResourceHandler>> CONTAINER_INPUTS = ATTACHMENT_TYPES.register(
-            "ether_container", () -> AttachmentType.serializable(() -> new ItemStacksResourceHandler(1)).build()
-    );
 
     public static void register(IEventBus modbus) {
         ATTACHMENT_TYPES.register(modbus);

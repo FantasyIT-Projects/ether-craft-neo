@@ -3,6 +3,7 @@ package studio.fantasyit.ether_craft.util;
 import net.minecraft.resources.Identifier;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.Container;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.common.crafting.SizedIngredient;
@@ -11,8 +12,10 @@ import net.neoforged.neoforge.transfer.item.ItemResource;
 import org.jetbrains.annotations.NotNull;
 import studio.fantasyit.ether_craft.base.GraphLike;
 import studio.fantasyit.ether_craft.base.TreeLike;
+import studio.fantasyit.ether_craft.block.factory.EtherProcessWorkingChip;
 import studio.fantasyit.ether_craft.item.ProcessChipItem;
 import studio.fantasyit.ether_craft.recipe.factory.EtherFactoryRecipeInput;
+import studio.fantasyit.ether_craft.register.ItemRegistry;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -43,21 +46,18 @@ public class EtherProcessorRecipeUtil {
      * @param cols
      * @return
      */
-    public static FactoryStructure processFactoryInput(ResourceHandler<@NotNull ItemResource> input, int rows, int cols) {
+    public static FactoryStructure processFactoryInput(int rows, int cols, Container input, EtherProcessWorkingChip[][] chipSlots) {
         FactoryStructure result = new FactoryStructure(rows, cols);
         List<ItemStack> inputs = new ArrayList<>();
         for (int i = 0; i < rows; i++) {
-            int amount = input.getAmountAsInt(i);
-            inputs.add(input.getResource(i).toStack(amount));
+            inputs.add(input.getItem(i));
         }
-        ItemStack[][] scanMatrix = new ItemStack[rows][cols];
         int[][] markMatrix = new int[rows][cols];
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < cols; j++) {
-                scanMatrix[i][j] = ContainerOps.getFromResourceHandler(input, i * cols + j + rows);
-                if (scanMatrix[i][j].isEmpty()) {
+                if (chipSlots[i][j] == null) {
                     markMatrix[i][j] = 0;
-                } else if (scanMatrix[i][j].is(TagRegistry.ETHER_PROCESS_CHIP) || scanMatrix[i][j].is(TagRegistry.ETHER_PROCESS_SEPARATOR_TAG)) {
+                } else if(!chipSlots[i][j].item.isEmpty()) {
                     markMatrix[i][j] = -1;
                 } else {
                     markMatrix[i][j] = 100;
@@ -87,8 +87,8 @@ public class EtherProcessorRecipeUtil {
                 TreeLike<List<Integer>, List<ItemStack>> tree = new TreeLike<>(0, new ArrayList<>());
                 tree.addNode(1, new ArrayList<>());
                 tree.addEdge(0, 1, List.of(new ItemStack(ItemRegistry.DIRECT_INPUT_ITEM_CHIP.get())));
-                Set<ProcessChipItem> relevantComponents = new HashSet<>();
-                scanForTrees(scanMatrix, markMatrix, tree, inputIds, relevantComponents, processInputTrees, cols - 1, i, -1, -1, i + 1, 1);
+                Set<EtherProcessWorkingChip> relevantComponents = new HashSet<>();
+                scanForTrees(chipSlots, markMatrix, tree, inputIds, relevantComponents, processInputTrees, cols - 1, i, -1, -1, i + 1, 1);
 
                 if (tree.getNodes().size() > 1) {
                     List<ItemStack> inputStacks = new ArrayList<>();
@@ -172,11 +172,11 @@ public class EtherProcessorRecipeUtil {
      * @param markId
      * @param parentId
      */
-    private static void scanForTrees(ItemStack[][] scanMatrix,
+    private static void scanForTrees(EtherProcessWorkingChip[][] scanMatrix,
                                      int[][] markMatrix,
                                      TreeLike<List<Integer>, List<ItemStack>> tree,
                                      List<Integer> inputIds,
-                                     Set<ProcessChipItem> relevantComponents,
+                                     Set<EtherProcessWorkingChip> relevantComponents,
                                      List<Integer> processInputTrees,
                                      int x,
                                      int y,
@@ -201,12 +201,10 @@ public class EtherProcessorRecipeUtil {
                 continue;
             }
             if (x2 >= 0 && x2 < markMatrix[0].length && y2 >= 0 && y2 < markMatrix.length) {
-                ItemStack targetItem = scanMatrix[y2][x2];
-                if (!targetItem.isEmpty() && targetItem.is(TagRegistry.ETHER_PROCESS_CHIP)) {
-                    chips.add(targetItem);
-                }
-                if (targetItem.getItem() instanceof ProcessChipItem component) {
-                    relevantComponents.add(component);
+                EtherProcessWorkingChip targetItem = scanMatrix[y2][x2];
+                if (!targetItem.item.isEmpty()) {
+                    chips.add(targetItem.item);
+                    relevantComponents.add(targetItem);
                 }
             }
         }

@@ -1,5 +1,9 @@
 {
   "itemGroup.ether_craft": "Example Mod Tab",
   "block.ether_craft.example_block": "Example Block",
-  "item.ether_craft.example_item": "Example Item"
+  "item.ether_craft.example_item": "Example Item",
+  "tooltip.ether_craft.ether_process_chip.max_ether": "Max [%d]",
+  "tooltip.ether_craft.ether_process_chip.ether_decay": "Decay [%d]",
+  "tooltip.ether_craft.ether_process_chip.ether_require": "Require [%d]",
+  "tooltip.ether_craft.ether_process_chip.ether_consume": "Consume [%d]"
 }

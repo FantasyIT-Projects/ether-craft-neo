@@ -1,0 +1,79 @@
+
+
+{
+    "type": "ether_craft:ether_process",
+    "input": [
+      {
+        "id": "I1",
+        "item": {
+          "item": "ether_craft:inactivated_ether"
+        },
+        "next": "press1"
+      },
+      {
+        "id": "I2",
+        "item": {
+          "item": "ether_craft:inactivated_ether"
+        },
+        "next": "press2"
+      }
+    ],
+    "process": [
+      {
+        "id": "press1",
+        "next": "cut1",
+        "item": [
+          {
+            "item": "ether_craft:stamping_component"
+          }
+        ]
+      },
+      {
+        "id": "press2",
+        "next": "cut2",
+        "item": [
+          {
+            "item": "ether_craft:stamping_component"
+          }
+        ]
+      },
+      {
+        "id": "cut1",
+        "next": "press3",
+        "item": [
+          {
+            "item": "ether_craft:cutting_component"
+          }
+        ]
+      },
+      {
+        "id": "cut2",
+        "next": "press3",
+        "item": [
+          {
+            "item": "ether_craft:cutting_component"
+          }
+        ]
+      },
+      {
+        "id": "press3",
+        "next": "O",
+        "item": [
+          {
+            "item": "ether_craft:stamping_component"
+          },
+          {
+            "item": "ether_craft:stamping_component"
+          }
+        ]
+      }
+    ],
+    "output": [
+      {
+        "id": "O",
+        "item": {
+          "item": "ether_craft:etherphilic_bowl"
+        }
+      }
+    ]
+  }

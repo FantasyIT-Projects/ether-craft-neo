@@ -6,6 +6,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeInput;
 import org.jetbrains.annotations.NotNull;
 import studio.fantasyit.ether_craft.base.TreeLike;
+import studio.fantasyit.ether_craft.block.factory.EtherProcessWorkingChip;
 import studio.fantasyit.ether_craft.item.ProcessChipItem;
 
 import java.util.List;
@@ -23,14 +24,14 @@ public class EtherFactoryRecipeInput implements RecipeInput {
     //输出物品（在输出序列中的ID）
     public Integer outputId;
     //相关的组件
-    public Set<ProcessChipItem> relevantComponent;
+    public Set<EtherProcessWorkingChip> relevantComponent;
 
     public EtherFactoryRecipeInput(List<ItemStack> inputs,
                        TreeLike<List<Integer>, List<ItemStack>> process,
                        List<Integer> inputIds,
                        List<Integer> inputTreeIds,
                        Integer outputId,
-                       Set<ProcessChipItem> relevantComponent) {
+                       Set<EtherProcessWorkingChip> relevantComponent) {
         this.inputs = inputs;
         this.process = process;
         this.inputTreeIds = inputTreeIds;

@@ -1,0 +1,33 @@
+
+
+{
+    "type": "ether_craft:ether_process",
+    "input": [
+      {
+        "id": "I",
+        "item": {
+          "tag": "c:uncolored_sandstone_blocks"
+        },
+        "next": "press"
+      }
+    ],
+    "process": [
+      {
+        "id": "press",
+        "next": "O",
+        "item": [
+          {
+            "item": "ether_craft:stamping_component"
+          }
+        ]
+      }
+    ],
+    "output": [
+      {
+        "id": "O",
+        "item": {
+          "item": "minecraft:sand"
+        }
+      }
+    ]
+  }

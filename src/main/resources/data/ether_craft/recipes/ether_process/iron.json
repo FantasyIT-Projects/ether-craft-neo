@@ -1,0 +1,31 @@
+{
+  "type": "ether_craft:ether_process",
+  "input": [
+    {
+      "id": "I",
+      "item": {
+        "item": "minecraft:raw_iron"
+      },
+      "next": "furnace"
+    }
+  ],
+  "process": [
+    {
+      "id": "furnace",
+      "next": "O",
+      "item": [
+        {
+          "item": "ether_craft:heating_component"
+        }
+      ]
+    }
+  ],
+  "output": [
+    {
+      "id": "O",
+      "item": {
+        "item": "minecraft:iron_ingot"
+      }
+    }
+  ]
+}
