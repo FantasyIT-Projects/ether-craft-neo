@@ -31,12 +31,15 @@ import java.util.Optional;
 import static studio.fantasyit.ether_craft.register.BlockEntityRegistry.ETHER_PROCESS_FACTORY_ENTITY;
 
 public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity implements EtherContainer, MenuProvider, ITickable {
-    private static int ROWS = 9;
-    private static int COLS = 9;
+    public static final int MAX_PROGRESS = 100;
+    public static int ROWS = 9;
+    public static int COLS = 9;
     public int[] processingProgress;
     public EtherProcessFactoryRecipe[] processingRecipes;
     public EtherFactoryRecipeInput[] processingInputs;
     public @Nullable EtherProcessWorkingChip[][] slotChips;
+    public int[][] pathBelongings;
+    public int[][] currentEther;
     boolean markUpdate = false;
 
     public EtherProcessFactoryEntity(BlockPos worldPosition, BlockState blockState) {
@@ -45,6 +48,8 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
         processingRecipes = new EtherProcessFactoryRecipe[ROWS];
         processingInputs = new EtherFactoryRecipeInput[ROWS];
         slotChips = new EtherProcessWorkingChip[ROWS][COLS];
+        pathBelongings = new int[ROWS][COLS];
+        currentEther = new int[ROWS][COLS];
     }
 
 
@@ -65,7 +70,7 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
             for (int j = 0; j < COLS; j++) {
                 ItemStack itemStack = internalContainer.getItem(i * COLS + j);
                 @Nullable EtherProcessWorkingChip originalChip = slotChips[i][j];
-                if (originalChip != null && ItemStack.isSameItemSameComponents(itemStack, originalChip.item))
+                if (originalChip != null && ItemStack.isSameItemSameComponents(itemStack, originalChip.item) && !itemStack.isEmpty())
                     continue;
                 if (itemStack.isEmpty() && originalChip == null)
                     continue;
@@ -82,14 +87,16 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
         }
         //向所有的以太消耗组件填充以太（填充机制：轮询优先填满）
         for (int i = 0; i < COLS * ROWS; ++i) {
-            if (etherCap.getEther() == 0) break;
-            int idx = (i + looperIndex) % (COLS * ROWS);
+            int idx = looperIndex;
+            looperIndex = (looperIndex + 1) % (COLS * ROWS);
             int row = idx / COLS;
             int col = idx % COLS;
             if (slotChips[row][col] == null)
                 continue;
+            slotChips[row][col].tick();
             etherCap.setEther(slotChips[row][col].addEther(etherCap.getEther()));
-            looperIndex = (looperIndex + 1) % (COLS * ROWS);
+            currentEther[row][col] = Math.toIntExact(Math.min(slotChips[row][col].ether, Integer.MAX_VALUE));
+
         }
     }
 
@@ -121,6 +128,16 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
                 processingInputs[i] = null;
             }
         }
+
+        for (int i = 0; i < ROWS; i++)
+            for (int j = 0; j < COLS; j++)
+                pathBelongings[i][j] = -1;
+        for (int i = 0; i < ROWS; i++) {
+            if (processingInputs[i] != null) {
+                int finalI = i;
+                processingInputs[i].workingPath.forEach(v -> pathBelongings[v.y][v.x] = finalI);
+            }
+        }
     }
 
     @Override
@@ -129,9 +146,9 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
         boolean changed = false;
         for (int i = 0; i < this.processingRecipes.length; i++) {
             if (this.processingRecipes[i] != null) {
-                if (this.processingInputs[i].relevantChips.stream().allMatch(item -> (!item.canWork()))) {
+                if (this.processingInputs[i].relevantChips.stream().anyMatch(item -> (!item.canWork()))) {
                     processingProgress[i] = 0;
-                } else if (processingProgress[i] < 100) {
+                } else if (processingProgress[i] < MAX_PROGRESS) {
                     processingProgress[i]++;
                 } else {
                     processingProgress[i] = 0;

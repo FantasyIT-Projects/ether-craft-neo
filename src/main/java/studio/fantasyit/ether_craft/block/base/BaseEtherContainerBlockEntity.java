@@ -100,7 +100,7 @@ public class BaseEtherContainerBlockEntity extends BlockEntity implements Resour
     public int insert(int index, ItemResource resource, int amount, @NotNull TransactionContext transaction) {
         if (resource.is(ItemRegistry.ETHER)) {
             etherJournal.updateSnapshots(transaction);
-            receiveEtherNoUpdate(amount * 100L);
+            receiveEtherNoUpdate(amount * 1000L);
             return amount;
         }
         return handler.insert(resource, amount, transaction);

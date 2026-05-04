@@ -4,6 +4,7 @@ import com.mojang.serialization.MapCodec;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.common.crafting.SizedIngredient;
@@ -25,7 +26,7 @@ public class EtherProcessFactoryRecipe implements Recipe<@NotNull EtherFactoryRe
     public final EtherProcessRecipeJson json;
     public final TreeLike<Integer, List<DelayedIngredient>> process;
     public final List<SizedIngredient> input;
-    public final List<ItemStack> output;
+    public final List<ItemStackTemplate> output;
 
     public static MapCodec<EtherProcessFactoryRecipe> CODEC = EtherProcessRecipeJson.MAP_CODEC.xmap(
             EtherProcessFactoryRecipe::new,
@@ -122,7 +123,7 @@ public class EtherProcessFactoryRecipe implements Recipe<@NotNull EtherFactoryRe
         for (EtherProcessRecipeJson.InputEntry entry : inputEntries) {
             inputs.add(entry.item());
         }
-        List<ItemStack> outputs = outputEntry.item();
+        List<ItemStackTemplate> outputs = outputEntry.item();
 
         this.process = recipeTree;
         this.input = inputs;
@@ -141,7 +142,7 @@ public class EtherProcessFactoryRecipe implements Recipe<@NotNull EtherFactoryRe
 
     public ItemStack getResultItem() {
         if (!output.isEmpty()) {
-            return output.get(0).copy();
+            return output.get(0).create();
         }
         return null;
     }

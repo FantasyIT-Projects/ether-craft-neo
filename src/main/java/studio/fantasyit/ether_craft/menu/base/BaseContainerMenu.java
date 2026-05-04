@@ -8,7 +8,9 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import org.apache.commons.lang3.function.TriConsumer;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import studio.fantasyit.ether_craft.block.base.BaseEtherContainerBlockEntity;
 
 public abstract class BaseContainerMenu extends AbstractContainerMenu {
@@ -53,6 +55,10 @@ public abstract class BaseContainerMenu extends AbstractContainerMenu {
         addSlotArea(playerInventory, 0, 10, 70 + 58, 9, 18, 1, 18);
     }
 
+    protected int addSlotArea(Container container, int startIdx, int x, int y, int slotPreRow, int dx, int slotPreCol, int dy) {
+        return addSlotArea(container, startIdx, x, y, slotPreRow, dx, slotPreCol, dy, null);
+    }
+
     /**
      * 添加一个Slot组，左上角x，y，每行slotPreRow个，每列slotPreCol个，间隔dx，dy。（即总共添加最多两者乘积个）
      *
@@ -66,7 +72,7 @@ public abstract class BaseContainerMenu extends AbstractContainerMenu {
      * @param dy         纵向格子间隔
      * @return 成功添加的个数
      */
-    protected int addSlotArea(Container container, int startIdx, int x, int y, int slotPreRow, int dx, int slotPreCol, int dy) {
+    protected int addSlotArea(Container container, int startIdx, int x, int y, int slotPreRow, int dx, int slotPreCol, int dy, @Nullable TriConsumer<Slot, Integer, Integer> slotConsumer) {
         int added = 0;
         int index = startIdx;
         int totalSlots = container.getContainerSize();
@@ -74,7 +80,10 @@ public abstract class BaseContainerMenu extends AbstractContainerMenu {
 
         for (int j = 0; j < slotPreCol && index < totalSlots; j++) {
             for (int i = 0; i < slotPreRow && index < totalSlots; i++) {
-                addSlot(new Slot(container, index, x, y));
+                Slot slot = addSlot(new Slot(container, index, x, y));
+                if (slotConsumer != null) {
+                    slotConsumer.accept(slot, i, j);
+                }
 
                 x += dx;
                 index++;
@@ -98,8 +107,7 @@ public abstract class BaseContainerMenu extends AbstractContainerMenu {
                 if (!this.moveItemStackTo(stack, slotCnt, Inventory.INVENTORY_SIZE + slotCnt, true)) {
                     return ItemStack.EMPTY;
                 }
-            }
-            else if (!this.moveItemStackTo(stack, inputSlots, inputSlots + 1, false)) {
+            } else if (!this.moveItemStackTo(stack, inputSlots, inputSlots + 1, false)) {
                 if (index < 27 + slotCnt) {
                     if (!this.moveItemStackTo(stack, 27 + slotCnt, 36 + slotCnt, false)) {
                         return ItemStack.EMPTY;

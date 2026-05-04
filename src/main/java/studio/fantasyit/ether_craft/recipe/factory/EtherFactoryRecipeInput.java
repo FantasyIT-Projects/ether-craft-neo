@@ -43,6 +43,7 @@ public class EtherFactoryRecipeInput implements RecipeInput {
         this.inputIds = inputIds;
         this.outputId = outputId;
         this.relevantChips = relevantChips;
+        this.workingPath = workingPath;
     }
 
     @Override

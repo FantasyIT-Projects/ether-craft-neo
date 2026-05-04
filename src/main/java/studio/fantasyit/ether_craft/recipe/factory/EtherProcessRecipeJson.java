@@ -9,6 +9,7 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.neoforged.neoforge.common.crafting.SizedIngredient;
 import org.jetbrains.annotations.Nullable;
 import studio.fantasyit.ether_craft.recipe.DelayedIngredient;
@@ -28,7 +29,7 @@ public record EtherProcessRecipeJson(
     public record InputEntry(String id, SizedIngredient item, @Nullable String next) {
     }
 
-    public record OutputEntry(String id, List<ItemStack> item) {
+    public record OutputEntry(String id, List<ItemStackTemplate> item) {
     }
 
     public record ProcessEntry(String id, List<DelayedIngredient> delayedItem,
@@ -53,7 +54,7 @@ public record EtherProcessRecipeJson(
     public static final Codec<EtherProcessRecipeJson.OutputEntry> OUTPUT_ENTRY_CODEC =
             RecordCodecBuilder.create(inst -> inst.group(
                     Codec.STRING.fieldOf("id").forGetter(EtherProcessRecipeJson.OutputEntry::id),
-                    ItemStack.CODEC.listOf().fieldOf("item").forGetter(EtherProcessRecipeJson.OutputEntry::item)
+                    ItemStackTemplate.CODEC.listOf().fieldOf("item").forGetter(EtherProcessRecipeJson.OutputEntry::item)
             ).apply(inst, EtherProcessRecipeJson.OutputEntry::new));
 
     public static final Codec<EtherProcessRecipeJson.ProcessEntry> PROCESS_ENTRY_CODEC =
@@ -93,7 +94,7 @@ public record EtherProcessRecipeJson(
     public static final StreamCodec<RegistryFriendlyByteBuf, OutputEntry> OUTPUT_ENTRY_STREAM_CODEC =
             StreamCodec.composite(
                     ByteBufCodecs.STRING_UTF8, OutputEntry::id,
-                    ByteBufCodecs.collection(ArrayList::new, ItemStack.STREAM_CODEC), OutputEntry::item,
+                    ByteBufCodecs.collection(ArrayList::new, ItemStackTemplate.STREAM_CODEC), OutputEntry::item,
                     OutputEntry::new
             );
 
