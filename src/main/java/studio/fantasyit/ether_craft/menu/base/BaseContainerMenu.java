@@ -9,12 +9,12 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
-import studio.fantasyit.ether_craft.block.base.BaseIOBlockEntity;
+import studio.fantasyit.ether_craft.block.base.BaseEtherContainerBlockEntity;
 
 public abstract class BaseContainerMenu extends AbstractContainerMenu {
     public final BlockPos pos;
 
-    public final BaseIOBlockEntity entity;
+    public final BaseEtherContainerBlockEntity entity;
     protected final int inputSlots;
     protected final int outputSlots;
     protected final int internalSlots;
@@ -23,7 +23,7 @@ public abstract class BaseContainerMenu extends AbstractContainerMenu {
         super(container, windowId);
         this.pos = pos;
 
-        if (player.level().getBlockEntity(pos) instanceof BaseIOBlockEntity _entity) {
+        if (player.level().getBlockEntity(pos) instanceof BaseEtherContainerBlockEntity _entity) {
             this.inputSlots = _entity.inputContainer.getContainerSize();
             this.internalSlots = _entity.internalContainer.getContainerSize();
             this.outputSlots = _entity.outputContainer.getContainerSize();
@@ -90,7 +90,7 @@ public abstract class BaseContainerMenu extends AbstractContainerMenu {
     public @NotNull ItemStack quickMoveStack(Player player, int index) {
         ItemStack itemstack = ItemStack.EMPTY;
         Slot slot = this.slots.get(index);
-        int slotCnt = inputSlots + outputSlots;
+        int slotCnt = inputSlots + outputSlots + internalSlots;
         if (slot.hasItem()) {
             ItemStack stack = slot.getItem();
             itemstack = stack.copy();
@@ -99,7 +99,7 @@ public abstract class BaseContainerMenu extends AbstractContainerMenu {
                     return ItemStack.EMPTY;
                 }
             }
-            if (!this.moveItemStackTo(stack, inputSlots, inputSlots + 1, false)) {
+            else if (!this.moveItemStackTo(stack, inputSlots, inputSlots + 1, false)) {
                 if (index < 27 + slotCnt) {
                     if (!this.moveItemStackTo(stack, 27 + slotCnt, 36 + slotCnt, false)) {
                         return ItemStack.EMPTY;
@@ -127,10 +127,5 @@ public abstract class BaseContainerMenu extends AbstractContainerMenu {
     @Override
     public boolean stillValid(Player p_38874_) {
         return true;
-    }
-
-    @Override
-    protected boolean moveItemStackTo(ItemStack p_38904_, int p_38905_, int p_38906_, boolean p_38907_) {
-        return super.moveItemStackTo(p_38904_, p_38905_, p_38906_, p_38907_);
     }
 }

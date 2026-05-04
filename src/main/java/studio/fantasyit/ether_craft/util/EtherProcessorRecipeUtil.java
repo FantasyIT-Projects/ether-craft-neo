@@ -7,13 +7,12 @@ import net.minecraft.world.Container;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.common.crafting.SizedIngredient;
-import net.neoforged.neoforge.transfer.ResourceHandler;
-import net.neoforged.neoforge.transfer.item.ItemResource;
-import org.jetbrains.annotations.NotNull;
+import org.joml.Vector2i;
 import studio.fantasyit.ether_craft.base.GraphLike;
 import studio.fantasyit.ether_craft.base.TreeLike;
 import studio.fantasyit.ether_craft.block.factory.EtherProcessWorkingChip;
 import studio.fantasyit.ether_craft.item.ProcessChipItem;
+import studio.fantasyit.ether_craft.recipe.DelayedIngredient;
 import studio.fantasyit.ether_craft.recipe.factory.EtherFactoryRecipeInput;
 import studio.fantasyit.ether_craft.register.ItemRegistry;
 
@@ -57,7 +56,7 @@ public class EtherProcessorRecipeUtil {
             for (int j = 0; j < cols; j++) {
                 if (chipSlots[i][j] == null) {
                     markMatrix[i][j] = 0;
-                } else if(!chipSlots[i][j].item.isEmpty()) {
+                } else if (!chipSlots[i][j].item.isEmpty()) {
                     markMatrix[i][j] = -1;
                 } else {
                     markMatrix[i][j] = 100;
@@ -88,14 +87,15 @@ public class EtherProcessorRecipeUtil {
                 tree.addNode(1, new ArrayList<>());
                 tree.addEdge(0, 1, List.of(new ItemStack(ItemRegistry.DIRECT_INPUT_ITEM_CHIP.get())));
                 Set<EtherProcessWorkingChip> relevantComponents = new HashSet<>();
-                scanForTrees(chipSlots, markMatrix, tree, inputIds, relevantComponents, processInputTrees, cols - 1, i, -1, -1, i + 1, 1);
+                Set<Vector2i> path = new HashSet<>();
+                scanForTrees(chipSlots, markMatrix, tree, inputIds, relevantComponents, path, processInputTrees, cols - 1, i, -1, -1, i + 1, 1);
 
                 if (tree.getNodes().size() > 1) {
                     List<ItemStack> inputStacks = new ArrayList<>();
                     for (int inputId : inputIds) {
                         inputStacks.add(inputs.get(inputId));
                     }
-                    result.recipes.add(new EtherFactoryRecipeInput(inputStacks, tree, inputIds, processInputTrees, i, relevantComponents));
+                    result.recipes.add(new EtherFactoryRecipeInput(inputStacks, tree, inputIds, processInputTrees, i, relevantComponents, path));
                 }
             } else {
                 int inputCtn = 0;
@@ -177,6 +177,7 @@ public class EtherProcessorRecipeUtil {
                                      TreeLike<List<Integer>, List<ItemStack>> tree,
                                      List<Integer> inputIds,
                                      Set<EtherProcessWorkingChip> relevantComponents,
+                                     Set<Vector2i> path,
                                      List<Integer> processInputTrees,
                                      int x,
                                      int y,
@@ -192,6 +193,7 @@ public class EtherProcessorRecipeUtil {
             processInputTrees.add(id);
             return;
         }
+        path.add(new Vector2i(x, y));
         //check chips around;
         List<ItemStack> chips = new ArrayList<>();
         for (int i = 0; i < 4; i++) {
@@ -202,8 +204,9 @@ public class EtherProcessorRecipeUtil {
             }
             if (x2 >= 0 && x2 < markMatrix[0].length && y2 >= 0 && y2 < markMatrix.length) {
                 EtherProcessWorkingChip targetItem = scanMatrix[y2][x2];
-                if (!targetItem.item.isEmpty()) {
-                    chips.add(targetItem.item);
+                if (targetItem != null && !targetItem.item.isEmpty()) {
+                    if (!ProcessChipItem.isSeparator(targetItem.item))
+                        chips.add(targetItem.item);
                     relevantComponents.add(targetItem);
                 }
             }
@@ -225,13 +228,13 @@ public class EtherProcessorRecipeUtil {
             }
             if (x2 >= -1 && x2 < markMatrix[0].length && y2 >= 0 && y2 < markMatrix.length) {
                 if (x2 == -1 || markMatrix[y2][x2] == markId) {
-                    scanForTrees(scanMatrix, markMatrix, tree, inputIds, relevantComponents, processInputTrees, x2, y2, x, y, markId, parentId);
+                    scanForTrees(scanMatrix, markMatrix, tree, inputIds, relevantComponents, path, processInputTrees, x2, y2, x, y, markId, parentId);
                 }
             }
         }
     }
 
-    public static boolean isRecipeCompatible(TreeLike<Integer, List<SizedIngredient>> recipeProcess, List<SizedIngredient> recipeInputs, EtherFactoryRecipeInput input) {
+    public static boolean isRecipeCompatible(TreeLike<Integer, List<DelayedIngredient>> recipeProcess, List<SizedIngredient> recipeInputs, EtherFactoryRecipeInput input) {
         if (input.inputs.size() != recipeInputs.size()) return false;
 
         Queue<TreeLike.TreeNode<List<Integer>, List<ItemStack>>> queue = new LinkedList<>();
@@ -246,7 +249,7 @@ public class EtherProcessorRecipeUtil {
                 //2.1:获取当前实际位置向前传播的边（输入边）
                 for (TreeLike.TreeEdge<List<Integer>, List<ItemStack>> edge : node.edges) {
                     //2.2:获取当前虚拟位置向前传播的边（配方边）
-                    for (TreeLike.TreeEdge<Integer, List<SizedIngredient>> recipeEdge : recipeProcess.getEdge(id)) {
+                    for (TreeLike.TreeEdge<Integer, List<DelayedIngredient>> recipeEdge : recipeProcess.getEdge(id)) {
                         /*
                         此时，我们获取到了输入边可能是的一条配方边，此时对这种可能性进行验证。
                         * */
@@ -259,7 +262,7 @@ public class EtherProcessorRecipeUtil {
                             boolean currentCompat = true;
                             for (int i : indexes) {
                                 ItemStack itemStack = edge.value.get(i);
-                                if (!recipeEdge.value.get(i).test(itemStack)) {
+                                if (!recipeEdge.value.get(i).toIngredient().test(itemStack)) {
                                     currentCompat = false;
                                 }
                             }
@@ -320,6 +323,6 @@ public class EtherProcessorRecipeUtil {
                 }
             }
         }
-        return SetUtil.biPartiteGraphMatchGetResult(graph);
+        return SetUtil.biPartiteGraphMatchGetResult(graph, input.size(), input.size());
     }
 }

@@ -6,6 +6,7 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class ContainerOps {
@@ -35,8 +36,16 @@ public class ContainerOps {
                 .filter(itemStack1 -> !itemStack1.isEmpty())
                 .collect(Collectors.toCollection(NonNullList::create));
     }
-    static public ItemStack getFromResourceHandler(ResourceHandler<@org.jetbrains.annotations.NotNull ItemResource> resourceHandler, int index){
-        int amount = resourceHandler.getAmountAsInt(index);
-        return resourceHandler.getResource(index).toStack( amount);
+    static public NonNullList<ItemStack> containerToItemList(Container container) {
+        NonNullList<ItemStack> itemStack = NonNullList.create();
+        for (int i = 0; i < container.getContainerSize(); i++) {
+            itemStack.add(container.getItem(i));
+        }
+        return itemStack;
+    }
+    static public void fillContainerByItemList(Container container, List<ItemStack> itemStack) {
+        for (int i = 0; i < container.getContainerSize(); i++) {
+            container.setItem(i, itemStack.get(i));
+        }
     }
 }

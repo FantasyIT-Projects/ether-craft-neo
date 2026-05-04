@@ -1,0 +1,47 @@
+{
+  "type": "ether_craft:ether_process",
+  "input": [
+    {
+      "id": "I",
+      "item": "minecraft:raw_iron",
+      "next": "furnace"
+    }
+  ],
+  "process": [
+    {
+      "id": "furnace",
+      "next": "press1",
+      "item": [
+        {
+          "chip": "ether_craft:heating_chip"
+        }
+      ]
+    },
+    {
+      "id": "press1",
+      "next": "press2",
+      "item": [
+        {
+          "chip": "ether_craft:stamping_chip"
+        }
+      ]
+    },
+    {
+      "id": "press2",
+      "next": "O",
+      "item": [
+        {
+          "chip": "ether_craft:stamping_chip"
+        }
+      ]
+    }
+  ],
+  "output": {
+    "id": "O",
+    "item": [
+      {
+        "id": "minecraft:iron_ingot"
+      }
+    ]
+  }
+}

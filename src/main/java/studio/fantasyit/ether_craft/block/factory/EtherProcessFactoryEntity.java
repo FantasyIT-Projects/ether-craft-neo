@@ -15,26 +15,29 @@ import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import studio.fantasyit.ether_craft.block.base.BaseIOBlockEntity;
+import studio.fantasyit.ether_craft.block.base.BaseEtherContainerBlockEntity;
 import studio.fantasyit.ether_craft.block.base.EtherContainer;
+import studio.fantasyit.ether_craft.block.base.ITickable;
 import studio.fantasyit.ether_craft.menu.factory.EtherProcessFactoryContainerMenu;
 import studio.fantasyit.ether_craft.recipe.factory.EtherFactoryRecipeInput;
 import studio.fantasyit.ether_craft.recipe.factory.EtherProcessFactoryRecipe;
-import studio.fantasyit.ether_craft.register.ItemRegistry;
 import studio.fantasyit.ether_craft.register.RecipeTypeRegistry;
+import studio.fantasyit.ether_craft.register.Tags;
 import studio.fantasyit.ether_craft.util.EtherProcessorRecipeUtil;
 
+import java.util.Arrays;
 import java.util.Optional;
 
 import static studio.fantasyit.ether_craft.register.BlockEntityRegistry.ETHER_PROCESS_FACTORY_ENTITY;
 
-public class EtherProcessFactoryEntity extends BaseIOBlockEntity implements EtherContainer, MenuProvider {
+public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity implements EtherContainer, MenuProvider, ITickable {
     private static int ROWS = 9;
     private static int COLS = 9;
     public int[] processingProgress;
     public EtherProcessFactoryRecipe[] processingRecipes;
     public EtherFactoryRecipeInput[] processingInputs;
     public @Nullable EtherProcessWorkingChip[][] slotChips;
+    boolean markUpdate = false;
 
     public EtherProcessFactoryEntity(BlockPos worldPosition, BlockState blockState) {
         super(ETHER_PROCESS_FACTORY_ENTITY.get(), worldPosition, blockState, ROWS, COLS * ROWS, ROWS);
@@ -49,7 +52,7 @@ public class EtherProcessFactoryEntity extends BaseIOBlockEntity implements Ethe
     public void setChanged() {
         super.setChanged();
         if (level != null && !level.isClientSide())
-            updateRecipe((ServerLevel) level);
+            markUpdate = true;
     }
 
     int looperIndex = 0;
@@ -69,7 +72,7 @@ public class EtherProcessFactoryEntity extends BaseIOBlockEntity implements Ethe
                 long o = 0;
                 if (originalChip != null)
                     o = originalChip.ether;
-                if (itemStack.is(ItemRegistry.PROCESS_CHIP_ITEM))
+                if (itemStack.is(Tags.PROCESS_CHIP))
                     slotChips[i][j] = new EtherProcessWorkingChip(itemStack, o);
                 else if (!itemStack.isEmpty())
                     slotChips[i][j] = EtherProcessWorkingChip.DUMMY;
@@ -120,12 +123,13 @@ public class EtherProcessFactoryEntity extends BaseIOBlockEntity implements Ethe
         }
     }
 
+    @Override
     public void tickServer() {
         updateChips();
         boolean changed = false;
         for (int i = 0; i < this.processingRecipes.length; i++) {
             if (this.processingRecipes[i] != null) {
-                if (this.processingInputs[i].relevantComponent.stream().allMatch(item -> (!item.canWork()))) {
+                if (this.processingInputs[i].relevantChips.stream().allMatch(item -> (!item.canWork()))) {
                     processingProgress[i] = 0;
                 } else if (processingProgress[i] < 100) {
                     processingProgress[i]++;
@@ -134,8 +138,9 @@ public class EtherProcessFactoryEntity extends BaseIOBlockEntity implements Ethe
                     for (int j = 0; j < processingRecipes[i].output.size(); j++) {
                         ItemStack r = processingRecipes[i].getResultItem();
                         int oCnt = outputContainer.getItem(i).getCount();
+                        int nCnt = Math.min(oCnt + r.getCount(), r.getMaxStackSize());
                         if (outputContainer.canPlaceItem(i, r))
-                            outputContainer.setItem(i, r.copyWithCount(oCnt));
+                            outputContainer.setItem(i, r.copyWithCount(nCnt));
                     }
                     int[] matchingRecipes = EtherProcessorRecipeUtil.getToCostCountByInputAndIngredient(
                             processingInputs[i].inputs,
@@ -146,12 +151,20 @@ public class EtherProcessFactoryEntity extends BaseIOBlockEntity implements Ethe
                         inputContainer.getItem(processingInputs[i].inputIds.get(j)).shrink(cNum);
                         inputContainer.setChanged();
                     }
+
+                    for (EtherProcessWorkingChip c : processingInputs[i].relevantChips) {
+                        c.consume();
+                    }
                 }
                 changed = true;
             }
         }
         if (changed) {
             setChanged();
+        }
+        if (markUpdate) {
+            markUpdate = false;
+            updateRecipe((ServerLevel) level);
         }
     }
 
@@ -161,10 +174,12 @@ public class EtherProcessFactoryEntity extends BaseIOBlockEntity implements Ethe
             for (int i = 0; i < l.size(); i++)
                 processingProgress[i] = l.get(i);
         });
+        super.loadAdditional(input);
     }
 
     @Override
     protected void saveAdditional(ValueOutput output) {
+        output.store("progress", Codec.INT.listOf(), Arrays.stream(processingProgress).boxed().toList());
         super.saveAdditional(output);
     }
 

@@ -1,13 +1,14 @@
 package studio.fantasyit.ether_craft.recipe.factory;
 
-import net.minecraft.world.Container;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeInput;
 import org.jetbrains.annotations.NotNull;
+import org.joml.Vector2i;
 import studio.fantasyit.ether_craft.base.TreeLike;
 import studio.fantasyit.ether_craft.block.factory.EtherProcessWorkingChip;
-import studio.fantasyit.ether_craft.item.ProcessChipItem;
 
 import java.util.List;
 import java.util.Set;
@@ -24,20 +25,24 @@ public class EtherFactoryRecipeInput implements RecipeInput {
     //输出物品（在输出序列中的ID）
     public Integer outputId;
     //相关的组件
-    public Set<EtherProcessWorkingChip> relevantComponent;
+    public Set<EtherProcessWorkingChip> relevantChips;
+    //通路
+    public Set<Vector2i> workingPath;
 
     public EtherFactoryRecipeInput(List<ItemStack> inputs,
-                       TreeLike<List<Integer>, List<ItemStack>> process,
-                       List<Integer> inputIds,
-                       List<Integer> inputTreeIds,
-                       Integer outputId,
-                       Set<EtherProcessWorkingChip> relevantComponent) {
+                                   TreeLike<List<Integer>, List<ItemStack>> process,
+                                   List<Integer> inputIds,
+                                   List<Integer> inputTreeIds,
+                                   Integer outputId,
+                                   Set<EtherProcessWorkingChip> relevantChips,
+                                   Set<Vector2i> workingPath
+    ) {
         this.inputs = inputs;
         this.process = process;
         this.inputTreeIds = inputTreeIds;
         this.inputIds = inputIds;
         this.outputId = outputId;
-        this.relevantComponent = relevantComponent;
+        this.relevantChips = relevantChips;
     }
 
     @Override

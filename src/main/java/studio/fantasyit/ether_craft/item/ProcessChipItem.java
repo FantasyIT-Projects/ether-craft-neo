@@ -9,25 +9,32 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.TooltipDisplay;
+import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.block.factory.EtherProcessChipManager;
 import studio.fantasyit.ether_craft.register.DataComponentRegistry;
 import studio.fantasyit.ether_craft.register.ItemRegistry;
 
+import java.util.Objects;
 import java.util.function.Consumer;
 
 public class ProcessChipItem extends Item {
+    public static final Identifier SEPARATOR = EtherCraft.id("separator_chip");
+
     public ProcessChipItem(Identifier identifier) {
         super(new Properties().setId(ResourceKey.create(Registries.ITEM, identifier)));
     }
 
-    public static ItemStack getStackFor(Identifier id){
-        ItemStack stack = new ItemStack(ItemRegistry.PROCESS_CHIP_ITEM.get());
+    public static ItemStack getStackFor(Identifier id) {
+        ItemStack stack = ItemRegistry.PROCESS_CHIP_ITEM.get().getDefaultInstance().copy();
         stack.set(DataComponentRegistry.CHIP_ID, id);
         stack.set(DataComponents.ITEM_MODEL, Identifier.fromNamespaceAndPath(
                 id.getNamespace(),
                 id.getPath()
         ));
         return stack;
+    }
+    public static boolean isSeparator(ItemStack stack) {
+        return stack.is(ItemRegistry.PROCESS_CHIP_ITEM) && Objects.equals(stack.get(DataComponentRegistry.CHIP_ID), SEPARATOR);
     }
 
     @SuppressWarnings("deprecation")
@@ -36,7 +43,7 @@ public class ProcessChipItem extends Item {
         super.appendHoverText(itemStack, context, display, builder, tooltipFlag);
         Identifier id = itemStack.get(DataComponentRegistry.CHIP_ID);
         if (id == null) return;
-        String baseKey = "tooltip."+id.getNamespace()+"."+id.getPath();
+        String baseKey = "tooltip." + id.getNamespace() + "." + id.getPath();
         builder.accept(Component.translatable(baseKey));
 
         EtherProcessChipManager.ProcessChipRecord r = EtherProcessChipManager.get(id);

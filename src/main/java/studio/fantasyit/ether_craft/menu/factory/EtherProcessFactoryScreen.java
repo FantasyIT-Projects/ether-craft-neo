@@ -26,10 +26,10 @@ public class EtherProcessFactoryScreen extends AbstractContainerScreen<@NotNull 
 
         int y = 7;
         for (int i = 0; i < be.processingRecipes.length; i++) {
-            graphics.text(font, Component.literal(String.valueOf((be.processingProgress[i]))), 350, y, 0xffffff);
+            graphics.text(font, Component.literal(String.valueOf((be.processingProgress[i]))), getLeftPos() + 250,getTopPos() +  y, 0xffffffff);
             y += 18;
         }
-        graphics.text(font, Component.literal("Ether:" + be.getEther()), 100, 200, 0x000000);
+        graphics.text(font, Component.literal("Ether:" + be.getEther()), getLeftPos() + 5, getTopPos() + 200, 0xffffffff);
     }
 
     @Override

@@ -2,7 +2,6 @@ package studio.fantasyit.ether_craft.block.base;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.CompoundContainer;
-import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -13,42 +12,63 @@ import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.item.VanillaContainerWrapper;
+import net.neoforged.neoforge.transfer.transaction.SnapshotJournal;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import org.jetbrains.annotations.NotNull;
+import studio.fantasyit.ether_craft.register.ItemRegistry;
+import studio.fantasyit.ether_craft.util.ContainerOps;
 
-public class BaseIOBlockEntity extends BlockEntity implements ResourceHandler<@NotNull ItemResource> {
+public class BaseEtherContainerBlockEntity extends BlockEntity implements ResourceHandler<@NotNull ItemResource>, EtherContainer {
     public final SimpleContainer inputContainer;
     public final SimpleContainer internalContainer;
     public final SimpleContainer outputContainer;
+    public final EtherSlotContainer etherContainer;
     public final CompoundContainer container;
     public final ResourceHandler<@NotNull ItemResource> handler;
     public final int input;
     public final int internal;
     public final int output;
-    public BaseIOBlockEntity(BlockEntityType<?> type, BlockPos worldPosition, BlockState blockState,int input,int internal,int outputs) {
+    private final SnapshotJournal<@NotNull Long> etherJournal;
+
+    public BaseEtherContainerBlockEntity(BlockEntityType<?> type, BlockPos worldPosition, BlockState blockState, int input, int internal, int outputs) {
         super(type, worldPosition, blockState);
         this.input = input;
         this.internal = internal;
         this.output = outputs;
-        inputContainer = new SimpleContainer(input);
-        internalContainer = new SimpleContainer(internal);
-        outputContainer = new SimpleContainer(outputs);
+        inputContainer = new SimpleNotifyContainer(input, this);
+        internalContainer = new SimpleNotifyContainer(internal, this);
+        outputContainer = new SimpleNotifyContainer(outputs, this);
         container = new CompoundContainer(inputContainer, new CompoundContainer(internalContainer, outputContainer));
         handler = VanillaContainerWrapper.of(container);
+        etherContainer = new EtherSlotContainer(this);
+        etherJournal = new SnapshotJournal<Long>() {
+            @Override
+            protected Long createSnapshot() {
+                return getEther();
+            }
+
+            @Override
+            protected void revertToSnapshot(Long snapshot) {
+                setEther(snapshot);
+            }
+
+            @Override
+            protected void onRootCommit(Long originalState) {
+                if (originalState != getEther())
+                    syncClient();
+            }
+        };
     }
 
     @Override
     protected void loadAdditional(ValueInput input) {
-        inputContainer.fromItemList(input.listOrEmpty("all", ItemStack.OPTIONAL_CODEC));
-        internalContainer.fromItemList(input.listOrEmpty("all", ItemStack.OPTIONAL_CODEC));
-        outputContainer.fromItemList(input.listOrEmpty("all", ItemStack.OPTIONAL_CODEC));
+        input.read("content", ItemStack.OPTIONAL_CODEC.listOf()).ifPresent(l ->
+                ContainerOps.fillContainerByItemList(container, l));
     }
 
     @Override
     protected void saveAdditional(ValueOutput output) {
-        inputContainer.storeAsItemList(output.list("input",ItemStack.OPTIONAL_CODEC));
-        internalContainer.storeAsItemList(output.list("internal",ItemStack.OPTIONAL_CODEC));
-        outputContainer.storeAsItemList(output.list("output",ItemStack.OPTIONAL_CODEC));
+        output.store("content", ItemStack.OPTIONAL_CODEC.listOf(), ContainerOps.containerToItemList(container));
     }
 
     @Override
@@ -78,49 +98,19 @@ public class BaseIOBlockEntity extends BlockEntity implements ResourceHandler<@N
 
     @Override
     public int insert(int index, ItemResource resource, int amount, @NotNull TransactionContext transaction) {
+        if (resource.is(ItemRegistry.ETHER)) {
+            etherJournal.updateSnapshots(transaction);
+            receiveEtherNoUpdate(amount * 100L);
+            return amount;
+        }
         return handler.insert(resource, amount, transaction);
     }
 
     @Override
     public int extract(int index, ItemResource resource, int amount, @NotNull TransactionContext transaction) {
+        if (resource.is(ItemRegistry.ETHER)) {
+            return 0;
+        }
         return handler.extract(resource, amount, transaction);
     }
-
-    public enum SLOT_TYPE {
-        ETHER,
-        INPUT,
-        OUTPUT,
-        UNKNOWN
-    }
-    public interface CallWithSlot<T> {
-        T call(Container handler, int slot, SLOT_TYPE type);
-    }
-
-    public interface CallWithSlotV {
-        void call(Container handler, int slot, SLOT_TYPE type);
-    }
-    public  <T> T redirectSlot(int slot, CallWithSlot<T> callWithSlot) {
-        return redirectSlot(slot, callWithSlot, true);
-    }
-
-    public  <T> T redirectSlot(int slot, CallWithSlot<T> callWithSlot, boolean ignoreUnknown) {
-        if (slot < input) {
-            return callWithSlot.call(inputContainer, slot, SLOT_TYPE.INPUT);
-        } else if (slot < input + internal) {
-            return callWithSlot.call(internalContainer, slot - input, SLOT_TYPE.ETHER);
-        } else if (slot < input + internal + output) {
-            return callWithSlot.call(outputContainer, slot - input - internal, SLOT_TYPE.OUTPUT);
-        } else if (!ignoreUnknown) {
-            return callWithSlot.call(null, slot, SLOT_TYPE.UNKNOWN);
-        }
-        return null;
-    }
-
-    public void redirectSlotV(int slot, CallWithSlotV callWithSlot) {
-        redirectSlot(slot, (a, b, c) -> {
-            callWithSlot.call(a, b, c);
-            return false;
-        });
-    }
-
 }

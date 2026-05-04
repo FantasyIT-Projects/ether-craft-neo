@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
+import studio.fantasyit.ether_craft.register.DataComponentRegistry;
 
 public class EtherProcessWorkingChip {
     public static final EtherProcessWorkingChip DUMMY = new EtherProcessWorkingChip();
@@ -33,7 +34,7 @@ public class EtherProcessWorkingChip {
     public boolean destroyed = false;
 
     private EtherProcessWorkingChip() {
-        this(ItemStack.EMPTY, 0,0,0,0,0);
+        this(ItemStack.EMPTY, 0, 0, 1, 0, 0);
     }
 
     public EtherProcessWorkingChip(ItemStack item) {
@@ -41,13 +42,29 @@ public class EtherProcessWorkingChip {
     }
 
     public EtherProcessWorkingChip(ItemStack item, long beforeEther) {
-        //TODO 获取动态数据
-        this(item, beforeEther, 1, 1, 1, 1);
+        Identifier id = item.get(DataComponentRegistry.CHIP_ID);
+        EtherProcessChipManager.ProcessChipRecord r = null;
+        if (id != null)
+            r = EtherProcessChipManager.get(id);
+        this.item = item;
+        this.ether = beforeEther;
+        if (r == null) {
+            this.maxEther = 0;
+            this.etherDecay = 1;
+            this.etherRequire = 0;
+            this.etherConsume = 0;
+        } else {
+            this.maxEther = r.maxEther();
+            this.etherDecay = r.etherDecay();
+            this.etherRequire = r.etherRequire();
+            this.etherConsume = r.etherConsume();
+        }
+        init();
     }
 
     /**
      * @param item
-     * @param ether      当前以太存储量
+     * @param ether        当前以太存储量
      * @param maxEther     最大以太存储量
      * @param etherDecay   以太衰减周期（w）
      * @param etherRequire 加工以太需求（开始加工的以太需求量）
@@ -68,6 +85,7 @@ public class EtherProcessWorkingChip {
         decayCircle = new long[etherDecay];
         head = 0;
     }
+
     public void destory() {
         destroyed = true;
     }
@@ -128,8 +146,12 @@ public class EtherProcessWorkingChip {
         if (this.ether + added > this.maxEther) {
             added = this.maxEther - this.ether;
         }
+        if (added <= 0) {
+            return ether;
+        }
         this.ether += added;
-        this.decayCircle[(head + etherDecay - 1) % etherDecay] += added;
+        if (etherDecay != 0)
+            this.decayCircle[(head + etherDecay - 1) % etherDecay] += added;
         return ether - added;
     }
 }

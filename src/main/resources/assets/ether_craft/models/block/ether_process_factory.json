@@ -1,6 +1,0 @@
-{
-	"parent": "block/cube_all",
-	"textures": {
-		"all": "ether_craft:block/ether_process_factory_block_c"
-	}
-}

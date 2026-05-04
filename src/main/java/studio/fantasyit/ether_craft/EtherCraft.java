@@ -47,6 +47,7 @@ public class EtherCraft
         GuiRegistry.init(modEventBus);
         ItemRegistry.register(modEventBus);
         RecipeTypeRegistry.register(modEventBus);
+        RecipeSerializerRegistry.register(modEventBus);
         CreativeTabRegistry.register(modEventBus);
         DataComponentRegistry.register(modEventBus);
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);

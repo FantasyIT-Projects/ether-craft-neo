@@ -26,18 +26,30 @@ public interface EtherContainer {
 
     default void setEther(long amount) {
         long o = getEther();
-        be().setData(BlockAttachmentDataRegistry.ETHER_CONTAINER, amount);
-        if(o != amount)
+        setEtherNoUpdate(amount);
+        if (o != amount)
             syncClient();
+    }
+    default void setEtherNoUpdate(long amount) {
+        be().setData(BlockAttachmentDataRegistry.ETHER_CONTAINER, amount);
     }
 
     default void receiveEther(long amount) {
         setEther(getEther() + amount);
     }
 
+    default void receiveEtherNoUpdate(long amount) {
+        setEtherNoUpdate(getEther() + amount);
+    }
+
     default long extractEther(long amount) {
         long extracted = Math.min(getEther(), amount);
         setEther(getEther() - extracted);
+        return extracted;
+    }
+    default long extractEtherNoUpdate(long amount) {
+        long extracted = Math.min(getEther(), amount);
+        setEtherNoUpdate(getEther() - extracted);
         return extracted;
     }
 
