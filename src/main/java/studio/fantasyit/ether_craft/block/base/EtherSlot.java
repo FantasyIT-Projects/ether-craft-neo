@@ -11,6 +11,6 @@ public class EtherSlot extends Slot {
 
     @Override
     public boolean mayPlace(ItemStack itemStack) {
-        return itemStack.is(ItemRegistry.ETHER);
+        return itemStack.is(ItemRegistry.ETHER) || itemStack.is(ItemRegistry.ETHER_CREATIVE);
     }
 }

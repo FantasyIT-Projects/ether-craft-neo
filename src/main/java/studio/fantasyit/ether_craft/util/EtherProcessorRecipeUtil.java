@@ -68,9 +68,9 @@ public class EtherProcessorRecipeUtil {
         for (int i = 0; i < rows; i++) {
 
             //从最后一行（即输出位置）的每一个输出格开始寻找可能的树结构
+            boolean illegal = false;
             if (markTreeArea(markMatrix, cols - 1, i, -1, -1, i + 1)) {
                 //标记了多个输出格的通路也是不合法的
-                boolean illegal = false;
                 for (int j = 0; j < rows; j++) {
                     if (j != i && markMatrix[j][cols - 1] == i + 1) {
                         illegal = true;
@@ -98,12 +98,16 @@ public class EtherProcessorRecipeUtil {
                     result.recipes.add(new EtherFactoryRecipeInput(inputStacks, tree, inputIds, processInputTrees, i, relevantComponents, path));
                 }
             } else {
+                illegal = true;
+            }
+            if (illegal) {
                 int inputCtn = 0;
                 int outputCtn = 0;
                 for (int j = 0; j < rows; j++) {
-                    if (markMatrix[j][0] == 0) {
+                    if (markMatrix[j][0] == i + 1) {
                         inputCtn++;
-                    } else if (markMatrix[j][cols - 1] == 0) {
+                    }
+                    if (markMatrix[j][cols - 1] == i + 1) {
                         outputCtn++;
                     }
                 }

@@ -13,9 +13,9 @@ import java.util.concurrent.CompletableFuture;
 
 import static studio.fantasyit.ether_craft.register.Tags.PROCESS_CHIP;
 
-public class TagGen extends TagsProvider<Item> {
+public class TagGenItem extends TagsProvider<Item> {
 
-    protected TagGen(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider) {
+    protected TagGenItem(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider) {
         super(output, Registries.ITEM, lookupProvider, EtherCraft.MODID);
     }
 

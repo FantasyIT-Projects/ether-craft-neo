@@ -12,6 +12,7 @@ public class GenerateGatherEvent {
     public static void gatherData(GatherDataEvent.Client event) {
         ResourceManager rm = event.getResourceManager(PackType.SERVER_DATA);
         event.createProvider((a) -> new ModelDataGen(a, rm));
-        event.createProvider(TagGen::new);
+        event.createProvider(TagGenItem::new);
+        event.createProvider(TagGenBlock::new);
     }
 }

@@ -5,6 +5,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.MenuProvider;
+import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -35,11 +36,14 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
     public static int ROWS = 9;
     public static int COLS = 9;
     public int[] processingProgress;
+    public SimpleContainer possibleResults = new SimpleContainer(ROWS);
     public EtherProcessFactoryRecipe[] processingRecipes;
     public EtherFactoryRecipeInput[] processingInputs;
     public @Nullable EtherProcessWorkingChip[][] slotChips;
     public int[][] pathBelongings;
     public int[][] currentEther;
+    public int pressureBonus = 1;
+    public int leak = 0;
     boolean markUpdate = false;
 
     public EtherProcessFactoryEntity(BlockPos worldPosition, BlockState blockState) {
@@ -86,22 +90,53 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
             }
         }
         //向所有的以太消耗组件填充以太（填充机制：轮询优先填满）
-        for (int i = 0; i < COLS * ROWS; ++i) {
-            int idx = looperIndex;
-            looperIndex = (looperIndex + 1) % (COLS * ROWS);
-            int row = idx / COLS;
-            int col = idx % COLS;
-            if (slotChips[row][col] == null)
-                continue;
-            slotChips[row][col].tick();
-            etherCap.setEther(slotChips[row][col].addEther(etherCap.getEther()));
-            currentEther[row][col] = Math.toIntExact(Math.min(slotChips[row][col].ether, Integer.MAX_VALUE));
 
+        for (int k = 0; k < pressureBonus; k++) {
+            for (int i = 0; i < COLS * ROWS; ++i) {
+                if (getEther() == 0)
+                    break;
+                int idx = looperIndex;
+                looperIndex = (looperIndex + 1) % (COLS * ROWS);
+                int row = idx / COLS;
+                int col = idx % COLS;
+                if (slotChips[row][col] == null)
+                    continue;
+                etherCap.setEther(slotChips[row][col].addEther(etherCap.getEther()));
+            }
+            for (int i = 0; i < ROWS; i++) {
+                for (int j = 0; j < COLS; j++) {
+                    if (slotChips[i][j] == null)
+                        continue;
+                    slotChips[i][j].tick();
+                }
+            }
+        }
+        long totalCapacity = 0;
+        for (int i = 0; i < ROWS; i++) {
+            for (int j = 0; j < COLS; j++) {
+                if (slotChips[i][j] == null)
+                    continue;
+                totalCapacity += slotChips[i][j].maxEther;
+                currentEther[i][j] = Math.toIntExact(Math.min(slotChips[i][j].ether, Integer.MAX_VALUE));
+            }
+        }
+        if (totalCapacity > 0) {
+            long remaining = getEther() - totalCapacity;
+
+            long remainingMultiplier = remaining / totalCapacity / 10;
+            if (remainingMultiplier > 0) {
+                pressureBonus = (int) (Math.log(remainingMultiplier + 1) / Math.log(2.0));
+            } else {
+                pressureBonus = 1;
+            }
+        } else {
+            pressureBonus = 1;
         }
     }
 
     public void updateRecipe(ServerLevel level) {
         EtherProcessorRecipeUtil.FactoryStructure factoryStructure = EtherProcessorRecipeUtil.processFactoryInput(9, 9, inputContainer, slotChips);
+        leak = factoryStructure.leakingSpeed;
         boolean[] hasRecipe = new boolean[ROWS];
         for (int i = 0; i < factoryStructure.recipes.size(); i++) {
             Optional<RecipeHolder<@NotNull EtherProcessFactoryRecipe>> recipeFor = level.recipeAccess().getRecipeFor(RecipeTypeRegistry.ETHER_PROCESS_FACTORY_RECIPE.get(),
@@ -117,6 +152,7 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
                 processingRecipes[outputId] = currentRecipe;
                 processingProgress[outputId] = 0;
                 processingInputs[outputId] = factoryStructure.recipes.get(i);
+                possibleResults.setItem(outputId,currentRecipe.getResultItem());
             } else {
                 hasRecipe[outputId] = false;
             }
@@ -126,6 +162,7 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
                 processingRecipes[i] = null;
                 processingProgress[i] = 0;
                 processingInputs[i] = null;
+                possibleResults.setItem(i, ItemStack.EMPTY);
             }
         }
 
@@ -149,9 +186,11 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
                 if (this.processingInputs[i].relevantChips.stream().anyMatch(item -> (!item.canWork()))) {
                     processingProgress[i] = 0;
                 } else if (processingProgress[i] < MAX_PROGRESS) {
-                    processingProgress[i]++;
+                    processingProgress[i] += pressureBonus;
                 } else {
                     processingProgress[i] = 0;
+                    if (!processingInputs[i].relevantChips.stream().allMatch(EtherProcessWorkingChip::canConsume))
+                        continue;
                     for (int j = 0; j < processingRecipes[i].output.size(); j++) {
                         ItemStack r = processingRecipes[i].getResultItem();
                         int oCnt = outputContainer.getItem(i).getCount();
@@ -182,6 +221,9 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
         if (markUpdate) {
             markUpdate = false;
             updateRecipe((ServerLevel) level);
+        }
+        if (leak > 0) {
+            extractEther(leak * 20L * pressureBonus);
         }
     }
 

@@ -1,5 +1,6 @@
 package studio.fantasyit.ether_craft.menu.base;
 
+import com.mojang.datafixers.util.Function4;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;
@@ -51,12 +52,12 @@ public abstract class BaseContainerMenu extends AbstractContainerMenu {
      * @param playerInventory 玩家背包
      */
     protected void addPlayerSlots(Inventory playerInventory) {
-        addSlotArea(playerInventory, 9, 10, 70, 9, 18, 3, 18);
-        addSlotArea(playerInventory, 0, 10, 70 + 58, 9, 18, 1, 18);
+        addSlotArea(playerInventory, 9, 10, 70, 9, 18, 3, 18,SlotSupplier.of(Slot::new));
+        addSlotArea(playerInventory, 0, 10, 70 + 58, 9, 18, 1, 18, SlotSupplier.of(Slot::new));
     }
 
-    protected int addSlotArea(Container container, int startIdx, int x, int y, int slotPreRow, int dx, int slotPreCol, int dy) {
-        return addSlotArea(container, startIdx, x, y, slotPreRow, dx, slotPreCol, dy, null);
+    protected int addSlotArea(Container container, int startIdx, int x, int y, int slotPreRow, int dx, int slotPreCol, int dy, SlotSupplier slotSupplier) {
+        return addSlotArea(container, startIdx, x, y, slotPreRow, dx, slotPreCol, dy, slotSupplier, null);
     }
 
     /**
@@ -72,7 +73,7 @@ public abstract class BaseContainerMenu extends AbstractContainerMenu {
      * @param dy         纵向格子间隔
      * @return 成功添加的个数
      */
-    protected int addSlotArea(Container container, int startIdx, int x, int y, int slotPreRow, int dx, int slotPreCol, int dy, @Nullable TriConsumer<Slot, Integer, Integer> slotConsumer) {
+    protected int addSlotArea(Container container, int startIdx, int x, int y, int slotPreRow, int dx, int slotPreCol, int dy, SlotSupplier slotSupplier, @Nullable TriConsumer<Slot, Integer, Integer> slotConsumer) {
         int added = 0;
         int index = startIdx;
         int totalSlots = container.getContainerSize();
@@ -80,7 +81,7 @@ public abstract class BaseContainerMenu extends AbstractContainerMenu {
 
         for (int j = 0; j < slotPreCol && index < totalSlots; j++) {
             for (int i = 0; i < slotPreRow && index < totalSlots; i++) {
-                Slot slot = addSlot(new Slot(container, index, x, y));
+                Slot slot = addSlot(slotSupplier.get(container, index, x, y, i, j));
                 if (slotConsumer != null) {
                     slotConsumer.accept(slot, i, j);
                 }
@@ -107,14 +108,8 @@ public abstract class BaseContainerMenu extends AbstractContainerMenu {
                 if (!this.moveItemStackTo(stack, slotCnt, Inventory.INVENTORY_SIZE + slotCnt, true)) {
                     return ItemStack.EMPTY;
                 }
-            } else if (!this.moveItemStackTo(stack, inputSlots, inputSlots + 1, false)) {
-                if (index < 27 + slotCnt) {
-                    if (!this.moveItemStackTo(stack, 27 + slotCnt, 36 + slotCnt, false)) {
-                        return ItemStack.EMPTY;
-                    }
-                } else if (index < Inventory.INVENTORY_SIZE + slotCnt && !this.moveItemStackTo(stack, slotCnt, 27 + slotCnt, false)) {
-                    return ItemStack.EMPTY;
-                }
+            } else if (!this.moveItemStackTo(stack, 0, inputSlots, false)) {
+                return ItemStack.EMPTY;
             }
 
             if (stack.isEmpty()) {
@@ -135,5 +130,13 @@ public abstract class BaseContainerMenu extends AbstractContainerMenu {
     @Override
     public boolean stillValid(Player p_38874_) {
         return true;
+    }
+
+    public interface SlotSupplier {
+        Slot get(Container container, int index, int x, int y, int i, int j);
+
+        static SlotSupplier of(Function4<Container, Integer, Integer, Integer, Slot> slotSupplier) {
+            return (container, index, x, y, i, j) -> slotSupplier.apply(container, index, x, y);
+        }
     }
 }

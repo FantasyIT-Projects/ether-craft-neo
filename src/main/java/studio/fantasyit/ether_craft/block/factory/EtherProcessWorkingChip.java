@@ -47,7 +47,6 @@ public class EtherProcessWorkingChip {
         if (id != null)
             r = EtherProcessChipManager.get(id);
         this.item = item;
-        this.ether = beforeEther;
         if (r == null) {
             this.maxEther = 0;
             this.etherDecay = 1;
@@ -60,6 +59,7 @@ public class EtherProcessWorkingChip {
             this.etherConsume = r.etherConsume();
         }
         init();
+        this.addEther(beforeEther);
     }
 
     /**
@@ -118,7 +118,7 @@ public class EtherProcessWorkingChip {
     public boolean consume() {
         if (canWork()) {
             long restToConsume = etherConsume;
-            for (int i = 0; i < etherDecay; i++) {
+            for (int i = etherDecay - 1; i >= 0; i--) {
                 long toCost = Math.min(restToConsume, decayCircle[(i + head) % etherDecay]);
                 decayCircle[(i + head) % etherDecay] -= toCost;
                 restToConsume -= toCost;
@@ -126,7 +126,7 @@ public class EtherProcessWorkingChip {
                     break;
                 }
             }
-            ether -= etherRequire;
+            ether -= etherConsume - restToConsume;
             return true;
         }
         return false;
@@ -146,6 +146,8 @@ public class EtherProcessWorkingChip {
         if (this.ether + added > this.maxEther) {
             added = this.maxEther - this.ether;
         }
+        if (added > this.maxEther * 2 / etherDecay)
+            added = this.maxEther * 2 / etherDecay;
         if (added <= 0) {
             return ether;
         }
@@ -153,5 +155,9 @@ public class EtherProcessWorkingChip {
         if (etherDecay != 0)
             this.decayCircle[(head + etherDecay - 1) % etherDecay] += added;
         return ether - added;
+    }
+
+    public boolean canConsume() {
+        return !destroyed && ether >= etherConsume;
     }
 }

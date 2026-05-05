@@ -50,6 +50,8 @@ public class EtherCraft
         RecipeSerializerRegistry.register(modEventBus);
         CreativeTabRegistry.register(modEventBus);
         DataComponentRegistry.register(modEventBus);
+        EntityRegistry.register(modEventBus);
+        ParticleRegistry.register(modEventBus);
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
     }
     public static Identifier id(String path){

@@ -3,6 +3,8 @@ package studio.fantasyit.ether_craft.block.base;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import studio.fantasyit.ether_craft.Config;
+import studio.fantasyit.ether_craft.register.ItemRegistry;
 
 public class EtherSlotContainer implements Container {
     private EtherContainer etherContainer;
@@ -36,7 +38,10 @@ public class EtherSlotContainer implements Container {
 
     @Override
     public void setItem(int i, ItemStack itemStack) {
-        etherContainer.receiveEther(itemStack.getCount());
+        if(itemStack.is(ItemRegistry.ETHER_CREATIVE)){
+            etherContainer.setEtherNoUpdate(Integer.MAX_VALUE);
+        }
+        etherContainer.receiveEther((long) itemStack.getCount() * Config.etherConvert);
     }
 
     @Override

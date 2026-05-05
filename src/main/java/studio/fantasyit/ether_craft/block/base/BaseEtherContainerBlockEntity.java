@@ -15,6 +15,7 @@ import net.neoforged.neoforge.transfer.item.VanillaContainerWrapper;
 import net.neoforged.neoforge.transfer.transaction.SnapshotJournal;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import org.jetbrains.annotations.NotNull;
+import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.register.ItemRegistry;
 import studio.fantasyit.ether_craft.util.ContainerOps;
 
@@ -29,12 +30,18 @@ public class BaseEtherContainerBlockEntity extends BlockEntity implements Resour
     public final int internal;
     public final int output;
     private final SnapshotJournal<@NotNull Long> etherJournal;
+    private final boolean extractableInput;
 
     public BaseEtherContainerBlockEntity(BlockEntityType<?> type, BlockPos worldPosition, BlockState blockState, int input, int internal, int outputs) {
+        this(type, worldPosition, blockState, input, internal, outputs, false);
+    }
+
+    public BaseEtherContainerBlockEntity(BlockEntityType<?> type, BlockPos worldPosition, BlockState blockState, int input, int internal, int outputs, boolean extractableInput) {
         super(type, worldPosition, blockState);
         this.input = input;
         this.internal = internal;
         this.output = outputs;
+        this.extractableInput = extractableInput;
         inputContainer = new SimpleNotifyContainer(input, this);
         internalContainer = new SimpleNotifyContainer(internal, this);
         outputContainer = new SimpleNotifyContainer(outputs, this);
@@ -100,9 +107,11 @@ public class BaseEtherContainerBlockEntity extends BlockEntity implements Resour
     public int insert(int index, ItemResource resource, int amount, @NotNull TransactionContext transaction) {
         if (resource.is(ItemRegistry.ETHER)) {
             etherJournal.updateSnapshots(transaction);
-            receiveEtherNoUpdate(amount * 1000L);
+            receiveEtherNoUpdate((long) amount * Config.etherConvert);
             return amount;
         }
+        if (index >= input)
+            return 0;
         return handler.insert(resource, amount, transaction);
     }
 
@@ -111,6 +120,10 @@ public class BaseEtherContainerBlockEntity extends BlockEntity implements Resour
         if (resource.is(ItemRegistry.ETHER)) {
             return 0;
         }
+        if (index < input && !extractableInput)
+            return 0;
+        if (index >= input && index < input + internal)
+            return 0;
         return handler.extract(resource, amount, transaction);
     }
 }

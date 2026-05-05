@@ -21,11 +21,13 @@ public class ItemRegistry {
     }
 
     public static final DeferredHolder<Item, @NotNull Item> ETHER = ITEMS.register("ether", i -> new Item(new Item.Properties().stacksTo(99).setId(ResourceKey.create(Registries.ITEM, i))));
+    public static final DeferredHolder<Item, @NotNull Item> ETHER_CREATIVE = ITEMS.register("ether_creative", i -> new Item(new Item.Properties().stacksTo(99).setId(ResourceKey.create(Registries.ITEM, i))));
     public static final DeferredHolder<Item, @NotNull ProcessChipItem> PROCESS_CHIP_ITEM = ITEMS.register("process_chip", ProcessChipItem::new);
     public static final DeferredHolder<Item, @NotNull ProcessChipItem> DIRECT_INPUT_ITEM_CHIP = ITEMS.register("direct_input", ProcessChipItem::new);
 
-
+    public static final DeferredHolder<Item, @NotNull Item> WRENCH = ITEMS.register("wrench", i -> new Item(new Item.Properties().stacksTo(1).setId(ResourceKey.create(Registries.ITEM, i))));
     public static final DeferredHolder<Item, @NotNull Item> ETHER_PROCESS_FACTORY_ITEM = block(BlockRegistry.ETHER_PROCESS_FACTORY);
+    public static final DeferredHolder<Item, @NotNull Item> ETHER_STREAM_EMITTER_ITEM = block(BlockRegistry.ETHER_STREAM_EMITTER);
 
     public static void register(IEventBus modbus) {
         ITEMS.register(modbus);

@@ -16,16 +16,16 @@ public class CreativeTabRegistry {
     public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, EtherCraft.MODID);
     public static final DeferredHolder<CreativeModeTab, @org.jetbrains.annotations.NotNull CreativeModeTab> CRAFT_TAB =
             CREATIVE_MODE_TABS.register("ether_craft_main", () ->
-                    CreativeModeTab.builder().icon(() -> new ItemStack(ItemRegistry.PROCESS_CHIP_ITEM.get()))
+                    CreativeModeTab.builder().icon(() -> new ItemStack(ItemRegistry.ETHER.get()))
                             .title(Component.translatable(TAB_NAME))
                             .displayItems((pParameter, pOutput) -> {
                                 ItemRegistry.ITEMS
                                         .getEntries()
                                         .stream()
                                         .map(DeferredHolder::get)
-                                        .filter(item->!ItemStack.isSameItem(item.getDefaultInstance(), ItemRegistry.DIRECT_INPUT_ITEM_CHIP.get().getDefaultInstance()))
+                                        .filter(item -> !(item instanceof ProcessChipItem))
                                         .forEach(pOutput::accept);
-                                EtherProcessChipManager.foreach((id,r)->{
+                                EtherProcessChipManager.foreach((id, r) -> {
                                     pOutput.accept(ProcessChipItem.getStackFor(id));
                                 });
                             })

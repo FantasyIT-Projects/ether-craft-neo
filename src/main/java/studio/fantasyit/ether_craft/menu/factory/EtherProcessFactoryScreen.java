@@ -30,13 +30,9 @@ public class EtherProcessFactoryScreen extends AbstractContainerScreen<@NotNull 
     @Override
     public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
         super.extractRenderState(graphics, mouseX, mouseY, a);
-
-        int y = 7;
-        for (int i = 0; i < be.processingRecipes.length; i++) {
-            graphics.text(font, Component.literal(String.valueOf((be.processingProgress[i]))), getLeftPos() + 250, getTopPos() + y, 0xffffffff);
-            y += 18;
-        }
         graphics.text(font, Component.literal("Ether:" + be.getEther()), getLeftPos() + 5, getTopPos() + 200, 0xffffffff);
+        graphics.text(font, Component.literal("Spd:" + be.pressureBonus), getLeftPos() + 5, getTopPos() + 220, 0xffffffff);
+        graphics.text(font, Component.literal("Leak:" + be.leak), getLeftPos() + 5, getTopPos() + 240, 0xffffffff);
 
         for (int i = 0; i < EtherProcessFactoryEntity.ROWS; i++) {
             for (int j = 0; j < EtherProcessFactoryEntity.COLS; j++) {
@@ -44,16 +40,19 @@ public class EtherProcessFactoryScreen extends AbstractContainerScreen<@NotNull 
                 EtherProcessChipManager.ProcessChipRecord r = EtherProcessChipManager.get(chipItem);
                 if (r == null) continue;
                 int ether = be.currentEther[i][j];
-                int color = 0xfff57f17; //RGB#f57f17
-                if (ether >= r.etherRequire())
-                    color = 0xfffdd835; //RGB#fdd835
+                int color = 0xff26c6da; //RGB#f57f17
                 if (ether >= r.maxEther() - r.etherConsume() * 2)
                     color = 0xff81c784; //RGB#81c784
+                if (ether < r.etherConsume())
+                    color = 0xffe65100;
+                if (ether < r.etherRequire())
+                    color = 0xffff3d00;
+
                 graphics.fill(
                         getLeftPos() + 38 + j * 18 + 2,
                         getTopPos() + 6 + i * 18 + 2,
-                        getLeftPos() + 38 + j * 18 + 4,
-                        getTopPos() + 6 + i * 18 + 4,
+                        getLeftPos() + 38 + j * 18 + 5,
+                        getTopPos() + 6 + i * 18 + 5,
                         color
                 );
             }
@@ -82,6 +81,11 @@ public class EtherProcessFactoryScreen extends AbstractContainerScreen<@NotNull 
                 }
             }
         }
+        for (int i = 0; i < be.processingRecipes.length; i++) {
+            ItemStack it = be.possibleResults.getItem(i);
+            if (it.isEmpty()) continue;
+            graphics.fakeItem(it, getLeftPos() + 224, getTopPos() + 6 + i * 18);
+        }
     }
 
     @Override
@@ -91,7 +95,7 @@ public class EtherProcessFactoryScreen extends AbstractContainerScreen<@NotNull 
                 Vector2i v = menu.internalSlotMapping.get(hoveredSlot.index);
                 ItemStack item = this.hoveredSlot.getItem();
                 List<Component> oTooltip = this.getTooltipFromContainerItem(item);
-                oTooltip.add(Component.translatable("tooltip.ether_craft.process_chip_ether", be.currentEther[v.x][v.y]).withStyle(ChatFormatting.BOLD));
+                oTooltip.add(Component.translatable("tooltip.ether_craft.process_chip_ether", be.currentEther[v.y][v.x]).withStyle(ChatFormatting.BOLD));
                 graphics.setTooltipForNextFrame(this.font, oTooltip, item.getTooltipImage(), item, mouseX, mouseY, item.get(DataComponents.TOOLTIP_STYLE));
                 return;
             }

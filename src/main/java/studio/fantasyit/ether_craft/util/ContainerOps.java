@@ -5,37 +5,28 @@ import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class ContainerOps {
-    static public NonNullList<ItemStack> tryPlaceItemToContainer(NonNullList<ItemStack> itemStack,Container container) {
-        return itemStack.stream()
-                .filter(itemStack1 -> !itemStack1.isEmpty())
-                .map(itemStack1 -> {
-                    for (int i = 0; i < container.getContainerSize(); i++) {
-                        if (container.canPlaceItem(i, itemStack1)) {
-                            ItemStack originalItemStack = container.getItem(i);
-                            if (originalItemStack.isEmpty()) {
-                                container.setItem(i, itemStack1);
-                                return ItemStack.EMPTY;
-                            } else if (originalItemStack.is(itemStack1.getItem())) {
-                                int count = itemStack1.getCount();
-                                if (count + originalItemStack.getCount() > originalItemStack.getMaxStackSize()) {
-                                    count = originalItemStack.getMaxStackSize() - originalItemStack.getCount();
-                                }
-                                originalItemStack.grow(count);
-                                itemStack1.shrink(count);
-                                return itemStack1;
-                            }
-                        }
+    static public void tryPlaceToItemHandler(Container container, ResourceHandler<@NotNull ItemResource> target) {
+        try (var transaction = Transaction.openRoot()) {
+            for (int i = 0; i < container.getContainerSize(); i++) {
+                var itemStack = container.getItem(i);
+                if (!itemStack.isEmpty()) {
+                    var itemResource = ItemResource.of(itemStack);
+                    var amount = target.insert(itemResource, itemStack.getCount(), transaction);
+                    if (amount > 0) {
+                        container.setItem(i, itemStack.copyWithCount(itemStack.getCount() - amount));
                     }
-                    return itemStack1;
-                })
-                .filter(itemStack1 -> !itemStack1.isEmpty())
-                .collect(Collectors.toCollection(NonNullList::create));
+                }
+            }
+            transaction.commit();
+        }
     }
+
     static public NonNullList<ItemStack> containerToItemList(Container container) {
         NonNullList<ItemStack> itemStack = NonNullList.create();
         for (int i = 0; i < container.getContainerSize(); i++) {
@@ -43,6 +34,7 @@ public class ContainerOps {
         }
         return itemStack;
     }
+
     static public void fillContainerByItemList(Container container, List<ItemStack> itemStack) {
         for (int i = 0; i < container.getContainerSize(); i++) {
             container.setItem(i, itemStack.get(i));

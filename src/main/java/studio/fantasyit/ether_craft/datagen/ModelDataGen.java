@@ -3,13 +3,18 @@ package studio.fantasyit.ether_craft.datagen;
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.ItemModelGenerators;
 import net.minecraft.client.data.models.ModelProvider;
+import net.minecraft.client.data.models.blockstates.MultiVariantGenerator;
+import net.minecraft.client.data.models.blockstates.PropertyDispatch;
 import net.minecraft.client.data.models.model.*;
+import net.minecraft.client.renderer.block.dispatch.Variant;
 import net.minecraft.client.renderer.item.ClientItem;
 import net.minecraft.client.resources.model.sprite.Material;
+import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.register.BlockRegistry;
 import studio.fantasyit.ether_craft.register.ItemRegistry;
@@ -48,6 +53,8 @@ public class ModelDataGen extends ModelProvider {
         itemModels.generateFlatItem(ItemRegistry.PROCESS_CHIP_ITEM.get(), ITEM_SIMPLE);
         itemModels.generateFlatItem(ItemRegistry.DIRECT_INPUT_ITEM_CHIP.get(), ITEM_SIMPLE);
         itemModels.generateFlatItem(ItemRegistry.ETHER.get(), ITEM_SIMPLE);
+        itemModels.generateFlatItem(ItemRegistry.ETHER_CREATIVE.get(), ITEM_SIMPLE);
+        itemModels.generateFlatItem(ItemRegistry.WRENCH.get(), ITEM_SIMPLE);
         rm.listResources("ether_process_chip", t -> t.getPath().endsWith(".json")).forEach((_id, resource) -> {
             String path = _id.getPath();
             Identifier id = Identifier.fromNamespaceAndPath(
@@ -58,7 +65,27 @@ public class ModelDataGen extends ModelProvider {
             itemModels.itemModelOutput.register(id, new ClientItem(ItemModelUtils.plainModel(identifier), new ClientItem.Properties(false, false, 1)));
         });
 
+        //加工中心
         blockModels.createTrivialBlock(
                 BlockRegistry.ETHER_PROCESS_FACTORY.get(), BLOCK_FACES_PROVIDER);
+
+
+        //发射器
+        Identifier modelLoc = BLOCK_FACES_PROVIDER.create(BlockRegistry.ETHER_STREAM_EMITTER.get(), blockModels.modelOutput);
+        Variant variant = new Variant(modelLoc);
+        blockModels.blockStateOutput.accept(
+                MultiVariantGenerator.dispatch(
+                        BlockRegistry.ETHER_STREAM_EMITTER.get(),
+                        BlockModelGenerators.variant(variant)
+                ).with(
+                        PropertyDispatch.modify(BlockStateProperties.FACING)
+                                .select(Direction.NORTH, BlockModelGenerators.NOP)
+                                .select(Direction.SOUTH, BlockModelGenerators.Y_ROT_180)
+                                .select(Direction.WEST, BlockModelGenerators.Y_ROT_270)
+                                .select(Direction.EAST, BlockModelGenerators.Y_ROT_90)
+                                .select(Direction.UP, BlockModelGenerators.X_ROT_270)
+                                .select(Direction.DOWN, BlockModelGenerators.X_ROT_90)
+                )
+        );
     }
 }
