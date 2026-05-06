@@ -64,12 +64,21 @@ const Recipe = {
         const inputIds = recipeData.inputIds;
         const inputTreeIds = recipeData.inputTreeIds || [];
 
+        // Build tree node → {x,y} position map from process nodes
+        const nodePos = new Map();
+        for (const pn of recipeData.processNodes || []) {
+            if (pn.treeNodeId != null && pn.x != null) {
+                nodePos.set(pn.treeNodeId, { x: pn.x, y: pn.y });
+            }
+        }
+
         const nodePid = new Map();
         const processList = [];
         const inputList = [];
+        const processPositions = [];   // [{pid, x, y}]
         let pc = 0;
 
-        const self = this;   // capture Recipe reference for nested walk()
+        const self = this;
 
         function walk(nodeId) {
             const edges = tree.getEdges(nodeId);
@@ -79,7 +88,6 @@ const Recipe = {
 
                 if (isDirect) {
                     if (nodeId === 0) {
-                        // Root → Node1: skip
                     } else {
                         const idx = inputTreeIds.indexOf(childId);
                         if (idx >= 0) {
@@ -100,6 +108,8 @@ const Recipe = {
                         item: self.formatChips(edge.value),
                         next: nodePid.get(nodeId) || 'O',
                     });
+                    const pos = nodePos.get(childId);
+                    if (pos) processPositions.push({ pid, x: pos.x, y: pos.y });
                 }
 
                 walk(childId);
@@ -108,7 +118,9 @@ const Recipe = {
 
         walk(0);
 
-        // Reverse process entries so they read input→output (cosmetic, matches blade.json style)
+        // Store positions on recipeData so Grid.render can overlay labels
+        recipeData.processPositions = processPositions;
+
         processList.reverse();
 
         return {

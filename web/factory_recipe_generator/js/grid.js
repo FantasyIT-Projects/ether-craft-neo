@@ -54,6 +54,19 @@ const Grid = {
                     }
                 }
 
+                // Process node PID label on path cells
+                if (S.detectedRecipe && S.detectedRecipe.processPositions) {
+                    for (const pp of S.detectedRecipe.processPositions) {
+                        if (pp.x === x && pp.y === y) {
+                            const lbl = document.createElement('span');
+                            lbl.className = 'pid-label';
+                            lbl.textContent = pp.pid;
+                            cell.appendChild(lbl);
+                            break;
+                        }
+                    }
+                }
+
                 // Events
                 cell.addEventListener('click', () => this.handleClick(x, y));
                 cell.addEventListener('contextmenu', (e) => {
@@ -101,6 +114,7 @@ const Grid = {
         UI.updateRecipePanel();
         UI.updateStatus();
         if (typeof scheduleAutoDetect === 'function') scheduleAutoDetect();
+        if (typeof scheduleAutoSave === 'function') scheduleAutoSave();
     },
 
     handleRightClick(x, y) {
@@ -110,6 +124,7 @@ const Grid = {
         UI.updateRecipePanel();
         UI.updateStatus();
         if (typeof scheduleAutoDetect === 'function') scheduleAutoDetect();
+        if (typeof scheduleAutoSave === 'function') scheduleAutoSave();
     },
 
     clearAll() {

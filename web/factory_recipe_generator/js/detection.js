@@ -92,16 +92,17 @@ const Detection = {
 
         let curParent = parentId;
         if (chips.length > 0) {
+            const nextId = tree.maxId + 1;
+            tree.addNode(nextId, []);
+            tree.addEdge(parentId, nextId, chips);
             const pn = {
                 id: S.newId(),
                 chips,
                 parentId,
+                treeNodeId: nextId,
+                x, y,
             };
             this._recipeData.processNodes.push(pn);
-
-            const nextId = tree.maxId + 1;
-            tree.addNode(nextId, []);
-            tree.addEdge(parentId, nextId, chips);
             curParent = nextId;
         }
 

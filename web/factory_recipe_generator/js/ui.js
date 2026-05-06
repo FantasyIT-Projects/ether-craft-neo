@@ -61,6 +61,7 @@ const UI = {
                 S.clearDetection();
                 this.updateStatus();
                 if (typeof scheduleAutoDetect === 'function') scheduleAutoDetect();
+                if (typeof scheduleAutoSave === 'function') scheduleAutoSave();
             });
 
             row.appendChild(label);

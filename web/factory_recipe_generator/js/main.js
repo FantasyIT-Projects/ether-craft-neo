@@ -6,8 +6,9 @@ let autoSaveTimer = null;
 function runDetect() {
     const result = Detection.detectRecipes();
     S.detectedRecipe = result.recipes.length > 0 ? result.recipes[0] : null;
-    Grid.render();
-    UI.updateRecipePanel();
+    UI.updateRecipePanel();   // calls toJson, sets processPositions on recipeData
+    UI.renderInputSlots();    // re-render to show detected input highlights
+    Grid.render();            // now processPositions is available for PID labels
     UI.updateStatus();
 }
 
@@ -228,11 +229,10 @@ function preloadExample() {
     Grid.render();
 
     const result = Detection.detectRecipes();
-    if (result.recipes.length > 0) {
-        S.detectedRecipe = result.recipes[0];
-    }
-    Grid.render();
+    S.detectedRecipe = result.recipes.length > 0 ? result.recipes[0] : null;
     UI.updateRecipePanel();
+    UI.renderInputSlots();
+    Grid.render();
     UI.updateStatus();
     Export.exportJson();
 }
