@@ -6,14 +6,11 @@ const S = {
     DIRS: [[0, 1], [1, 0], [0, -1], [-1, 0]],
     DIRECT_INPUT: 'ether_craft:direct_input',
 
-    SEPARATOR_CHIP: 'ether_craft:separator_chip',
-
     CHIP_INFO: {
         'ether_craft:heating_chip':  { label: 'Heating',  cls: 'chip-heating',  color: '#e76f51' },
         'ether_craft:stamping_chip': { label: 'Stamping', cls: 'chip-stamping', color: '#f4a261' },
         'ether_craft:cutting_chip':  { label: 'Cutting',  cls: 'chip-cutting',  color: '#a0a0a0' },
         'ether_craft:fan_chip':      { label: 'Fan',      cls: 'chip-fan',      color: '#457b9d' },
-        'ether_craft:separator_chip':{ label: 'Separator',cls: 'chip-separator',color: '#b39ddb' },
     },
 
     BUILTIN_CHIPS: [
@@ -21,7 +18,6 @@ const S = {
         'ether_craft:stamping_chip',
         'ether_craft:cutting_chip',
         'ether_craft:fan_chip',
-        'ether_craft:separator_chip',
     ],
 
     // Each cell: { type: 'empty' | 'chip' | 'block', chipId: string | null }
@@ -57,7 +53,63 @@ const S = {
         return this.CHIP_INFO[chipId] || null;
     },
 
-    isSeparator(chipId) {
-        return chipId === this.SEPARATOR_CHIP;
+    // ---- Custom Chips (localStorage) ----
+    SAVED_KEY: 'ether_factory_custom_chips',
+    GRID_KEY: 'ether_factory_grid',
+
+    loadSavedChips() {
+        try {
+            const raw = localStorage.getItem(this.SAVED_KEY);
+            return raw ? JSON.parse(raw) : [];
+        } catch (_) { return []; }
+    },
+
+    saveCustomChip(chipId) {
+        const chips = this.loadSavedChips();
+        if (!chips.includes(chipId)) {
+            chips.push(chipId);
+            localStorage.setItem(this.SAVED_KEY, JSON.stringify(chips));
+        }
+    },
+
+    removeCustomChip(chipId) {
+        let chips = this.loadSavedChips();
+        chips = chips.filter(c => c !== chipId);
+        localStorage.setItem(this.SAVED_KEY, JSON.stringify(chips));
+    },
+
+    // ---- Grid Save/Load ----
+    saveGrid() {
+        const data = {
+            grid: this.grid,
+            inputItems: this.inputItems,
+            outputRow: this.outputRow,
+            outputItemId: this.outputItemId,
+        };
+        const json = JSON.stringify(data);
+        localStorage.setItem(this.GRID_KEY, json);
+        return json;
+    },
+
+    loadGrid(json) {
+        let data;
+        if (typeof json === 'string') {
+            data = JSON.parse(json);
+        } else {
+            const raw = localStorage.getItem(this.GRID_KEY);
+            if (!raw) return false;
+            data = JSON.parse(raw);
+        }
+        if (!data || !data.grid) return false;
+        this.grid = data.grid;
+        this.inputItems = data.inputItems || Array(this.ROWS).fill('');
+        this.outputRow = data.outputRow != null ? data.outputRow : 4;
+        this.outputItemId = data.outputItemId || 'minecraft:iron_ingot';
+        this.clearDetection();
+        return true;
+    },
+
+    hasSavedGrid() {
+        return !!localStorage.getItem(this.GRID_KEY);
     },
 };

@@ -46,11 +46,11 @@ const Detection = {
                 const v = mark[y2][x2];
                 if (v === 0) {
                     if (!this.markTreeArea(mark, x2, y2, x, y, markId)) valid = false;
-                } else if (v !== -1 && v !== 100) {
-                    // Already marked by a different path → cycle
+                } else if (v !== -1 && v !== 100 && v !== markId) {
+                    // Marked by a different recipe → true cycle
                     valid = false;
                 }
-                // v === -1 or v === 100 → just skip
+                // v === -1, v === 100, or v === markId → just skip
             }
         }
         return valid;
@@ -84,9 +84,7 @@ const Detection = {
             if (x2 >= 0 && x2 < S.COLS && y2 >= 0 && y2 < S.ROWS) {
                 const cell = S.grid[y2][x2];
                 if (cell.type === 'chip' && cell.chipId) {
-                    if (!S.isSeparator(cell.chipId)) {
-                        chips.push({ chip: cell.chipId });
-                    }
+                    chips.push({ chip: cell.chipId });
                     this._recipeData.chipCells.add(`${x2},${y2}`);
                 }
             }

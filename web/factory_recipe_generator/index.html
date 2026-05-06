@@ -12,13 +12,16 @@
 
     <div class="main-layout">
         <div class="input-panel">
-            <h3>Input Items (per row)</h3>
-            <div id="input-slots"></div>
+            <h3>Input Items</h3>
+            <div class="input-slots-grid" id="input-slots"></div>
         </div>
 
         <div class="grid-panel">
             <h3>9×9 Process Grid</h3>
-            <div class="grid-container" id="grid" oncontextmenu="return false;"></div>
+            <div class="grid-wrapper">
+                <div class="grid-container" id="grid" oncontextmenu="return false;"></div>
+                <div class="row-btns" id="row-btns"></div>
+            </div>
         </div>
 
         <div class="output-panel">
@@ -32,8 +35,9 @@
                     <option value="5">Row 5</option><option value="6">Row 6</option>
                     <option value="7">Row 7</option><option value="8">Row 8</option>
                 </select>
-                <label>Output Item</label>
-                <input type="text" id="output-item" value="minecraft:iron_ingot" placeholder="modid:item">
+                <label>Output Item(s) — one per line, or JSON array</label>
+                <textarea id="output-item" rows="4" placeholder="minecraft:iron_ingot
+or: [{"id":"modid:item"},{"id":"modid:item2"}]"></textarea>
             </div>
         </div>
     </div>
@@ -47,18 +51,26 @@
         <div class="pal-item" style="background:#f4a261;" data-chip="ether_craft:stamping_chip">Stamping</div>
         <div class="pal-item" style="background:#a0a0a0;" data-chip="ether_craft:cutting_chip">Cutting</div>
         <div class="pal-item" style="background:#457b9d;" data-chip="ether_craft:fan_chip">Fan</div>
-        <div class="pal-item" style="background:#b39ddb;" data-chip="ether_craft:separator_chip">Separator</div>
         <span class="lbl" style="margin-left:6px;">Custom:</span>
         <input class="pal-custom-inp" id="custom-chip" placeholder="modid:custom_chip" value="">
         <div class="pal-item cust" id="btn-add-custom">+ Add</div>
+        <span id="saved-chips"></span>
+        <div class="tool-indicator" id="tool-indicator">Current: Clear</div>
     </div>
 
     <div class="btn-row">
         <button class="btn-detect" id="btn-detect">Detect Recipe</button>
         <button class="btn-export" id="btn-export">Export JSON</button>
-        <button class="btn-import" id="btn-import">Import JSON</button>
+        <button class="btn-clear" id="btn-save">Save Grid</button>
+        <button class="btn-clear" id="btn-load">Load Grid</button>
+        <button class="btn-clear" id="btn-export-file">Download File</button>
+        <button class="btn-clear" id="btn-upload-file" onclick="document.getElementById('load-file').click()">Upload File</button>
         <button class="btn-clear" id="btn-clear-grid">Clear Grid</button>
         <button class="btn-clear" id="btn-clear-all">Clear All</button>
+        <label class="auto-toggle" title="Auto-detect recipe when grid/input/output changes">
+            <input type="checkbox" id="auto-detect">
+            <span class="toggle-label">Auto</span>
+        </label>
     </div>
 
     <div class="legend">
@@ -67,7 +79,6 @@
         <div class="legend-item"><div class="legend-dot" style="background:var(--chip-stamping);"></div> Stamping</div>
         <div class="legend-item"><div class="legend-dot" style="background:var(--chip-cutting);"></div> Cutting</div>
         <div class="legend-item"><div class="legend-dot" style="background:var(--chip-fan);"></div> Fan</div>
-        <div class="legend-item"><div class="legend-dot" style="background:var(--chip-separator);"></div> Separator</div>
         <div class="legend-item"><div class="legend-dot" style="background:var(--block-bg);border:1px solid var(--block-border);"></div> Block</div>
     </div>
 
@@ -85,6 +96,8 @@
         <textarea id="json-output" readonly placeholder="Click &quot;Export JSON&quot; to generate output..."></textarea>
     </div>
 </div>
+
+<input type="file" id="load-file" accept=".json" style="display:none;">
 
 <script src="js/state.js"></script>
 <script src="js/tree.js"></script>

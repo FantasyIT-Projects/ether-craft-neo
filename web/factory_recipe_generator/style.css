@@ -15,7 +15,6 @@
     --chip-stamping: #f4a261;
     --chip-cutting: #a0a0a0;
     --chip-fan: #457b9d;
-    --chip-separator: #b39ddb;
     --chip-custom: #2a9d8f;
     --path: #2ecc71;
     --path-bg: rgba(46, 204, 113, 0.25);
@@ -54,7 +53,13 @@ h3 { font-size: 0.9em; margin-bottom: 6px; color: var(--text2); }
     flex-shrink: 0;
     display: flex;
     flex-direction: column;
-    gap: 3px;
+}
+
+.input-slots-grid {
+    display: grid;
+    grid-template-rows: repeat(9, 50px);
+    gap: 2px;
+    padding-top: 2px;
 }
 
 .input-slot {
@@ -65,13 +70,12 @@ h3 { font-size: 0.9em; margin-bottom: 6px; color: var(--text2); }
     border: 1px solid var(--border);
     border-radius: 4px;
     padding: 3px 7px;
+    height: 50px;
+    box-sizing: border-box;
 }
-.input-slot.active {
+.input-slot.detected {
     border-color: var(--path);
     background: var(--input-bg);
-}
-.input-slot.recipe-input {
-    border-color: #f0ad4e;
 }
 .input-slot .row-label {
     width: 24px;
@@ -98,6 +102,46 @@ h3 { font-size: 0.9em; margin-bottom: 6px; color: var(--text2); }
 }
 
 .grid-panel { flex: 1; min-width: 0; }
+
+.grid-wrapper {
+    display: flex;
+    gap: 4px;
+    align-items: flex-start;
+}
+
+/* ---- Output Row Buttons ---- */
+.row-btns {
+    display: grid;
+    grid-template-rows: repeat(9, 50px);
+    gap: 2px;
+    padding-top: 2px;
+}
+.row-btn {
+    height: 50px;
+    width: 32px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--text2);
+    cursor: pointer;
+    font-size: 0.7em;
+    font-family: monospace;
+    transition: all .15s;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.row-btn:hover {
+    background: var(--cell-hover);
+    color: #fff;
+}
+.row-btn.active {
+    border-color: var(--output-bg);
+    background: var(--output-bg);
+    color: #fff;
+    font-weight: bold;
+}
 
 .grid-container {
     display: inline-grid;
@@ -140,7 +184,6 @@ h3 { font-size: 0.9em; margin-bottom: 6px; color: var(--text2); }
 .g-cell.chip-stamping { border-color: var(--chip-stamping); }
 .g-cell.chip-cutting  { border-color: var(--chip-cutting); }
 .g-cell.chip-fan      { border-color: var(--chip-fan); }
-.g-cell.chip-separator{ border-color: var(--chip-separator); }
 .g-cell.chip-custom   { border-color: var(--chip-custom); }
 .g-cell.chip-active   { box-shadow: 0 0 6px rgba(255,255,255,0.5); }
 
@@ -189,7 +232,7 @@ h3 { font-size: 0.9em; margin-bottom: 6px; color: var(--text2); }
     display: block;
     margin-bottom: 3px;
 }
-.output-slot input, .output-slot select {
+.output-slot input, .output-slot select, .output-slot textarea {
     width: 100%;
     background: var(--surface2);
     border: 1px solid var(--border);
@@ -200,11 +243,45 @@ h3 { font-size: 0.9em; margin-bottom: 6px; color: var(--text2); }
     outline: none;
     margin-bottom: 6px;
 }
-.output-slot input:focus, .output-slot select:focus {
+.output-slot textarea {
+    resize: vertical;
+    min-height: 48px;
+    font-family: inherit;
+}
+.output-slot input:focus, .output-slot select:focus, .output-slot textarea:focus {
     border-color: var(--accent);
 }
 
-/* ---- Palette ---- */
+/* ---- Saved Chips ---- */
+.saved-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    padding: 5px 4px 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    border: 2px solid transparent;
+    font-size: 0.72em;
+    transition: all .15s;
+    white-space: nowrap;
+    background: var(--chip-custom);
+    color: #fff;
+}
+.saved-chip:hover { opacity: 0.85; }
+.saved-chip.sel { border-color: #fff; transform: scale(1.06); }
+.saved-chip .del-chip {
+    margin-left: 2px;
+    padding: 0 5px;
+    border-radius: 3px;
+    font-size: 1.1em;
+    line-height: 1;
+    cursor: pointer;
+    color: rgba(255,255,255,.6);
+}
+.saved-chip .del-chip:hover {
+    color: #fff;
+    background: rgba(255,255,255,.2);
+}
 .palette {
     display: flex;
     gap: 6px;
@@ -246,6 +323,24 @@ h3 { font-size: 0.9em; margin-bottom: 6px; color: var(--text2); }
 }
 .pal-custom-inp:focus { border-color: var(--accent); }
 
+/* ---- Tool Indicator ---- */
+.tool-indicator {
+    margin-left: auto;
+    padding: 6px 14px;
+    border-radius: 4px;
+    font-size: 0.82em;
+    font-weight: 600;
+    color: #fff;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    white-space: nowrap;
+    transition: background .2s, border-color .2s;
+}
+.tool-indicator.has-tool {
+    background: var(--accent);
+    border-color: var(--accent);
+}
+
 /* ---- Buttons ---- */
 .btn-row {
     display: flex;
@@ -265,8 +360,31 @@ button {
 button:hover { opacity: 0.9; transform: translateY(-1px); }
 .btn-detect { background: var(--path); color: #000; }
 .btn-export { background: var(--accent); }
-.btn-import { background: var(--surface2); border: 1px solid var(--border); }
 .btn-clear  { background: var(--surface2); border: 1px solid var(--border); color: var(--text2); }
+
+/* ---- Auto-detect Toggle ---- */
+.auto-toggle {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: 8px;
+    cursor: pointer;
+    user-select: none;
+}
+.auto-toggle input[type="checkbox"] {
+    accent-color: var(--path);
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+.auto-toggle .toggle-label {
+    font-size: 0.8em;
+    color: var(--text2);
+}
+.auto-toggle input:checked + .toggle-label {
+    color: var(--path);
+    font-weight: 600;
+}
 
 /* ---- Legend ---- */
 .legend {

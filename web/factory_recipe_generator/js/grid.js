@@ -100,6 +100,7 @@ const Grid = {
         this.render();
         UI.updateRecipePanel();
         UI.updateStatus();
+        if (typeof scheduleAutoDetect === 'function') scheduleAutoDetect();
     },
 
     handleRightClick(x, y) {
@@ -108,6 +109,7 @@ const Grid = {
         this.render();
         UI.updateRecipePanel();
         UI.updateStatus();
+        if (typeof scheduleAutoDetect === 'function') scheduleAutoDetect();
     },
 
     clearAll() {
