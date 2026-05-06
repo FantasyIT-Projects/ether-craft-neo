@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ether Process Factory — Recipe Generator</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="app">
+    <h1>Ether Process Factory — Recipe Generator</h1>
+
+    <div class="main-layout">
+        <div class="input-panel">
+            <h3>Input Items (per row)</h3>
+            <div id="input-slots"></div>
+        </div>
+
+        <div class="grid-panel">
+            <h3>9×9 Process Grid</h3>
+            <div class="grid-container" id="grid" oncontextmenu="return false;"></div>
+        </div>
+
+        <div class="output-panel">
+            <h3>Output</h3>
+            <div class="output-slot">
+                <label>Output Row</label>
+                <select id="output-row">
+                    <option value="0">Row 0</option><option value="1">Row 1</option>
+                    <option value="2">Row 2</option><option value="3">Row 3</option>
+                    <option value="4" selected>Row 4</option>
+                    <option value="5">Row 5</option><option value="6">Row 6</option>
+                    <option value="7">Row 7</option><option value="8">Row 8</option>
+                </select>
+                <label>Output Item</label>
+                <input type="text" id="output-item" value="minecraft:iron_ingot" placeholder="modid:item">
+            </div>
+        </div>
+    </div>
+
+    <div class="palette">
+        <span class="lbl">Tool:</span>
+        <div class="pal-item clr" data-chip="__clr">Clear</div>
+        <div class="pal-item blk" data-chip="__blk">Block</div>
+        <span class="lbl" style="margin-left:6px;">Chips:</span>
+        <div class="pal-item" style="background:#e76f51;" data-chip="ether_craft:heating_chip">Heating</div>
+        <div class="pal-item" style="background:#f4a261;" data-chip="ether_craft:stamping_chip">Stamping</div>
+        <div class="pal-item" style="background:#a0a0a0;" data-chip="ether_craft:cutting_chip">Cutting</div>
+        <div class="pal-item" style="background:#457b9d;" data-chip="ether_craft:fan_chip">Fan</div>
+        <div class="pal-item" style="background:#b39ddb;" data-chip="ether_craft:separator_chip">Separator</div>
+        <span class="lbl" style="margin-left:6px;">Custom:</span>
+        <input class="pal-custom-inp" id="custom-chip" placeholder="modid:custom_chip" value="">
+        <div class="pal-item cust" id="btn-add-custom">+ Add</div>
+    </div>
+
+    <div class="btn-row">
+        <button class="btn-detect" id="btn-detect">Detect Recipe</button>
+        <button class="btn-export" id="btn-export">Export JSON</button>
+        <button class="btn-import" id="btn-import">Import JSON</button>
+        <button class="btn-clear" id="btn-clear-grid">Clear Grid</button>
+        <button class="btn-clear" id="btn-clear-all">Clear All</button>
+    </div>
+
+    <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="background:var(--path-bg);border:1px dashed var(--path);"></div> Path</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--chip-heating);"></div> Heating</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--chip-stamping);"></div> Stamping</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--chip-cutting);"></div> Cutting</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--chip-fan);"></div> Fan</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--chip-separator);"></div> Separator</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--block-bg);border:1px solid var(--block-border);"></div> Block</div>
+    </div>
+
+    <div class="recipe-panel">
+        <h3>Detected Recipe</h3>
+        <div id="recipe-flow" class="recipe-flow">
+            <span class="dim">Place chips on the grid, then click <b>Detect Recipe</b> to recognise the structure.</span>
+        </div>
+    </div>
+
+    <div id="status"></div>
+
+    <div class="json-panel">
+        <h3>JSON Output</h3>
+        <textarea id="json-output" readonly placeholder="Click &quot;Export JSON&quot; to generate output..."></textarea>
+    </div>
+</div>
+
+<script src="js/state.js"></script>
+<script src="js/tree.js"></script>
+<script src="js/detection.js"></script>
+<script src="js/grid.js"></script>
+<script src="js/recipe.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/export.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
