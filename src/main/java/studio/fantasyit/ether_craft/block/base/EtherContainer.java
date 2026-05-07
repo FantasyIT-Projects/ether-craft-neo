@@ -24,13 +24,27 @@ public interface EtherContainer {
         return Optional.ofNullable(be().getExistingDataOrNull(BlockAttachmentDataRegistry.ETHER_CONTAINER)).orElse(0L);
     }
 
+    default long getMaxEther() {
+        return 0;
+    }
+
+    default long validateMax(long amount) {
+        long max = getMaxEther();
+        if (max == 0 || amount <= max)
+            return amount;
+        return max;
+    }
+
     default void setEther(long amount) {
         long o = getEther();
+        amount = validateMax(amount);
         setEtherNoUpdate(amount);
         if (o != amount)
             syncClient();
     }
+
     default void setEtherNoUpdate(long amount) {
+        amount = validateMax(amount);
         be().setData(BlockAttachmentDataRegistry.ETHER_CONTAINER, amount);
     }
 
@@ -47,10 +61,15 @@ public interface EtherContainer {
         setEther(getEther() - extracted);
         return extracted;
     }
+
     default long extractEtherNoUpdate(long amount) {
         long extracted = Math.min(getEther(), amount);
         setEtherNoUpdate(getEther() - extracted);
         return extracted;
+    }
+
+    default long getCanReceive(long amount) {
+        return Math.max(0, validateMax(amount + getEther()) - getEther());
     }
 
     default void syncClient() {

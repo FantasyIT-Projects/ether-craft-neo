@@ -1,4 +1,4 @@
-package studio.fantasyit.ether_craft.block.node;
+package studio.fantasyit.ether_craft.block.emitter;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -18,6 +18,7 @@ import org.jetbrains.annotations.Nullable;
 import studio.fantasyit.ether_craft.block.base.BaseEtherContainerBlockEntity;
 import studio.fantasyit.ether_craft.block.base.EtherContainer;
 import studio.fantasyit.ether_craft.block.base.ITickable;
+import studio.fantasyit.ether_craft.block.node.EtherAdaptNodeBlock;
 import studio.fantasyit.ether_craft.entity.EtherStreamEntity;
 
 import static studio.fantasyit.ether_craft.register.BlockEntityRegistry.ETHER_NODE_ENTITY;
@@ -45,7 +46,7 @@ public class EtherStreamEmitterEntity extends BaseEtherContainerBlockEntity impl
                     copyItem.set(i, this.inputContainer.getItem(i).copy());
                     this.inputContainer.setItem(i, ItemStack.EMPTY);
                 }
-                @NotNull Direction targetDirection = this.getBlockState().getValue(EtherStreamEmitterBlock.FACING);
+                @NotNull Direction targetDirection = this.getBlockState().getValue(EtherAdaptNodeBlock.FACING);
                 Vec3 dir = targetDirection.getUnitVec3();
                 EtherStreamEntity entity = EtherStreamEntity.create(
                         this.level,

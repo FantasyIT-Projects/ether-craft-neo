@@ -1,9 +1,23 @@
 package studio.fantasyit.ether_craft.particle.ether_stream;
 
+import com.mojang.blaze3d.pipeline.BlendFunction;
+import com.mojang.blaze3d.pipeline.ColorTargetState;
+import com.mojang.blaze3d.pipeline.DepthStencilState;
+import com.mojang.blaze3d.pipeline.RenderPipeline;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.VertexFormat;
+import net.minecraft.client.Camera;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.SingleQuadParticle;
 import net.minecraft.client.particle.SpriteSet;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.client.renderer.rendertype.RenderSetup;
+import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.renderer.state.level.QuadParticleRenderState;
+import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.ARGB;
+import org.joml.Quaternionf;
 
 public class EtherStreamParticle extends SingleQuadParticle {
     int color;
@@ -24,9 +38,12 @@ public class EtherStreamParticle extends SingleQuadParticle {
         super.tick();
     }
 
+    public static final SingleQuadParticle.Layer LAYER = new SingleQuadParticle.Layer(
+            true, TextureAtlas.LOCATION_PARTICLES, EtherStreamRenderPipeline.ETHER_RENDER_PIPELINE
+    );
 
     @Override
     protected Layer getLayer() {
-        return Layer.bySprite(this.sprite);
+        return LAYER;
     }
 }

@@ -1,12 +1,11 @@
 package studio.fantasyit.ether_craft.menu.factory;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import org.joml.Vector2i;
-import studio.fantasyit.ether_craft.block.base.EtherSlot;
+import studio.fantasyit.ether_craft.menu.base.ether.EtherSlot;
 import studio.fantasyit.ether_craft.block.factory.EtherProcessFactoryEntity;
 import studio.fantasyit.ether_craft.menu.base.BaseContainerMenu;
 import studio.fantasyit.ether_craft.menu.base.BaseDataSlot;

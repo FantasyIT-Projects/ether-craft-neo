@@ -13,6 +13,7 @@ import org.joml.Vector2i;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.block.factory.EtherProcessChipManager;
 import studio.fantasyit.ether_craft.block.factory.EtherProcessFactoryEntity;
+import studio.fantasyit.ether_craft.util.UIUtil;
 
 import java.util.List;
 
@@ -84,7 +85,8 @@ public class EtherProcessFactoryScreen extends AbstractContainerScreen<@NotNull 
         for (int i = 0; i < be.processingRecipes.length; i++) {
             ItemStack it = be.possibleResults.getItem(i);
             if (it.isEmpty()) continue;
-            graphics.fakeItem(it, getLeftPos() + 224, getTopPos() + 6 + i * 18);
+            if (be.outputContainer.getItem(i).isEmpty())
+                UIUtil.renderItemStackSlotPlaceholder(graphics, it, getLeftPos() + 206, getTopPos() + 6 + i * 18);
         }
     }
 

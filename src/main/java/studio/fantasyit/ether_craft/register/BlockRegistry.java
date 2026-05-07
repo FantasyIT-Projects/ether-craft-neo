@@ -8,12 +8,12 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import org.jetbrains.annotations.NotNull;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.block.factory.EtherProcessFactoryBlock;
-import studio.fantasyit.ether_craft.block.node.EtherStreamEmitterBlock;
+import studio.fantasyit.ether_craft.block.node.EtherAdaptNodeBlock;
 
 public class BlockRegistry {
     public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(BuiltInRegistries.BLOCK, EtherCraft.MODID);
     public static final DeferredHolder<Block, @NotNull EtherProcessFactoryBlock> ETHER_PROCESS_FACTORY = BLOCKS.register("ether_process_factory", EtherProcessFactoryBlock::new);
-    public static final DeferredHolder<Block, @NotNull EtherStreamEmitterBlock> ETHER_STREAM_EMITTER = BLOCKS.register("ether_stream_emitter", EtherStreamEmitterBlock::new);
+    public static final DeferredHolder<Block, @NotNull EtherAdaptNodeBlock> ETHER_STREAM_EMITTER = BLOCKS.register("ether_stream_emitter", EtherAdaptNodeBlock::new);
 
     public static void register(IEventBus modbus) {
         BLOCKS.register(modbus);

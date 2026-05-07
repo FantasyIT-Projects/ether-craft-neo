@@ -23,10 +23,10 @@ import org.jspecify.annotations.Nullable;
 import studio.fantasyit.ether_craft.block.base.BaseBlock;
 import studio.fantasyit.ether_craft.register.ItemRegistry;
 
-public class EtherStreamEmitterBlock extends BaseBlock {
+public class EtherAdaptNodeBlock extends BaseBlock {
     public static final EnumProperty<@NotNull Direction> FACING = BlockStateProperties.FACING;
 
-    public EtherStreamEmitterBlock(Identifier identifier) {
+    public EtherAdaptNodeBlock(Identifier identifier) {
         super(
                 Properties.of()
                         .setId(ResourceKey.create(Registries.BLOCK, identifier))
@@ -45,7 +45,7 @@ public class EtherStreamEmitterBlock extends BaseBlock {
 
     @Override
     public @Nullable BlockEntity newBlockEntity(BlockPos blockPos, BlockState blockState) {
-        return new EtherStreamEmitterEntity(blockPos, blockState);
+        return new EtherAdaptNodeEntity(blockPos, blockState);
     }
 
     @Override
@@ -64,7 +64,7 @@ public class EtherStreamEmitterBlock extends BaseBlock {
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
         if (!level.isClientSide()) {
-            player.openMenu((EtherStreamEmitterEntity) level.getBlockEntity(pos), pos);
+            player.openMenu((EtherAdaptNodeEntity) level.getBlockEntity(pos), pos);
         }
         return super.useWithoutItem(state, level, pos, player, hitResult);
     }

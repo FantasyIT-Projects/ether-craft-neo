@@ -16,12 +16,17 @@ public class Config
             .comment("How many ether value to gain from one ether item")
             .defineInRange("ether.convert", 100, 1, Integer.MAX_VALUE);
 
+    private static final ModConfigSpec.IntValue NODE_DEF_MAX_ETHER = BUILDER
+            .comment("Max ether value of Ether Adapt Node by default")
+            .defineInRange("node.def.max", 1000, 1, Integer.MAX_VALUE);
     static final ModConfigSpec SPEC = BUILDER.build();
 
     public static int etherConvert;
+    public static int nodeDefMaxEther;
     @SubscribeEvent
     static void onLoad(final ModConfigEvent event)
     {
         etherConvert = ETHER_CONVERT.get();
+        nodeDefMaxEther = NODE_DEF_MAX_ETHER.get();
     }
 }

@@ -16,6 +16,7 @@ import net.neoforged.neoforge.transfer.transaction.SnapshotJournal;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import org.jetbrains.annotations.NotNull;
 import studio.fantasyit.ether_craft.Config;
+import studio.fantasyit.ether_craft.menu.base.ether.EtherSlotContainer;
 import studio.fantasyit.ether_craft.register.ItemRegistry;
 import studio.fantasyit.ether_craft.util.ContainerOps;
 
@@ -48,23 +49,7 @@ public class BaseEtherContainerBlockEntity extends BlockEntity implements Resour
         container = new CompoundContainer(inputContainer, new CompoundContainer(internalContainer, outputContainer));
         handler = VanillaContainerWrapper.of(container);
         etherContainer = new EtherSlotContainer(this);
-        etherJournal = new SnapshotJournal<Long>() {
-            @Override
-            protected Long createSnapshot() {
-                return getEther();
-            }
-
-            @Override
-            protected void revertToSnapshot(Long snapshot) {
-                setEther(snapshot);
-            }
-
-            @Override
-            protected void onRootCommit(Long originalState) {
-                if (originalState != getEther())
-                    syncClient();
-            }
-        };
+        etherJournal = new EtherJournal(this);
     }
 
     @Override

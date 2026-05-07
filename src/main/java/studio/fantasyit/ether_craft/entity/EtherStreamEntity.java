@@ -48,7 +48,7 @@ public class EtherStreamEntity extends Projectile implements Container {
     private int ether;
     private int itemConsumption;
     NonNullList<ItemStack> itemStack;
-    private int timeloop = 0;
+    private int lowerConsumeFactor = 0;
     ResourceHandler<ItemResource> handler;
 
     public static EtherStreamEntity create(Level level, NonNullList<ItemStack> itemStack, int slots, int ether, Vec3 position, Vec3 motion) {
@@ -85,6 +85,11 @@ public class EtherStreamEntity extends Projectile implements Container {
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         builder.define(ETHER_COUNT, ether);
         builder.define(ITEM_CONSUMPTION, itemConsumption);
+    }
+
+    public void setLowerConsumeFactor(int factor) {
+        lowerConsumeFactor = factor;
+        updateItemConsumption();
     }
 
     @Override
@@ -163,7 +168,7 @@ public class EtherStreamEntity extends Projectile implements Container {
     }
 
     private int getConsumption() {
-        return (int) (this.itemConsumption * 0.1 + Math.ceil(0.002 * ether));
+        return (int) Math.ceil((this.itemConsumption * 0.1 + Math.ceil(0.002 * ether)) * Math.pow(2, lowerConsumeFactor));
     }
 
     @Override

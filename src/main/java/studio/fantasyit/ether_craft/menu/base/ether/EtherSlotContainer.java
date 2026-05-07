@@ -1,9 +1,10 @@
-package studio.fantasyit.ether_craft.block.base;
+package studio.fantasyit.ether_craft.menu.base.ether;
 
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import studio.fantasyit.ether_craft.Config;
+import studio.fantasyit.ether_craft.block.base.EtherContainer;
 import studio.fantasyit.ether_craft.register.ItemRegistry;
 
 public class EtherSlotContainer implements Container {
