@@ -1,8 +1,6 @@
 package studio.fantasyit.ether_craft.menu.node;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;
@@ -10,25 +8,24 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.DataSlot;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Ingredient;
 import org.apache.commons.lang3.function.TriConsumer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import studio.fantasyit.ether_craft.block.base.BaseMenu;
+import studio.fantasyit.ether_craft.menu.base.BaseMenu;
 import studio.fantasyit.ether_craft.block.node.EtherAdaptNodeEntity;
 import studio.fantasyit.ether_craft.menu.base.BaseContainerMenu;
-import studio.fantasyit.ether_craft.menu.base.BaseDataSlot;
+import studio.fantasyit.ether_craft.network.base.ISyncTargetMenu;
+import studio.fantasyit.ether_craft.network.c2s.SyncScreenDataC2S;
 import studio.fantasyit.ether_craft.node.AbstractNodePlugin;
 import studio.fantasyit.ether_craft.node.NodePluginManager;
 import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
-import studio.fantasyit.ether_craft.register.Tags;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static studio.fantasyit.ether_craft.register.GuiRegistry.ETHER_ADAPT_NODE_CONTAINER;
 
-public class EtherAdaptNodeContainerMenu extends BaseMenu<EtherAdaptNodeEntity> {
+public class EtherAdaptNodeContainerMenu extends BaseMenu<EtherAdaptNodeEntity> implements ISyncTargetMenu {
     public final Player player;
     public final AbstractNodePlugin plugin;
     public final InstalledPlugin installedPlugin;
@@ -69,7 +66,8 @@ public class EtherAdaptNodeContainerMenu extends BaseMenu<EtherAdaptNodeEntity> 
     }
 
     @Override
-    protected void addMachineSlots() {    }
+    protected void addMachineSlots() {
+    }
 
     @Override
     protected void addPlayerSlots(Inventory playerInventory) {
@@ -111,5 +109,13 @@ public class EtherAdaptNodeContainerMenu extends BaseMenu<EtherAdaptNodeEntity> 
 
     public void triggerSwitchTabServer(InstalledPlugin plugin) {
         player.openMenu(entity.getMenuProvider(plugin));
+    }
+
+    @Override
+    public void syncScreenData(SyncScreenDataC2S message) {
+        for (int i = 0; i < entity.functionStorage.getContainerSize(); i++)
+            if (entity.functionStorage.hasPlugin(i)) entity.functionStorage.getPlugin(i).syncScreenData(message);
+        for (int i = 0; i < entity.featureUpgradeStorage.getContainerSize(); i++)
+            if (entity.featureUpgradeStorage.hasPlugin(i)) entity.featureUpgradeStorage.getPlugin(i).syncScreenData(message);
     }
 }

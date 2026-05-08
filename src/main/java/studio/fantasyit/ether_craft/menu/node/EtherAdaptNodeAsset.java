@@ -28,12 +28,14 @@ public class EtherAdaptNodeAsset {
     public static final ImageAsset BTN_BLACK_HOVER = ImageAsset.gridOffset(BTN_WHITE_HOVER, 0, 1);
     public static final ImageAsset BTN_BLANK = ImageAsset.gridOffset(BTN_WHITE, 0, 2);
     public static final ImageAsset BTN_BLANK_HOVER = ImageAsset.gridOffset(BTN_WHITE_HOVER, 0, 2);
-    public static final ImageAsset BTN_ICON_U = ImageAsset.gridOffset(BTN_BLANK, 0, 1);
-    public static final ImageAsset BTN_ICON_D = ImageAsset.gridOffset(BTN_BLANK, 1, 1);
-    public static final ImageAsset BTN_ICON_W = ImageAsset.gridOffset(BTN_BLANK, 0, 2);
-    public static final ImageAsset BTN_ICON_S = ImageAsset.gridOffset(BTN_BLANK, 1, 2);
-    public static final ImageAsset BTN_ICON_N = ImageAsset.gridOffset(BTN_BLANK, 0, 3);
-    public static final ImageAsset BTN_ICON_E = ImageAsset.gridOffset(BTN_BLANK, 1, 3);
+    public static final ImageAsset BTN_BLANK_DOWN = ImageAsset.gridOffset(BTN_BLANK, 0, 1);
+    public static final ImageAsset BTN_BLANK_DOWN_HOVER = ImageAsset.gridOffset(BTN_BLANK, 1, 1);
+    public static final ImageAsset BTN_ICON_U = ImageAsset.gridOffset(BTN_BLANK_DOWN, 0, 1);
+    public static final ImageAsset BTN_ICON_D = ImageAsset.gridOffset(BTN_BLANK_DOWN, 1, 1);
+    public static final ImageAsset BTN_ICON_W = ImageAsset.gridOffset(BTN_BLANK_DOWN, 0, 2);
+    public static final ImageAsset BTN_ICON_S = ImageAsset.gridOffset(BTN_BLANK_DOWN, 1, 2);
+    public static final ImageAsset BTN_ICON_N = ImageAsset.gridOffset(BTN_BLANK_DOWN, 0, 3);
+    public static final ImageAsset BTN_ICON_E = ImageAsset.gridOffset(BTN_BLANK_DOWN, 1, 3);
     public static final ImageAsset ICON_UPGRADE = ImageAsset.from4Point(BACKGROUND, 121, 32, 223, 42);
 
     public static ImageAsset getEtherBarIA(long ether, long max) {

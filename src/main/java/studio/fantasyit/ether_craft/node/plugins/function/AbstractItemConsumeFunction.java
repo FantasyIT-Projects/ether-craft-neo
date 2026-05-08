@@ -9,20 +9,25 @@ import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
 import studio.fantasyit.ether_craft.block.node.EtherAdaptNodeEntity;
+import studio.fantasyit.ether_craft.menu.base.BaseDataSlot;
 import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeContainerMenu;
+import studio.fantasyit.ether_craft.network.c2s.SyncScreenDataC2S;
 import studio.fantasyit.ether_craft.node.AbstractNodePlugin;
 import studio.fantasyit.ether_craft.node.NodeProperty;
+import studio.fantasyit.ether_craft.node.filter.FilterGuiRegCommon;
 import studio.fantasyit.ether_craft.node.filter.ItemFilter;
+import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
 import studio.fantasyit.ether_craft.util.ContainerOps;
 
 public abstract class AbstractItemConsumeFunction extends AbstractNodePlugin {
-    ItemFilter filter = new ItemFilter(21, nodeEntity::setChanged);
+    public ItemFilter filter = new ItemFilter(21, nodeEntity::setChanged);
     SimpleContainer container = new SimpleContainer(1);
     int remainBurnTicks = 0;
 
-    public AbstractItemConsumeFunction(EtherAdaptNodeEntity nodeEntity) {
-        super(nodeEntity);
+    public AbstractItemConsumeFunction(EtherAdaptNodeEntity nodeEntity, InstalledPlugin ID) {
+        super(nodeEntity, ID);
     }
+
 
     @Override
     public void modifyNodeProperty(NodeProperty nodeProperty) {
@@ -65,6 +70,12 @@ public abstract class AbstractItemConsumeFunction extends AbstractNodePlugin {
     }
 
     @Override
+    public void syncScreenData(SyncScreenDataC2S message) {
+        super.syncScreenData(message);
+        FilterGuiRegCommon.sync(message, filter);
+    }
+
+    @Override
     public void saveAdditional(ValueOutput output) {
         output.store("container", ItemStack.OPTIONAL_CODEC.listOf(), ContainerOps.containerToItemList(container));
         output.store("remainBurnTicks", Codec.INT, remainBurnTicks);
@@ -82,5 +93,17 @@ public abstract class AbstractItemConsumeFunction extends AbstractNodePlugin {
     public void registerSlots(EtherAdaptNodeContainerMenu menu) {
         super.registerSlots(menu);
         menu.addSlotDraw(new Slot(container, 0, 25, 23));
+        menu.addDataSlot(new BaseDataSlot(() -> remainBurnTicks, (a) -> remainBurnTicks = a));
+        FilterGuiRegCommon.slots(menu, filter);
+    }
+
+    @Override
+    public boolean inputFilter(ItemResource resource) {
+        return filter.accepts(resource) && accepts(resource);
+    }
+
+    @Override
+    public boolean outputFilter(ItemResource resource) {
+        return !filter.accepts(resource) || !accepts(resource);
     }
 }

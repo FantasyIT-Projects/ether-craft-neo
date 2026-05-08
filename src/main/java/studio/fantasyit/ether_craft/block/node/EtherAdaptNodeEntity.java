@@ -1,8 +1,10 @@
 package studio.fantasyit.ether_craft.block.node;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
@@ -13,6 +15,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
+import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.item.VanillaContainerWrapper;
@@ -23,16 +26,20 @@ import oshi.util.tuples.Pair;
 import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.block.base.EtherContainer;
 import studio.fantasyit.ether_craft.block.base.ITickable;
+import studio.fantasyit.ether_craft.menu.base.RangeLimitPlaceContainer;
 import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeContainerMenu;
+import studio.fantasyit.ether_craft.network.s2c.SyncEtherAdaptNodeExtraS2C;
 import studio.fantasyit.ether_craft.node.AbstractNodePlugin;
 import studio.fantasyit.ether_craft.node.NodePluginManager;
 import studio.fantasyit.ether_craft.node.NodeProperty;
 import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
+import studio.fantasyit.ether_craft.node.plugins.feature.AbstractDirectionalFeature;
 import studio.fantasyit.ether_craft.register.ItemRegistry;
-import studio.fantasyit.ether_craft.util.ContainerOps;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Predicate;
 
 import static studio.fantasyit.ether_craft.register.BlockEntityRegistry.ETHER_NODE_ENTITY;
@@ -40,19 +47,21 @@ import static studio.fantasyit.ether_craft.register.BlockEntityRegistry.ETHER_NO
 public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler<@NotNull ItemResource>, EtherContainer, ITickable {
     public static final int UPGRADE_SIZE = 4;
     private final ResourceHandler<ItemResource> normalHandler;
-    private boolean markUpdate = false;
+    private boolean markUpdate = true;
     public final NodeProperty nodeProperty;
     public final EtherSlotSyncContainer etherStorage;
     public final EtherPluginUpgradeContainer functionStorage;
     public final EtherPluginUpgradeContainer featureUpgradeStorage;
-    public final SimpleContainer normalStorage;
+    public final RangeLimitPlaceContainer normalStorage;
+    public final Map<Direction, InstalledPlugin> featureAttachedDirection = new HashMap<>();
+    public final QueuedTicket ticket = new QueuedTicket();
 
 
     public EtherAdaptNodeEntity(BlockPos worldPosition, BlockState blockState) {
         super(ETHER_NODE_ENTITY.get(), worldPosition, blockState);
         nodeProperty = new NodeProperty();
         etherStorage = new EtherSlotSyncContainer(this);
-        normalStorage = new SimpleContainer(27);
+        normalStorage = new RangeLimitPlaceContainer(new SimpleContainer(27), 0);
         normalHandler = VanillaContainerWrapper.of(normalStorage);
         functionStorage = new EtherPluginUpgradeContainer(1, NodePluginManager.FUNCTION_TYPE, this);
         featureUpgradeStorage = new EtherPluginUpgradeContainer(6, NodePluginManager.FEATURE_UPGRADE_TYPE, this);
@@ -61,17 +70,34 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
     @Override
     public void setChanged() {
         super.setChanged();
-        if (level != null && !level.isClientSide())
-            markUpdate = true;
+    }
+
+    public void updateFeatureAttachedDirection() {
+        featureAttachedDirection.clear();
+        for (int i = 0; i < featureUpgradeStorage.getContainerSize(); i++) {
+            if (featureUpgradeStorage.hasPlugin(i)) {
+                if (featureUpgradeStorage.getPlugin(i) instanceof AbstractDirectionalFeature df && df.direction != null) {
+                    featureAttachedDirection.put(df.direction, df.installedId);
+                }
+            }
+        }
+        if (level instanceof ServerLevel sl)
+            PacketDistributor.sendToPlayersInDimension(sl, new SyncEtherAdaptNodeExtraS2C(
+                    featureAttachedDirection,
+                    this.getBlockPos(),
+                    this.level.dimension().identifier()
+            ));
     }
 
     @Override
     public void tickServer() {
         functionStorage.tick();
         featureUpgradeStorage.tick();
+        ticket.tick(this);
         if (markUpdate) {
             markUpdate = false;
             updateProperty();
+            updateFeatureAttachedDirection();
         }
     }
 
@@ -79,6 +105,7 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
         nodeProperty.reset();
         functionStorage.modifyNodeProperty(nodeProperty);
         featureUpgradeStorage.modifyNodeProperty(nodeProperty);
+        normalStorage.setAccessibleCount(nodeProperty.slotUnlock);
     }
 
     @Override
@@ -91,8 +118,7 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
         super.loadAdditional(input);
         functionStorage.loadAddition(input.childOrEmpty("functionStorage"));
         featureUpgradeStorage.loadAddition(input.childOrEmpty("featureUpgradeStorage"));
-        input.read("content", ItemStack.OPTIONAL_CODEC.listOf()).ifPresent(l ->
-                ContainerOps.fillContainerByItemList(normalStorage, l));
+        normalStorage.deserialize(input.childOrEmpty("normalStorage"));
     }
 
     @Override
@@ -100,7 +126,7 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
         super.saveAdditional(output);
         functionStorage.saveAddition(output.child("functionStorage"));
         featureUpgradeStorage.saveAddition(output.child("featureUpgradeStorage"));
-        output.store("content", ItemStack.OPTIONAL_CODEC.listOf(), ContainerOps.containerToItemList(normalStorage));
+        normalStorage.serialize(output.child("normalStorage"));
     }
 
     @Override
@@ -137,6 +163,10 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
             return false;
         if (index - 1 >= nodeProperty.slotUnlock)
             return false;
+        for (AbstractNodePlugin plugin : getPlugins()) {
+            if (!plugin.inputFilter(resource))
+                return false;
+        }
         return normalHandler.isValid(index - 1, resource);
     }
 
@@ -148,6 +178,14 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
             return 0;
         if (index - 1 >= nodeProperty.slotUnlock)
             return 0;
+
+        for (AbstractNodePlugin plugin : getPlugins()) {
+            amount -= plugin.earlyHandleInput(resource, amount, transaction);
+        }
+        for (AbstractNodePlugin plugin : getPlugins()) {
+            if (!plugin.inputFilter(resource))
+                return 0;
+        }
         return normalHandler.insert(index - 1, resource, amount, transaction);
     }
 
@@ -159,11 +197,18 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
             return 0;
         if (index - 1 >= nodeProperty.slotUnlock)
             return 0;
+        for (AbstractNodePlugin plugin : getPlugins()) {
+            if (!plugin.outputFilter(resource))
+                return 0;
+        }
         return normalHandler.extract(index - 1, resource, amount, transaction);
     }
+
     public ItemStack extractWithPredicate(Predicate<ItemResource> predicate, TransactionContext transaction, int maxAmount) {
         for (int i = 0; i < normalHandler.size(); i++) {
             ItemResource resource = normalHandler.getResource(i);
+            if (resource.isEmpty())
+                continue;
             if (predicate.test(resource)) {
                 int extract = normalHandler.extract(i, resource, Math.min(resource.getMaxStackSize(), maxAmount), transaction);
                 return resource.toStack(extract);
@@ -201,7 +246,7 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
         if (plugin.type() == NodePluginManager.PluginType.FEATURE || plugin.type() == NodePluginManager.PluginType.UPGRADE)
             if (featureUpgradeStorage.hasPlugin(plugin.id()))
                 return featureUpgradeStorage.getPlugin(plugin.id());
-        return NodePluginManager.Instance.get(plugin.pluginId(), this);
+        return NodePluginManager.Instance.get(plugin.pluginId(), this, plugin);
     }
 
     public int getUpgradeCount() {
@@ -234,4 +279,45 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
         };
     }
 
+    public void fromNetwork(Map<Direction,InstalledPlugin> pluginDirection) {
+        featureAttachedDirection.clear();
+        featureAttachedDirection.putAll(pluginDirection);
+    }
+
+    public boolean isPluginInstalled(InstalledPlugin plugin) {
+        if (plugin.type() == NodePluginManager.PluginType.FUNCTION)
+            return functionStorage.hasPlugin(plugin.id()) && plugin.pluginId().equals(functionStorage.getPluginId(plugin.id()));
+        if (plugin.type() == NodePluginManager.PluginType.FEATURE || plugin.type() == NodePluginManager.PluginType.UPGRADE)
+            return featureUpgradeStorage.hasPlugin(plugin.id()) && plugin.pluginId().equals(featureUpgradeStorage.getPluginId(plugin.id()));
+        return false;
+    }
+
+    public List<AbstractNodePlugin> getPlugins() {
+        List<AbstractNodePlugin> list = new ArrayList<>();
+        for (int i = 0; i < functionStorage.getContainerSize(); i++) {
+            AbstractNodePlugin plugin = functionStorage.getPlugin(i);
+            if (plugin != null)
+                list.add(plugin);
+
+        }
+        for (int i = 0; i < featureUpgradeStorage.getContainerSize(); i++) {
+            AbstractNodePlugin plugin = featureUpgradeStorage.getPlugin(i);
+            if (plugin != null)
+                list.add(plugin);
+        }
+        return list;
+    }
+    public ItemStack getItemByInstalled(InstalledPlugin plugin){
+        if (plugin.type() == NodePluginManager.PluginType.FUNCTION)
+            return functionStorage.getItem(plugin.id());
+        if (plugin.type() == NodePluginManager.PluginType.FEATURE || plugin.type() == NodePluginManager.PluginType.UPGRADE)
+            return featureUpgradeStorage.getItem(plugin.id());
+        return ItemStack.EMPTY;
+    }
+
+    public void pluginUpdate() {
+        setChanged();
+        if (level != null && !level.isClientSide())
+            markUpdate = true;
+    }
 }

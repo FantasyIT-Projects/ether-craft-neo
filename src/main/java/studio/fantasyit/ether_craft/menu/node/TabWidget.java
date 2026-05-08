@@ -1,5 +1,6 @@
 package studio.fantasyit.ether_craft.menu.node;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Tooltip;
@@ -40,6 +41,7 @@ public class TabWidget extends AbstractWidget {
     @Override
     public void onClick(MouseButtonEvent event, boolean doubleClick) {
         onPress.run();
+        this.playDownSound(Minecraft.getInstance().getSoundManager());
     }
 
     @Override

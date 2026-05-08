@@ -1,18 +1,17 @@
-package studio.fantasyit.ether_craft.block.base;
+package studio.fantasyit.ether_craft.menu.base;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.DataSlot;
+import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.apache.commons.lang3.function.TriConsumer;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import studio.fantasyit.ether_craft.menu.base.BaseContainerMenu;
 
 public abstract class BaseMenu<T extends BlockEntity> extends AbstractContainerMenu {
     public final T entity;
@@ -75,5 +74,37 @@ public abstract class BaseMenu<T extends BlockEntity> extends AbstractContainerM
             y += dy;
         }
         return added;
+    }
+
+    @Override
+    public void clicked(int slotIndex, int buttonNum, ContainerInput containerInput, Player player) {
+        if (slotIndex >= 0 && this.getSlot(slotIndex) instanceof FilterSlot fs) {
+            int slot = fs.getContainerSlot();
+            if (containerInput == ContainerInput.THROW)
+                return;
+
+            ItemStack held = getCarried();
+            if (containerInput == ContainerInput.CLONE) {
+                if (player.isCreative() && held.isEmpty()) {
+                    ItemStack stackInSlot = fs.getItem().copy();
+                    stackInSlot.setCount(stackInSlot.getMaxStackSize());
+                    setCarried(stackInSlot);
+                    return;
+                }
+                return;
+            }
+
+            ItemStack insert;
+            if (held.isEmpty()) {
+                insert = ItemStack.EMPTY;
+            } else {
+                insert = held.copy();
+                insert.setCount(1);
+            }
+            fs.handler.setItem(slot, insert);
+            getSlot(slotIndex).setChanged();
+        } else {
+            super.clicked(slotIndex, buttonNum, containerInput, player);
+        }
     }
 }

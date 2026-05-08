@@ -10,7 +10,6 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import studio.fantasyit.ether_craft.block.base.BaseEtherContainerBlockEntity;
-import studio.fantasyit.ether_craft.block.base.BaseMenu;
 
 public abstract class BaseContainerMenu extends BaseMenu<@NotNull BaseEtherContainerBlockEntity> {
     public final BlockPos pos;

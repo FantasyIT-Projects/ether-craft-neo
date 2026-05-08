@@ -5,11 +5,13 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.block.node.EtherAdaptNodeEntity;
+import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
 
 public class FunctionFurnaceGenerator extends AbstractItemConsumeFunction {
     public static Identifier ID = EtherCraft.id("generator/furnace");
-    public FunctionFurnaceGenerator(EtherAdaptNodeEntity nodeEntity) {
-        super(nodeEntity);
+
+    public FunctionFurnaceGenerator(EtherAdaptNodeEntity nodeEntity, InstalledPlugin ID) {
+        super(nodeEntity, ID);
     }
 
     @Override

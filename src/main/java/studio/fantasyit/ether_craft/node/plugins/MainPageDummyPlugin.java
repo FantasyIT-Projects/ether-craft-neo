@@ -1,13 +1,14 @@
 package studio.fantasyit.ether_craft.node.plugins;
 
 import net.minecraft.resources.Identifier;
-import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.block.node.EtherAdaptNodeEntity;
 import studio.fantasyit.ether_craft.block.node.OversizedEtherSlot;
-import studio.fantasyit.ether_craft.menu.base.BaseContainerMenu;
+import studio.fantasyit.ether_craft.menu.base.BaseDataSlot;
+import studio.fantasyit.ether_craft.menu.base.RangeLimitPlaceContainer;
+import studio.fantasyit.ether_craft.menu.base.RangeLimitSlot;
 import studio.fantasyit.ether_craft.menu.factory.SingleStackSlot;
 import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeContainerMenu;
 import studio.fantasyit.ether_craft.node.AbstractNodePlugin;
@@ -15,10 +16,10 @@ import studio.fantasyit.ether_craft.node.NodeProperty;
 
 public class MainPageDummyPlugin extends AbstractNodePlugin {
     public static final Identifier ID = EtherCraft.id("main_page_dummy");
-
-    public MainPageDummyPlugin(EtherAdaptNodeEntity nodeEntity) {
-        super(nodeEntity);
+    public MainPageDummyPlugin(EtherAdaptNodeEntity nodeEntity, InstalledPlugin installedId) {
+        super(nodeEntity, installedId);
     }
+
 
     @Override
     public void modifyNodeProperty(NodeProperty nodeProperty) {
@@ -59,6 +60,7 @@ public class MainPageDummyPlugin extends AbstractNodePlugin {
             menu.addSlotDraw(new SingleStackSlot(nodeEntity.featureUpgradeStorage, i, SLOT_POS[i][0], SLOT_POS[i][1]));
         }
 
-        menu.addSlotAreaDraw(nodeEntity.normalStorage, 0, 9, 76, 9, 18, 3, 18, BaseContainerMenu.SlotSupplier.of(Slot::new));
+        menu.addSlotAreaDraw(nodeEntity.normalStorage, 0, 9, 76, 9, 18, 3, 18, (a, b, c, d, e, f) -> new RangeLimitSlot((RangeLimitPlaceContainer) a, b, c, d));
+        menu.addDataSlot(new BaseDataSlot(nodeEntity.normalStorage::getAccessibleCount, nodeEntity.normalStorage::setAccessibleCount));
     }
 }

@@ -109,7 +109,7 @@ public class ItemFilter implements Container, ValueIOSerializable {
 
     @Override
     public void deserialize(ValueInput input) {
-        whitelist = input.getBooleanOr("whitelist",true);
+        whitelist = input.getBooleanOr("whitelist",false);
         input.read("filter", ItemStack.OPTIONAL_CODEC.listOf()).ifPresent(l -> ContainerOps.fillContainerByItemList(this, l));
     }
 }

@@ -8,11 +8,12 @@ import org.jetbrains.annotations.Nullable;
 import studio.fantasyit.ether_craft.block.node.EtherAdaptNodeEntity;
 import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
 import studio.fantasyit.ether_craft.node.plugins.MainPageDummyPlugin;
+import studio.fantasyit.ether_craft.node.plugins.feature.FeatureEtherStreamEmitter;
 import studio.fantasyit.ether_craft.node.plugins.function.FunctionFurnaceGenerator;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
+import java.util.function.BiFunction;
 import java.util.function.Predicate;
 
 public class NodePluginManager {
@@ -31,7 +32,7 @@ public class NodePluginManager {
     public final static PluginInfo MAIN_PAGE_INFO = new PluginInfo(PluginType.UPGRADE, MainPageDummyPlugin.ID, MainPageDummyPlugin::new, _ -> false, Items.BARRIER);
 
     public record PluginInfo(PluginType type, Identifier id,
-                             Function<EtherAdaptNodeEntity, AbstractNodePlugin> constructor,
+                             BiFunction<EtherAdaptNodeEntity, InstalledPlugin, AbstractNodePlugin> constructor,
                              Predicate<ItemStack> predicate,
                              ItemLike icon
     ) {
@@ -49,6 +50,7 @@ public class NodePluginManager {
         plugins.add(MAIN_PAGE_INFO);
         //TODO
         registerPlugin(PluginType.FUNCTION, FunctionFurnaceGenerator.ID, FunctionFurnaceGenerator::new, Items.FURNACE);
+        registerPlugin(PluginType.FEATURE, FeatureEtherStreamEmitter.ID, FeatureEtherStreamEmitter::new, Items.DISPENSER);
     }
 
     public boolean matches(Predicate<NodePluginManager.PluginType> type, ItemStack itemStack, @Nullable Identifier identifier) {
@@ -70,10 +72,10 @@ public class NodePluginManager {
         return null;
     }
 
-    public @Nullable AbstractNodePlugin get(Identifier id, EtherAdaptNodeEntity nodeEntity) {
+    public @Nullable AbstractNodePlugin get(Identifier id, EtherAdaptNodeEntity nodeEntity, InstalledPlugin installedPlugin) {
         for (PluginInfo info : plugins) {
             if (info.id().equals(id)) {
-                return info.constructor().apply(nodeEntity);
+                return info.constructor().apply(nodeEntity, installedPlugin);
             }
         }
         return null;
@@ -87,11 +89,12 @@ public class NodePluginManager {
         }
         return null;
     }
-    public void registerPlugin(PluginType type, Identifier id, Function<EtherAdaptNodeEntity, AbstractNodePlugin> plugin, ItemLike item) {
+
+    public void registerPlugin(PluginType type, Identifier id, BiFunction<EtherAdaptNodeEntity, InstalledPlugin, AbstractNodePlugin> plugin, ItemLike item) {
         registerPlugin(type, id, plugin, t -> t.is(item.asItem()), item);
     }
 
-    public void registerPlugin(PluginType type, Identifier id, Function<EtherAdaptNodeEntity, AbstractNodePlugin> plugin, Predicate<ItemStack> predicate, ItemLike icon) {
+    public void registerPlugin(PluginType type, Identifier id, BiFunction<EtherAdaptNodeEntity, InstalledPlugin, AbstractNodePlugin> plugin, Predicate<ItemStack> predicate, ItemLike icon) {
         plugins.add(new PluginInfo(type, id, plugin, predicate, icon));
     }
 }

@@ -10,8 +10,8 @@ import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.node.AbstractNodePlugin;
 import studio.fantasyit.ether_craft.node.NodePluginManager;
 import studio.fantasyit.ether_craft.node.NodeProperty;
+import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
 
-import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -37,17 +37,24 @@ public class EtherPluginUpgradeContainer extends SimpleContainer {
         return plugin[index];
     }
 
+    public @Nullable Identifier getPluginId(int index) {
+        return pluginId[index];
+    }
     @Override
     public void setChanged() {
         super.setChanged();
         for (int i = 0; i < plugin.length; i++) {
             if (!NodePluginManager.Instance.matches(this.type, getItem(i), pluginId[i])) {
+                plugin[i] = null;
                 pluginId[i] = NodePluginManager.Instance.getMatchingPluginId(this.type, getItem(i));
-                if (pluginId[i] != null)
-                    plugin[i] = NodePluginManager.Instance.get(pluginId[i], this.entity);
+                if (pluginId[i] != null) {
+                    NodePluginManager.PluginInfo info = NodePluginManager.Instance.getInfoFor(getItem(i), this.type);
+                    if (info != null)
+                        plugin[i] = NodePluginManager.Instance.get(pluginId[i], this.entity, new InstalledPlugin(info.type(), i, pluginId[i]));
+                }
             }
         }
-        this.entity.setChanged();
+        this.entity.pluginUpdate();
     }
 
     public static Identifier ID_NULL = EtherCraft.id("null");
@@ -70,10 +77,14 @@ public class EtherPluginUpgradeContainer extends SimpleContainer {
         input.read("plugins", Identifier.CODEC.listOf()).ifPresent(l -> {
             for (int i = 0; i < l.size() && i < getContainerSize(); i++) {
                 pluginId[i] = l.get(i);
-                if (pluginId[i].equals(ID_NULL))
+                if (pluginId[i].equals(ID_NULL)) {
                     plugin[i] = null;
-                if (pluginId[i] != null)
-                    plugin[i] = NodePluginManager.Instance.get(pluginId[i], this.entity);
+                }
+                if (pluginId[i] != null) {
+                    NodePluginManager.PluginInfo info = NodePluginManager.Instance.getInfoFor(getItem(i), this.type);
+                    if (info != null)
+                        plugin[i] = NodePluginManager.Instance.get(pluginId[i], this.entity, new InstalledPlugin(info.type(), i, pluginId[i]));
+                }
             }
         });
         for (int i = 0; i < pluginId.length; i++) {

@@ -3,9 +3,11 @@ package studio.fantasyit.ether_craft.node;
 import net.minecraft.resources.Identifier;
 import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeScreen;
 import studio.fantasyit.ether_craft.node.plugins.MainPageDummyPlugin;
+import studio.fantasyit.ether_craft.node.plugins.feature.FeatureEtherStreamEmitter;
 import studio.fantasyit.ether_craft.node.plugins.function.FunctionFurnaceGenerator;
 import studio.fantasyit.ether_craft.node.tabs.BaseEtherNodeTabWidgetProvider;
 import studio.fantasyit.ether_craft.node.tabs.MainPageProvider;
+import studio.fantasyit.ether_craft.node.tabs.feature.DirectionalFilterScreen;
 import studio.fantasyit.ether_craft.node.tabs.function.ItemConsumeScreen;
 
 import java.util.HashMap;
@@ -19,6 +21,7 @@ public class EtherAdaptNodeUpgradeTabManager {
         widgets.clear();
         register(MainPageDummyPlugin.ID, wrap(MainPageProvider::new));
         register(FunctionFurnaceGenerator.ID, wrap(ItemConsumeScreen::new));
+        register(FeatureEtherStreamEmitter.ID, wrap(DirectionalFilterScreen::new));
     }
 
     public <T extends AbstractNodePlugin> BiFunction<AbstractNodePlugin, EtherAdaptNodeScreen, BaseEtherNodeTabWidgetProvider<?>> wrap(BiFunction<T, EtherAdaptNodeScreen, BaseEtherNodeTabWidgetProvider<T>> construct) {
