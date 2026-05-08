@@ -6,7 +6,7 @@ import net.minecraft.resources.Identifier;
 public class ImageAsset {
     public Identifier location;
     public int u, v, w, h, iw, ih;
-    float u0, v0, u1, v1;
+    public float u0, v0, u1, v1;
 
     public ImageAsset(Identifier location, int u, int v, int w, int h, int iw, int ih) {
         this.location = location;
@@ -26,6 +26,10 @@ public class ImageAsset {
         return new ImageAsset(location, u, v, u1 - u + 1, v1 - v + 1);
     }
 
+    public static ImageAsset gridOffset(ImageAsset reference, int x, int y) {
+        return new ImageAsset(reference.location, reference.u + x * reference.w, reference.v + y * reference.h, reference.w, reference.h);
+    }
+
     public ImageAsset(Identifier location, int u, int v, int w, int h) {
         this(location, u, v, w, h, 256, 256);
     }
@@ -36,5 +40,12 @@ public class ImageAsset {
 
     public void blit(GuiGraphicsExtractor graphics, int x, int y) {
         graphics.blit(location, x, y, x + w, y + h, u0, u1, v0, v1);
+    }
+
+    public float subU(int x) {
+        return u0 + x / (float) w * (u1 - u0);
+    }
+    public float subV(int y) {
+        return v0 + y / (float) h * (v1 - v0);
     }
 }

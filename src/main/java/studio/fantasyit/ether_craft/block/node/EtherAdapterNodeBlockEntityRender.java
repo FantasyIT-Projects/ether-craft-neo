@@ -24,6 +24,6 @@ public class EtherAdapterNodeBlockEntityRender implements BlockEntityRenderer<Et
 
     @Override
     public void submit(EtherAdapterNodeRenderState state, PoseStack poseStack, @NotNull SubmitNodeCollector submitNodeCollector, CameraRenderState camera) {
-        submitNodeCollector.submit();
+//        submitNodeCollector.submit();
     }
 }

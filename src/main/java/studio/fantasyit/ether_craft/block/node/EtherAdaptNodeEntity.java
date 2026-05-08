@@ -20,6 +20,7 @@ import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import oshi.util.tuples.Pair;
+import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.block.base.EtherContainer;
 import studio.fantasyit.ether_craft.block.base.ITickable;
 import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeContainerMenu;
@@ -160,12 +161,11 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
             return 0;
         return normalHandler.extract(index - 1, resource, amount, transaction);
     }
-
     public ItemStack extractWithPredicate(Predicate<ItemResource> predicate, TransactionContext transaction, int maxAmount) {
         for (int i = 0; i < normalHandler.size(); i++) {
             ItemResource resource = normalHandler.getResource(i);
             if (predicate.test(resource)) {
-                int extract = normalHandler.extract(i + 1, resource, Math.min(resource.getMaxStackSize(), maxAmount), transaction);
+                int extract = normalHandler.extract(i, resource, Math.min(resource.getMaxStackSize(), maxAmount), transaction);
                 return resource.toStack(extract);
             }
         }
@@ -177,8 +177,8 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
         list.add(new Pair<>(NodePluginManager.MAIN_PAGE_INFO, NodePluginManager.MAIN_PAGE));
         for (int i = 0; i < functionStorage.getContainerSize(); i++) {
             ItemStack stack = functionStorage.getItem(i);
-            NodePluginManager.PluginInfo info = NodePluginManager.Instance.getInfoFor(stack, NodePluginManager.FEATURE_UPGRADE_TYPE);
-            if (!stack.isEmpty() && info.type() == NodePluginManager.PluginType.FUNCTION) {
+            NodePluginManager.PluginInfo info = NodePluginManager.Instance.getInfoFor(stack, NodePluginManager.FUNCTION_TYPE);
+            if (!stack.isEmpty() && info != null && info.type() == NodePluginManager.PluginType.FUNCTION) {
                 list.add(new Pair<>(info, new InstalledPlugin(info.type(), i, info.id())));
             }
         }
@@ -186,7 +186,7 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
             ItemStack stack = featureUpgradeStorage.getItem(i);
             if (!stack.isEmpty()) {
                 NodePluginManager.PluginInfo info = NodePluginManager.Instance.getInfoFor(stack, NodePluginManager.FEATURE_UPGRADE_TYPE);
-                if (info.type() == NodePluginManager.PluginType.FEATURE) {
+                if (info != null && info.type() == NodePluginManager.PluginType.FEATURE) {
                     list.add(new Pair<>(info, new InstalledPlugin(info.type(), i, info.id())));
                 }
             }
@@ -204,11 +204,16 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
         return NodePluginManager.Instance.get(plugin.pluginId(), this);
     }
 
+    public int getUpgradeCount() {
+        int level = getBlockState().getValueOrElse(EtherAdaptNodeBlock.LEVEL, 1);
+        return Config.nodeLevelSlotArr.get(level - 1);
+    }
+
     public MenuProvider getMenuProvider(@Nullable InstalledPlugin installedPlugin) {
         return new MenuProvider() {
             @Override
             public boolean shouldTriggerClientSideContainerClosingOnOpen() {
-                return true;
+                return false;
             }
 
             @Override

@@ -26,6 +26,7 @@ public abstract class BaseContainerMenu extends BaseMenu<@NotNull BaseEtherConta
         this.outputSlots = entity.outputContainer.getContainerSize();
         addMachineSlots();
         addPlayerSlots(player.getInventory());
+        entity.syncClient();
     }
 
 

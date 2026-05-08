@@ -46,7 +46,7 @@ public class EtherStreamEmitterBlock extends BaseBlock {
 
     @Override
     public @Nullable BlockEntity newBlockEntity(BlockPos blockPos, BlockState blockState) {
-        return new EtherAdaptNodeEntity(blockPos, blockState);
+        return new EtherStreamEmitterEntity(blockPos, blockState);
     }
 
     @Override
@@ -64,9 +64,6 @@ public class EtherStreamEmitterBlock extends BaseBlock {
 
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
-        if (!level.isClientSide()) {
-            player.openMenu((EtherAdaptNodeEntity) level.getBlockEntity(pos), pos);
-        }
         return super.useWithoutItem(state, level, pos, player, hitResult);
     }
 

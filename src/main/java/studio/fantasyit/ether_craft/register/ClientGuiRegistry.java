@@ -6,12 +6,14 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.menu.factory.EtherProcessFactoryScreen;
+import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeScreen;
 
 @EventBusSubscriber(modid = EtherCraft.MODID, value = Dist.CLIENT)
 public class ClientGuiRegistry {
     @SubscribeEvent
     public static void init(RegisterMenuScreensEvent event) {
         event.register(GuiRegistry.ETHER_PROCESS_FACTORY_CONTAINER.get(), EtherProcessFactoryScreen::new);
+        event.register(GuiRegistry.ETHER_ADAPT_NODE_CONTAINER.get(), EtherAdaptNodeScreen::new);
     }
 
 }

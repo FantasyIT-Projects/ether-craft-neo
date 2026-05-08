@@ -2,19 +2,21 @@ package studio.fantasyit.ether_craft.node.plugins.function;
 
 import com.mojang.serialization.Codec;
 import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
 import studio.fantasyit.ether_craft.block.node.EtherAdaptNodeEntity;
+import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeContainerMenu;
 import studio.fantasyit.ether_craft.node.AbstractNodePlugin;
 import studio.fantasyit.ether_craft.node.NodeProperty;
 import studio.fantasyit.ether_craft.node.filter.ItemFilter;
 import studio.fantasyit.ether_craft.util.ContainerOps;
 
 public abstract class AbstractItemConsumeFunction extends AbstractNodePlugin {
-    ItemFilter filter = new ItemFilter(18, nodeEntity::setChanged);
+    ItemFilter filter = new ItemFilter(21, nodeEntity::setChanged);
     SimpleContainer container = new SimpleContainer(1);
     int remainBurnTicks = 0;
 
@@ -76,4 +78,9 @@ public abstract class AbstractItemConsumeFunction extends AbstractNodePlugin {
         filter.deserialize(input.childOrEmpty("filter"));
     }
 
+    @Override
+    public void registerSlots(EtherAdaptNodeContainerMenu menu) {
+        super.registerSlots(menu);
+        menu.addSlotDraw(new Slot(container, 0, 25, 23));
+    }
 }

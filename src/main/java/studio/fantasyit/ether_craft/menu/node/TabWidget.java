@@ -19,7 +19,7 @@ public class TabWidget extends AbstractWidget {
     private static final ImageAsset TAB_INACTIVATED = ImageAsset.from4Point(BACKGROUND, 200, 0, 223, 20);
     private final Runnable onPress;
 
-    public TabWidget(int x, int y, Component message, ItemStack icon, boolean isActivate,Runnable onPress) {
+    public TabWidget(int x, int y, Component message, ItemStack icon, boolean isActivate, Runnable onPress) {
         super(x, y, TAB_ACTIVATED.w, TAB_ACTIVATED.h, message);
         this.icon = icon;
         this.isActivate = isActivate;
@@ -34,7 +34,7 @@ public class TabWidget extends AbstractWidget {
         } else {
             TAB_INACTIVATED.blit(graphics, getX(), getY());
         }
-        graphics.item(icon, getX() + 5, getY() + 5);
+        graphics.item(icon, getX() + 4, getY() + 4);
     }
 
     @Override

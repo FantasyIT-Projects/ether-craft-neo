@@ -17,16 +17,24 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.Nullable;
 import studio.fantasyit.ether_craft.block.base.BaseBlock;
 import studio.fantasyit.ether_craft.register.ItemRegistry;
 
+import java.util.function.Function;
+
 public class EtherAdaptNodeBlock extends BaseBlock {
     public static final EnumProperty<@NotNull Direction> FACING = BlockStateProperties.FACING;
+    public static final IntegerProperty LEVEL = BlockStateProperties.LEVEL;
 
-    public EtherAdaptNodeBlock(Identifier identifier) {
+    public static Function<Identifier, @NotNull EtherAdaptNodeBlock> constructWithLevel(int level) {
+        return identifier -> new EtherAdaptNodeBlock(identifier, level);
+    }
+
+    public EtherAdaptNodeBlock(Identifier identifier, int level) {
         super(
                 Properties.of()
                         .setId(ResourceKey.create(Registries.BLOCK, identifier))
@@ -34,6 +42,7 @@ public class EtherAdaptNodeBlock extends BaseBlock {
         this.registerDefaultState(
                 stateDefinition.any()
                         .setValue(FACING, Direction.UP)
+                        .setValue(LEVEL, level)
         );
     }
 
@@ -41,6 +50,7 @@ public class EtherAdaptNodeBlock extends BaseBlock {
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(FACING);
+        builder.add(LEVEL);
     }
 
     @Override
@@ -63,8 +73,8 @@ public class EtherAdaptNodeBlock extends BaseBlock {
 
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
-        if (!level.isClientSide()) {
-            player.openMenu((EtherAdaptNodeEntity) level.getBlockEntity(pos), pos);
+        if (!level.isClientSide() && level.getBlockEntity(pos) instanceof EtherAdaptNodeEntity eane) {
+            player.openMenu(eane.getMenuProvider(null));
         }
         return super.useWithoutItem(state, level, pos, player, hitResult);
     }

@@ -28,6 +28,7 @@ public class ItemRegistry {
     public static final DeferredHolder<Item, @NotNull Item> WRENCH = ITEMS.register("wrench", i -> new Item(new Item.Properties().stacksTo(1).setId(ResourceKey.create(Registries.ITEM, i))));
     public static final DeferredHolder<Item, @NotNull Item> ETHER_PROCESS_FACTORY_ITEM = block(BlockRegistry.ETHER_PROCESS_FACTORY);
     public static final DeferredHolder<Item, @NotNull Item> ETHER_STREAM_EMITTER_ITEM = block(BlockRegistry.ETHER_STREAM_EMITTER);
+    public static final DeferredHolder<Item, @NotNull Item> ETHER_ADAPT_NODE_ITEM = block(BlockRegistry.ETHER_ADAPT_NODE);
 
     public static void register(IEventBus modbus) {
         ITEMS.register(modbus);

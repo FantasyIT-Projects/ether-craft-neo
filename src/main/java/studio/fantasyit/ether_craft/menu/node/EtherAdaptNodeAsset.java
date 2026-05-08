@@ -1,0 +1,89 @@
+package studio.fantasyit.ether_craft.menu.node;
+
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.resources.Identifier;
+import studio.fantasyit.ether_craft.EtherCraft;
+import studio.fantasyit.ether_craft.menu.base.ImageAsset;
+
+public class EtherAdaptNodeAsset {
+    public static final Identifier BACKGROUND = EtherCraft.id("textures/gui/ether_adapt_node_main.png");
+    public static final ImageAsset UI_BASE = new ImageAsset(BACKGROUND, 0, 0, 176, 228);
+    public static final ImageAsset ETHER_BAR_FILL_L0 = new ImageAsset(BACKGROUND, 176, 24, 18, 2);
+    public static final ImageAsset ETHER_BAR_FILL_L1 = new ImageAsset(BACKGROUND, 176, 26, 18, 2);
+    public static final ImageAsset ETHER_BAR_FILL_L2 = new ImageAsset(BACKGROUND, 176, 28, 18, 2);
+    public static final ImageAsset ETHER_BAR_FILL_L3 = new ImageAsset(BACKGROUND, 176, 30, 18, 2);
+    public static final ImageAsset ETHER_BAR_FILL_L4 = new ImageAsset(BACKGROUND, 176, 32, 18, 2);
+    public static final ImageAsset ETHER_BAR_CTR = ImageAsset.from4Point(BACKGROUND, 196, 26, 215, 29);
+    public static final ImageAsset SLOT = ImageAsset.from4Point(BACKGROUND, 176, 54, 193, 71);
+    public static final ImageAsset SLOT_ETHER = ImageAsset.from4Point(BACKGROUND, 176, 72, 195, 91);
+    public static final ImageAsset SLOT_LARGE = ImageAsset.from4Point(BACKGROUND, 196, 72, 215, 91);
+    public static final ImageAsset LOCK = ImageAsset.from4Point(BACKGROUND, 176, 34, 187, 45);
+    public static final ImageAsset INFO_PANEL = new ImageAsset(BACKGROUND, 189, 43, 3, 3);
+    public static final ImageAsset PENCIL_ON = ImageAsset.from4Point(BACKGROUND, 176, 46, 183, 53);
+    public static final ImageAsset PENCIL_OFF = ImageAsset.from4Point(BACKGROUND, 184, 46, 191, 53);
+    public static final ImageAsset HAMMER = ImageAsset.from4Point(BACKGROUND, 197, 34, 211, 48);
+    public static final ImageAsset BTN_WHITE = ImageAsset.from4Point(BACKGROUND, 176, 92, 191, 107);
+    public static final ImageAsset BTN_WHITE_HOVER = ImageAsset.gridOffset(BTN_WHITE, 1, 0);
+    public static final ImageAsset BTN_BLACK = ImageAsset.gridOffset(BTN_WHITE, 0, 1);
+    public static final ImageAsset BTN_BLACK_HOVER = ImageAsset.gridOffset(BTN_WHITE_HOVER, 0, 1);
+    public static final ImageAsset BTN_BLANK = ImageAsset.gridOffset(BTN_WHITE, 0, 2);
+    public static final ImageAsset BTN_BLANK_HOVER = ImageAsset.gridOffset(BTN_WHITE_HOVER, 0, 2);
+    public static final ImageAsset BTN_ICON_U = ImageAsset.gridOffset(BTN_BLANK, 0, 1);
+    public static final ImageAsset BTN_ICON_D = ImageAsset.gridOffset(BTN_BLANK, 1, 1);
+    public static final ImageAsset BTN_ICON_W = ImageAsset.gridOffset(BTN_BLANK, 0, 2);
+    public static final ImageAsset BTN_ICON_S = ImageAsset.gridOffset(BTN_BLANK, 1, 2);
+    public static final ImageAsset BTN_ICON_N = ImageAsset.gridOffset(BTN_BLANK, 0, 3);
+    public static final ImageAsset BTN_ICON_E = ImageAsset.gridOffset(BTN_BLANK, 1, 3);
+    public static final ImageAsset ICON_UPGRADE = ImageAsset.from4Point(BACKGROUND, 121, 32, 223, 42);
+
+    public static ImageAsset getEtherBarIA(long ether, long max) {
+        if (max == 0)
+            return ETHER_BAR_FILL_L4;
+        long step = max / 5;
+        return switch (Math.toIntExact(ether / step)) {
+            case 0 -> ETHER_BAR_FILL_L0;
+            case 1 -> ETHER_BAR_FILL_L1;
+            case 2 -> ETHER_BAR_FILL_L2;
+            case 3 -> ETHER_BAR_FILL_L3;
+            default -> ETHER_BAR_FILL_L4;
+        };
+    }
+
+    public static void nineSliced(GuiGraphicsExtractor graphics, ImageAsset asset, int x, int y, int w, int h, int border) {
+        // LT - Left Top corner (fixed size, no stretch)
+        graphics.blit(asset.location, x, y, x + border, y + border,
+                asset.subU(0), asset.subU(border), asset.subV(0), asset.subV(border));
+
+        // T - Top edge (stretched horizontally)
+        graphics.blit(asset.location, x + border, y, x + w - border, y + border,
+                asset.subU(border), asset.subU(asset.w - border), asset.subV(0), asset.subV(border));
+
+        // RT - Right Top corner (fixed size, no stretch)
+        graphics.blit(asset.location, x + w - border, y, x + w, y + border,
+                asset.subU(asset.w - border), asset.subU(asset.w), asset.subV(0), asset.subV(border));
+
+        // L - Left edge (stretched vertically) - corrected parameter order
+        graphics.blit(asset.location, x, y + border, x + border, y + h - border,
+                asset.subU(0), asset.subU(border), asset.subV(border), asset.subV(asset.h - border));
+
+        // C - Center (stretched both directions)
+        graphics.blit(asset.location, x + border, y + border, x + w - border, y + h - border,
+                asset.subU(border), asset.subU(asset.w - border), asset.subV(border), asset.subV(asset.h - border));
+
+        // R - Right edge (stretched vertically)
+        graphics.blit(asset.location, x + w - border, y + border, x + w, y + h - border,
+                asset.subU(asset.w - border), asset.subU(asset.w), asset.subV(border), asset.subV(asset.h - border));
+
+        // LB - Left Bottom corner (fixed size, no stretch)
+        graphics.blit(asset.location, x, y + h - border, x + border, y + h,
+                asset.subU(0), asset.subU(border), asset.subV(asset.h - border), asset.subV(asset.h));
+
+        // B - Bottom edge (stretched horizontally)
+        graphics.blit(asset.location, x + border, y + h - border, x + w - border, y + h,
+                asset.subU(border), asset.subU(asset.w - border), asset.subV(asset.h - border), asset.subV(asset.h));
+
+        // RB - Right Bottom corner (fixed size, no stretch)
+        graphics.blit(asset.location, x + w - border, y + h - border, x + w, y + h,
+                asset.subU(asset.w - border), asset.subU(asset.w), asset.subV(asset.h - border), asset.subV(asset.h));
+    }
+}

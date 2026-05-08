@@ -11,9 +11,9 @@ import net.minecraft.world.entity.player.Inventory;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import org.jetbrains.annotations.NotNull;
 import oshi.util.tuples.Pair;
-import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.block.node.EtherAdaptNodeEntity;
 import studio.fantasyit.ether_craft.network.c2s.TriggerSwitchTabC2S;
+import studio.fantasyit.ether_craft.node.EtherAdaptNodeUpgradeTabManager;
 import studio.fantasyit.ether_craft.node.NodePluginManager;
 import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
 import studio.fantasyit.ether_craft.node.tabs.BaseEtherNodeTabWidgetProvider;
@@ -21,15 +21,18 @@ import studio.fantasyit.ether_craft.node.tabs.BaseEtherNodeTabWidgetProvider;
 import java.util.ArrayList;
 import java.util.List;
 
+import static studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeAsset.UI_BASE;
+
 public class EtherAdaptNodeScreen extends AbstractContainerScreen<@NotNull EtherAdaptNodeContainerMenu> {
-    public static final Identifier BACKGROUND = EtherCraft.id("textures/gui/ether_adapt_node_main.png");
+
+
     BaseEtherNodeTabWidgetProvider<?> tabProvider;
     EtherAdaptNodeEntity be;
     List<TabWidget> tabs = new ArrayList<>();
     List<Identifier> pluginId = new ArrayList<>();
 
     public EtherAdaptNodeScreen(EtherAdaptNodeContainerMenu menu, Inventory p_97742_, Component p_97743_) {
-        super(menu, p_97742_, p_97743_, 237, 256);
+        super(menu, p_97742_, p_97743_, UI_BASE.w, UI_BASE.h);
         be = menu.entity;
         inventoryLabelY = imageHeight - 81;
         tabProvider = EtherAdaptNodeUpgradeTabManager.instance.getWidget(menu.installedPlugin.pluginId(), menu.plugin, this);
@@ -67,9 +70,12 @@ public class EtherAdaptNodeScreen extends AbstractContainerScreen<@NotNull Ether
         tabs.forEach(this::removeWidget);
         tabs.clear();
         pluginId.clear();
-        int x = getLeftPos();
+        int x = getLeftPos() + 3;
         for (Pair<NodePluginManager.PluginInfo, InstalledPlugin> pair : tabList) {
-            TabWidget tab = new TabWidget(x, getTopPos() - 20, Component.literal(""), pair.getA().icon(), menu.installedPlugin.equals(pair.getB()), this.makeTabSwitchEvent(pair.getB()));
+            TabWidget tab = new TabWidget(x, getTopPos() - 21, Component.literal(""), pair.getA().icon().asItem().getDefaultInstance(), menu.installedPlugin.equals(pair.getB()), this.makeTabSwitchEvent(pair.getB()));
+            tabs.add(tab);
+            addRenderableWidget(tab);
+            x += tab.getWidth();
         }
     }
 
@@ -89,8 +95,8 @@ public class EtherAdaptNodeScreen extends AbstractContainerScreen<@NotNull Ether
     @Override
     public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
         super.extractBackground(graphics, mouseX, mouseY, a);
-
-        if(tabProvider != null)
+        UI_BASE.blit(graphics, getLeftPos(), getTopPos());
+        if (tabProvider != null)
             tabProvider.extractBackground(graphics, mouseX, mouseY, a);
     }
 

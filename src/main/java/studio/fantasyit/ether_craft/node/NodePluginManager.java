@@ -28,12 +28,12 @@ public class NodePluginManager {
     public final static Predicate<PluginType> FEATURE_UPGRADE_TYPE = t -> t == PluginType.FEATURE || t == PluginType.UPGRADE;
 
     public final static InstalledPlugin MAIN_PAGE = new InstalledPlugin(PluginType.DUMMY, 0, MainPageDummyPlugin.ID);
-    public final static PluginInfo MAIN_PAGE_INFO = new PluginInfo(PluginType.UPGRADE, MainPageDummyPlugin.ID, MainPageDummyPlugin::new, _ -> false, Items.BARRIER.getDefaultInstance());
+    public final static PluginInfo MAIN_PAGE_INFO = new PluginInfo(PluginType.UPGRADE, MainPageDummyPlugin.ID, MainPageDummyPlugin::new, _ -> false, Items.BARRIER);
 
     public record PluginInfo(PluginType type, Identifier id,
                              Function<EtherAdaptNodeEntity, AbstractNodePlugin> constructor,
                              Predicate<ItemStack> predicate,
-                             ItemStack icon
+                             ItemLike icon
     ) {
     }
 
@@ -87,16 +87,11 @@ public class NodePluginManager {
         }
         return null;
     }
-
     public void registerPlugin(PluginType type, Identifier id, Function<EtherAdaptNodeEntity, AbstractNodePlugin> plugin, ItemLike item) {
-        registerPlugin(type, id, plugin, item.asItem().getDefaultInstance());
+        registerPlugin(type, id, plugin, t -> t.is(item.asItem()), item);
     }
 
-    public void registerPlugin(PluginType type, Identifier id, Function<EtherAdaptNodeEntity, AbstractNodePlugin> plugin, ItemStack item) {
-        registerPlugin(type, id, plugin, t -> ItemStack.isSameItem(item, t), item);
-    }
-
-    public void registerPlugin(PluginType type, Identifier id, Function<EtherAdaptNodeEntity, AbstractNodePlugin> plugin, Predicate<ItemStack> predicate, ItemStack icon) {
+    public void registerPlugin(PluginType type, Identifier id, Function<EtherAdaptNodeEntity, AbstractNodePlugin> plugin, Predicate<ItemStack> predicate, ItemLike icon) {
         plugins.add(new PluginInfo(type, id, plugin, predicate, icon));
     }
 }

@@ -46,7 +46,7 @@ public record SyncBlockEtherValueS2C(
             if(level.dimension().identifier().equals(levelId)){
                 EtherContainer capability = level.getCapability(EtherContainer.ETHER_CONTAINER, pos);
                 if(capability != null){
-                    capability.setEther(ether);
+                    capability.setEtherNoUpdate(ether);
                 }
             }
         });

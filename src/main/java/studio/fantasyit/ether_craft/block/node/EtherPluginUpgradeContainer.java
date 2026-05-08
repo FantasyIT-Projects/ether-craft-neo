@@ -6,12 +6,14 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import org.jetbrains.annotations.Nullable;
+import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.node.AbstractNodePlugin;
 import studio.fantasyit.ether_craft.node.NodePluginManager;
 import studio.fantasyit.ether_craft.node.NodeProperty;
 
 import java.util.List;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 public class EtherPluginUpgradeContainer extends SimpleContainer {
     private final Identifier[] pluginId;
@@ -34,6 +36,7 @@ public class EtherPluginUpgradeContainer extends SimpleContainer {
     public @Nullable AbstractNodePlugin getPlugin(int index) {
         return plugin[index];
     }
+
     @Override
     public void setChanged() {
         super.setChanged();
@@ -47,9 +50,11 @@ public class EtherPluginUpgradeContainer extends SimpleContainer {
         this.entity.setChanged();
     }
 
+    public static Identifier ID_NULL = EtherCraft.id("null");
+
     public void saveAddition(ValueOutput output) {
         output.store("items", ItemStack.OPTIONAL_CODEC.listOf(), getItems());
-        output.store("plugins", Identifier.CODEC.listOf(), List.of(pluginId));
+        output.store("plugins", Identifier.CODEC.listOf(), Stream.of(pluginId).map(id -> id == null ? ID_NULL : id).toList());
         for (int i = 0; i < pluginId.length; i++) {
             if (pluginId[i] != null)
                 plugin[i].saveAdditional(output.child(String.format("plugin-%d", i)));
@@ -65,6 +70,8 @@ public class EtherPluginUpgradeContainer extends SimpleContainer {
         input.read("plugins", Identifier.CODEC.listOf()).ifPresent(l -> {
             for (int i = 0; i < l.size() && i < getContainerSize(); i++) {
                 pluginId[i] = l.get(i);
+                if (pluginId[i].equals(ID_NULL))
+                    plugin[i] = null;
                 if (pluginId[i] != null)
                     plugin[i] = NodePluginManager.Instance.get(pluginId[i], this.entity);
             }
@@ -80,7 +87,7 @@ public class EtherPluginUpgradeContainer extends SimpleContainer {
         for (int i = 0; i < plugin.length; i++) {
             AbstractNodePlugin AbstractNodePlugin = plugin[i];
             if (AbstractNodePlugin != null) {
-                    AbstractNodePlugin.tick();
+                AbstractNodePlugin.tick();
             }
         }
     }

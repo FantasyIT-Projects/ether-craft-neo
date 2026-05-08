@@ -22,12 +22,13 @@ import studio.fantasyit.ether_craft.block.node.EtherAdaptNodeBlock;
 import studio.fantasyit.ether_craft.entity.EtherStreamEntity;
 
 import static studio.fantasyit.ether_craft.register.BlockEntityRegistry.ETHER_NODE_ENTITY;
+import static studio.fantasyit.ether_craft.register.BlockEntityRegistry.ETHER_STREAM_EMITTER_ENTITY;
 
 public class EtherStreamEmitterEntity extends BaseEtherContainerBlockEntity implements EtherContainer, MenuProvider, ITickable {
     private boolean markUpdate = false;
 
     public EtherStreamEmitterEntity(BlockPos worldPosition, BlockState blockState) {
-        super(ETHER_NODE_ENTITY.get(), worldPosition, blockState, 9, 9, 0);
+        super(ETHER_STREAM_EMITTER_ENTITY.get(), worldPosition, blockState, 9, 9, 0);
     }
 
     @Override

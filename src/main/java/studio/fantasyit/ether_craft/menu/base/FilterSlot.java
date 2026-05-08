@@ -5,15 +5,18 @@ import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import studio.fantasyit.ether_craft.node.filter.ItemFilter;
 
 public class FilterSlot extends Slot {
     public boolean readonly;
-    public FilterSlot(Container handler, int index, int x, int y) {
+    public ItemFilter handler;
+    public FilterSlot(ItemFilter handler, int index, int x, int y) {
         this(handler, index, x, y,false);
     }
-    public FilterSlot(Container handler, int index, int x, int y, boolean readonly) {
+    public FilterSlot(ItemFilter handler, int index, int x, int y, boolean readonly) {
         super(handler, index, x, y);
         this.readonly = readonly;
+        this.handler = handler;
     }
 
     boolean active = true;
