@@ -4,20 +4,26 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
+import org.jetbrains.annotations.NotNull;
 import org.joml.Vector2i;
-import studio.fantasyit.ether_craft.menu.base.ether.EtherSlot;
+import studio.fantasyit.ether_craft.block.base.ItemFilter;
 import studio.fantasyit.ether_craft.block.factory.EtherProcessFactoryEntity;
-import studio.fantasyit.ether_craft.menu.base.BaseContainerMenu;
-import studio.fantasyit.ether_craft.menu.base.BaseDataSlot;
-import studio.fantasyit.ether_craft.menu.base.ResultSlot;
+import studio.fantasyit.ether_craft.block.factory.FactoryLevelDef;
+import studio.fantasyit.ether_craft.menu.base.*;
+import studio.fantasyit.ether_craft.menu.base.ether.EtherSlot;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static studio.fantasyit.ether_craft.register.GuiRegistry.ETHER_PROCESS_FACTORY_CONTAINER;
 
-public class EtherProcessFactoryContainerMenu extends BaseContainerMenu {
+public class EtherProcessFactoryContainerMenu extends BaseContainerMenu<@NotNull EtherProcessFactoryEntity> {
     public Map<Integer, Vector2i> internalSlotMapping;
+    public List<Slot> mainUiSlots;
+    public List<BaseSlot> internalAndOutputSlots;
+    public List<FilterSlot> filterSlots;
 
     public EtherProcessFactoryContainerMenu(int windowId, Player player, BlockPos pos) {
         super(windowId, player, pos, ETHER_PROCESS_FACTORY_CONTAINER.get());
@@ -26,40 +32,71 @@ public class EtherProcessFactoryContainerMenu extends BaseContainerMenu {
     @Override
     protected void addMachineSlots() {
         internalSlotMapping = new HashMap<>();
-        addSlotArea(entity.container, 0, 17, 7, 1, 18, inputSlots, 18,
-                (a, b, c, d, e, f) -> new FactoryInputSlot(a, b, c, d, entity.internalContainer, f * internalSlots / inputSlots)
+        mainUiSlots = new ArrayList<>();
+        internalAndOutputSlots = new ArrayList<>();
+        filterSlots = new ArrayList<>();
+        FactoryLevelDef factoryDef = entity.getLevelDef();
+
+        addSlotArea(entity.container, 0, factoryDef.posInput().x + 1, factoryDef.posInput().y + 1, 1, 18, entity.ROWS, 18,
+                (a, b, c, d, e, f) -> new FactoryInputSlot(a, b, c, d, entity.internalContainer, f * internalSlots / inputSlots),
+                (s, i, j) -> mainUiSlots.add(s)
         );
-        addSlotArea(entity.container, inputSlots, 39, 7, inputSlots, 18, internalSlots / inputSlots, 18,
-                SlotSupplier.of(SingleStackSlot::new), (s, i, j) -> internalSlotMapping.put(s.index, new Vector2i(i, j))
+        addSlotArea(entity.container, inputSlots, factoryDef.posInternal().x + 1, factoryDef.posInternal().y + 1, entity.COLS, 18, entity.ROWS, 18,
+                SlotSupplier.of(SingleStackSlot::new), (s, i, j) -> {
+                    internalSlotMapping.put(s.index, new Vector2i(i, j));
+                    mainUiSlots.add(s);
+                }
         );
-        addSlotArea(entity.container, inputSlots + internalSlots, 205, 7, 1, 18, 9, 18, SlotSupplier.of(ResultSlot::new));
-        addSlot(new EtherSlot(entity.etherContainer, 16, 173));
-        EtherProcessFactoryEntity be = (EtherProcessFactoryEntity) entity;
-        for (int i = 0; i < be.processingRecipes.length; i++) {
-            int finalI = i;
-            addDataSlot(new BaseDataSlot(() -> be.processingProgress[finalI], (v) -> be.processingProgress[finalI] = v));
+        addSlotArea(entity.container, inputSlots + internalSlots, factoryDef.posOutput().x + 1, factoryDef.posOutput().y + 1, 1, 18, entity.ROWS, 18,
+                SlotSupplier.of(ResultSlot::new),
+                (s, i, j) -> mainUiSlots.add(s)
+        );
+
+        int etherSlotX = factoryDef.panelLeft().x;
+        int etherSlotY = factoryDef.panelLeft().y;
+        if (factoryDef.showPanel()) {
+            etherSlotX += 4;
+            etherSlotY += 4;
         }
-        for (int i = 0; i < EtherProcessFactoryEntity.ROWS; i++) {
-            for (int j = 0; j < EtherProcessFactoryEntity.COLS; j++) {
+
+        addSlot(new EtherSlot(entity.etherContainer, etherSlotX + 1, etherSlotY + 1));
+        for (int i = 0; i < entity.processingRecipes.length; i++) {
+            int finalI = i;
+            addDataSlot(new BaseDataSlot(() -> entity.processingProgress[finalI], (v) -> entity.processingProgress[finalI] = v));
+        }
+        for (int i = 0; i < this.entity.ROWS; i++) {
+            for (int j = 0; j < this.entity.COLS; j++) {
                 int finalI = i;
                 int finalJ = j;
-                addDataSlot(new BaseDataSlot(() -> be.pathBelongings[finalI][finalJ], (v) -> be.pathBelongings[finalI][finalJ] = v));
-                addDataSlot(new BaseDataSlot(() -> be.currentEther[finalI][finalJ], (v) -> be.currentEther[finalI][finalJ] = v));
+                addDataSlot(new BaseDataSlot(() -> entity.pathBelongings[finalI][finalJ], (v) -> entity.pathBelongings[finalI][finalJ] = v));
+                addDataSlot(new BaseDataSlot(() -> entity.currentEther[finalI][finalJ], (v) -> entity.currentEther[finalI][finalJ] = v));
             }
         }
 
-        addDataSlot(new BaseDataSlot(() -> be.pressureBonus, (v) -> be.pressureBonus = v));
-        addDataSlot(new BaseDataSlot(() -> be.leak, (v) -> be.leak = v));
-
+        addDataSlot(new BaseDataSlot(() -> entity.pressureBonus, (v) -> entity.pressureBonus = v));
+        addDataSlot(new BaseDataSlot(() -> entity.leak, (v) -> entity.leak = v));
         for (int i = 0; i < outputSlots; i++) {
-            addSlot(new InvisibleSlot(be.possibleResults, i, 0, 0));
+            addSlot(new InvisibleSlot(entity.possibleResults, i, 0, 0));
+        }
+
+        for (int i = this.entity.ROWS; i < mainUiSlots.size(); i++) {
+            if (mainUiSlots.get(i) instanceof BaseSlot s)
+                internalAndOutputSlots.add(s);
+        }
+
+        for (int i = 0; i < inputSlots; i++) {
+            addSlotArea(entity.filters[i], 0, factoryDef.posFilterInput().x + 1, factoryDef.posFilterInput().y + i * 18 + 1, this.entity.ROWS, 18, 1, 18,
+                    SlotSupplier.of((a, b, c, d) -> new FilterSlot((ItemFilter) a, b, c, d)),
+                    (s, _, j) -> filterSlots.add((FilterSlot) s)
+            );
         }
     }
 
     @Override
     protected void addPlayerSlots(Inventory playerInventory) {
-        int invBaseX = 39;
-        int invBaseY = 174;
+        FactoryLevelDef factoryDef = entity.getLevelDef();
+        int invBaseX = factoryDef.posPlayer().x + 8;
+        int invBaseY = factoryDef.posPlayer().y + 8;
         addSlotArea(playerInventory, 9, invBaseX, invBaseY, 9, 18, 3, 18, SlotSupplier.of(Slot::new));
         addSlotArea(playerInventory, 0, invBaseX, invBaseY + 58, 9, 18, 1, 18, SlotSupplier.of(Slot::new));
     }

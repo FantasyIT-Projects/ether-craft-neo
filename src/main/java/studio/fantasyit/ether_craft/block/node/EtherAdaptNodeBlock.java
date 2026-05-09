@@ -76,7 +76,7 @@ public class EtherAdaptNodeBlock extends BaseBlock {
         if (!level.isClientSide() && level.getBlockEntity(pos) instanceof EtherAdaptNodeEntity eane) {
             player.openMenu(eane.getMenuProvider(null));
         }
-        return super.useWithoutItem(state, level, pos, player, hitResult);
+        return InteractionResult.SUCCESS;
     }
 
     @Override

@@ -3,7 +3,7 @@ package studio.fantasyit.ether_craft.menu.base;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
-public class RangeLimitSlot extends Slot {
+public class RangeLimitSlot extends BaseSlot {
 
     private final RangeLimitPlaceContainer handler;
 

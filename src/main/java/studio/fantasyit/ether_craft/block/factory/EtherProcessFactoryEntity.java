@@ -14,14 +14,19 @@ import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector2i;
 import studio.fantasyit.ether_craft.block.base.BaseEtherContainerBlockEntity;
 import studio.fantasyit.ether_craft.block.base.EtherContainer;
 import studio.fantasyit.ether_craft.block.base.ITickable;
+import studio.fantasyit.ether_craft.block.base.ItemFilter;
 import studio.fantasyit.ether_craft.menu.factory.EtherProcessFactoryContainerMenu;
 import studio.fantasyit.ether_craft.recipe.factory.EtherFactoryRecipeInput;
 import studio.fantasyit.ether_craft.recipe.factory.EtherProcessFactoryRecipe;
+import studio.fantasyit.ether_craft.register.ItemRegistry;
 import studio.fantasyit.ether_craft.register.RecipeTypeRegistry;
 import studio.fantasyit.ether_craft.register.Tags;
 import studio.fantasyit.ether_craft.util.EtherProcessorRecipeUtil;
@@ -33,10 +38,11 @@ import static studio.fantasyit.ether_craft.register.BlockEntityRegistry.ETHER_PR
 
 public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity implements EtherContainer, MenuProvider, ITickable {
     public static final int MAX_PROGRESS = 100;
-    public static int ROWS = 9;
-    public static int COLS = 9;
+    public final int ROWS;
+    public final int COLS;
     public int[] processingProgress;
-    public SimpleContainer possibleResults = new SimpleContainer(ROWS);
+    public ItemFilter[] filters;
+    public SimpleContainer possibleResults;
     public EtherProcessFactoryRecipe[] processingRecipes;
     public EtherFactoryRecipeInput[] processingInputs;
     public @Nullable EtherProcessWorkingChip[][] slotChips;
@@ -46,14 +52,30 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
     public int leak = 0;
     boolean markUpdate = false;
 
+    public static int[] getSlots(BlockState state) {
+        FactoryLevelDef d = FactoryLevelDef.getByLevel(state.getValue(EtherProcessFactoryBlock.LEVEL));
+        return new int[]{d.slotSize().y, d.slotSize().y * d.slotSize().x, d.slotSize().y};
+    }
+
     public EtherProcessFactoryEntity(BlockPos worldPosition, BlockState blockState) {
-        super(ETHER_PROCESS_FACTORY_ENTITY.get(), worldPosition, blockState, ROWS, COLS * ROWS, ROWS);
+        super(ETHER_PROCESS_FACTORY_ENTITY.get(), worldPosition, blockState, getSlots(blockState));
+        Vector2i vector2i = getLevelDef().slotSize();
+        ROWS = vector2i.y;
+        COLS = vector2i.x;
+        filters = new ItemFilter[ROWS];
+        for (int i = 0; i < ROWS; i++)
+            filters[i] = new ItemFilter(9, this::setChanged);
+        possibleResults = new SimpleContainer(ROWS);
         processingProgress = new int[ROWS];
         processingRecipes = new EtherProcessFactoryRecipe[ROWS];
         processingInputs = new EtherFactoryRecipeInput[ROWS];
         slotChips = new EtherProcessWorkingChip[ROWS][COLS];
         pathBelongings = new int[ROWS][COLS];
         currentEther = new int[ROWS][COLS];
+    }
+
+    public FactoryLevelDef getLevelDef() {
+        return FactoryLevelDef.getByLevel(getBlockState().getValue(EtherProcessFactoryBlock.LEVEL));
     }
 
 
@@ -72,7 +94,7 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
             return;
         for (int i = 0; i < ROWS; i++) {
             for (int j = 0; j < COLS; j++) {
-                ItemStack itemStack = internalContainer.getItem(i * COLS + j);
+                ItemStack itemStack = internalContainer.getItem(i * ROWS + j);
                 @Nullable EtherProcessWorkingChip originalChip = slotChips[i][j];
                 if (originalChip != null && ItemStack.isSameItemSameComponents(itemStack, originalChip.item) && !itemStack.isEmpty())
                     continue;
@@ -135,7 +157,7 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
     }
 
     public void updateRecipe(ServerLevel level) {
-        EtherProcessorRecipeUtil.FactoryStructure factoryStructure = EtherProcessorRecipeUtil.processFactoryInput(9, 9, inputContainer, slotChips);
+        EtherProcessorRecipeUtil.FactoryStructure factoryStructure = EtherProcessorRecipeUtil.processFactoryInput(ROWS, COLS, inputContainer, slotChips);
         leak = factoryStructure.leakingSpeed;
         boolean[] hasRecipe = new boolean[ROWS];
         for (int i = 0; i < factoryStructure.recipes.size(); i++) {
@@ -152,7 +174,7 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
                 processingRecipes[outputId] = currentRecipe;
                 processingProgress[outputId] = 0;
                 processingInputs[outputId] = factoryStructure.recipes.get(i);
-                possibleResults.setItem(outputId,currentRecipe.getResultItem());
+                possibleResults.setItem(outputId, currentRecipe.getResultItem());
             } else {
                 hasRecipe[outputId] = false;
             }
@@ -250,5 +272,19 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
     @Override
     public @Nullable AbstractContainerMenu createMenu(int i, Inventory inventory, Player player) {
         return new EtherProcessFactoryContainerMenu(i, player, this.worldPosition);
+    }
+
+    @Override
+    public int insert(int index, ItemResource resource, int amount, @NotNull TransactionContext transaction) {
+        if (index < ROWS && !filters[index].accepts(resource) && !resource.is(ItemRegistry.ETHER))
+            return 0;
+        return super.insert(index, resource, amount, transaction);
+    }
+
+    @Override
+    public int extract(int index, ItemResource resource, int amount, @NotNull TransactionContext transaction) {
+        if (index < ROWS && !filters[index].accepts(resource) && !resource.is(ItemRegistry.ETHER))
+            return 0;
+        return super.extract(index, resource, amount, transaction);
     }
 }

@@ -6,6 +6,7 @@ import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeScreen;
 import studio.fantasyit.ether_craft.node.filter.FilterGuiRegClient;
 import studio.fantasyit.ether_craft.node.plugins.function.AbstractItemConsumeFunction;
 import studio.fantasyit.ether_craft.node.tabs.BaseEtherNodeTabWidgetProvider;
+import studio.fantasyit.ether_craft.util.UIUtil;
 
 public class ItemConsumeScreen extends BaseEtherNodeTabWidgetProvider<AbstractItemConsumeFunction> {
     public ItemConsumeScreen(AbstractItemConsumeFunction menuContext, EtherAdaptNodeScreen screen) {
@@ -15,7 +16,7 @@ public class ItemConsumeScreen extends BaseEtherNodeTabWidgetProvider<AbstractIt
     @Override
     public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
         super.extractBackground(graphics, mouseX, mouseY, a);
-        EtherAdaptNodeAsset.nineSliced(graphics, EtherAdaptNodeAsset.INFO_PANEL, lx(93), ly(15), 75, 48, 1);
+        UIUtil.nineSliced(graphics, EtherAdaptNodeAsset.INFO_PANEL, lx(93), ly(15), 75, 48, 1);
     }
 
     @Override

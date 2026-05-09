@@ -7,17 +7,30 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jspecify.annotations.Nullable;
 import studio.fantasyit.ether_craft.block.base.BaseBlock;
 
 public class EtherProcessFactoryBlock extends BaseBlock {
+    public static final IntegerProperty LEVEL = BlockStateProperties.LEVEL;
+
     public EtherProcessFactoryBlock(Identifier identifier) {
         super(Properties.of().setId(ResourceKey.create(Registries.BLOCK, identifier)));
+        registerDefaultState(
+                stateDefinition.any()
+                        .setValue(LEVEL, 1)
+        );
     }
-
+    @Override
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+        builder.add(LEVEL);
+    }
     @Override
     public @Nullable BlockEntity newBlockEntity(BlockPos blockPos, BlockState blockState) {
         return new EtherProcessFactoryEntity(blockPos, blockState);

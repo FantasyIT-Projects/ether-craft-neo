@@ -33,6 +33,12 @@ public class BaseEtherContainerBlockEntity extends BlockEntity implements Resour
     private final SnapshotJournal<@NotNull Long> etherJournal;
     private final boolean extractableInput;
 
+    public BaseEtherContainerBlockEntity(BlockEntityType<?> type, BlockPos worldPosition, BlockState blockState, int[] slots) {
+        if (slots.length != 3)
+            throw new IllegalArgumentException("Invalid slots");
+        this(type, worldPosition, blockState, slots[0], slots[1], slots[2]);
+    }
+
     public BaseEtherContainerBlockEntity(BlockEntityType<?> type, BlockPos worldPosition, BlockState blockState, int input, int internal, int outputs) {
         this(type, worldPosition, blockState, input, internal, outputs, false);
     }

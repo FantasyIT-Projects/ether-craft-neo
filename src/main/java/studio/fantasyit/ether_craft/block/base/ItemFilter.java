@@ -1,4 +1,4 @@
-package studio.fantasyit.ether_craft.node.filter;
+package studio.fantasyit.ether_craft.block.base;
 
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
@@ -7,13 +7,10 @@ import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.common.util.ValueIOSerializable;
 import net.neoforged.neoforge.transfer.item.ItemResource;
-import org.apache.commons.lang3.mutable.MutableInt;
 import org.jetbrains.annotations.NotNull;
 import studio.fantasyit.ether_craft.util.ContainerOps;
 
 import java.util.Arrays;
-import java.util.List;
-import java.util.function.Consumer;
 
 public class ItemFilter implements Container, ValueIOSerializable {
     private final Runnable save;
@@ -21,7 +18,7 @@ public class ItemFilter implements Container, ValueIOSerializable {
     public boolean whitelist;
     ItemStack[] items;
 
-    public ItemFilter(int size,Runnable changed) {
+    public ItemFilter(int size, Runnable changed) {
         this.save = changed;
         this.size = size;
         this.items = new ItemStack[size];

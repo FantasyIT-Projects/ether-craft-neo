@@ -43,6 +43,7 @@ public class EtherAdaptNodeScreen extends AbstractContainerScreen<@NotNull Ether
         super.init();
         if (tabProvider == null) return;
         tabProvider.createWidget();
+        updateTabs();
     }
 
     @Override
@@ -72,7 +73,8 @@ public class EtherAdaptNodeScreen extends AbstractContainerScreen<@NotNull Ether
         pluginId.clear();
         int x = getLeftPos() + 3;
         for (Pair<NodePluginManager.PluginInfo, InstalledPlugin> pair : tabList) {
-            TabWidget tab = new TabWidget(x, getTopPos() - 21, Component.literal(""), pair.getA().icon().asItem().getDefaultInstance(), menu.installedPlugin.equals(pair.getB()), this.makeTabSwitchEvent(pair.getB()));
+            //TODO
+            TabWidget tab = new TabWidget(x, getTopPos() - 21, Component.literal("PLUGIN TODO"), pair.getA().icon().asItem().getDefaultInstance(), menu.installedPlugin.equals(pair.getB()), this.makeTabSwitchEvent(pair.getB()));
             tabs.add(tab);
             addRenderableWidget(tab);
             x += tab.getWidth();
@@ -113,5 +115,8 @@ public class EtherAdaptNodeScreen extends AbstractContainerScreen<@NotNull Ether
     @Override
     public <T extends Renderable> T addRenderableOnly(T renderable) {
         return super.addRenderableOnly(renderable);
+    }
+    @Override
+    protected void extractLabels(GuiGraphicsExtractor graphics, int xm, int ym) {
     }
 }

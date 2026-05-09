@@ -9,5 +9,6 @@
   "tooltip.ether_craft.process_chip_ether": "Contains [%d] E",
   "menu.ether_craft.node.directional_filter.cancel": "Cancel",
   "ether_craft.gui.node.filter.using_black_list": "Using Blacklist",
-  "ether_craft.gui.node.filter.using_white_list": "Using Whitelist"
+  "ether_craft.gui.node.filter.using_white_list": "Using Whitelist",
+  "menu.ether_craft.factory.filter": "Setting Filter"
 }

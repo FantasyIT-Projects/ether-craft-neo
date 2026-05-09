@@ -5,9 +5,9 @@ import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import studio.fantasyit.ether_craft.node.filter.ItemFilter;
+import studio.fantasyit.ether_craft.block.base.ItemFilter;
 
-public class FilterSlot extends Slot {
+public class FilterSlot extends BaseSlot {
     public boolean readonly;
     public ItemFilter handler;
     public FilterSlot(ItemFilter handler, int index, int x, int y) {

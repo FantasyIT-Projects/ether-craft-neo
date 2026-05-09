@@ -11,7 +11,7 @@ import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import studio.fantasyit.ether_craft.block.base.BaseEtherContainerBlockEntity;
 
-public abstract class BaseContainerMenu extends BaseMenu<@NotNull BaseEtherContainerBlockEntity> {
+public abstract class BaseContainerMenu<T extends @NotNull BaseEtherContainerBlockEntity> extends BaseMenu<T> {
     public final BlockPos pos;
     protected final int inputSlots;
     protected final int outputSlots;
