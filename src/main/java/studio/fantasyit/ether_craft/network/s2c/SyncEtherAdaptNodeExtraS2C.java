@@ -13,12 +13,16 @@ import org.jetbrains.annotations.NotNull;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.block.node.EtherAdaptNodeEntity;
 import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
+import studio.fantasyit.ether_craft.util.SerializeUtil;
 
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Optional;
 
 public record SyncEtherAdaptNodeExtraS2C(
+        Optional<InstalledPlugin> functionPlugin,
         Map<Direction, InstalledPlugin> pluginDirection,
+        Map<Identifier, Integer> pluginValue,
         BlockPos pos,
         Identifier levelId
 ) implements CustomPacketPayload {
@@ -28,27 +32,15 @@ public record SyncEtherAdaptNodeExtraS2C(
             )
     );
 
-    record PDMap(InstalledPlugin plugin, Direction direction) {
-        public static final StreamCodec<RegistryFriendlyByteBuf, @NotNull PDMap> CODEC = StreamCodec.composite(
-                InstalledPlugin.STREAM_CODEC,
-                PDMap::plugin,
-                Direction.STREAM_CODEC,
-                PDMap::direction,
-                PDMap::new
-        );
 
-        public static ArrayList<PDMap> fromMap(Map<Direction, InstalledPlugin> map) {
-            return new ArrayList<>(map.entrySet().stream().map(entry -> new PDMap(entry.getValue(), entry.getKey())).toList());
-        }
-
-        public static Map<Direction, InstalledPlugin> toMap(ArrayList<PDMap> list) {
-            return list.stream().collect(java.util.stream.Collectors.toMap(PDMap::direction, PDMap::plugin));
-        }
-    }
 
     public static final StreamCodec<RegistryFriendlyByteBuf, @NotNull SyncEtherAdaptNodeExtraS2C> CODEC = StreamCodec.composite(
-            ByteBufCodecs.collection(ArrayList::new, PDMap.CODEC).map(PDMap::toMap, PDMap::fromMap),
+            ByteBufCodecs.optional(InstalledPlugin.STREAM_CODEC),
+            SyncEtherAdaptNodeExtraS2C::functionPlugin,
+            ByteBufCodecs.collection(ArrayList::new, SerializeUtil.PDMap.CODEC).map(SerializeUtil.PDMap::toMap, SerializeUtil.PDMap::fromMap),
             SyncEtherAdaptNodeExtraS2C::pluginDirection,
+            ByteBufCodecs.collection(ArrayList::new, SerializeUtil.PIMap.STREAM_CODEC).map(SerializeUtil.PIMap::toMap, SerializeUtil.PIMap::fromMap),
+            SyncEtherAdaptNodeExtraS2C::pluginValue,
             BlockPos.STREAM_CODEC,
             SyncEtherAdaptNodeExtraS2C::pos,
             Identifier.STREAM_CODEC,
@@ -66,7 +58,7 @@ public record SyncEtherAdaptNodeExtraS2C(
             Level level = iPayloadContext.player().level();
             if (level.dimension().identifier().equals(levelId)) {
                 if (level.getBlockEntity(pos) instanceof EtherAdaptNodeEntity nodeEntity) {
-                    nodeEntity.fromNetwork(pluginDirection);
+                    nodeEntity.fromNetwork(pluginDirection, functionPlugin.orElse(null), pluginValue);
                 }
             }
         });

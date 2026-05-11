@@ -30,13 +30,17 @@ public abstract class AbstractNodePlugin implements ISyncTargetMenu {
             nodeEntity.ticket.requeue(action, installedId, cd);
     }
 
-    public abstract void modifyNodeProperty(NodeProperty nodeProperty);
+    public void modifyNodeProperty(NodeProperty nodeProperty) {
+    }
 
-    public abstract void tick();
+    public void tick() {
+    }
 
-    public abstract void saveAdditional(ValueOutput output);
+    public void saveAdditional(ValueOutput output) {
+    }
 
-    public abstract void loadAdditional(ValueInput input);
+    public void loadAdditional(ValueInput input) {
+    }
 
     public boolean inputFilter(ItemResource resource) {
         return true;
@@ -62,4 +66,6 @@ public abstract class AbstractNodePlugin implements ISyncTargetMenu {
     @Override
     public void syncScreenData(SyncScreenDataC2S message) {
     }
+
+
 }

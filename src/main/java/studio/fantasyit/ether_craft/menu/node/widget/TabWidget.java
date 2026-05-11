@@ -1,4 +1,4 @@
-package studio.fantasyit.ether_craft.menu.node;
+package studio.fantasyit.ether_craft.menu.node.widget;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;

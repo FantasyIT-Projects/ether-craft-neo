@@ -7,7 +7,7 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import org.joml.Vector2i;
 import studio.fantasyit.ether_craft.menu.base.ImageAsset;
-import studio.fantasyit.ether_craft.menu.base.btn.IASwitchButton;
+import studio.fantasyit.ether_craft.menu.base.widget.IASwitchButton;
 import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeAsset;
 import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeScreen;
 import studio.fantasyit.ether_craft.network.c2s.SyncScreenDataC2S;

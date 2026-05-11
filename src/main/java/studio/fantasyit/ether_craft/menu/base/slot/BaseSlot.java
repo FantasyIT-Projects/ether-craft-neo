@@ -1,4 +1,4 @@
-package studio.fantasyit.ether_craft.menu.base;
+package studio.fantasyit.ether_craft.menu.base.slot;
 
 import net.minecraft.world.Container;
 import net.minecraft.world.inventory.Slot;

@@ -2,9 +2,8 @@ package studio.fantasyit.ether_craft.menu.factory;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
@@ -15,8 +14,8 @@ import org.joml.Vector2i;
 import studio.fantasyit.ether_craft.block.factory.EtherProcessChipManager;
 import studio.fantasyit.ether_craft.block.factory.EtherProcessFactoryEntity;
 import studio.fantasyit.ether_craft.block.factory.FactoryLevelDef;
-import studio.fantasyit.ether_craft.menu.base.BaseSlot;
-import studio.fantasyit.ether_craft.menu.base.btn.IASwitchButton;
+import studio.fantasyit.ether_craft.menu.base.slot.BaseSlot;
+import studio.fantasyit.ether_craft.menu.base.widget.IASwitchButton;
 import studio.fantasyit.ether_craft.util.UIUtil;
 
 import java.util.List;
@@ -26,6 +25,7 @@ import static studio.fantasyit.ether_craft.menu.factory.EtherProcessFactoryAsset
 public class EtherProcessFactoryScreen extends AbstractContainerScreen<@NotNull EtherProcessFactoryContainerMenu> {
     EtherProcessFactoryEntity be;
     FactoryLevelDef f;
+    Rect2i etherShowArea;
     boolean isFiltering = false;
 
     public EtherProcessFactoryScreen(EtherProcessFactoryContainerMenu menu, Inventory p_97742_, Component p_97743_) {
@@ -68,6 +68,8 @@ public class EtherProcessFactoryScreen extends AbstractContainerScreen<@NotNull 
         graphics.text(font, Component.literal("Spd:" + be.pressureBonus), getLeftPos() + 5, getTopPos() + 220, 0xffffffff);
         graphics.text(font, Component.literal("Leak:" + be.leak), getLeftPos() + 5, getTopPos() + 240, 0xffffffff);
 
+        int internalX = f.posInternal().x;
+        int internalY = f.posInternal().y;
         for (int i = 0; i < be.ROWS; i++) {
             for (int j = 0; j < be.COLS; j++) {
                 ItemStack chipItem = be.internalContainer.getItem(i * be.COLS + j);
@@ -83,10 +85,10 @@ public class EtherProcessFactoryScreen extends AbstractContainerScreen<@NotNull 
                     color = 0xffff3d00;
 
                 graphics.fill(
-                        getLeftPos() + 38 + j * 18 + 2,
-                        getTopPos() + 6 + i * 18 + 2,
-                        getLeftPos() + 38 + j * 18 + 5,
-                        getTopPos() + 6 + i * 18 + 5,
+                        getLeftPos() + internalX + j * 18 + 2,
+                        getTopPos() + internalY + i * 18 + 2,
+                        getLeftPos() + internalX + j * 18 + 5,
+                        getTopPos() + internalY + i * 18 + 5,
                         color
                 );
             }
@@ -98,6 +100,16 @@ public class EtherProcessFactoryScreen extends AbstractContainerScreen<@NotNull 
         super.extractBackground(graphics, mouseX, mouseY, a);
         UIUtil.nineSliced(graphics, MAIN_BG, getLeftPos(), getTopPos(), f.mainSize().x, f.mainSize().y, 5);
         PLAYER_INV.blit(graphics, getLeftPos() + f.posPlayer().x, getTopPos() + f.posPlayer().y);
+
+        for (Slot s : menu.mainUiSlots) {
+            if (s instanceof BaseSlot bs && bs.isActive())
+                SLOT.blit(graphics, getLeftPos() + s.x - 1, getTopPos() + s.y - 1);
+        }
+        for (Slot s : menu.filterSlots) {
+            if (s instanceof BaseSlot bs && bs.isActive())
+                SLOT.blit(graphics, getLeftPos() + s.x - 1, getTopPos() + s.y - 1);
+        }
+
         int internalX = f.posInternal().x;
         int internalY = f.posInternal().y;
         for (int i = 0; i < be.processingInputs.length; i++) {
@@ -122,7 +134,7 @@ public class EtherProcessFactoryScreen extends AbstractContainerScreen<@NotNull 
             ItemStack it = be.possibleResults.getItem(i);
             if (it.isEmpty()) continue;
             if (be.outputContainer.getItem(i).isEmpty())
-                UIUtil.renderItemStackSlotPlaceholder(graphics, it, getLeftPos() + 206, getTopPos() + 6 + i * 18);
+                UIUtil.renderItemStackSlotPlaceholder(graphics, it, getLeftPos() + f.posOutput().x + 1, getTopPos() + f.posOutput().y + i * 18 + 1);
         }
         int lpx = getLeftPos() + f.panelLeft().x;
         int lpy = getTopPos() + f.panelLeft().y;
@@ -133,6 +145,9 @@ public class EtherProcessFactoryScreen extends AbstractContainerScreen<@NotNull 
         }
         SLOT.blit(graphics, lpx, lpy);
         BAR.blit(graphics, lpx, lpy + 21);
+        UIUtil.renderEtherBar(be.getEther() == 0 ? 0 : be.pressureBonus, lpx + 1, lpy + 22, 16, 2, graphics);
+        if (mouseX >= lpx && mouseX < lpx + BAR.w && mouseY >= lpy + 21 && mouseY < lpy + 21 + BAR.h)
+            graphics.setTooltipForNextFrame(Component.translatable("menu.ether_craft.ether_bar_tooltip", menu.entity.getEther()), mouseX, mouseY);
 
         int rpx = getLeftPos() + f.panelRight().x;
         int rpy = getTopPos() + f.panelRight().y;
@@ -142,15 +157,6 @@ public class EtherProcessFactoryScreen extends AbstractContainerScreen<@NotNull 
             rpy += 7;
         }
         FILTER.blit(graphics, rpx + 4, rpy + 18);
-
-        for (Slot s : menu.mainUiSlots) {
-            if (s instanceof BaseSlot bs && bs.isActive())
-                SLOT.blit(graphics, getLeftPos() + s.x - 1, getTopPos() + s.y - 1);
-        }
-        for (Slot s : menu.filterSlots) {
-            if (s instanceof BaseSlot bs && bs.isActive())
-                SLOT.blit(graphics, getLeftPos() + s.x - 1, getTopPos() + s.y - 1);
-        }
 
         if (isFiltering) {
             for (int i = 0; i < be.ROWS; i++) {

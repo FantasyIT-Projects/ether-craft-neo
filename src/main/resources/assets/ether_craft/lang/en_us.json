@@ -10,5 +10,6 @@
   "menu.ether_craft.node.directional_filter.cancel": "Cancel",
   "ether_craft.gui.node.filter.using_black_list": "Using Blacklist",
   "ether_craft.gui.node.filter.using_white_list": "Using Whitelist",
-  "menu.ether_craft.factory.filter": "Setting Filter"
+  "menu.ether_craft.factory.filter": "Setting Filter",
+  "menu.ether_craft.ether_bar_tooltip": "Ether: %d"
 }

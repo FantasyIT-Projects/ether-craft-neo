@@ -20,6 +20,9 @@ public class Config {
     private static final ModConfigSpec.IntValue NODE_DEF_MAX_ETHER = BUILDER
             .comment("Max ether value of Ether Adapt Node by default")
             .defineInRange("node.def.max", 1000, 1, Integer.MAX_VALUE);
+    private static final ModConfigSpec.IntValue NODE_MAGNET_CONSUME_PRE_STACK = BUILDER
+            .comment("Ether the magnet function will consume when picking up one stack")
+            .defineInRange("node.magnet.consume_pre_stack", 100, 1, Integer.MAX_VALUE);
     private static final ModConfigSpec.ConfigValue<List<? extends Integer>> NODE_LEVEL_SLOT_ARR = BUILDER
             .comment("Upgrade slots pre level")
             .defineList("node.up_slot", () -> List.of(2, 4, 6), () -> 0, t -> {
@@ -36,11 +39,13 @@ public class Config {
     public static int etherConvert;
     public static int nodeDefMaxEther;
     public static List<Integer> nodeLevelSlotArr;
+    public static int nodeMagnetConsumePreStack;
 
     @SubscribeEvent
     static void onLoad(final ModConfigEvent event) {
         etherConvert = ETHER_CONVERT.get();
         nodeDefMaxEther = NODE_DEF_MAX_ETHER.get();
         nodeLevelSlotArr = NODE_LEVEL_SLOT_ARR.get().stream().map(t -> (Integer) t).toList();
+        nodeMagnetConsumePreStack = NODE_MAGNET_CONSUME_PRE_STACK.get();
     }
 }

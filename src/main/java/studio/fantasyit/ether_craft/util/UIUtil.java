@@ -5,6 +5,37 @@ import net.minecraft.world.item.ItemStack;
 import studio.fantasyit.ether_craft.menu.base.ImageAsset;
 
 public class UIUtil {
+    private static final int[] ETHER_BAR_COLORS = new int[]{
+            0xa6a6a6ff,
+            0x002fa7ff,
+            0x1c56c9ff,
+            0x56c5fcff,
+            0x63f8ffff,
+            0x8affffff,
+            0xe4ffffff
+    };
+
+    public static void renderEtherBarProgress(long value, long max, int x, int y, int w, int h, GuiGraphicsExtractor graphics) {
+        renderEtherBarProgress((float) value / max, x, y, w, h, graphics);
+    }
+
+    public static void renderEtherBarProgress(float value, int x, int y, int w, int h, GuiGraphicsExtractor graphics) {
+        if (value <= 0)
+            value = 0;
+        if (value > 1)
+            value = 1;
+        int v = value == 0 ? 0 : (int) Math.min(value * (ETHER_BAR_COLORS.length - 1) + 1, ETHER_BAR_COLORS.length - 1);
+        graphics.fill(x, y, x + w, y + h, ETHER_BAR_COLORS[v]);
+    }
+
+    public static void renderEtherBar(int value, int x, int y, int w, int h, GuiGraphicsExtractor graphics) {
+        if (value <= 0)
+            value = 0;
+        if (value >= ETHER_BAR_COLORS.length)
+            value = ETHER_BAR_COLORS.length - 1;
+        graphics.fill(x, y, x + w, y + h, ETHER_BAR_COLORS[value]);
+    }
+
     public static void renderItemStackSlotPlaceholder(GuiGraphicsExtractor graphics, ItemStack itemStack, int x, int y) {
         graphics.item(itemStack, x, y);
         graphics.fill(x, y, x + 16, y + 16, 0x8B8B8B80);

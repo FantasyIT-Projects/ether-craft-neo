@@ -4,6 +4,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.SimpleContainer;
@@ -35,11 +36,9 @@ import studio.fantasyit.ether_craft.node.NodeProperty;
 import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
 import studio.fantasyit.ether_craft.node.plugins.feature.AbstractDirectionalFeature;
 import studio.fantasyit.ether_craft.register.ItemRegistry;
+import studio.fantasyit.ether_craft.util.SerializeUtil;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Predicate;
 
 import static studio.fantasyit.ether_craft.register.BlockEntityRegistry.ETHER_NODE_ENTITY;
@@ -53,7 +52,9 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
     public final EtherPluginUpgradeContainer functionStorage;
     public final EtherPluginUpgradeContainer featureUpgradeStorage;
     public final RangeLimitPlaceContainer normalStorage;
+    public @Nullable InstalledPlugin functionPlugin;
     public final Map<Direction, InstalledPlugin> featureAttachedDirection = new HashMap<>();
+    public final Map<Identifier, Integer> syncedPluginData = new HashMap<>();
     public final QueuedTicket ticket = new QueuedTicket();
 
 
@@ -72,7 +73,7 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
         super.setChanged();
     }
 
-    public void updateFeatureAttachedDirection() {
+    public void updatePluginInfos() {
         featureAttachedDirection.clear();
         for (int i = 0; i < featureUpgradeStorage.getContainerSize(); i++) {
             if (featureUpgradeStorage.hasPlugin(i)) {
@@ -81,9 +82,15 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
                 }
             }
         }
+        if (functionStorage.hasPlugin(0))
+            functionPlugin = Objects.requireNonNull(functionStorage.getPlugin(0)).installedId;
+        else
+            functionPlugin = null;
         if (level instanceof ServerLevel sl)
             PacketDistributor.sendToPlayersInDimension(sl, new SyncEtherAdaptNodeExtraS2C(
+                    Optional.ofNullable(functionPlugin),
                     featureAttachedDirection,
+                    syncedPluginData,
                     this.getBlockPos(),
                     this.level.dimension().identifier()
             ));
@@ -97,7 +104,7 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
         if (markUpdate) {
             markUpdate = false;
             updateProperty();
-            updateFeatureAttachedDirection();
+            updatePluginInfos();
         }
     }
 
@@ -119,6 +126,8 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
         functionStorage.loadAddition(input.childOrEmpty("functionStorage"));
         featureUpgradeStorage.loadAddition(input.childOrEmpty("featureUpgradeStorage"));
         normalStorage.deserialize(input.childOrEmpty("normalStorage"));
+        input.read("sync", SerializeUtil.PIMap.CODEC).ifPresent(syncedPluginData::putAll);
+        pluginUpdate();
     }
 
     @Override
@@ -127,6 +136,7 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
         functionStorage.saveAddition(output.child("functionStorage"));
         featureUpgradeStorage.saveAddition(output.child("featureUpgradeStorage"));
         normalStorage.serialize(output.child("normalStorage"));
+        output.store("sync", SerializeUtil.PIMap.CODEC, syncedPluginData);
     }
 
     @Override
@@ -279,9 +289,12 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
         };
     }
 
-    public void fromNetwork(Map<Direction,InstalledPlugin> pluginDirection) {
+    public void fromNetwork(Map<Direction, InstalledPlugin> pluginDirection, @Nullable InstalledPlugin functionPlugin, Map<Identifier, Integer> pluginValue) {
         featureAttachedDirection.clear();
         featureAttachedDirection.putAll(pluginDirection);
+        this.functionPlugin = functionPlugin;
+        this.syncedPluginData.clear();
+        this.syncedPluginData.putAll(pluginValue);
     }
 
     public boolean isPluginInstalled(InstalledPlugin plugin) {
@@ -307,7 +320,8 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
         }
         return list;
     }
-    public ItemStack getItemByInstalled(InstalledPlugin plugin){
+
+    public ItemStack getItemByInstalled(InstalledPlugin plugin) {
         if (plugin.type() == NodePluginManager.PluginType.FUNCTION)
             return functionStorage.getItem(plugin.id());
         if (plugin.type() == NodePluginManager.PluginType.FEATURE || plugin.type() == NodePluginManager.PluginType.UPGRADE)
@@ -319,5 +333,14 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
         setChanged();
         if (level != null && !level.isClientSide())
             markUpdate = true;
+    }
+
+    public void setSyncedPluginData(Identifier actionId, int value) {
+        syncedPluginData.put(actionId, value);
+        pluginUpdate();
+    }
+
+    public int getSyncedPluginData(Identifier actionId) {
+        return syncedPluginData.getOrDefault(actionId, 0);
     }
 }

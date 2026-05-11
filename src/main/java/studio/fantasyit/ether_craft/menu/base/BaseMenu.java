@@ -12,6 +12,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.apache.commons.lang3.function.TriConsumer;
 import org.jetbrains.annotations.Nullable;
+import studio.fantasyit.ether_craft.menu.base.slot.FilterSlot;
 
 public abstract class BaseMenu<T extends BlockEntity> extends AbstractContainerMenu {
     public final T entity;

@@ -2,7 +2,7 @@ package studio.fantasyit.ether_craft.node.filter;
 
 import net.minecraft.network.chat.Component;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
-import studio.fantasyit.ether_craft.menu.base.btn.IASwitchButton;
+import studio.fantasyit.ether_craft.menu.base.widget.IASwitchButton;
 import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeAsset;
 import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeScreen;
 import studio.fantasyit.ether_craft.network.c2s.SyncScreenDataC2S;

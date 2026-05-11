@@ -1,4 +1,4 @@
-package studio.fantasyit.ether_craft.menu.base.btn;
+package studio.fantasyit.ether_craft.menu.base.widget;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -10,7 +10,6 @@ import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.Nullable;
 import studio.fantasyit.ether_craft.menu.base.ImageAsset;
 
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class IASwitchButton extends AbstractWidget {

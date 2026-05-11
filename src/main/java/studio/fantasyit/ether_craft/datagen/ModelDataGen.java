@@ -87,5 +87,13 @@ public class ModelDataGen extends ModelProvider {
                                 .select(Direction.DOWN, BlockModelGenerators.X_ROT_90)
                 )
         );
+
+        Variant variantEan = new Variant(EtherCraft.id("block/ether_adapt_node"));
+        blockModels.blockStateOutput.accept(
+                MultiVariantGenerator.dispatch(
+                        BlockRegistry.ETHER_ADAPT_NODE.get(),
+                        BlockModelGenerators.variant(variantEan)
+                )
+        );
     }
 }

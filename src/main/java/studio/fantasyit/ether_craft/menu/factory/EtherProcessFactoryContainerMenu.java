@@ -11,6 +11,13 @@ import studio.fantasyit.ether_craft.block.factory.EtherProcessFactoryEntity;
 import studio.fantasyit.ether_craft.block.factory.FactoryLevelDef;
 import studio.fantasyit.ether_craft.menu.base.*;
 import studio.fantasyit.ether_craft.menu.base.ether.EtherSlot;
+import studio.fantasyit.ether_craft.menu.base.slot.BaseDataSlot;
+import studio.fantasyit.ether_craft.menu.base.slot.BaseSlot;
+import studio.fantasyit.ether_craft.menu.base.slot.FilterSlot;
+import studio.fantasyit.ether_craft.menu.base.slot.ResultSlot;
+import studio.fantasyit.ether_craft.menu.factory.slot.FactoryInputSlot;
+import studio.fantasyit.ether_craft.menu.factory.slot.InvisibleSlot;
+import studio.fantasyit.ether_craft.menu.factory.slot.SingleStackSlot;
 
 import java.util.ArrayList;
 import java.util.HashMap;

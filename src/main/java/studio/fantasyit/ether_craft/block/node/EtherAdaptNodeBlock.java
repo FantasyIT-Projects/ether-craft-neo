@@ -12,6 +12,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
@@ -83,5 +84,11 @@ public class EtherAdaptNodeBlock extends BaseBlock {
     @Nullable
     public BlockState getStateForPlacement(BlockPlaceContext ctx) {
         return defaultBlockState().setValue(FACING, ctx.getClickedFace());
+    }
+
+
+    @Override
+    public @NotNull RenderShape getRenderShape(@NotNull BlockState p_49232_) {
+        return RenderShape.MODEL;
     }
 }

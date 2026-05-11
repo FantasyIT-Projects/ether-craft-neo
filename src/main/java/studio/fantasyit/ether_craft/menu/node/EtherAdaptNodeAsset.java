@@ -8,11 +8,6 @@ import studio.fantasyit.ether_craft.menu.base.ImageAsset;
 public class EtherAdaptNodeAsset {
     public static final Identifier BACKGROUND = EtherCraft.id("textures/gui/ether_adapt_node_main.png");
     public static final ImageAsset UI_BASE = new ImageAsset(BACKGROUND, 0, 0, 176, 228);
-    public static final ImageAsset ETHER_BAR_FILL_L0 = new ImageAsset(BACKGROUND, 176, 24, 18, 2);
-    public static final ImageAsset ETHER_BAR_FILL_L1 = new ImageAsset(BACKGROUND, 176, 26, 18, 2);
-    public static final ImageAsset ETHER_BAR_FILL_L2 = new ImageAsset(BACKGROUND, 176, 28, 18, 2);
-    public static final ImageAsset ETHER_BAR_FILL_L3 = new ImageAsset(BACKGROUND, 176, 30, 18, 2);
-    public static final ImageAsset ETHER_BAR_FILL_L4 = new ImageAsset(BACKGROUND, 176, 32, 18, 2);
     public static final ImageAsset ETHER_BAR_CTR = ImageAsset.from4Point(BACKGROUND, 196, 26, 215, 29);
     public static final ImageAsset SLOT = ImageAsset.from4Point(BACKGROUND, 176, 54, 193, 71);
     public static final ImageAsset SLOT_ETHER = ImageAsset.from4Point(BACKGROUND, 176, 72, 195, 91);
@@ -36,18 +31,6 @@ public class EtherAdaptNodeAsset {
     public static final ImageAsset BTN_ICON_S = ImageAsset.gridOffset(BTN_BLANK_DOWN, 1, 2);
     public static final ImageAsset BTN_ICON_N = ImageAsset.gridOffset(BTN_BLANK_DOWN, 0, 3);
     public static final ImageAsset BTN_ICON_E = ImageAsset.gridOffset(BTN_BLANK_DOWN, 1, 3);
-    public static final ImageAsset ICON_UPGRADE = ImageAsset.from4Point(BACKGROUND, 121, 32, 223, 42);
+    public static final ImageAsset ICON_UPGRADE = ImageAsset.from4Point(BACKGROUND, 212, 31, 223, 42);
 
-    public static ImageAsset getEtherBarIA(long ether, long max) {
-        if (max == 0)
-            return ETHER_BAR_FILL_L4;
-        long step = max / 5;
-        return switch (Math.toIntExact(ether / step)) {
-            case 0 -> ETHER_BAR_FILL_L0;
-            case 1 -> ETHER_BAR_FILL_L1;
-            case 2 -> ETHER_BAR_FILL_L2;
-            case 3 -> ETHER_BAR_FILL_L3;
-            default -> ETHER_BAR_FILL_L4;
-        };
-    }
 }

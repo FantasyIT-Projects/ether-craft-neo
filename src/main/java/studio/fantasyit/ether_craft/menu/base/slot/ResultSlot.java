@@ -1,8 +1,6 @@
-package studio.fantasyit.ether_craft.menu.base;
+package studio.fantasyit.ether_craft.menu.base.slot;
 
 import net.minecraft.world.Container;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
 public class ResultSlot extends BaseSlot{

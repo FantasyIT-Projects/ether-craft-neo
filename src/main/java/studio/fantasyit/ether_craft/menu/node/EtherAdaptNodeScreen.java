@@ -12,6 +12,7 @@ import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import org.jetbrains.annotations.NotNull;
 import oshi.util.tuples.Pair;
 import studio.fantasyit.ether_craft.block.node.EtherAdaptNodeEntity;
+import studio.fantasyit.ether_craft.menu.node.widget.TabWidget;
 import studio.fantasyit.ether_craft.network.c2s.TriggerSwitchTabC2S;
 import studio.fantasyit.ether_craft.node.EtherAdaptNodeUpgradeTabManager;
 import studio.fantasyit.ether_craft.node.NodePluginManager;
@@ -78,6 +79,7 @@ public class EtherAdaptNodeScreen extends AbstractContainerScreen<@NotNull Ether
             tabs.add(tab);
             addRenderableWidget(tab);
             x += tab.getWidth();
+            pluginId.add(pair.getA().id());
         }
     }
 
@@ -105,6 +107,8 @@ public class EtherAdaptNodeScreen extends AbstractContainerScreen<@NotNull Ether
     @Override
     protected void extractTooltip(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
         super.extractTooltip(graphics, mouseX, mouseY);
+        if (tabProvider != null)
+            tabProvider.extractTooltip(graphics, mouseX, mouseY);
     }
 
     @Override
@@ -116,6 +120,7 @@ public class EtherAdaptNodeScreen extends AbstractContainerScreen<@NotNull Ether
     public <T extends Renderable> T addRenderableOnly(T renderable) {
         return super.addRenderableOnly(renderable);
     }
+
     @Override
     protected void extractLabels(GuiGraphicsExtractor graphics, int xm, int ym) {
     }
