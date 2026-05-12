@@ -23,6 +23,9 @@ public class Config {
     private static final ModConfigSpec.IntValue NODE_MAGNET_CONSUME_PRE_STACK = BUILDER
             .comment("Ether the magnet function will consume when picking up one stack")
             .defineInRange("node.magnet.consume_pre_stack", 100, 1, Integer.MAX_VALUE);
+    private static final ModConfigSpec.IntValue NODE_CONTAINER_INTERACT_ETHER_PRE_ITEM = BUILDER
+            .comment("Ether consumed per item transferred by ContainerInteract feature")
+            .defineInRange("node.container_interact.ether_pre_item", 100, 1, Integer.MAX_VALUE);
     private static final ModConfigSpec.ConfigValue<List<? extends Integer>> NODE_LEVEL_SLOT_ARR = BUILDER
             .comment("Upgrade slots pre level")
             .defineList("node.up_slot", () -> List.of(2, 4, 6), () -> 0, t -> {
@@ -40,6 +43,7 @@ public class Config {
     public static int nodeDefMaxEther;
     public static List<Integer> nodeLevelSlotArr;
     public static int nodeMagnetConsumePreStack;
+    public static int containerInteractEtherPreItem;
 
     @SubscribeEvent
     static void onLoad(final ModConfigEvent event) {
@@ -47,5 +51,6 @@ public class Config {
         nodeDefMaxEther = NODE_DEF_MAX_ETHER.get();
         nodeLevelSlotArr = NODE_LEVEL_SLOT_ARR.get().stream().map(t -> (Integer) t).toList();
         nodeMagnetConsumePreStack = NODE_MAGNET_CONSUME_PRE_STACK.get();
+        containerInteractEtherPreItem = NODE_CONTAINER_INTERACT_ETHER_PRE_ITEM.get();
     }
 }

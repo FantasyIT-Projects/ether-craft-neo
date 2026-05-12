@@ -8,6 +8,7 @@ import studio.fantasyit.ether_craft.block.node.EtherAdaptNodeEntity;
 import studio.fantasyit.ether_craft.block.node.render.EtherAdapterNodeAtlas;
 import studio.fantasyit.ether_craft.block.node.render.EtherAdapterNodeRenderState;
 import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
+import studio.fantasyit.ether_craft.node.plugins.feature.FeatureContainerInteract;
 import studio.fantasyit.ether_craft.node.plugins.function.FunctionFurnaceGenerator;
 
 import java.util.HashMap;
@@ -42,6 +43,12 @@ public class PluginRenderManager {
                 state.addOverlay(face, EtherAdapterNodeAtlas.OVERLAY_FUNCTION_BURNER_FILL.get((int) Math.min((nodeEntity.getEther() * 10 / maxEther), 9)));
             state.addOverlay(face, EtherAdapterNodeAtlas.OVERLAY_FUNCTION_BURNER_FILL.get(9));
         });
+        register(FeatureContainerInteract.ID, (face, dTick, nodeEntity, state) ->
+                state.setSideAtlas(face, switch (face) {
+                    case UP -> EtherAdapterNodeAtlas.FEATURE_CONTAINER_INT_TOP;
+                    case DOWN -> EtherAdapterNodeAtlas.FEATURE_CONTAINER_INT_BOTTOM;
+                    default -> EtherAdapterNodeAtlas.FEATURE_CONTAINER_INT_SIDE;
+                }));
     }
 
     public void register(Identifier id, PluginRender renderer) {

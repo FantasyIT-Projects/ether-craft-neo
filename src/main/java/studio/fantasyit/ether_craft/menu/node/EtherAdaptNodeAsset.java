@@ -1,6 +1,5 @@
 package studio.fantasyit.ether_craft.menu.node;
 
-import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.resources.Identifier;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.menu.base.ImageAsset;
@@ -31,6 +30,8 @@ public class EtherAdaptNodeAsset {
     public static final ImageAsset BTN_ICON_S = ImageAsset.gridOffset(BTN_BLANK_DOWN, 1, 2);
     public static final ImageAsset BTN_ICON_N = ImageAsset.gridOffset(BTN_BLANK_DOWN, 0, 3);
     public static final ImageAsset BTN_ICON_E = ImageAsset.gridOffset(BTN_BLANK_DOWN, 1, 3);
+    public static final ImageAsset BTN_ICON_EXTRACT = ImageAsset.gridOffset(BTN_BLANK_DOWN, 0, 4);
+    public static final ImageAsset BTN_ICON_INSERT = ImageAsset.gridOffset(BTN_BLANK_DOWN, 1, 4);
     public static final ImageAsset ICON_UPGRADE = ImageAsset.from4Point(BACKGROUND, 212, 31, 223, 42);
     public static final ImageAsset SCROLL_BLOCK = ImageAsset.from4Point(BACKGROUND, 208, 92, 217, 104);
     public static final ImageAsset SCROLL_BACK = ImageAsset.from4Point(BACKGROUND, 208, 105, 211, 155);
