@@ -8,6 +8,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
@@ -21,7 +22,6 @@ import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.Nullable;
 import studio.fantasyit.ether_craft.block.base.BaseBlock;
-import studio.fantasyit.ether_craft.block.node.EtherAdaptNodeEntity;
 import studio.fantasyit.ether_craft.register.ItemRegistry;
 
 public class EtherStreamEmitterBlock extends BaseBlock {
@@ -71,5 +71,10 @@ public class EtherStreamEmitterBlock extends BaseBlock {
     @Nullable
     public BlockState getStateForPlacement(BlockPlaceContext ctx) {
         return defaultBlockState().setValue(FACING, ctx.getClickedFace());
+    }
+
+    @Override
+    public Item getDropItem(BlockState state) {
+        return ItemRegistry.ETHER_STREAM_EMITTER_ITEM.get();
     }
 }

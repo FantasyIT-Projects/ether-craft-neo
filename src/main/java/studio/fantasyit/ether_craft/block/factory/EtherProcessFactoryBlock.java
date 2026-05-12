@@ -6,6 +6,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -16,6 +17,7 @@ import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jspecify.annotations.Nullable;
 import studio.fantasyit.ether_craft.block.base.BaseBlock;
+import studio.fantasyit.ether_craft.register.ItemRegistry;
 
 public class EtherProcessFactoryBlock extends BaseBlock {
     public static final IntegerProperty LEVEL = BlockStateProperties.LEVEL;
@@ -42,5 +44,17 @@ public class EtherProcessFactoryBlock extends BaseBlock {
             player.openMenu((EtherProcessFactoryEntity) level.getBlockEntity(pos), pos);
         }
         return InteractionResult.SUCCESS;
+    }
+
+
+    @Override
+    public Item getDropItem(BlockState state) {
+        return switch (state.getValue(LEVEL)) {
+            case 1 -> ItemRegistry.ETHER_PROCESS_FACTORY_ITEM_LV_1.get();
+            case 2 -> ItemRegistry.ETHER_PROCESS_FACTORY_ITEM_LV_2.get();
+            case 3 -> ItemRegistry.ETHER_PROCESS_FACTORY_ITEM_LV_3.get();
+            case 4 -> ItemRegistry.ETHER_PROCESS_FACTORY_ITEM_LV_4.get();
+            default -> throw new IllegalArgumentException("Invalid level: " + state.getValue(LEVEL));
+        };
     }
 }

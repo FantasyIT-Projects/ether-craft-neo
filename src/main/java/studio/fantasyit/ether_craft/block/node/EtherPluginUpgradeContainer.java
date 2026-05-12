@@ -40,11 +40,14 @@ public class EtherPluginUpgradeContainer extends SimpleContainer {
     public @Nullable Identifier getPluginId(int index) {
         return pluginId[index];
     }
+
     @Override
     public void setChanged() {
         super.setChanged();
         for (int i = 0; i < plugin.length; i++) {
             if (!NodePluginManager.Instance.matches(this.type, getItem(i), pluginId[i])) {
+                if (plugin[i] != null)
+                    plugin[i].onDestroy();
                 plugin[i] = null;
                 pluginId[i] = NodePluginManager.Instance.getMatchingPluginId(this.type, getItem(i));
                 if (pluginId[i] != null) {
