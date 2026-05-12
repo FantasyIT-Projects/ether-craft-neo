@@ -99,7 +99,7 @@ public abstract class AbstractItemConsumeFunction extends AbstractNodePlugin {
 
     @Override
     public boolean inputFilter(ItemResource resource) {
-        return filter.accepts(resource) && accepts(resource);
+        return filter.accepts(resource);
     }
 
     @Override
