@@ -10,6 +10,7 @@ import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
 import studio.fantasyit.ether_craft.node.plugins.MainPageDummyPlugin;
 import studio.fantasyit.ether_craft.node.plugins.feature.FeatureEtherStreamEmitter;
 import studio.fantasyit.ether_craft.node.plugins.function.FunctionFurnaceGenerator;
+import studio.fantasyit.ether_craft.node.plugins.function.MagnetFunctionFeature;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,6 +51,7 @@ public class NodePluginManager {
         plugins.add(MAIN_PAGE_INFO);
         //TODO
         registerPlugin(PluginType.FUNCTION, FunctionFurnaceGenerator.ID, FunctionFurnaceGenerator::new, Items.FURNACE);
+        registerPlugin(PluginType.FUNCTION, MagnetFunctionFeature.ID, MagnetFunctionFeature::new, Items.IRON_BLOCK);
         registerPlugin(PluginType.FEATURE, FeatureEtherStreamEmitter.ID, FeatureEtherStreamEmitter::new, Items.DISPENSER);
     }
 

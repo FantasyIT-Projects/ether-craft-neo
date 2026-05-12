@@ -15,15 +15,17 @@ import studio.fantasyit.ether_craft.menu.base.slot.BaseDataSlot;
 import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeContainerMenu;
 import studio.fantasyit.ether_craft.network.c2s.SyncScreenDataC2S;
 import studio.fantasyit.ether_craft.node.AbstractNodePlugin;
+import studio.fantasyit.ether_craft.node.filter.FilterGuiRegCommon;
 import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
 
 import java.util.List;
 
 public class MagnetFunctionFeature extends AbstractNodePlugin {
+    public static final Identifier ID = EtherCraft.id("function/magnet");
     public static final Identifier SYNC_VALUE = EtherCraft.id("magnet_function_feature/sync");
-    int centerX = 0, centerY = 0, centerZ = 0;
-    int shapeX = 0, shapeY = 0, shapeZ = 0;
-    ItemFilter filter;
+    public int centerX = 0, centerY = 0, centerZ = 0;
+    public int shapeX = 0, shapeY = 0, shapeZ = 0;
+    public ItemFilter filter;
 
     public MagnetFunctionFeature(EtherAdaptNodeEntity nodeEntity, InstalledPlugin installedId) {
         super(nodeEntity, installedId);
@@ -92,10 +94,12 @@ public class MagnetFunctionFeature extends AbstractNodePlugin {
         menu.addDataSlot(new BaseDataSlot(() -> shapeX, t -> shapeX = t));
         menu.addDataSlot(new BaseDataSlot(() -> shapeY, t -> shapeY = t));
         menu.addDataSlot(new BaseDataSlot(() -> shapeZ, t -> shapeZ = t));
+        FilterGuiRegCommon.slots(menu, filter);
     }
 
     @Override
     public void syncScreenData(SyncScreenDataC2S message) {
+        FilterGuiRegCommon.sync(message, filter);
         if (message.id().equals(SYNC_VALUE)) {
             switch (message.index()) {
                 case 0 -> centerX = message.data();

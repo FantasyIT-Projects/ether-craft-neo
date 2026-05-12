@@ -31,6 +31,14 @@ public class ScrollableWidget extends AbstractWidget {
         this.onValueChange = onValueChange;
     }
 
+    public void setValue(int value) {
+        this.value = Math.clamp(value, 0, maxValue);
+    }
+
+    public int getValue() {
+        return value;
+    }
+
     public int getBlockTop() {
         return (background.h - block.h) / maxValue * value;
     }
@@ -54,13 +62,13 @@ public class ScrollableWidget extends AbstractWidget {
     protected void onDrag(MouseButtonEvent event, double dx, double dy) {
         super.onDrag(event, dx, dy);
         if (this.isDragging) {
-            this.value = (int) (this.startDragValue + (this.startDragPos - event.y()) / (background.h - block.h) * maxValue);
+            this.value = Math.clamp((int) (this.startDragValue + (this.startDragPos - event.y()) / (background.h - block.h) * maxValue), 0, maxValue);
         }
     }
 
     @Override
     public boolean mouseScrolled(double x, double y, double scrollX, double scrollY) {
-        this.value = this.value - (scrollY > 0 ? 1 : -1);
+        this.value = Math.clamp(this.value - (scrollY > 0 ? 1 : -1), 0, maxValue);
         return true;
     }
 
