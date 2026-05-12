@@ -12,14 +12,14 @@ const Recipe = {
     },
 
     formatItem(raw) {
-        if (!raw || raw === '') return { item: 'minecraft:air' };
+        if (!raw || raw === '') return 'minecraft:air';
         if (typeof raw !== 'string') return raw;
         const parsed = this.tryParseJson(raw);
         if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) return parsed;
         if (raw.startsWith('#')) return { tag: raw.slice(1) };
         const dm = raw.match(/^(.+?)::(\d+)$/);
         if (dm) return { item: dm[1], count: parseInt(dm[2], 10) };
-        return { item: raw };
+        return raw;
     },
 
     parseOutput(raw) {
