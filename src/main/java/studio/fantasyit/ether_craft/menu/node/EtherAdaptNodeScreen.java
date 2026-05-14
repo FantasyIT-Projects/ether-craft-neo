@@ -36,7 +36,7 @@ public class EtherAdaptNodeScreen extends AbstractContainerScreen<@NotNull Ether
         super(menu, p_97742_, p_97743_, UI_BASE.w, UI_BASE.h);
         be = menu.entity;
         inventoryLabelY = imageHeight - 81;
-        tabProvider = EtherAdaptNodeUpgradeTabManager.instance.getWidget(menu.installedPlugin.pluginId(), menu.plugin, this);
+        tabProvider = EtherAdaptNodeUpgradeTabManager.instance.getWidget(menu.installedPlugin.pluginId(), menu.context, this);
     }
 
     @Override

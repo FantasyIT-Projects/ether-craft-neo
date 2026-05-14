@@ -8,20 +8,22 @@ import studio.fantasyit.ether_craft.menu.base.widget.IASwitchButton;
 import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeAsset;
 import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeScreen;
 import studio.fantasyit.ether_craft.network.c2s.SyncScreenDataC2S;
+import studio.fantasyit.ether_craft.node.plugins.base.PluginMenuContext;
 import studio.fantasyit.ether_craft.node.plugins.feature.AbstractDirectionalFilterFeature;
 import studio.fantasyit.ether_craft.node.plugins.feature.FeatureContainerInteract;
 
 public class ContainerInteractScreen extends DirectionalFilterScreen {
     private IASwitchButton modeButton;
 
-    public ContainerInteractScreen(AbstractDirectionalFilterFeature menuContext, EtherAdaptNodeScreen screen) {
-        super(menuContext, screen);
+    public ContainerInteractScreen(PluginMenuContext<AbstractDirectionalFilterFeature> context, EtherAdaptNodeScreen screen) {
+        super(context, screen);
     }
+
 
     @Override
     public void createWidget() {
         super.createWidget();
-        FeatureContainerInteract plugin = (FeatureContainerInteract) context;
+        FeatureContainerInteract plugin = (FeatureContainerInteract) this.plugin;
         modeButton = new IASwitchButton(
                 lx(15), ly(104),
                 EtherAdaptNodeAsset.BTN_BLANK,
@@ -47,7 +49,7 @@ public class ContainerInteractScreen extends DirectionalFilterScreen {
     @Override
     public void extractWidgetRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
         super.extractWidgetRenderState(graphics, mouseX, mouseY, a);
-        FeatureContainerInteract plugin = (FeatureContainerInteract) context;
+        FeatureContainerInteract plugin = (FeatureContainerInteract) this.plugin;
         ImageAsset icon = plugin.extractMode
                 ? EtherAdaptNodeAsset.BTN_ICON_EXTRACT
                 : EtherAdaptNodeAsset.BTN_ICON_INSERT;

@@ -8,6 +8,7 @@ import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeAsset;
 import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeScreen;
 import studio.fantasyit.ether_craft.network.c2s.SyncScreenDataC2S;
 import studio.fantasyit.ether_craft.node.filter.FilterGuiRegClient;
+import studio.fantasyit.ether_craft.node.plugins.base.PluginMenuContext;
 import studio.fantasyit.ether_craft.node.plugins.function.FunctionMagnet;
 import studio.fantasyit.ether_craft.node.tabs.BaseEtherNodeTabWidgetProvider;
 
@@ -23,21 +24,21 @@ public class MagnetFunctionScreen extends BaseEtherNodeTabWidgetProvider<Functio
 
     private final ScrollableWidget[] scrolls = new ScrollableWidget[6];
 
-    public MagnetFunctionScreen(FunctionMagnet menuContext, EtherAdaptNodeScreen screen) {
-        super(menuContext, screen);
+    public MagnetFunctionScreen(PluginMenuContext<FunctionMagnet> context, EtherAdaptNodeScreen screen) {
+        super(context, screen);
     }
 
     @Override
     public void createWidget() {
-        FilterGuiRegClient.widget(screen, context.filter.whitelist, FunctionMagnet.FILTER_PREFIX);
+        FilterGuiRegClient.widget(screen, plugin.filter.whitelist, FunctionMagnet.FILTER_PREFIX);
 
         int[] startValues = {
-                context.centerX + CENTER_RANGE,
-                context.centerY + CENTER_RANGE,
-                context.centerZ + CENTER_RANGE,
-                context.shapeX - 1,
-                context.shapeY - 1,
-                context.shapeZ - 1
+                plugin.centerX + CENTER_RANGE,
+                plugin.centerY + CENTER_RANGE,
+                plugin.centerZ + CENTER_RANGE,
+                plugin.shapeX - 1,
+                plugin.shapeY - 1,
+                plugin.shapeZ - 1
         };
 
         for (int i = 0; i < 6; i++) {

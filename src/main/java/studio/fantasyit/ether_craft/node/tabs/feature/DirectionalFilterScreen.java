@@ -13,6 +13,7 @@ import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeScreen;
 import studio.fantasyit.ether_craft.network.c2s.SyncScreenDataC2S;
 import studio.fantasyit.ether_craft.node.filter.FilterGuiRegClient;
 import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
+import studio.fantasyit.ether_craft.node.plugins.base.PluginMenuContext;
 import studio.fantasyit.ether_craft.node.plugins.feature.AbstractDirectionalFeature;
 import studio.fantasyit.ether_craft.node.plugins.feature.AbstractDirectionalFilterFeature;
 import studio.fantasyit.ether_craft.node.tabs.BaseEtherNodeTabWidgetProvider;
@@ -22,9 +23,6 @@ import java.util.Map;
 import java.util.Objects;
 
 public class DirectionalFilterScreen extends BaseEtherNodeTabWidgetProvider<AbstractDirectionalFilterFeature> {
-    public DirectionalFilterScreen(AbstractDirectionalFilterFeature menuContext, EtherAdaptNodeScreen screen) {
-        super(menuContext, screen);
-    }
 
     private static final Map<Direction, Vector2i> DIRECTION_POSITION = Map.of(
             Direction.UP, new Vector2i(28, 31),
@@ -44,6 +42,10 @@ public class DirectionalFilterScreen extends BaseEtherNodeTabWidgetProvider<Abst
     );
     private Map<Direction, IASwitchButton> directionButton;
 
+    public DirectionalFilterScreen(PluginMenuContext<AbstractDirectionalFilterFeature> context, EtherAdaptNodeScreen screen) {
+        super(context, screen);
+    }
+
     @Override
     public void createWidget() {
         directionButton = new HashMap<>();
@@ -60,20 +62,20 @@ public class DirectionalFilterScreen extends BaseEtherNodeTabWidgetProvider<Abst
                     Component.translatable("menu.ether_craft.node.directional_filter.cancel"),
                     (b) -> {
                         if (!b) return trySelectBtn(direction);
-                        context.direction = null;
+                        plugin.direction = null;
                         ClientPacketDistributor.sendToServer(new SyncScreenDataC2S(
                                 AbstractDirectionalFeature.SYNC_DIRECTION,
-                                context.installedId.id(),
+                                plugin.installedId.id(),
                                 -1
                         ));
                         return true;
                     }
             );
-            button.setDown(direction.equals(this.context.direction));
+            button.setDown(direction.equals(this.plugin.direction));
             directionButton.put(direction, button);
             this.screen.addRenderableWidget(button);
         }
-        FilterGuiRegClient.widget(screen, context.filter.whitelist);
+        FilterGuiRegClient.widget(screen, plugin.filter.whitelist, AbstractDirectionalFilterFeature.FILTER_PREFIX);
     }
 
     @Override
@@ -99,10 +101,10 @@ public class DirectionalFilterScreen extends BaseEtherNodeTabWidgetProvider<Abst
                 directionButton.get(d).setDown(false);
             }
         }
-        context.direction = direction;
+        plugin.direction = direction;
         ClientPacketDistributor.sendToServer(new SyncScreenDataC2S(
                 AbstractDirectionalFeature.SYNC_DIRECTION,
-                context.installedId.id(),
+                plugin.installedId.id(),
                 direction.ordinal()
         ));
         return true;

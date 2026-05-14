@@ -1,4 +1,4 @@
-package studio.fantasyit.ether_craft.node;
+package studio.fantasyit.ether_craft.node.plugins.base;
 
 import net.minecraft.core.Direction;
 import net.minecraft.resources.Identifier;
@@ -10,6 +10,7 @@ import studio.fantasyit.ether_craft.block.node.EtherAdaptNodeEntity;
 import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeContainerMenu;
 import studio.fantasyit.ether_craft.network.base.ISyncTargetMenu;
 import studio.fantasyit.ether_craft.network.c2s.SyncScreenDataC2S;
+import studio.fantasyit.ether_craft.node.NodeProperty;
 import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
 
 import java.util.function.Supplier;
@@ -67,5 +68,7 @@ public abstract class AbstractNodePlugin implements ISyncTargetMenu {
     public void syncScreenData(SyncScreenDataC2S message) {
     }
 
-
+    public PluginMenuContext<?> makeContext(EtherAdaptNodeContainerMenu etherAdaptNodeContainerMenu) {
+        return PluginMenuContext.of(etherAdaptNodeContainerMenu, this);
+    }
 }

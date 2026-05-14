@@ -1,4 +1,4 @@
-package studio.fantasyit.ether_craft.node.plugins;
+package studio.fantasyit.ether_craft.node.plugins.base;
 
 import studio.fantasyit.ether_craft.entity.EtherStreamEntity;
 

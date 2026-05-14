@@ -74,7 +74,7 @@ public class EtherAdapterNodeRenderState extends BlockEntityRenderState {
             int light = packedLightSides[dir.ordinal()];
             submitNodeCollector.submitCustomGeometry(
                     poseStack,
-                    RenderTypes.text(atlasUV.atlas),
+                    RenderTypes.textPolygonOffset(atlasUV.atlas),
                     (pose, buffer) -> renderFace(
                             dir, pose, buffer, light, overlay,
                             atlasUV.u0, atlasUV.v0, atlasUV.u1, atlasUV.v1

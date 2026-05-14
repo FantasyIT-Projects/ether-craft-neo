@@ -14,7 +14,7 @@ import studio.fantasyit.ether_craft.datapack.StoneGeneratorRatio;
 import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
 
 public class FunctionStoneGenerator extends AbstractItemConsumeFunction {
-    public static Identifier ID = EtherCraft.id("generator/furnace");
+    public static Identifier ID = EtherCraft.id("generator/stone");
     public static Identifier WORKING_MATERIAL = EtherCraft.id("generator/furnace/material");
 
     int ept = 0;

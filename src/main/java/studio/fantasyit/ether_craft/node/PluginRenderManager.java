@@ -30,7 +30,7 @@ public class PluginRenderManager {
     public void collect() {
         PluginRender generatorLayer = (face, dTick, nodeEntity, state) -> {
             FunctionFurnaceGenerator.WorkingMaterial value = FunctionFurnaceGenerator.WorkingMaterial.values()[nodeEntity.getSyncedPluginData(FunctionFurnaceGenerator.WORKING_MATERIAL)];
-            state.setSideAtlas(face, value == FunctionFurnaceGenerator.WorkingMaterial.IDLE ? EtherAdapterNodeAtlas.FUNCTION_BURNER_EMPTY : EtherAdapterNodeAtlas.FUNCTION_BURNER_WORKING);
+            state.setSideAtlas(face, EtherAdapterNodeAtlas.FUNCTION_BURNER_EMPTY);
 
             if (value == FunctionFurnaceGenerator.WorkingMaterial.COAL) {
                 state.addOverlay(face, EtherAdapterNodeAtlas.OVERLAY_FUNCTION_BURNER_COAL.get(dTick));
@@ -42,7 +42,7 @@ public class PluginRenderManager {
                 state.addOverlay(face, EtherAdapterNodeAtlas.OVERLAY_FUNCTION_BURNER_STONE);
             } else if (value == FunctionFurnaceGenerator.WorkingMaterial.DEEPSLATE) {
                 state.addOverlay(face, EtherAdapterNodeAtlas.OVERLAY_FUNCTION_BURNER_DEEPSLATE);
-            } else {
+            } else if (value != FunctionFurnaceGenerator.WorkingMaterial.IDLE) {
                 state.addOverlay(face, EtherAdapterNodeAtlas.OVERLAY_FUNCTION_BURNER_COAL.get(dTick));
             }
 

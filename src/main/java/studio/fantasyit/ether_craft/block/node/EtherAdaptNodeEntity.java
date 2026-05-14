@@ -30,7 +30,7 @@ import studio.fantasyit.ether_craft.block.base.ITickable;
 import studio.fantasyit.ether_craft.menu.base.RangeLimitPlaceContainer;
 import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeContainerMenu;
 import studio.fantasyit.ether_craft.network.s2c.SyncEtherAdaptNodeExtraS2C;
-import studio.fantasyit.ether_craft.node.AbstractNodePlugin;
+import studio.fantasyit.ether_craft.node.plugins.base.AbstractNodePlugin;
 import studio.fantasyit.ether_craft.node.NodePluginManager;
 import studio.fantasyit.ether_craft.node.NodeProperty;
 import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;

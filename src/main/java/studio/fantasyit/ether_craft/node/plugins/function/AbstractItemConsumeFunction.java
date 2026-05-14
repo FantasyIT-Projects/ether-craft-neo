@@ -14,10 +14,10 @@ import studio.fantasyit.ether_craft.block.node.OversizedEtherSlot;
 import studio.fantasyit.ether_craft.menu.base.slot.BaseDataSlot;
 import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeContainerMenu;
 import studio.fantasyit.ether_craft.network.c2s.SyncScreenDataC2S;
-import studio.fantasyit.ether_craft.node.AbstractNodePlugin;
 import studio.fantasyit.ether_craft.node.NodeProperty;
 import studio.fantasyit.ether_craft.node.filter.FilterGuiRegCommon;
 import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
+import studio.fantasyit.ether_craft.node.plugins.base.AbstractNodePlugin;
 import studio.fantasyit.ether_craft.util.ContainerOps;
 
 public abstract class AbstractItemConsumeFunction extends AbstractNodePlugin {
@@ -104,8 +104,8 @@ public abstract class AbstractItemConsumeFunction extends AbstractNodePlugin {
     @Override
     public void registerSlots(EtherAdaptNodeContainerMenu menu) {
         super.registerSlots(menu);
-        menu.addSlotDraw(new OversizedEtherSlot(nodeEntity.etherStorage, 0, 25, 23));
-        menu.addSlotDraw(new Slot(container, 0, 25, 47));
+        menu.addSlotDraw(new OversizedEtherSlot(nodeEntity.etherStorage, 0, 28, 20));
+        menu.addSlotDraw(new Slot(container, 0, 28, 44));
         menu.addDataSlot(new BaseDataSlot(() -> remainBurnTicks, (a) -> remainBurnTicks = a));
         FilterGuiRegCommon.slots(menu, filter);
     }

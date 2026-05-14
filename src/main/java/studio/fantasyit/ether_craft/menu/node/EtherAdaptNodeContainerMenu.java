@@ -11,16 +11,17 @@ import net.minecraft.world.item.ItemStack;
 import org.apache.commons.lang3.function.TriConsumer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import studio.fantasyit.ether_craft.menu.base.BaseMenu;
 import studio.fantasyit.ether_craft.block.node.EtherAdaptNodeEntity;
 import studio.fantasyit.ether_craft.block.node.OversizedEtherSlot;
 import studio.fantasyit.ether_craft.menu.base.BaseContainerMenu;
+import studio.fantasyit.ether_craft.menu.base.BaseMenu;
 import studio.fantasyit.ether_craft.menu.factory.slot.SingleStackSlot;
 import studio.fantasyit.ether_craft.network.base.ISyncTargetMenu;
 import studio.fantasyit.ether_craft.network.c2s.SyncScreenDataC2S;
-import studio.fantasyit.ether_craft.node.AbstractNodePlugin;
 import studio.fantasyit.ether_craft.node.NodePluginManager;
 import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
+import studio.fantasyit.ether_craft.node.plugins.base.AbstractNodePlugin;
+import studio.fantasyit.ether_craft.node.plugins.base.PluginMenuContext;
 import studio.fantasyit.ether_craft.register.ItemRegistry;
 
 import java.util.ArrayList;
@@ -33,6 +34,7 @@ public class EtherAdaptNodeContainerMenu extends BaseMenu<EtherAdaptNodeEntity> 
     public final AbstractNodePlugin plugin;
     public final InstalledPlugin installedPlugin;
     public final List<Slot> toDrawSlot = new ArrayList<>();
+    public PluginMenuContext context;
     public int machineSlotStart = -1;
 
     public static EtherAdaptNodeContainerMenu readFromNetwork(int windowId, Player player, RegistryFriendlyByteBuf data) {
@@ -100,8 +102,9 @@ public class EtherAdaptNodeContainerMenu extends BaseMenu<EtherAdaptNodeEntity> 
             plugin = NodePluginManager.MAIN_PAGE;
         this.installedPlugin = plugin;
         this.plugin = entity.getOrCreatePluginForMenu(plugin);
-        if (this.plugin != null)
-            this.plugin.registerSlots(this);
+        if (this.plugin != null) {
+            this.context = this.plugin.makeContext(this);
+        }
         addMachineSlots();
         addPlayerSlots(player.getInventory());
         entity.syncClient();
@@ -161,6 +164,7 @@ public class EtherAdaptNodeContainerMenu extends BaseMenu<EtherAdaptNodeEntity> 
         for (int i = 0; i < entity.functionStorage.getContainerSize(); i++)
             if (entity.functionStorage.hasPlugin(i)) entity.functionStorage.getPlugin(i).syncScreenData(message);
         for (int i = 0; i < entity.featureUpgradeStorage.getContainerSize(); i++)
-            if (entity.featureUpgradeStorage.hasPlugin(i)) entity.featureUpgradeStorage.getPlugin(i).syncScreenData(message);
+            if (entity.featureUpgradeStorage.hasPlugin(i))
+                entity.featureUpgradeStorage.getPlugin(i).syncScreenData(message);
     }
 }

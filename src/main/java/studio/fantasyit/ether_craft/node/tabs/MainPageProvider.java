@@ -9,13 +9,15 @@ import studio.fantasyit.ether_craft.menu.base.slot.RangeLimitSlot;
 import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeAsset;
 import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeScreen;
 import studio.fantasyit.ether_craft.node.plugins.MainPageDummyPlugin;
+import studio.fantasyit.ether_craft.node.plugins.base.PluginMenuContext;
 import studio.fantasyit.ether_craft.util.UIUtil;
 
 import java.util.List;
 
 public class MainPageProvider extends BaseEtherNodeTabWidgetProvider<MainPageDummyPlugin> {
-    public MainPageProvider(MainPageDummyPlugin menuContext, EtherAdaptNodeScreen screen) {
-        super(menuContext, screen);
+
+    public MainPageProvider(PluginMenuContext<MainPageDummyPlugin> context, EtherAdaptNodeScreen screen) {
+        super(context, screen);
         collectImageAsset(EtherAdaptNodeAsset.SLOT_LARGE, 26, 43);
         collectImageAsset(EtherAdaptNodeAsset.ETHER_BAR_CTR, 26, 38);
         collectImageAsset(EtherAdaptNodeAsset.HAMMER, 48, 45);
@@ -56,5 +58,4 @@ public class MainPageProvider extends BaseEtherNodeTabWidgetProvider<MainPageDum
             EtherAdaptNodeAsset.LOCK.blit(graphics, lx(lastX + 186 - EtherAdaptNodeAsset.LOCK.w / 2), ly(114));
         }
     }
-
 }

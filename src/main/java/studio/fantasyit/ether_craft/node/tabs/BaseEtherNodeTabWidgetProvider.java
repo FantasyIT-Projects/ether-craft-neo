@@ -1,7 +1,6 @@
 package studio.fantasyit.ether_craft.node.tabs;
 
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.inventory.Slot;
@@ -9,7 +8,8 @@ import oshi.util.tuples.Pair;
 import studio.fantasyit.ether_craft.menu.base.ImageAsset;
 import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeAsset;
 import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeScreen;
-import studio.fantasyit.ether_craft.node.AbstractNodePlugin;
+import studio.fantasyit.ether_craft.node.plugins.base.AbstractNodePlugin;
+import studio.fantasyit.ether_craft.node.plugins.base.PluginMenuContext;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +18,8 @@ import java.util.function.Supplier;
 public abstract class BaseEtherNodeTabWidgetProvider<T extends AbstractNodePlugin> {
     public static final int WIDGET_POSITION_X = 20;
     public static final int WIDGET_POSITION_Y = 20;
-    protected T context;
+    protected final PluginMenuContext<T> context;
+    protected final T plugin;
     protected EtherAdaptNodeScreen screen;
 
     protected record IARec(ImageAsset asset, int x, int y) {
@@ -27,8 +28,9 @@ public abstract class BaseEtherNodeTabWidgetProvider<T extends AbstractNodePlugi
     protected List<IARec> imageAssets = new ArrayList<>();
     protected List<Pair<Rect2i, Supplier<List<Component>>>> tooltipAreas = new ArrayList<>();
 
-    public BaseEtherNodeTabWidgetProvider(T menuContext, EtherAdaptNodeScreen screen) {
-        this.context = menuContext;
+    public BaseEtherNodeTabWidgetProvider(PluginMenuContext<T> context, EtherAdaptNodeScreen screen) {
+        this.context = context;
+        this.plugin = context.plugin;
         this.screen = screen;
     }
 

@@ -42,9 +42,14 @@ public class ImageAsset {
         graphics.blit(location, x, y, x + w, y + h, u0, u1, v0, v1);
     }
 
+    public void blit(GuiGraphicsExtractor graphics, int x, int y, int u, int v, int w, int h) {
+        graphics.blit(location, x, y, x + w, y + h, subU(u), subU(u + w), subV(v), subV(v + h));
+    }
+
     public float subU(int x) {
         return u0 + x / (float) w * (u1 - u0);
     }
+
     public float subV(int y) {
         return v0 + y / (float) h * (v1 - v0);
     }

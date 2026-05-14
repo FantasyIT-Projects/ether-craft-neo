@@ -1,9 +1,9 @@
 package studio.fantasyit.ether_craft.node.plugins.function;
 
+import com.mojang.serialization.Codec;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.SimpleContainer;
-import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.storage.ValueInput;
@@ -11,16 +11,21 @@ import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.common.crafting.SizedIngredient;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
+import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.block.base.ItemFilter;
 import studio.fantasyit.ether_craft.block.node.EtherAdaptNodeEntity;
+import studio.fantasyit.ether_craft.block.node.OversizedEtherSlot;
+import studio.fantasyit.ether_craft.menu.base.slot.BaseDataSlot;
+import studio.fantasyit.ether_craft.menu.base.slot.BaseSlot;
 import studio.fantasyit.ether_craft.menu.base.slot.FilterSlot;
 import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeContainerMenu;
 import studio.fantasyit.ether_craft.network.c2s.SyncScreenDataC2S;
-import studio.fantasyit.ether_craft.node.AbstractNodePlugin;
 import studio.fantasyit.ether_craft.node.NodeProperty;
 import studio.fantasyit.ether_craft.node.filter.FilterGuiRegCommon;
 import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
+import studio.fantasyit.ether_craft.node.plugins.base.AbstractNodePlugin;
+import studio.fantasyit.ether_craft.node.plugins.base.PluginMenuContext;
 import studio.fantasyit.ether_craft.recipe.node.NodeProcessRecipe;
 
 import java.util.ArrayList;
@@ -31,15 +36,18 @@ public class FunctionNodeProcess extends AbstractNodePlugin {
     public static final String FILTER_PREFIX = "node_process/";
 
     public ItemFilter targetItemFilter;
+    public ItemFilter inputItemFilter;
     public SimpleContainer inputSlots = new SimpleContainer(9);
-
     NodeProcessRecipe targetRecipe = null;
+
 
     public int progressing = 0;
 
     public FunctionNodeProcess(EtherAdaptNodeEntity nodeEntity, InstalledPlugin installedId) {
         super(nodeEntity, installedId);
         targetItemFilter = new ItemFilter(1, nodeEntity::setChanged);
+        inputItemFilter = new ItemFilter(9, nodeEntity::setChanged);
+        targetItemFilter.whitelist = true;
     }
 
     @Override
@@ -48,23 +56,32 @@ public class FunctionNodeProcess extends AbstractNodePlugin {
             nodeProperty.slotUnlock = 1;
     }
 
-    @Override
-    public void registerSlots(EtherAdaptNodeContainerMenu menu) {
+    public void registerSlotsWithContext(EtherAdaptNodeContainerMenu menu, ProgressMenuContext context) {
         super.registerSlots(menu);
         for (int i = 0; i < inputSlots.getContainerSize(); i++) {
             int col = i % 3;
             int row = i / 3;
-            menu.addSlotDraw(new Slot(inputSlots, i, 44 + col * 18, 77 + row * 18));
+            BaseSlot bSlot = new BaseSlot(inputSlots, i, 44 + col * 18, 77 + row * 18);
+            menu.addSlotDraw(bSlot);
+            FilterSlot filterSlot = new FilterSlot(inputItemFilter, i, 44 + col * 18, 77 + row * 18);
+            menu.addSlotDraw(filterSlot);
+            filterSlot.setActive(false);
+            context.inputSlots.add(bSlot);
+            context.filterSlots.add(filterSlot);
         }
+        menu.addSlotDraw(new OversizedEtherSlot(nodeEntity.etherStorage, 0, 28, 20));
         FilterSlot filterSlot = new FilterSlot(targetItemFilter, 0, 25, 31);
-        menu.addSlotDraw(filterSlot);
+        menu.addSlot(filterSlot);
         filterSlot.setActive(false);
+        context.targetFilterIdx = filterSlot.index;
+        FilterGuiRegCommon.dataSlots(menu, inputItemFilter);
+        menu.addDataSlot(new BaseDataSlot(() -> progressing, (a) -> progressing = a));
     }
 
     @Override
     public void syncScreenData(SyncScreenDataC2S message) {
         super.syncScreenData(message);
-        FilterGuiRegCommon.sync(message, targetItemFilter, FILTER_PREFIX);
+        FilterGuiRegCommon.sync(message, inputItemFilter, FILTER_PREFIX);
     }
 
     @Override
@@ -152,27 +169,33 @@ public class FunctionNodeProcess extends AbstractNodePlugin {
                 inputList.add(inputSlots.getItem(i));
             }
             if (targetRecipe.matchesSubset(inputList) && nodeEntity.getEther() >= targetRecipe.etherCost) {
-                nodeEntity.extractEther(targetRecipe.etherCost);
-                for (SizedIngredient ingredient : targetRecipe.ingredients) {
-                    int needed = ingredient.count();
-                    for (int i = 0; i < inputSlots.getContainerSize() && needed > 0; i++) {
-                        ItemStack slot = inputSlots.getItem(i);
-                        if (!slot.isEmpty() && ingredient.ingredient().test(slot)) {
-                            int take = Math.min(needed, slot.getCount());
-                            slot.shrink(take);
-                            needed -= take;
+                progressing++;
+                if (progressing >= Config.nodeProcessMaxProgress) {
+                    nodeEntity.extractEther(targetRecipe.etherCost);
+                    for (SizedIngredient ingredient : targetRecipe.ingredients) {
+                        int needed = ingredient.count();
+                        for (int i = 0; i < inputSlots.getContainerSize() && needed > 0; i++) {
+                            ItemStack slot = inputSlots.getItem(i);
+                            if (!slot.isEmpty() && ingredient.ingredient().test(slot)) {
+                                int take = Math.min(needed, slot.getCount());
+                                slot.shrink(take);
+                                needed -= take;
+                            }
                         }
                     }
+                    try (Transaction tx = Transaction.openRoot()) {
+                        ItemStack result = targetRecipe.result.create();
+                        int inserted = nodeEntity.insert(ItemResource.of(result), result.getCount(), tx);
+                        if (inserted > 0)
+                            tx.commit();
+                    }
+                    progressing = 0;
                 }
-                try (Transaction tx = Transaction.openRoot()) {
-                    ItemStack result = targetRecipe.result.create();
-                    int inserted = nodeEntity.insert(ItemResource.of(result), result.getCount(), tx);
-                    if (inserted > 0)
-                        tx.commit();
+            } else {
+                progressing = 0;
+                if (targetItemFilter.getItem(0).isEmpty()) {
+                    targetRecipe = null;
                 }
-                targetRecipe = null;
-            } else if (targetItemFilter.getItem(0).isEmpty()) {
-                targetRecipe = null;
             }
         } else {
             ItemStack targetItem = targetItemFilter.getItem(0);
@@ -204,12 +227,16 @@ public class FunctionNodeProcess extends AbstractNodePlugin {
     @Override
     public void saveAdditional(ValueOutput output) {
         targetItemFilter.serialize(output.child("targetItemFilter"));
+        inputItemFilter.serialize(output.child("inputItemFilter"));
+        output.putInt("progressing", progressing);
         output.store("inputSlots", ItemStack.OPTIONAL_CODEC.listOf(), containerToList(inputSlots));
     }
 
     @Override
     public void loadAdditional(ValueInput input) {
         targetItemFilter.deserialize(input.childOrEmpty("targetItemFilter"));
+        inputItemFilter.deserialize(input.childOrEmpty("inputItemFilter"));
+        input.read("progress", Codec.INT).ifPresent(i -> progressing = i);
         input.read("inputSlots", ItemStack.OPTIONAL_CODEC.listOf()).ifPresent(l -> fillContainer(inputSlots, l));
         targetRecipe = null;
     }
@@ -224,5 +251,22 @@ public class FunctionNodeProcess extends AbstractNodePlugin {
     private static void fillContainer(SimpleContainer c, List<ItemStack> items) {
         for (int i = 0; i < c.getContainerSize(); i++)
             c.setItem(i, items.get(i));
+    }
+
+    @Override
+    public PluginMenuContext<?> makeContext(EtherAdaptNodeContainerMenu etherAdaptNodeContainerMenu) {
+        return new ProgressMenuContext(etherAdaptNodeContainerMenu, this);
+    }
+
+    public static class ProgressMenuContext extends PluginMenuContext<FunctionNodeProcess> {
+
+        public int targetFilterIdx = 0;
+        public List<FilterSlot> filterSlots = new ArrayList<>();
+        public List<BaseSlot> inputSlots = new ArrayList<>();
+
+        public ProgressMenuContext(EtherAdaptNodeContainerMenu menu, FunctionNodeProcess plugin) {
+            super(menu, plugin);
+            plugin.registerSlotsWithContext(menu, this);
+        }
     }
 }

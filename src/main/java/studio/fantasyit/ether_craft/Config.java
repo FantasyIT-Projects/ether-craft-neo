@@ -40,6 +40,9 @@ public class Config {
     private static final ModConfigSpec.IntValue BREAK_BLOCK_HARDNESS_MULTIPLIER = BUILDER
             .comment("Multiplier for block hardness in ether consumption per block break")
             .defineInRange("break_block.hardness_multiplier", 10, 1, Integer.MAX_VALUE);
+    private static final ModConfigSpec.IntValue NODE_PROCESS_MAX_PROGRESS = BUILDER
+            .comment("Max progress ticks for Node Process function to complete one recipe")
+            .defineInRange("node.process.max_progress", 100, 1, Integer.MAX_VALUE);
     private static final ModConfigSpec.IntValue BREAK_BLOCK_EFFICIENCY_DIVISOR = BUILDER
             .comment("How much ether to reduce per level of Efficiency enchantment")
             .defineInRange("break_block.efficiency_divisor", 3, 0, Integer.MAX_VALUE);
@@ -52,6 +55,7 @@ public class Config {
     public static int containerInteractEtherPreItem;
     public static int breakBlockHardnessMultiplier;
     public static int breakBlockEfficiencyDivisor;
+    public static int nodeProcessMaxProgress;
 
     @SubscribeEvent
     static void onLoad(final ModConfigEvent event) {
@@ -62,5 +66,6 @@ public class Config {
         containerInteractEtherPreItem = NODE_CONTAINER_INTERACT_ETHER_PRE_ITEM.get();
         breakBlockHardnessMultiplier = BREAK_BLOCK_HARDNESS_MULTIPLIER.get();
         breakBlockEfficiencyDivisor = BREAK_BLOCK_EFFICIENCY_DIVISOR.get();
+        nodeProcessMaxProgress = NODE_PROCESS_MAX_PROGRESS.get();
     }
 }

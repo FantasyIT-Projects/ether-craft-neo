@@ -8,9 +8,8 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import studio.fantasyit.ether_craft.EtherCraft;
-import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
 
-public record SetFilterSlotC2S(int slot, ItemStack stack) implements CustomPacketPayload {
+public record SetFilterSlotC2S(int index, int slot, ItemStack stack) implements CustomPacketPayload {
     public static final Type<@NotNull SetFilterSlotC2S> TYPE = new Type<>(
             Identifier.fromNamespaceAndPath(
                     EtherCraft.MODID, "set_filter_slot"
@@ -18,6 +17,8 @@ public record SetFilterSlotC2S(int slot, ItemStack stack) implements CustomPacke
     );
 
     public static final StreamCodec<RegistryFriendlyByteBuf, @NotNull SetFilterSlotC2S> CODEC = StreamCodec.composite(
+            ByteBufCodecs.INT,
+            SetFilterSlotC2S::index,
             ByteBufCodecs.INT,
             SetFilterSlotC2S::slot,
             ItemStack.OPTIONAL_STREAM_CODEC,

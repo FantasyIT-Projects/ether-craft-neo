@@ -5,6 +5,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -33,6 +34,7 @@ public class ProcessChipItem extends Item {
         ));
         return stack;
     }
+
     public static boolean isSeparator(ItemStack stack) {
         return stack.is(ItemRegistry.PROCESS_CHIP_ITEM) && Objects.equals(stack.get(DataComponentRegistry.CHIP_ID), SEPARATOR);
     }
@@ -52,5 +54,16 @@ public class ProcessChipItem extends Item {
         builder.accept(Component.translatable("tooltip.ether_craft.ether_process_chip.ether_decay", r.etherDecay()));
         builder.accept(Component.translatable("tooltip.ether_craft.ether_process_chip.ether_require", r.etherRequire()));
         builder.accept(Component.translatable("tooltip.ether_craft.ether_process_chip.ether_consume", r.etherConsume()));
+    }
+
+    @Override
+    public void onCraftedBy(ItemStack itemStack, Player player) {
+        super.onCraftedBy(itemStack, player);
+        Identifier identifier = itemStack.get(DataComponentRegistry.CHIP_ID);
+        if (identifier != null)
+            itemStack.set(DataComponents.ITEM_MODEL, Identifier.fromNamespaceAndPath(
+                    identifier.getNamespace(),
+                    identifier.getPath()
+            ));
     }
 }

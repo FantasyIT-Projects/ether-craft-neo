@@ -11,7 +11,7 @@ import studio.fantasyit.ether_craft.menu.base.RangeLimitPlaceContainer;
 import studio.fantasyit.ether_craft.menu.base.slot.RangeLimitSlot;
 import studio.fantasyit.ether_craft.menu.factory.slot.SingleStackSlot;
 import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeContainerMenu;
-import studio.fantasyit.ether_craft.node.AbstractNodePlugin;
+import studio.fantasyit.ether_craft.node.plugins.base.AbstractNodePlugin;
 import studio.fantasyit.ether_craft.node.NodeProperty;
 
 public class MainPageDummyPlugin extends AbstractNodePlugin {
