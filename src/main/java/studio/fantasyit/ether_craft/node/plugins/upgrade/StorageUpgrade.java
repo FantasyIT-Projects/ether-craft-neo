@@ -12,6 +12,6 @@ public class StorageUpgrade extends AbstractNodePlugin {
 
     @Override
     public void modifyNodeProperty(NodeProperty nodeProperty) {
-        nodeProperty.slotUnlock = (Math.floorDiv(nodeProperty.slotUnlock, 7) + 1) * 7;
+        nodeProperty.slotUnlock = (Math.floorDiv(nodeProperty.slotUnlock, 9) + 1) * 9;
     }
 }

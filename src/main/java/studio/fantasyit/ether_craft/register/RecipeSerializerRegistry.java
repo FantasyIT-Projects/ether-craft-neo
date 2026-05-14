@@ -7,6 +7,7 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import org.jetbrains.annotations.NotNull;
 import studio.fantasyit.ether_craft.recipe.factory.EtherProcessFactoryRecipe;
+import studio.fantasyit.ether_craft.recipe.node.NodeProcessRecipe;
 
 public class RecipeSerializerRegistry {
     static DeferredRegister<RecipeSerializer<?>> recipeSerializerIDeferredHolder = DeferredRegister.create(BuiltInRegistries.RECIPE_SERIALIZER, "ether_craft");
@@ -14,6 +15,11 @@ public class RecipeSerializerRegistry {
             recipeSerializerIDeferredHolder.register("ether_process", () -> new RecipeSerializer<>(
                     EtherProcessFactoryRecipe.CODEC,
                     EtherProcessFactoryRecipe.STREAM_CODEC
+            ));
+    public static final DeferredHolder<RecipeSerializer<?>, @NotNull RecipeSerializer<@NotNull NodeProcessRecipe>> NODE_PROCESS_RECIPE_SERIALIZER =
+            recipeSerializerIDeferredHolder.register("node_process", () -> new RecipeSerializer<>(
+                    NodeProcessRecipe.CODEC,
+                    NodeProcessRecipe.STREAM_CODEC
             ));
 
     public static void register(IEventBus eventBus) {

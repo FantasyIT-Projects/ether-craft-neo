@@ -17,11 +17,17 @@ public class ItemConsumeScreen extends BaseEtherNodeTabWidgetProvider<AbstractIt
     public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
         super.extractBackground(graphics, mouseX, mouseY, a);
         UIUtil.nineSliced(graphics, EtherAdaptNodeAsset.INFO_PANEL, lx(93), ly(15), 75, 48, 1);
+        EtherAdaptNodeAsset.ETHER_BAR_CTR.blit(graphics, lx(25), ly(42));
+        if (screen.getMenu().entity != null)
+            UIUtil.renderEtherBarProgress(
+                    screen.getMenu().entity.getEther(),
+                    screen.getMenu().entity.getMaxEther(),
+                    lx(26), ly(23), EtherAdaptNodeAsset.ETHER_BAR_CTR.w, EtherAdaptNodeAsset.ETHER_BAR_CTR.h, graphics);
     }
 
     @Override
     public void createWidget() {
         super.createWidget();
-        FilterGuiRegClient.widget(screen,context.filter.whitelist);
+        FilterGuiRegClient.widget(screen, context.filter.whitelist, AbstractItemConsumeFunction.FILTER_PREFIX);
     }
 }

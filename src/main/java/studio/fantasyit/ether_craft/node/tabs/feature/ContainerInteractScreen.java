@@ -24,10 +24,10 @@ public class ContainerInteractScreen extends DirectionalFilterScreen {
         FeatureContainerInteract plugin = (FeatureContainerInteract) context;
         modeButton = new IASwitchButton(
                 lx(15), ly(104),
-                EtherAdaptNodeAsset.BTN_BLACK,
-                EtherAdaptNodeAsset.BTN_BLACK_HOVER,
-                EtherAdaptNodeAsset.BTN_WHITE,
-                EtherAdaptNodeAsset.BTN_WHITE_HOVER,
+                EtherAdaptNodeAsset.BTN_BLANK,
+                EtherAdaptNodeAsset.BTN_BLANK_HOVER,
+                EtherAdaptNodeAsset.BTN_BLANK,
+                EtherAdaptNodeAsset.BTN_BLANK_HOVER,
                 null,
                 Component.translatable("ether_craft.gui.node.container_interact.extract"),
                 Component.translatable("ether_craft.gui.node.container_interact.insert"),
@@ -51,6 +51,6 @@ public class ContainerInteractScreen extends DirectionalFilterScreen {
         ImageAsset icon = plugin.extractMode
                 ? EtherAdaptNodeAsset.BTN_ICON_EXTRACT
                 : EtherAdaptNodeAsset.BTN_ICON_INSERT;
-        icon.blit(graphics, lx(28), ly(64));
+        icon.blit(graphics, modeButton.getX(), modeButton.getY());
     }
 }

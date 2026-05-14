@@ -66,6 +66,10 @@ public class EtherStreamEntity extends Projectile {
         lowerConsumeFactor = factor;
     }
 
+    public void consumeEther(int amount) {
+        this.ether -= amount;
+    }
+
     public void addCapability(IStreamCapability capability) {
         capabilities.add(capability);
     }
@@ -138,26 +142,30 @@ public class EtherStreamEntity extends Projectile {
 
     @Override
     protected void onHitBlock(@NotNull BlockHitResult p_37258_) {
-        super.onHitBlock(p_37258_);
         if (!this.level().isClientSide()) {
+            boolean handled = false;
             for (IStreamCapability capability : capabilities) {
-                capability.hitBlock((ServerLevel) level(), this, p_37258_, level().getBlockState(p_37258_.getBlockPos()));
+                if (capability.hitBlock((ServerLevel) level(), this, p_37258_, level().getBlockState(p_37258_.getBlockPos())))
+                    handled = true;
             }
             EtherContainer e = level().getCapability(EtherContainer.ETHER_CONTAINER, p_37258_.getBlockPos());
             if (e != null)
                 e.receiveEther(this.ether);
+            if (!handled)
+                dropAndDiscard();
         }
-        dropAndDiscard();
     }
 
     @Override
     protected void onHitEntity(EntityHitResult p_37259_) {
-        super.onHitEntity(p_37259_);
         if (this.level().isClientSide()) return;
         Entity entity = p_37259_.getEntity();
+        boolean handled = false;
         for (IStreamCapability capability : capabilities)
-            capability.hitEntity((ServerLevel) level(), this, p_37259_, entity);
-        dropAndDiscard();
+            if (capability.hitEntity((ServerLevel) level(), this, p_37259_, entity))
+                handled = true;
+        if (!handled)
+            dropAndDiscard();
     }
 
     @Override

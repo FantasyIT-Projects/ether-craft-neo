@@ -1,11 +1,13 @@
 package studio.fantasyit.ether_craft.stream;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -13,8 +15,10 @@ import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
+import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.entity.EtherStreamEntity;
+import studio.fantasyit.ether_craft.register.Tags;
 import studio.fantasyit.ether_craft.util.ContainerOps;
 
 import java.util.ArrayList;
@@ -40,7 +44,7 @@ public class EtherStreamBreakBlockCapability implements IStreamCapability {
 
     @Override
     public int getConsumption() {
-        return tools.size() * 5;
+        return 0;
     }
 
     @Override
@@ -48,20 +52,29 @@ public class EtherStreamBreakBlockCapability implements IStreamCapability {
     }
 
     @Override
-    public void hitEntity(ServerLevel level, EtherStreamEntity streamEntity, EntityHitResult hit, Entity entity) {
+    public boolean hitEntity(ServerLevel level, EtherStreamEntity streamEntity, EntityHitResult hit, Entity entity) {
+        return false;
     }
 
     @Override
-    public void hitBlock(ServerLevel level, EtherStreamEntity streamEntity, BlockHitResult hit, BlockState blockState) {
-        if (tools.isEmpty() || blockState.isAir()) return;
-        if (blockState.getDestroySpeed(level, hit.getBlockPos()) < 0) return;
+    public boolean hitBlock(ServerLevel level, EtherStreamEntity streamEntity, BlockHitResult hit, BlockState blockState) {
+        if (tools.isEmpty() || blockState.isAir()) return false;
+        if (blockState.is(Tags.ETHER_MACHINE)) return false;
+        if (blockState.getDestroySpeed(level, hit.getBlockPos()) < 0) return false;
 
         ItemStack bestTool = findBestTool(level, hit.getBlockPos(), blockState);
+        if (bestTool.isEmpty()) return false;
         BlockPos pos = hit.getBlockPos();
-        BlockEntity blockEntity = level.getBlockEntity(pos);
 
+        float hardness = blockState.getDestroySpeed(level, pos);
+        int effLevel = bestTool.getEnchantmentLevel(level.registryAccess().lookupOrThrow(Registries.ENCHANTMENT).getOrThrow(Enchantments.EFFICIENCY));
+        int cost = Math.max(1, (int) (hardness * Config.breakBlockHardnessMultiplier) - effLevel * Config.breakBlockEfficiencyDivisor);
+
+        BlockEntity blockEntity = level.getBlockEntity(pos);
         List<ItemStack> drops = Block.getDrops(blockState, level, pos, blockEntity, null, bestTool);
         level.removeBlock(pos, false);
+
+        streamEntity.consumeEther(cost);
 
         Optional<IStreamCapability> optStorage = streamEntity.getCapability(EtherStreamStorageCapability.ID);
         if (optStorage.isPresent() && optStorage.get() instanceof EtherStreamStorageCapability storage) {
@@ -81,13 +94,14 @@ public class EtherStreamBreakBlockCapability implements IStreamCapability {
                 Block.popResource(level, pos, drop);
             }
         }
+        return true;
     }
 
     private ItemStack findBestTool(ServerLevel level, BlockPos pos, BlockState state) {
         ItemStack best = ItemStack.EMPTY;
         float bestSpeed = 0;
         for (ItemStack tool : tools) {
-            if (!tool.isEmpty()) {
+            if (!tool.isEmpty() && tool.isCorrectToolForDrops(state)) {
                 float speed = tool.getDestroySpeed(state);
                 if (speed > bestSpeed) {
                     bestSpeed = speed;

@@ -16,9 +16,9 @@ public interface IStreamCapability extends ValueIOSerializable {
 
     void tick(EtherStreamEntity streamEntity);
 
-    void hitEntity(ServerLevel level, EtherStreamEntity streamEntity, EntityHitResult hit, Entity entity);
+    boolean hitEntity(ServerLevel level, EtherStreamEntity streamEntity, EntityHitResult hit, Entity entity);
 
-    void hitBlock(ServerLevel level, EtherStreamEntity streamEntity, BlockHitResult hit, BlockState blockState);
+    boolean hitBlock(ServerLevel level, EtherStreamEntity streamEntity, BlockHitResult hit, BlockState blockState);
 
     void onDestroy(EtherStreamEntity streamEntity);
 }

@@ -105,7 +105,7 @@ public class EtherStreamStorageCapability implements IStreamCapability, Containe
     }
 
     @Override
-    public void hitEntity(ServerLevel level, EtherStreamEntity streamEntity, EntityHitResult hit, Entity entity) {
+    public boolean hitEntity(ServerLevel level, EtherStreamEntity streamEntity, EntityHitResult hit, Entity entity) {
         if (entity instanceof ServerPlayer sp) {
             PlayerInventoryWrapper playerInventoryWrapper = PlayerInventoryWrapper.of(sp);
             ContainerOps.tryPlaceToItemHandler(this, playerInventoryWrapper);
@@ -114,13 +114,15 @@ public class EtherStreamStorageCapability implements IStreamCapability, Containe
             if (r != null)
                 ContainerOps.tryPlaceToItemHandler(this, r);
         }
+        return false;
     }
 
     @Override
-    public void hitBlock(ServerLevel level, EtherStreamEntity streamEntity, BlockHitResult hit, BlockState blockState) {
+    public boolean hitBlock(ServerLevel level, EtherStreamEntity streamEntity, BlockHitResult hit, BlockState blockState) {
         ResourceHandler<@NotNull ItemResource> r = level.getCapability(Capabilities.Item.BLOCK, hit.getBlockPos(), hit.getDirection());
         if (r != null)
             ContainerOps.tryPlaceToItemHandler(this, r);
+        return false;
     }
 
     @Override

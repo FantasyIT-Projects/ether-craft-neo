@@ -10,8 +10,10 @@ import studio.fantasyit.ether_craft.block.node.render.EtherAdapterNodeRenderStat
 import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
 import studio.fantasyit.ether_craft.node.plugins.feature.FeatureContainerInteract;
 import studio.fantasyit.ether_craft.node.plugins.feature.FeatureDropperThrower;
+import studio.fantasyit.ether_craft.node.plugins.feature.FeatureEtherStreamEmitter;
 import studio.fantasyit.ether_craft.node.plugins.function.FunctionFurnaceGenerator;
 import studio.fantasyit.ether_craft.node.plugins.function.FunctionMagnet;
+import studio.fantasyit.ether_craft.node.plugins.function.FunctionStoneGenerator;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -26,7 +28,7 @@ public class PluginRenderManager {
     public Map<Identifier, PluginRender> pluginRenderer = new HashMap<>();
 
     public void collect() {
-        register(FunctionFurnaceGenerator.ID, (face, dTick, nodeEntity, state) -> {
+        PluginRender generatorLayer = (face, dTick, nodeEntity, state) -> {
             FunctionFurnaceGenerator.WorkingMaterial value = FunctionFurnaceGenerator.WorkingMaterial.values()[nodeEntity.getSyncedPluginData(FunctionFurnaceGenerator.WORKING_MATERIAL)];
             state.setSideAtlas(face, value == FunctionFurnaceGenerator.WorkingMaterial.IDLE ? EtherAdapterNodeAtlas.FUNCTION_BURNER_EMPTY : EtherAdapterNodeAtlas.FUNCTION_BURNER_WORKING);
 
@@ -36,6 +38,10 @@ public class PluginRenderManager {
                 state.addOverlay(face, EtherAdapterNodeAtlas.OVERLAY_FUNCTION_BURNER_LAVA.get(dTick));
             } else if (value == FunctionFurnaceGenerator.WorkingMaterial.WOOD) {
                 state.addOverlay(face, EtherAdapterNodeAtlas.OVERLAY_FUNCTION_BURNER_WOOD);
+            } else if (value == FunctionFurnaceGenerator.WorkingMaterial.STONE) {
+                state.addOverlay(face, EtherAdapterNodeAtlas.OVERLAY_FUNCTION_BURNER_STONE);
+            } else if (value == FunctionFurnaceGenerator.WorkingMaterial.DEEPSLATE) {
+                state.addOverlay(face, EtherAdapterNodeAtlas.OVERLAY_FUNCTION_BURNER_DEEPSLATE);
             } else {
                 state.addOverlay(face, EtherAdapterNodeAtlas.OVERLAY_FUNCTION_BURNER_COAL.get(dTick));
             }
@@ -44,7 +50,9 @@ public class PluginRenderManager {
             if (maxEther != 0)
                 state.addOverlay(face, EtherAdapterNodeAtlas.OVERLAY_FUNCTION_BURNER_FILL.get((int) Math.min((nodeEntity.getEther() * 10 / maxEther), 9)));
             state.addOverlay(face, EtherAdapterNodeAtlas.OVERLAY_FUNCTION_BURNER_FILL.get(9));
-        });
+        };
+        register(FunctionFurnaceGenerator.ID, generatorLayer);
+        register(FunctionStoneGenerator.ID, generatorLayer);
         register(FeatureContainerInteract.ID, (face, dTick, nodeEntity, state) ->
                 state.setSideAtlas(face, switch (face) {
                     case UP -> EtherAdapterNodeAtlas.FEATURE_CONTAINER_INT_TOP;
@@ -63,7 +71,13 @@ public class PluginRenderManager {
                     case DOWN -> EtherAdapterNodeAtlas.FEATURE_MAGNET_BOTTOM;
                     default -> EtherAdapterNodeAtlas.FEATURE_MAGNET_SIDE;
                 }));
-
+        register(FeatureEtherStreamEmitter.ID, (face, dTick, nodeEntity, state) ->
+                state.setSideAtlas(face, switch (face) {
+                    case UP -> EtherAdapterNodeAtlas.FEATURE_STREAM_EMITTER_TOP;
+                    case DOWN -> EtherAdapterNodeAtlas.FEATURE_STREAM_EMITTER_BOTTOM;
+                    default -> EtherAdapterNodeAtlas.FEATURE_STREAM_EMITTER_SIDE;
+                })
+        );
     }
 
     public void register(Identifier id, PluginRender renderer) {

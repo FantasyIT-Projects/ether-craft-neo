@@ -29,7 +29,7 @@ public class MagnetFunctionScreen extends BaseEtherNodeTabWidgetProvider<Functio
 
     @Override
     public void createWidget() {
-        FilterGuiRegClient.widget(screen, context.filter.whitelist);
+        FilterGuiRegClient.widget(screen, context.filter.whitelist, FunctionMagnet.FILTER_PREFIX);
 
         int[] startValues = {
                 context.centerX + CENTER_RANGE,
@@ -47,8 +47,8 @@ public class MagnetFunctionScreen extends BaseEtherNodeTabWidgetProvider<Functio
                     MAX_VALUES[i],
                     EtherAdaptNodeAsset.SCROLL_BACK,
                     EtherAdaptNodeAsset.SCROLL_BLOCK,
-                    EtherAdaptNodeAsset.SCROLL_BLOCK,
-                    EtherAdaptNodeAsset.SCROLL_BLOCK,
+                    EtherAdaptNodeAsset.SCROLL_BLOCK_HOVER,
+                    EtherAdaptNodeAsset.SCROLL_BLOCK_HOVER,
                     v -> {
                         int actual = idx < 3 ? v - CENTER_RANGE : v + 1;
                         ClientPacketDistributor.sendToServer(new SyncScreenDataC2S(

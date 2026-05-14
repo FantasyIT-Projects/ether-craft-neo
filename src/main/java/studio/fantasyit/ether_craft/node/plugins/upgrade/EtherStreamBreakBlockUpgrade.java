@@ -9,6 +9,7 @@ import studio.fantasyit.ether_craft.node.AbstractNodePlugin;
 import studio.fantasyit.ether_craft.node.plugins.IEtherStreamCapabilityProviderPlugin;
 import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
 import studio.fantasyit.ether_craft.stream.EtherStreamBreakBlockCapability;
+import studio.fantasyit.ether_craft.stream.IStreamCapability;
 
 import java.util.Optional;
 
@@ -28,7 +29,7 @@ public class EtherStreamBreakBlockUpgrade extends AbstractNodePlugin implements 
         ItemStack tool = getTool();
         if (tool.isEmpty()) return;
 
-        Optional<studio.fantasyit.ether_craft.stream.IStreamCapability> existing = entity.getCapability(EtherStreamBreakBlockCapability.ID);
+        Optional<IStreamCapability> existing = entity.getCapability(EtherStreamBreakBlockCapability.ID);
         if (existing.isPresent() && existing.get() instanceof EtherStreamBreakBlockCapability breakBlock) {
             breakBlock.addTool(tool);
         } else {

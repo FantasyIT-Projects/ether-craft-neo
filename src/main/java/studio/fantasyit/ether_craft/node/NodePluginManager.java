@@ -13,9 +13,11 @@ import studio.fantasyit.ether_craft.node.plugins.feature.FeatureDropperThrower;
 import studio.fantasyit.ether_craft.node.plugins.feature.FeatureEtherStreamEmitter;
 import studio.fantasyit.ether_craft.node.plugins.function.FunctionFurnaceGenerator;
 import studio.fantasyit.ether_craft.node.plugins.function.FunctionMagnet;
+import studio.fantasyit.ether_craft.node.plugins.function.FunctionNodeProcess;
+import studio.fantasyit.ether_craft.node.plugins.function.FunctionStoneGenerator;
 import studio.fantasyit.ether_craft.node.plugins.upgrade.EtherStreamBreakBlockUpgrade;
-import studio.fantasyit.ether_craft.node.plugins.upgrade.EtherStreamStorageUpgrade;
 import studio.fantasyit.ether_craft.node.plugins.upgrade.EtherStreamPreventDecayUpgrade;
+import studio.fantasyit.ether_craft.node.plugins.upgrade.EtherStreamStorageUpgrade;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,12 +58,14 @@ public class NodePluginManager {
         plugins.add(MAIN_PAGE_INFO);
         //TODO
         registerPlugin(PluginType.FUNCTION, FunctionFurnaceGenerator.ID, FunctionFurnaceGenerator::new, Items.FURNACE);
+        registerPlugin(PluginType.FUNCTION, FunctionStoneGenerator.ID, FunctionStoneGenerator::new, Items.STONECUTTER);
         registerPlugin(PluginType.FUNCTION, FunctionMagnet.ID, FunctionMagnet::new, Items.IRON_BLOCK);
+        registerPlugin(PluginType.FUNCTION, FunctionNodeProcess.ID, FunctionNodeProcess::new, Items.GRINDSTONE);
         registerPlugin(PluginType.FEATURE, FeatureEtherStreamEmitter.ID, FeatureEtherStreamEmitter::new, Items.DISPENSER);
         registerPlugin(PluginType.FEATURE, FeatureDropperThrower.ID, FeatureDropperThrower::new, Items.DROPPER);
         registerPlugin(PluginType.FEATURE, FeatureContainerInteract.ID, FeatureContainerInteract::new, Items.HOPPER);
-        registerPlugin(PluginType.UPGRADE, EtherStreamStorageUpgrade.ID, EtherStreamStorageUpgrade::new, Items.CHEST);
-        registerPlugin(PluginType.UPGRADE, EtherStreamPreventDecayUpgrade.ID, EtherStreamPreventDecayUpgrade::new, Items.AMETHYST_SHARD);
+        registerPlugin(PluginType.UPGRADE, EtherStreamStorageUpgrade.ID, EtherStreamStorageUpgrade::new, Items.CHEST_MINECART);
+        registerPlugin(PluginType.UPGRADE, EtherStreamPreventDecayUpgrade.ID, EtherStreamPreventDecayUpgrade::new, Items.REPEATER);
         registerPlugin(PluginType.UPGRADE, EtherStreamBreakBlockUpgrade.ID, EtherStreamBreakBlockUpgrade::new, Items.IRON_PICKAXE);
     }
 

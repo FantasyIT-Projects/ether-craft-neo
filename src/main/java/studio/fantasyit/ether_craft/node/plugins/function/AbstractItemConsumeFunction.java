@@ -10,6 +10,7 @@ import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
 import studio.fantasyit.ether_craft.block.base.ItemFilter;
 import studio.fantasyit.ether_craft.block.node.EtherAdaptNodeEntity;
+import studio.fantasyit.ether_craft.block.node.OversizedEtherSlot;
 import studio.fantasyit.ether_craft.menu.base.slot.BaseDataSlot;
 import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeContainerMenu;
 import studio.fantasyit.ether_craft.network.c2s.SyncScreenDataC2S;
@@ -20,9 +21,20 @@ import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
 import studio.fantasyit.ether_craft.util.ContainerOps;
 
 public abstract class AbstractItemConsumeFunction extends AbstractNodePlugin {
+    public static final String FILTER_PREFIX = "item_consume/";
     public ItemFilter filter = new ItemFilter(21, nodeEntity::setChanged);
     SimpleContainer container = new SimpleContainer(1);
     int remainBurnTicks = 0;
+
+    public enum WorkingMaterial {
+        IDLE,
+        ANY,
+        STONE,
+        WOOD,
+        DEEPSLATE,
+        COAL,
+        LAVA
+    }
 
     public AbstractItemConsumeFunction(EtherAdaptNodeEntity nodeEntity, InstalledPlugin ID) {
         super(nodeEntity, ID);
@@ -72,7 +84,7 @@ public abstract class AbstractItemConsumeFunction extends AbstractNodePlugin {
     @Override
     public void syncScreenData(SyncScreenDataC2S message) {
         super.syncScreenData(message);
-        FilterGuiRegCommon.sync(message, filter);
+        FilterGuiRegCommon.sync(message, filter, FILTER_PREFIX);
     }
 
     @Override
@@ -92,7 +104,8 @@ public abstract class AbstractItemConsumeFunction extends AbstractNodePlugin {
     @Override
     public void registerSlots(EtherAdaptNodeContainerMenu menu) {
         super.registerSlots(menu);
-        menu.addSlotDraw(new Slot(container, 0, 25, 23));
+        menu.addSlotDraw(new OversizedEtherSlot(nodeEntity.etherStorage, 0, 25, 23));
+        menu.addSlotDraw(new Slot(container, 0, 25, 47));
         menu.addDataSlot(new BaseDataSlot(() -> remainBurnTicks, (a) -> remainBurnTicks = a));
         FilterGuiRegCommon.slots(menu, filter);
     }

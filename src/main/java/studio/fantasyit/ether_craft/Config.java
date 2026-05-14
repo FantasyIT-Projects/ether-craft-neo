@@ -37,6 +37,12 @@ public class Config {
                     return false;
                 }
             });
+    private static final ModConfigSpec.IntValue BREAK_BLOCK_HARDNESS_MULTIPLIER = BUILDER
+            .comment("Multiplier for block hardness in ether consumption per block break")
+            .defineInRange("break_block.hardness_multiplier", 10, 1, Integer.MAX_VALUE);
+    private static final ModConfigSpec.IntValue BREAK_BLOCK_EFFICIENCY_DIVISOR = BUILDER
+            .comment("How much ether to reduce per level of Efficiency enchantment")
+            .defineInRange("break_block.efficiency_divisor", 3, 0, Integer.MAX_VALUE);
     static final ModConfigSpec SPEC = BUILDER.build();
 
     public static int etherConvert;
@@ -44,6 +50,8 @@ public class Config {
     public static List<Integer> nodeLevelSlotArr;
     public static int nodeMagnetConsumePreStack;
     public static int containerInteractEtherPreItem;
+    public static int breakBlockHardnessMultiplier;
+    public static int breakBlockEfficiencyDivisor;
 
     @SubscribeEvent
     static void onLoad(final ModConfigEvent event) {
@@ -52,5 +60,7 @@ public class Config {
         nodeLevelSlotArr = NODE_LEVEL_SLOT_ARR.get().stream().map(t -> (Integer) t).toList();
         nodeMagnetConsumePreStack = NODE_MAGNET_CONSUME_PRE_STACK.get();
         containerInteractEtherPreItem = NODE_CONTAINER_INTERACT_ETHER_PRE_ITEM.get();
+        breakBlockHardnessMultiplier = BREAK_BLOCK_HARDNESS_MULTIPLIER.get();
+        breakBlockEfficiencyDivisor = BREAK_BLOCK_EFFICIENCY_DIVISOR.get();
     }
 }

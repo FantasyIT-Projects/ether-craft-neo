@@ -1,27 +1,31 @@
 package studio.fantasyit.ether_craft.node.plugins.function;
 
+import com.mojang.serialization.Codec;
 import net.minecraft.resources.Identifier;
-import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.block.node.EtherAdaptNodeEntity;
+import studio.fantasyit.ether_craft.datapack.StoneGeneratorRatio;
 import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
 
-public class FunctionFurnaceGenerator extends AbstractItemConsumeFunction {
+public class FunctionStoneGenerator extends AbstractItemConsumeFunction {
     public static Identifier ID = EtherCraft.id("generator/furnace");
     public static Identifier WORKING_MATERIAL = EtherCraft.id("generator/furnace/material");
 
-    public FunctionFurnaceGenerator(EtherAdaptNodeEntity nodeEntity, InstalledPlugin ID) {
+    int ept = 0;
+
+    public FunctionStoneGenerator(EtherAdaptNodeEntity nodeEntity, InstalledPlugin ID) {
         super(nodeEntity, ID);
     }
 
     @Override
     boolean accepts(ItemResource stack) {
-        int burnTime = stack.toStack().getBurnTime(null, nodeEntity.getLevel().fuelValues());
-        return burnTime > 0;
+        return StoneGeneratorRatio.get(stack.toStack()) != null;
     }
 
     @Override
@@ -33,30 +37,42 @@ public class FunctionFurnaceGenerator extends AbstractItemConsumeFunction {
                 t.commit();
             }
         }
+        StoneGeneratorRatio stoneGeneratorRatio = StoneGeneratorRatio.get(itemStack);
+        if (stoneGeneratorRatio == null)
+            return itemStack;
         ItemStack remainStack = itemStack.copyWithCount(itemStack.getCount() - 1);
-        this.remainBurnTicks = itemStack.getBurnTime(null, nodeEntity.getLevel().fuelValues());
+        this.remainBurnTicks = stoneGeneratorRatio.burnTicks();
+        ept = stoneGeneratorRatio.etherPerTick();
 
-        if (itemStack.is(ItemTags.LOGS) || itemStack.is(ItemTags.PLANKS))
-            nodeEntity.setSyncedPluginData(WORKING_MATERIAL, WorkingMaterial.WOOD.ordinal());
-        else if (itemStack.is(Items.LAVA_BUCKET))
-            nodeEntity.setSyncedPluginData(WORKING_MATERIAL, WorkingMaterial.LAVA.ordinal());
-        else if (itemStack.is(ItemTags.COALS))
-            nodeEntity.setSyncedPluginData(WORKING_MATERIAL, WorkingMaterial.COAL.ordinal());
+        if (itemStack.is(Items.COBBLED_DEEPSLATE))
+            nodeEntity.setSyncedPluginData(WORKING_MATERIAL, WorkingMaterial.DEEPSLATE.ordinal());
         else
-            nodeEntity.setSyncedPluginData(WORKING_MATERIAL, WorkingMaterial.ANY.ordinal());
+            nodeEntity.setSyncedPluginData(WORKING_MATERIAL, WorkingMaterial.STONE.ordinal());
 
         return remainStack;
     }
 
     @Override
     void onBurnTick() {
-        nodeEntity.receiveEther(100);
+        nodeEntity.receiveEther(ept);
     }
 
     @Override
     public void tick() {
         super.tick();
-        if(remainBurnTicks == 0)
+        if (remainBurnTicks == 0)
             nodeEntity.setSyncedPluginData(WORKING_MATERIAL, WorkingMaterial.IDLE.ordinal());
+    }
+
+    @Override
+    public void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        ept = input.read("ept", Codec.INT).orElse(0);
+    }
+
+    @Override
+    public void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        output.store("ept", Codec.INT, ept);
     }
 }

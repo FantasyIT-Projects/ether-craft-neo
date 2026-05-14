@@ -13,8 +13,8 @@ import studio.fantasyit.ether_craft.node.filter.FilterGuiRegCommon;
 import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
 
 public abstract class AbstractDirectionalFilterFeature extends AbstractDirectionalFeature {
+    public static final String FILTER_PREFIX = "abstract_directional_filter/";
     public ItemFilter filter = new ItemFilter(21, nodeEntity::setChanged);
-
     public AbstractDirectionalFilterFeature(EtherAdaptNodeEntity nodeEntity, InstalledPlugin ID) {
         super(nodeEntity, ID);
     }
@@ -47,7 +47,7 @@ public abstract class AbstractDirectionalFilterFeature extends AbstractDirection
     @Override
     public void syncScreenData(SyncScreenDataC2S message) {
         super.syncScreenData(message);
-        FilterGuiRegCommon.sync(message, filter);
+        FilterGuiRegCommon.sync(message, filter,FILTER_PREFIX);
     }
     @Override
     public boolean inputFilter(ItemResource resource) {

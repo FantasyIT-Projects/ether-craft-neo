@@ -14,5 +14,6 @@ public class GenerateGatherEvent {
         event.createProvider((a) -> new ModelDataGen(a, rm));
         event.createProvider(TagGenItem::new);
         event.createProvider(TagGenBlock::new);
+        event.createProvider(DataMapGen::new);
     }
 }

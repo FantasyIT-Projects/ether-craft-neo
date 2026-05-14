@@ -13,8 +13,9 @@ import net.neoforged.neoforge.transfer.transaction.Transaction;
 import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.block.node.EtherAdaptNodeEntity;
+import studio.fantasyit.ether_craft.menu.base.slot.BaseDataSlot;
+import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeContainerMenu;
 import studio.fantasyit.ether_craft.network.c2s.SyncScreenDataC2S;
-import studio.fantasyit.ether_craft.node.NodeProperty;
 import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
 
 public class FeatureContainerInteract extends AbstractDirectionalFilterFeature {
@@ -162,6 +163,8 @@ public class FeatureContainerInteract extends AbstractDirectionalFilterFeature {
     }
 
     @Override
-    public void modifyNodeProperty(NodeProperty nodeProperty) {
+    public void registerSlots(EtherAdaptNodeContainerMenu menu) {
+        super.registerSlots(menu);
+        menu.addDataSlot(new BaseDataSlot(() -> extractMode ? 1 : 0 , t -> extractMode = t == 1));
     }
 }

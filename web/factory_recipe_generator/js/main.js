@@ -20,7 +20,9 @@ function scheduleAutoDetect() {
 
 function scheduleAutoSave() {
     clearTimeout(autoSaveTimer);
-    autoSaveTimer = setTimeout(() => { S.saveGrid(); }, 2000);
+    autoSaveTimer = setTimeout(() => {
+        S.saveGrid();
+    }, 2000);
 }
 
 function onGridChanged() {
@@ -122,11 +124,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('btn-export-file')?.addEventListener('click', () => {
         const json = S.saveGrid();
-        const blob = new Blob([json], { type: 'application/json' });
+        const blob = new Blob([json], {type: 'application/json'});
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'ether_factory_grid.json';
+        a.download = S.outputItemId.replace(/:/g, '_').replace(/['",{}]/g, "") + '.json';
         a.click();
         URL.revokeObjectURL(url);
     });
@@ -211,17 +213,17 @@ function preloadExample() {
     UI.renderRowBtns();
 
     for (let x = 0; x < S.COLS; x++) {
-        S.grid[2][x] = { type: 'block', chipId: null };
-        S.grid[3][x] = { type: 'block', chipId: null };
+        S.grid[2][x] = {type: 'block', chipId: null};
+        S.grid[3][x] = {type: 'block', chipId: null};
         if (x !== 1 && x !== 3 && x !== 5) {
-            S.grid[5][x] = { type: 'block', chipId: null };
+            S.grid[5][x] = {type: 'block', chipId: null};
         }
-        S.grid[6][x] = { type: 'block', chipId: null };
+        S.grid[6][x] = {type: 'block', chipId: null};
     }
 
-    S.grid[5][1] = { type: 'chip', chipId: 'ether_craft:heating_chip' };
-    S.grid[5][3] = { type: 'chip', chipId: 'ether_craft:stamping_chip' };
-    S.grid[5][5] = { type: 'chip', chipId: 'ether_craft:stamping_chip' };
+    S.grid[5][1] = {type: 'chip', chipId: 'ether_craft:heating_chip'};
+    S.grid[5][3] = {type: 'chip', chipId: 'ether_craft:stamping_chip'};
+    S.grid[5][5] = {type: 'chip', chipId: 'ether_craft:stamping_chip'};
 
     S.inputItems[4] = 'minecraft:raw_iron';
 

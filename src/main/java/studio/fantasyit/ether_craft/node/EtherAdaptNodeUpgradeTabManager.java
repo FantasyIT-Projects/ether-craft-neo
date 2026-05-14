@@ -8,10 +8,12 @@ import studio.fantasyit.ether_craft.node.plugins.feature.FeatureDropperThrower;
 import studio.fantasyit.ether_craft.node.plugins.feature.FeatureEtherStreamEmitter;
 import studio.fantasyit.ether_craft.node.plugins.function.FunctionFurnaceGenerator;
 import studio.fantasyit.ether_craft.node.plugins.function.FunctionMagnet;
+import studio.fantasyit.ether_craft.node.plugins.function.FunctionNodeProcess;
 import studio.fantasyit.ether_craft.node.tabs.BaseEtherNodeTabWidgetProvider;
 import studio.fantasyit.ether_craft.node.tabs.MainPageProvider;
 import studio.fantasyit.ether_craft.node.tabs.feature.ContainerInteractScreen;
 import studio.fantasyit.ether_craft.node.tabs.feature.DirectionalFilterScreen;
+import studio.fantasyit.ether_craft.node.tabs.function.FunctionNodeProcessScreen;
 import studio.fantasyit.ether_craft.node.tabs.function.ItemConsumeScreen;
 import studio.fantasyit.ether_craft.node.tabs.function.MagnetFunctionScreen;
 
@@ -27,6 +29,7 @@ public class EtherAdaptNodeUpgradeTabManager {
         register(MainPageDummyPlugin.ID, wrap(MainPageProvider::new));
         register(FunctionFurnaceGenerator.ID, wrap(ItemConsumeScreen::new));
         register(FunctionMagnet.ID, wrap(MagnetFunctionScreen::new));
+        register(FunctionNodeProcess.ID, wrap(FunctionNodeProcessScreen::new));
         register(FeatureEtherStreamEmitter.ID, wrap(DirectionalFilterScreen::new));
         register(FeatureDropperThrower.ID, wrap(DirectionalFilterScreen::new));
         register(FeatureContainerInteract.ID, wrap(ContainerInteractScreen::new));

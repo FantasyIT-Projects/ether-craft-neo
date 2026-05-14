@@ -34,5 +34,13 @@ public class EtherAdaptNodeAsset {
     public static final ImageAsset BTN_ICON_INSERT = ImageAsset.gridOffset(BTN_BLANK_DOWN, 1, 4);
     public static final ImageAsset ICON_UPGRADE = ImageAsset.from4Point(BACKGROUND, 212, 31, 223, 42);
     public static final ImageAsset SCROLL_BLOCK = ImageAsset.from4Point(BACKGROUND, 208, 92, 217, 104);
+    public static final ImageAsset SCROLL_BLOCK_HOVER = ImageAsset.from4Point(BACKGROUND, 208, 156, 217, 168);
     public static final ImageAsset SCROLL_BACK = ImageAsset.from4Point(BACKGROUND, 208, 105, 211, 155);
+    public static final ImageAsset ARROW_RIGHT = ImageAsset.from4Point(BACKGROUND, 224, 36, 234, 43);
+    public static final ImageAsset ARROW_LEFT = ImageAsset.from4Point(BACKGROUND, 224, 44, 234, 51);
+    public static final ImageAsset SLOT_PROGRESS_RESULT_INDICATOR = ImageAsset.from4Point(BACKGROUND, 212, 54, 229, 71);
+    public static final ImageAsset SLOT_PROGRESS_RESULT_INDICATOR_HOVER = ImageAsset.from4Point(BACKGROUND, 230, 54, 247, 71);
+    public static final ImageAsset FILTER_PANEL = ImageAsset.from4Point(BACKGROUND, 224, 0, 249, 35);
+
+
 }
