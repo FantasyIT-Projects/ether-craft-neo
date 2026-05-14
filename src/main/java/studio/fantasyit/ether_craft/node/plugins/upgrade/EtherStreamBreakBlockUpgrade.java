@@ -1,0 +1,40 @@
+package studio.fantasyit.ether_craft.node.plugins.upgrade;
+
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.ItemStack;
+import studio.fantasyit.ether_craft.EtherCraft;
+import studio.fantasyit.ether_craft.block.node.EtherAdaptNodeEntity;
+import studio.fantasyit.ether_craft.entity.EtherStreamEntity;
+import studio.fantasyit.ether_craft.node.AbstractNodePlugin;
+import studio.fantasyit.ether_craft.node.plugins.IEtherStreamCapabilityProviderPlugin;
+import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
+import studio.fantasyit.ether_craft.stream.EtherStreamBreakBlockCapability;
+
+import java.util.Optional;
+
+public class EtherStreamBreakBlockUpgrade extends AbstractNodePlugin implements IEtherStreamCapabilityProviderPlugin {
+    public static final Identifier ID = EtherCraft.id("block_breaker_upgrade");
+
+    public EtherStreamBreakBlockUpgrade(EtherAdaptNodeEntity nodeEntity, InstalledPlugin installedId) {
+        super(nodeEntity, installedId);
+    }
+
+    private ItemStack getTool() {
+        return nodeEntity.featureUpgradeStorage.getItem(installedId.id());
+    }
+
+    @Override
+    public void provideCapabilities(EtherStreamEntity entity) {
+        ItemStack tool = getTool();
+        if (tool.isEmpty()) return;
+
+        Optional<studio.fantasyit.ether_craft.stream.IStreamCapability> existing = entity.getCapability(EtherStreamBreakBlockCapability.ID);
+        if (existing.isPresent() && existing.get() instanceof EtherStreamBreakBlockCapability breakBlock) {
+            breakBlock.addTool(tool);
+        } else {
+            EtherStreamBreakBlockCapability cap = new EtherStreamBreakBlockCapability();
+            cap.addTool(tool);
+            entity.addCapability(cap);
+        }
+    }
+}

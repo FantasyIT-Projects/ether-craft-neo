@@ -40,12 +40,12 @@ public class ScrollableWidget extends AbstractWidget {
     }
 
     public int getBlockTop() {
-        return (background.h - block.h) / maxValue * value;
+        return (background.h - block.h) * value / maxValue;
     }
 
     @Override
     public void onClick(MouseButtonEvent event, boolean doubleClick) {
-        if (event.y() >= getBlockTop() && event.y() <= getBlockTop() + background.h) {
+        if (event.y() - getY() >= getBlockTop() && event.y() - getY() <= getBlockTop() + background.h) {
             this.isDragging = true;
             this.startDragPos = event.y();
             this.startDragValue = value;
@@ -62,7 +62,7 @@ public class ScrollableWidget extends AbstractWidget {
     protected void onDrag(MouseButtonEvent event, double dx, double dy) {
         super.onDrag(event, dx, dy);
         if (this.isDragging) {
-            this.value = Math.clamp((int) (this.startDragValue + (this.startDragPos - event.y()) / (background.h - block.h) * maxValue), 0, maxValue);
+            this.value = Math.clamp((int) (this.startDragValue - (this.startDragPos - event.y()) / (background.h - block.h) * maxValue), 0, maxValue);
         }
     }
 
@@ -74,9 +74,8 @@ public class ScrollableWidget extends AbstractWidget {
 
     @Override
     protected void extractWidgetRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
-        background.blit(graphics, getX() + (background.w - block.w) / 2, getY());
+        background.blit(graphics, getX() + (block.w - background.w) / 2, getY());
         block.blit(graphics, getX(), getY() + getBlockTop());
-
     }
 
     @Override

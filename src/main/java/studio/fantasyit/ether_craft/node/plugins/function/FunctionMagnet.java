@@ -20,14 +20,14 @@ import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
 
 import java.util.List;
 
-public class MagnetFunctionFeature extends AbstractNodePlugin {
-    public static final Identifier ID = EtherCraft.id("function/magnet");
+public class FunctionMagnet extends AbstractNodePlugin {
+    public static final Identifier ID = EtherCraft.id("magnet");
     public static final Identifier SYNC_VALUE = EtherCraft.id("magnet_function_feature/sync");
     public int centerX = 0, centerY = 0, centerZ = 0;
     public int shapeX = 0, shapeY = 0, shapeZ = 0;
     public ItemFilter filter;
 
-    public MagnetFunctionFeature(EtherAdaptNodeEntity nodeEntity, InstalledPlugin installedId) {
+    public FunctionMagnet(EtherAdaptNodeEntity nodeEntity, InstalledPlugin installedId) {
         super(nodeEntity, installedId);
         filter = new ItemFilter(21, nodeEntity::setChanged);
     }

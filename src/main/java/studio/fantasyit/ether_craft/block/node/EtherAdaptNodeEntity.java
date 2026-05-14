@@ -12,12 +12,10 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
-import net.neoforged.neoforge.common.CommonHooks;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
@@ -87,6 +85,15 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
             functionPlugin = Objects.requireNonNull(functionStorage.getPlugin(0)).installedId;
         else
             functionPlugin = null;
+        Direction functionDirection = getBlockState().getValueOrElse(EtherAdaptNodeBlock.FACING, Direction.NORTH);
+        if (featureAttachedDirection.containsKey(functionDirection)) {
+            for (Direction d : Direction.values()) {
+                if (!featureAttachedDirection.containsKey(d)) {
+                    getBlockState().setValue(EtherAdaptNodeBlock.FACING, d);
+                    break;
+                }
+            }
+        }
         if (level instanceof ServerLevel sl)
             PacketDistributor.sendToPlayersInDimension(sl, new SyncEtherAdaptNodeExtraS2C(
                     Optional.ofNullable(functionPlugin),

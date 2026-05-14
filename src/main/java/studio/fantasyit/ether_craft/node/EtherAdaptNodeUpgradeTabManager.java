@@ -7,7 +7,7 @@ import studio.fantasyit.ether_craft.node.plugins.feature.FeatureContainerInterac
 import studio.fantasyit.ether_craft.node.plugins.feature.FeatureDropperThrower;
 import studio.fantasyit.ether_craft.node.plugins.feature.FeatureEtherStreamEmitter;
 import studio.fantasyit.ether_craft.node.plugins.function.FunctionFurnaceGenerator;
-import studio.fantasyit.ether_craft.node.plugins.function.MagnetFunctionFeature;
+import studio.fantasyit.ether_craft.node.plugins.function.FunctionMagnet;
 import studio.fantasyit.ether_craft.node.tabs.BaseEtherNodeTabWidgetProvider;
 import studio.fantasyit.ether_craft.node.tabs.MainPageProvider;
 import studio.fantasyit.ether_craft.node.tabs.feature.ContainerInteractScreen;
@@ -26,7 +26,7 @@ public class EtherAdaptNodeUpgradeTabManager {
         widgets.clear();
         register(MainPageDummyPlugin.ID, wrap(MainPageProvider::new));
         register(FunctionFurnaceGenerator.ID, wrap(ItemConsumeScreen::new));
-        register(MagnetFunctionFeature.ID, wrap(MagnetFunctionScreen::new));
+        register(FunctionMagnet.ID, wrap(MagnetFunctionScreen::new));
         register(FeatureEtherStreamEmitter.ID, wrap(DirectionalFilterScreen::new));
         register(FeatureDropperThrower.ID, wrap(DirectionalFilterScreen::new));
         register(FeatureContainerInteract.ID, wrap(ContainerInteractScreen::new));

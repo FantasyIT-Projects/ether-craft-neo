@@ -31,11 +31,11 @@ public class EtherAdapterNodeBlockEntityRender implements BlockEntityRenderer<Et
     public void extractRenderState(EtherAdaptNodeEntity blockEntity, EtherAdapterNodeRenderState state, float partialTicks, Vec3 cameraPosition, ModelFeatureRenderer.@Nullable CrumblingOverlay breakProgress) {
         EtherAdapterNodeRenderState.extractBase(blockEntity, state, breakProgress);
         state.extractPackedLight(blockEntity.getLevel(), blockEntity.getBlockPos(), blockEntity);
+        if (blockEntity.functionPlugin != null)
+            PluginRenderManager.Instance.render(blockEntity.getBlockState().getValueOrElse(EtherAdaptNodeBlock.FACING, Direction.NORTH), blockEntity.functionPlugin, blockEntity, state);
         for (Map.Entry<Direction, InstalledPlugin> s : blockEntity.featureAttachedDirection.entrySet()) {
             PluginRenderManager.Instance.render(s.getKey(), s.getValue(), blockEntity, state);
         }
-        if (blockEntity.functionPlugin != null)
-            PluginRenderManager.Instance.render(blockEntity.getBlockState().getValueOrElse(EtherAdaptNodeBlock.FACING, Direction.NORTH), blockEntity.functionPlugin, blockEntity, state);
     }
 
     @Override

@@ -9,7 +9,9 @@ import studio.fantasyit.ether_craft.block.node.render.EtherAdapterNodeAtlas;
 import studio.fantasyit.ether_craft.block.node.render.EtherAdapterNodeRenderState;
 import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
 import studio.fantasyit.ether_craft.node.plugins.feature.FeatureContainerInteract;
+import studio.fantasyit.ether_craft.node.plugins.feature.FeatureDropperThrower;
 import studio.fantasyit.ether_craft.node.plugins.function.FunctionFurnaceGenerator;
+import studio.fantasyit.ether_craft.node.plugins.function.FunctionMagnet;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -49,6 +51,19 @@ public class PluginRenderManager {
                     case DOWN -> EtherAdapterNodeAtlas.FEATURE_CONTAINER_INT_BOTTOM;
                     default -> EtherAdapterNodeAtlas.FEATURE_CONTAINER_INT_SIDE;
                 }));
+        register(FeatureDropperThrower.ID, (face, dTick, nodeEntity, state) ->
+                state.setSideAtlas(face, switch (face) {
+                    case UP -> EtherAdapterNodeAtlas.FEATURE_DROPPER_TOP;
+                    case DOWN -> EtherAdapterNodeAtlas.FEATURE_DROPPER_BOTTOM;
+                    default -> EtherAdapterNodeAtlas.FEATURE_DROPPER_SIDE;
+                }));
+        register(FunctionMagnet.ID, (face, dTick, nodeEntity, state) ->
+                state.setSideAtlas(face, switch (face) {
+                    case UP -> EtherAdapterNodeAtlas.FEATURE_MAGNET_TOP;
+                    case DOWN -> EtherAdapterNodeAtlas.FEATURE_MAGNET_BOTTOM;
+                    default -> EtherAdapterNodeAtlas.FEATURE_MAGNET_SIDE;
+                }));
+
     }
 
     public void register(Identifier id, PluginRender renderer) {

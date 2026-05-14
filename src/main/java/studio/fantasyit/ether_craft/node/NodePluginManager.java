@@ -12,7 +12,10 @@ import studio.fantasyit.ether_craft.node.plugins.feature.FeatureContainerInterac
 import studio.fantasyit.ether_craft.node.plugins.feature.FeatureDropperThrower;
 import studio.fantasyit.ether_craft.node.plugins.feature.FeatureEtherStreamEmitter;
 import studio.fantasyit.ether_craft.node.plugins.function.FunctionFurnaceGenerator;
-import studio.fantasyit.ether_craft.node.plugins.function.MagnetFunctionFeature;
+import studio.fantasyit.ether_craft.node.plugins.function.FunctionMagnet;
+import studio.fantasyit.ether_craft.node.plugins.upgrade.EtherStreamBreakBlockUpgrade;
+import studio.fantasyit.ether_craft.node.plugins.upgrade.EtherStreamStorageUpgrade;
+import studio.fantasyit.ether_craft.node.plugins.upgrade.EtherStreamPreventDecayUpgrade;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,10 +56,13 @@ public class NodePluginManager {
         plugins.add(MAIN_PAGE_INFO);
         //TODO
         registerPlugin(PluginType.FUNCTION, FunctionFurnaceGenerator.ID, FunctionFurnaceGenerator::new, Items.FURNACE);
-        registerPlugin(PluginType.FUNCTION, MagnetFunctionFeature.ID, MagnetFunctionFeature::new, Items.IRON_BLOCK);
+        registerPlugin(PluginType.FUNCTION, FunctionMagnet.ID, FunctionMagnet::new, Items.IRON_BLOCK);
         registerPlugin(PluginType.FEATURE, FeatureEtherStreamEmitter.ID, FeatureEtherStreamEmitter::new, Items.DISPENSER);
         registerPlugin(PluginType.FEATURE, FeatureDropperThrower.ID, FeatureDropperThrower::new, Items.DROPPER);
         registerPlugin(PluginType.FEATURE, FeatureContainerInteract.ID, FeatureContainerInteract::new, Items.HOPPER);
+        registerPlugin(PluginType.UPGRADE, EtherStreamStorageUpgrade.ID, EtherStreamStorageUpgrade::new, Items.CHEST);
+        registerPlugin(PluginType.UPGRADE, EtherStreamPreventDecayUpgrade.ID, EtherStreamPreventDecayUpgrade::new, Items.AMETHYST_SHARD);
+        registerPlugin(PluginType.UPGRADE, EtherStreamBreakBlockUpgrade.ID, EtherStreamBreakBlockUpgrade::new, Items.IRON_PICKAXE);
     }
 
     public boolean matches(Predicate<NodePluginManager.PluginType> type, ItemStack itemStack, @Nullable Identifier identifier) {
