@@ -4,6 +4,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector2i;
 import studio.fantasyit.ether_craft.block.base.ItemFilter;
@@ -25,12 +26,16 @@ import java.util.List;
 import java.util.Map;
 
 import static studio.fantasyit.ether_craft.register.GuiRegistry.ETHER_PROCESS_FACTORY_CONTAINER;
+import static studio.fantasyit.ether_craft.register.ItemRegistry.ETHER;
+import static studio.fantasyit.ether_craft.register.ItemRegistry.ETHER_CREATIVE;
 
 public class EtherProcessFactoryContainerMenu extends BaseContainerMenu<@NotNull EtherProcessFactoryEntity> {
     public Map<Integer, Vector2i> internalSlotMapping;
     public List<Slot> mainUiSlots;
     public List<BaseSlot> internalAndOutputSlots;
     public List<FilterSlot> filterSlots;
+    public Slot etherSlot;
+    public int machineSlotEnd;
 
     public EtherProcessFactoryContainerMenu(int windowId, Player player, BlockPos pos) {
         super(windowId, player, pos, ETHER_PROCESS_FACTORY_CONTAINER.get());
@@ -66,7 +71,7 @@ public class EtherProcessFactoryContainerMenu extends BaseContainerMenu<@NotNull
             etherSlotY += 4;
         }
 
-        addSlot(new EtherSlot(entity.etherContainer, etherSlotX + 1, etherSlotY + 1));
+        etherSlot = addSlot(new EtherSlot(entity.etherContainer, etherSlotX + 1, etherSlotY + 1));
         for (int i = 0; i < entity.processingRecipes.length; i++) {
             int finalI = i;
             addDataSlot(new BaseDataSlot(() -> entity.processingProgress[finalI], (v) -> entity.processingProgress[finalI] = v));
@@ -97,6 +102,7 @@ public class EtherProcessFactoryContainerMenu extends BaseContainerMenu<@NotNull
                     (s, _, j) -> filterSlots.add((FilterSlot) s)
             );
         }
+        machineSlotEnd = this.slots.size();
     }
 
     @Override
@@ -106,5 +112,44 @@ public class EtherProcessFactoryContainerMenu extends BaseContainerMenu<@NotNull
         int invBaseY = factoryDef.posPlayer().y + 8;
         addSlotArea(playerInventory, 9, invBaseX, invBaseY, 9, 18, 3, 18, SlotSupplier.of(Slot::new));
         addSlotArea(playerInventory, 0, invBaseX, invBaseY + 58, 9, 18, 1, 18, SlotSupplier.of(Slot::new));
+    }
+
+    @Override
+    public @NotNull ItemStack quickMoveStack(Player player, int index) {
+        ItemStack itemstack = ItemStack.EMPTY;
+        Slot slot = this.slots.get(index);
+        if (slot.hasItem()) {
+            ItemStack stack = slot.getItem();
+            itemstack = stack.copy();
+
+            if (mainUiSlots.contains(slot) || slot == etherSlot || filterSlots.contains(slot)) {
+                if (!this.moveItemStackTo(stack, machineSlotEnd, machineSlotEnd + 36, true)) {
+                    return ItemStack.EMPTY;
+                }
+            } else {
+                if (stack.is(ETHER) || stack.is(ETHER_CREATIVE)) {
+                    this.moveItemStackTo(stack, etherSlot.index, etherSlot.index + 1, false);
+                }
+                if (!stack.isEmpty()) {
+                    this.moveItemStackTo(stack, 0, inputSlots, false);
+                }
+                if (!stack.isEmpty() && !filterSlots.isEmpty()) {
+                    this.moveItemStackTo(stack, filterSlots.getFirst().index, filterSlots.getFirst().index + filterSlots.size(), false);
+                }
+            }
+
+            if (stack.isEmpty()) {
+                slot.set(ItemStack.EMPTY);
+            } else {
+                slot.setChanged();
+            }
+
+            if (stack.getCount() == itemstack.getCount()) {
+                return ItemStack.EMPTY;
+            }
+
+            slot.onTake(player, stack);
+        }
+        return itemstack;
     }
 }

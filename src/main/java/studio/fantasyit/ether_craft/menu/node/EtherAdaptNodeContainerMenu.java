@@ -13,12 +13,15 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import studio.fantasyit.ether_craft.menu.base.BaseMenu;
 import studio.fantasyit.ether_craft.block.node.EtherAdaptNodeEntity;
+import studio.fantasyit.ether_craft.block.node.OversizedEtherSlot;
 import studio.fantasyit.ether_craft.menu.base.BaseContainerMenu;
+import studio.fantasyit.ether_craft.menu.factory.slot.SingleStackSlot;
 import studio.fantasyit.ether_craft.network.base.ISyncTargetMenu;
 import studio.fantasyit.ether_craft.network.c2s.SyncScreenDataC2S;
 import studio.fantasyit.ether_craft.node.AbstractNodePlugin;
 import studio.fantasyit.ether_craft.node.NodePluginManager;
 import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
+import studio.fantasyit.ether_craft.register.ItemRegistry;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +33,7 @@ public class EtherAdaptNodeContainerMenu extends BaseMenu<EtherAdaptNodeEntity> 
     public final AbstractNodePlugin plugin;
     public final InstalledPlugin installedPlugin;
     public final List<Slot> toDrawSlot = new ArrayList<>();
+    public int machineSlotStart = -1;
 
     public static EtherAdaptNodeContainerMenu readFromNetwork(int windowId, Player player, RegistryFriendlyByteBuf data) {
         BlockPos pos = data.readBlockPos();
@@ -39,7 +43,45 @@ public class EtherAdaptNodeContainerMenu extends BaseMenu<EtherAdaptNodeEntity> 
 
     @Override
     public ItemStack quickMoveStack(Player player, int slotIndex) {
-        return ItemStack.EMPTY;//TODO
+        ItemStack itemstack = ItemStack.EMPTY;
+        Slot slot = this.slots.get(slotIndex);
+        if (slot.hasItem()) {
+            ItemStack stack = slot.getItem();
+            itemstack = stack.copy();
+
+            if (slotIndex < machineSlotStart) {
+                if (!this.moveItemStackTo(stack, machineSlotStart, machineSlotStart + 36, true)) {
+                    return ItemStack.EMPTY;
+                }
+            } else {
+                boolean isEtherItem = stack.is(ItemRegistry.ETHER) || stack.is(ItemRegistry.ETHER_CREATIVE);
+                for (int i = 0; i < machineSlotStart && !stack.isEmpty(); i++) {
+                    Slot target = this.slots.get(i);
+                    if (target instanceof SingleStackSlot) continue;
+                    if (isEtherItem) {
+                        if (target instanceof OversizedEtherSlot) {
+                            this.moveItemStackTo(stack, i, i + 1, false);
+                        }
+                    } else {
+                        if (target instanceof OversizedEtherSlot) continue;
+                        this.moveItemStackTo(stack, i, i + 1, false);
+                    }
+                }
+            }
+
+            if (stack.isEmpty()) {
+                slot.set(ItemStack.EMPTY);
+            } else {
+                slot.setChanged();
+            }
+
+            if (stack.getCount() == itemstack.getCount()) {
+                return ItemStack.EMPTY;
+            }
+
+            slot.onTake(player, stack);
+        }
+        return itemstack;
     }
 
     @Override
@@ -79,6 +121,9 @@ public class EtherAdaptNodeContainerMenu extends BaseMenu<EtherAdaptNodeEntity> 
 
     @Override
     public @NotNull Slot addSlot(Slot slot) {
+        if (machineSlotStart < 0 && slot.container instanceof Inventory) {
+            machineSlotStart = this.slots.size();
+        }
         return super.addSlot(slot);
     }
 
