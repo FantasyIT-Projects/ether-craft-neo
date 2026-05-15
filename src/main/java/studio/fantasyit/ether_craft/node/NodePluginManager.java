@@ -1,6 +1,7 @@
 package studio.fantasyit.ether_craft.node;
 
 import com.mojang.serialization.Codec;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.item.ItemStack;
@@ -19,6 +20,7 @@ import studio.fantasyit.ether_craft.node.plugins.function.FunctionMagnet;
 import studio.fantasyit.ether_craft.node.plugins.function.FunctionNodeProcess;
 import studio.fantasyit.ether_craft.node.plugins.function.FunctionStoneGenerator;
 import studio.fantasyit.ether_craft.node.plugins.upgrade.EtherStreamBreakBlockUpgrade;
+import studio.fantasyit.ether_craft.node.plugins.upgrade.EtherStreamDamageUpgrade;
 import studio.fantasyit.ether_craft.node.plugins.upgrade.EtherStreamPreventDecayUpgrade;
 import studio.fantasyit.ether_craft.node.plugins.upgrade.EtherStreamStorageUpgrade;
 import studio.fantasyit.ether_craft.node.plugins.upgrade.StorageUpgrade;
@@ -85,6 +87,7 @@ public class NodePluginManager {
         registerPlugin(PluginType.UPGRADE, EtherStreamStorageUpgrade.ID, EtherStreamStorageUpgrade::new, Items.CHEST_MINECART);
         registerPlugin(PluginType.UPGRADE, EtherStreamPreventDecayUpgrade.ID, EtherStreamPreventDecayUpgrade::new, Items.REPEATER);
         registerPlugin(PluginType.UPGRADE, EtherStreamBreakBlockUpgrade.ID, EtherStreamBreakBlockUpgrade::new, Items.IRON_PICKAXE);
+        registerPlugin(PluginType.UPGRADE, EtherStreamDamageUpgrade.ID, EtherStreamDamageUpgrade::new, stack -> stack.has(DataComponents.WEAPON), Items.IRON_SWORD);
     }
 
     public boolean matches(Predicate<NodePluginManager.PluginType> type, ItemStack itemStack, @Nullable Identifier identifier) {

@@ -46,6 +46,15 @@ public class Config {
     private static final ModConfigSpec.IntValue BREAK_BLOCK_EFFICIENCY_DIVISOR = BUILDER
             .comment("How much ether to reduce per level of Efficiency enchantment")
             .defineInRange("break_block.efficiency_divisor", 3, 0, Integer.MAX_VALUE);
+    private static final ModConfigSpec.IntValue DAMAGE_ETHER_MULTIPLIER = BUILDER
+            .comment("Ether consumed per point of damage dealt")
+            .defineInRange("damage.ether_multiplier", 5, 1, Integer.MAX_VALUE);
+    private static final ModConfigSpec.IntValue BREAK_BLOCK_CONSTANT_COST = BUILDER
+            .comment("Constant ether cost added per block break on top of the formula")
+            .defineInRange("break_block.constant_cost", 0, 0, Integer.MAX_VALUE);
+    private static final ModConfigSpec.IntValue DAMAGE_CONSTANT_COST = BUILDER
+            .comment("Constant ether cost added per damage instance on top of the formula")
+            .defineInRange("damage.constant_cost", 0, 0, Integer.MAX_VALUE);
     static final ModConfigSpec SPEC = BUILDER.build();
 
     public static int etherConvert;
@@ -56,6 +65,9 @@ public class Config {
     public static int breakBlockHardnessMultiplier;
     public static int breakBlockEfficiencyDivisor;
     public static int nodeProcessMaxProgress;
+    public static int damageEtherMultiplier;
+    public static int breakBlockConstantCost;
+    public static int damageConstantCost;
 
     @SubscribeEvent
     static void onLoad(final ModConfigEvent event) {
@@ -67,5 +79,8 @@ public class Config {
         breakBlockHardnessMultiplier = BREAK_BLOCK_HARDNESS_MULTIPLIER.get();
         breakBlockEfficiencyDivisor = BREAK_BLOCK_EFFICIENCY_DIVISOR.get();
         nodeProcessMaxProgress = NODE_PROCESS_MAX_PROGRESS.get();
+        damageEtherMultiplier = DAMAGE_ETHER_MULTIPLIER.get();
+        breakBlockConstantCost = BREAK_BLOCK_CONSTANT_COST.get();
+        damageConstantCost = DAMAGE_CONSTANT_COST.get();
     }
 }
