@@ -1,6 +1,7 @@
 package studio.fantasyit.ether_craft.util;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.Direction;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -11,6 +12,7 @@ import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class SerializeUtil {
@@ -42,8 +44,11 @@ public class SerializeUtil {
                 PIMap::value,
                 PIMap::new
         );
-        public static final Codec<Map<InstalledPlugin, Map<Identifier, Integer>>> CODEC =
-                Codec.unboundedMap(InstalledPlugin.CODEC, Codec.unboundedMap(Identifier.CODEC, Codec.INT));
+        public static final Codec<PIMap> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+                InstalledPlugin.CODEC.fieldOf("installed").forGetter(PIMap::installed),
+                Identifier.CODEC.fieldOf("action").forGetter(PIMap::action),
+                Codec.INT.fieldOf("value").forGetter(PIMap::value)
+        ).apply(instance, PIMap::new));
 
         public static ArrayList<PIMap> fromMap(Map<InstalledPlugin, Map<Identifier, Integer>> map) {
             ArrayList<PIMap> list = new ArrayList<>();
@@ -55,7 +60,7 @@ public class SerializeUtil {
             return list;
         }
 
-        public static Map<InstalledPlugin, Map<Identifier, Integer>> toMap(ArrayList<PIMap> list) {
+        public static Map<InstalledPlugin, Map<Identifier, Integer>> toMap(List<PIMap> list) {
             Map<InstalledPlugin, Map<Identifier, Integer>> map = new HashMap<>();
             for (PIMap pimap : list) {
                 map.computeIfAbsent(pimap.installed, _ -> new HashMap<>()).put(pimap.action, pimap.value);

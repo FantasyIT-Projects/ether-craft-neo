@@ -31,10 +31,10 @@ import studio.fantasyit.ether_craft.block.base.ItemFilter;
 import studio.fantasyit.ether_craft.menu.base.RangeLimitPlaceContainer;
 import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeContainerMenu;
 import studio.fantasyit.ether_craft.network.s2c.SyncEtherAdaptNodeExtraS2C;
-import studio.fantasyit.ether_craft.node.plugins.base.AbstractNodePlugin;
 import studio.fantasyit.ether_craft.node.NodePluginManager;
 import studio.fantasyit.ether_craft.node.NodeProperty;
 import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
+import studio.fantasyit.ether_craft.node.plugins.base.AbstractNodePlugin;
 import studio.fantasyit.ether_craft.node.plugins.feature.AbstractDirectionalFeature;
 import studio.fantasyit.ether_craft.register.ItemRegistry;
 import studio.fantasyit.ether_craft.util.SerializeUtil;
@@ -139,7 +139,10 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
         featureUpgradeStorage.loadAddition(input.childOrEmpty("featureUpgradeStorage"));
         normalStorage.deserialize(input.childOrEmpty("normalStorage"));
         normalStorageFilter.deserialize(input.childOrEmpty("normalStorageFilter"));
-        input.read("sync", SerializeUtil.PIMap.CODEC).ifPresent(m -> {
+        input.read("sync", SerializeUtil.PIMap.CODEC.listOf().xmap(
+                SerializeUtil.PIMap::toMap,
+                SerializeUtil.PIMap::fromMap
+        )).ifPresent(m -> {
             syncedPluginData.clear();
             syncedPluginData.putAll(m);
         });
@@ -153,7 +156,7 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
         featureUpgradeStorage.saveAddition(output.child("featureUpgradeStorage"));
         normalStorage.serialize(output.child("normalStorage"));
         normalStorageFilter.serialize(output.child("normalStorageFilter"));
-        output.store("sync", SerializeUtil.PIMap.CODEC, syncedPluginData);
+        output.store("sync", SerializeUtil.PIMap.CODEC.listOf(), SerializeUtil.PIMap.fromMap(syncedPluginData));
     }
 
     @Override

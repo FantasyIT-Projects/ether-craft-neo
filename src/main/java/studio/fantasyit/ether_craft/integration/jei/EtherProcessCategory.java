@@ -4,7 +4,14 @@ import com.mojang.serialization.Codec;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
+import mezz.jei.api.gui.ingredient.IRecipeSlotDrawable;
+import mezz.jei.api.gui.ingredient.IRecipeSlotDrawablesView;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
+import mezz.jei.api.gui.inputs.IJeiInputHandler;
+import mezz.jei.api.gui.inputs.IJeiUserInput;
+import mezz.jei.api.gui.inputs.RecipeSlotUnderMouse;
+import mezz.jei.api.gui.widgets.IRecipeExtrasBuilder;
+import mezz.jei.api.gui.widgets.ISlottedRecipeWidget;
 import mezz.jei.api.helpers.ICodecHelper;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.IFocusGroup;
@@ -12,7 +19,11 @@ import mezz.jei.api.recipe.IRecipeManager;
 import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import mezz.jei.api.recipe.types.IRecipeType;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.navigation.ScreenPosition;
+import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
@@ -27,12 +38,16 @@ import java.util.*;
 public class EtherProcessCategory implements IRecipeCategory<EtherProcessFactoryRecipe> {
     private static final int SLOT_SIZE = 18;
     private static final int CHIP_GAP = 1;
-    private static final int NODE_GAP = 4;
-    private static final int LEVEL_GAP = 44;
+    private static final int NODE_GAP = 3;
     private static final int PADDING = 4;
-    private static final int WIDTH = 280;
-    private static final int HEIGHT = 100;
+    static final int WIDTH = 140;
+    static final int HEIGHT = 80;
+    private static final int MIN_SPACING = 20;
+    private static final int SCROLL_STEP = 20;
     private static final int LINE_COLOR = 0xFFAAAAAA;
+    private static final int SLOT_BG = 0xFF8B8B8B;
+    private static final int SLOT_BORDER_DARK = 0xFF373737;
+    private static final int SLOT_BORDER_LIGHT = 0xFFFFFFFF;
 
     private final IDrawable icon;
 
@@ -68,35 +83,212 @@ public class EtherProcessCategory implements IRecipeCategory<EtherProcessFactory
         return icon;
     }
 
+    private PanState panState;
+
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, EtherProcessFactoryRecipe recipe, IFocusGroup focuses) {
         TreeLayout layout = TreeLayout.compute(recipe.json);
 
         for (TreeLayout.Entry e : layout.inputs) {
             builder.addInputSlot(e.x, e.y)
-                    .add(e.ingredient)
-                    .setStandardSlotBackground();
+                    .add(e.ingredient);
         }
         for (TreeLayout.ChipEntry e : layout.chips) {
             builder.addSlot(RecipeIngredientRole.CRAFTING_STATION, e.x, e.y)
-                    .add(e.ingredient)
-                    .setStandardSlotBackground();
+                    .add(e.ingredient);
         }
         int outX = layout.outputX;
         for (var item : recipe.json.output().item()) {
             builder.addOutputSlot(outX, layout.outputY)
-                    .add(item)
-                    .setOutputSlotBackground();
+                    .add(item);
             outX += SLOT_SIZE + 2;
         }
     }
 
     @Override
+    public void createRecipeExtras(IRecipeExtrasBuilder builder, EtherProcessFactoryRecipe recipe, IFocusGroup focuses) {
+        IRecipeSlotDrawablesView slotsView = builder.getRecipeSlots();
+        List<IRecipeSlotDrawable> inputSlots = slotsView.getSlots(RecipeIngredientRole.INPUT);
+        List<IRecipeSlotDrawable> chipSlots = slotsView.getSlots(RecipeIngredientRole.CRAFTING_STATION);
+        List<IRecipeSlotDrawable> outputSlots = slotsView.getSlots(RecipeIngredientRole.OUTPUT);
+        List<IRecipeSlotDrawable> allSlots = new ArrayList<>();
+        allSlots.addAll(inputSlots);
+        allSlots.addAll(chipSlots);
+        allSlots.addAll(outputSlots);
+
+        TreeLayout layout = TreeLayout.compute(recipe.json);
+
+        List<PanState.SlotInfo> slotInfos = new ArrayList<>();
+        int idx = 0;
+        for (TreeLayout.Entry e : layout.inputs) {
+            slotInfos.add(new PanState.SlotInfo(allSlots.get(idx), e.x, e.y));
+            idx++;
+        }
+        for (TreeLayout.ChipEntry c : layout.chips) {
+            slotInfos.add(new PanState.SlotInfo(allSlots.get(idx), c.x, c.y));
+            idx++;
+        }
+        int outCount = recipe.json.output().item().size();
+        for (int j = 0; j < outCount; j++) {
+            int ox = layout.outputX + j * (SLOT_SIZE + 2);
+            slotInfos.add(new PanState.SlotInfo(allSlots.get(idx + j), ox, layout.outputY));
+        }
+
+        int canvasW = layout.canvasWidth;
+        int initialPan = canvasW > WIDTH ? canvasW - WIDTH : 0;
+        PanState ps = new PanState(initialPan, canvasW, slotInfos, layout.edges);
+        this.panState = ps;
+        ps.applyPan();
+        builder.addSlottedWidget(ps, allSlots);
+        builder.addInputHandler(ps);
+    }
+
+    @Override
     public void draw(EtherProcessFactoryRecipe recipe, IRecipeSlotsView recipeSlotsView,
                      GuiGraphicsExtractor graphics, double mouseX, double mouseY) {
-        TreeLayout layout = TreeLayout.compute(recipe.json);
-        for (TreeLayout.Edge edge : layout.edges) {
-            drawLine(graphics, edge.fromX, edge.fromY, edge.toX, edge.toY);
+    }
+
+    @Override
+    public Codec<EtherProcessFactoryRecipe> getCodec(ICodecHelper codecHelper, IRecipeManager recipeManager) {
+        return EtherProcessFactoryRecipe.CODEC.codec();
+    }
+
+    @Override
+    public @Nullable Identifier getIdentifier(EtherProcessFactoryRecipe recipe) {
+        return null;
+    }
+
+    static class PanState implements ISlottedRecipeWidget, IJeiInputHandler {
+        record SlotInfo(IRecipeSlotDrawable slot, int vx, int vy) {}
+
+        int panX;
+        final int canvasWidth;
+        boolean canScrollLeft;
+        boolean canScrollRight;
+        final int leftX = WIDTH / 2 - 13;
+        final int rightX = WIDTH / 2 + 5;
+
+        final List<SlotInfo> slots;
+        final List<TreeLayout.Edge> edges;
+
+        final ArrowWidget leftArrow;
+        final ArrowWidget rightArrow;
+
+        PanState(int panX, int canvasWidth, List<SlotInfo> slots, List<TreeLayout.Edge> edges) {
+            this.panX = panX;
+            this.canvasWidth = canvasWidth;
+            this.slots = slots;
+            this.edges = edges;
+            updateScrollFlags();
+            this.leftArrow = new ArrowWidget(true, leftX, HEIGHT - 12);
+            this.rightArrow = new ArrowWidget(false, rightX, HEIGHT - 12);
+            leftArrow.visible = canScrollLeft;
+            rightArrow.visible = canScrollRight;
+        }
+
+        private void updateScrollFlags() {
+            canScrollLeft = panX > 0;
+            canScrollRight = panX < canvasWidth - WIDTH;
+        }
+
+        void applyPan() {
+            updateScrollFlags();
+            leftArrow.visible = canScrollLeft;
+            rightArrow.visible = canScrollRight;
+            for (SlotInfo s : slots) {
+                s.slot.setPosition(s.vx - panX, s.vy);
+            }
+        }
+
+        @Override
+        public ScreenRectangle getArea() {
+            return new ScreenRectangle(0, 0, WIDTH, HEIGHT);
+        }
+
+        @Override
+        public void drawWidget(GuiGraphicsExtractor graphics, double mouseX, double mouseY) {
+            graphics.enableScissor(0, 0, WIDTH, HEIGHT);
+
+            for (TreeLayout.Edge edge : edges) {
+                drawLine(graphics, edge.fromX - panX, edge.fromY, edge.toX - panX, edge.toY);
+            }
+
+            for (SlotInfo s : slots) {
+                int sx = s.vx - panX;
+                int sy = s.vy;
+                graphics.fill(sx, sy, sx + 18, sy + 18, SLOT_BG);
+                graphics.fill(sx - 1, sy - 1, sx + 19, sy, SLOT_BORDER_DARK);
+                graphics.fill(sx - 1, sy - 1, sx, sy + 19, SLOT_BORDER_DARK);
+                graphics.fill(sx - 1, sy + 18, sx + 19, sy + 19, SLOT_BORDER_LIGHT);
+                graphics.fill(sx + 18, sy - 1, sx + 19, sy + 19, SLOT_BORDER_LIGHT);
+
+                s.slot.draw(graphics);
+            }
+
+            for (SlotInfo s : slots) {
+                if (s.slot.isMouseOver(mouseX, mouseY)) {
+                    s.slot.drawHoverOverlays(graphics);
+                    break;
+                }
+            }
+
+            leftArrow.drawWidget(graphics, mouseX, mouseY);
+            rightArrow.drawWidget(graphics, mouseX, mouseY);
+
+            graphics.disableScissor();
+        }
+
+        @Override
+        public Optional<RecipeSlotUnderMouse> getSlotUnderMouse(double mouseX, double mouseY) {
+            for (int i = 0; i < slots.size(); i++) {
+                SlotInfo s = slots.get(i);
+                if (s.slot.isMouseOver(mouseX, mouseY)) {
+                    return Optional.of(new RecipeSlotUnderMouse(s.slot, (int) mouseX, (int) mouseY));
+                }
+            }
+            return Optional.empty();
+        }
+
+        @Override
+        public ScreenPosition getPosition() {
+            return new ScreenPosition(0, 0);
+        }
+
+        @Override
+        public boolean handleInput(double mouseX, double mouseY, IJeiUserInput input) {
+            if (canScrollLeft && mouseX >= leftX && mouseX < leftX + 10 && mouseY >= HEIGHT - 12 && mouseY < HEIGHT) {
+                if (!input.isSimulate()) {
+                    panX = Math.max(0, panX - SCROLL_STEP);
+                    applyPan();
+                }
+                return true;
+            }
+            if (canScrollRight && mouseX >= rightX && mouseX < rightX + 10 && mouseY >= HEIGHT - 12 && mouseY < HEIGHT) {
+                if (!input.isSimulate()) {
+                    panX = Math.min(canvasWidth - WIDTH, panX + SCROLL_STEP);
+                    applyPan();
+                }
+                return true;
+            }
+            return false;
+        }
+    }
+
+    static class ArrowWidget {
+        private final boolean left;
+        private final int x, y;
+        boolean visible = false;
+
+        ArrowWidget(boolean left, int x, int y) {
+            this.left = left;
+            this.x = x;
+            this.y = y;
+        }
+
+        void drawWidget(GuiGraphicsExtractor graphics, double mouseX, double mouseY) {
+            if (!visible) return;
+            Font font = Minecraft.getInstance().font;
+            graphics.text(font, left ? Component.literal("◄") : Component.literal("►"), x, y, 0xFFFFFFFF);
         }
     }
 
@@ -119,16 +311,6 @@ public class EtherProcessCategory implements IRecipeCategory<EtherProcessFactory
         graphics.fill(x, from, x + 1, to + 1, LINE_COLOR);
     }
 
-    @Override
-    public Codec<EtherProcessFactoryRecipe> getCodec(ICodecHelper codecHelper, IRecipeManager recipeManager) {
-        return EtherProcessFactoryRecipe.CODEC.codec();
-    }
-
-    @Override
-    public @Nullable Identifier getIdentifier(EtherProcessFactoryRecipe recipe) {
-        return null;
-    }
-
     private static class TreeLayout {
         record Entry(String id, int x, int y, Ingredient ingredient) {}
         record ChipEntry(String parentId, int x, int y, Ingredient ingredient) {}
@@ -137,7 +319,7 @@ public class EtherProcessCategory implements IRecipeCategory<EtherProcessFactory
         final List<Entry> inputs = new ArrayList<>();
         final List<ChipEntry> chips = new ArrayList<>();
         final List<Edge> edges = new ArrayList<>();
-        int outputX, outputY;
+        int outputX, outputY, canvasWidth;
 
         static TreeLayout compute(EtherProcessRecipeJson json) {
             TreeLayout layout = new TreeLayout();
@@ -163,6 +345,12 @@ public class EtherProcessCategory implements IRecipeCategory<EtherProcessFactory
             }
             int maxLevel = levels.values().stream().max(Integer::compare).orElse(0);
 
+            int outCount = json.output().item().size();
+            int outWidth = outCount * SLOT_SIZE + Math.max(0, outCount - 1) * 2;
+            int usable = WIDTH - 2 * PADDING - outWidth;
+            int spacing = maxLevel > 0 ? Math.max(MIN_SPACING, usable / maxLevel) : 0;
+            layout.canvasWidth = PADDING + maxLevel * spacing + outWidth + PADDING;
+
             Map<Integer, List<String>> byLevel = new TreeMap<>();
             for (var e : levels.entrySet()) {
                 byLevel.computeIfAbsent(e.getValue(), k -> new ArrayList<>()).add(e.getKey());
@@ -172,10 +360,9 @@ public class EtherProcessCategory implements IRecipeCategory<EtherProcessFactory
             Map<String, Integer> nodeY = new HashMap<>();
             Map<String, Integer> nodeH = new HashMap<>();
 
-            int maxTotalH = 0;
             for (var entry : byLevel.entrySet()) {
                 int level = entry.getKey();
-                int colX = PADDING + (maxLevel - level) * LEVEL_GAP;
+                int colX = PADDING + (maxLevel - level) * spacing;
                 List<String> ids = entry.getValue();
 
                 int totalH = 0;
@@ -191,7 +378,6 @@ public class EtherProcessCategory implements IRecipeCategory<EtherProcessFactory
                     totalH += h + NODE_GAP;
                 }
                 totalH -= NODE_GAP;
-                maxTotalH = Math.max(maxTotalH, totalH);
 
                 int curY = PADDING + (HEIGHT - 2 * PADDING - totalH) / 2;
                 for (String id : ids) {
@@ -201,9 +387,7 @@ public class EtherProcessCategory implements IRecipeCategory<EtherProcessFactory
                 }
             }
 
-            int outCount = json.output().item().size();
-            int outWidth = outCount * SLOT_SIZE + (outCount - 1) * 2;
-            layout.outputX = PADDING + maxLevel * LEVEL_GAP + (LEVEL_GAP - outWidth) / 2;
+            layout.outputX = layout.canvasWidth - PADDING - outWidth;
             layout.outputY = (HEIGHT - SLOT_SIZE) / 2;
 
             for (var in : json.input()) {
