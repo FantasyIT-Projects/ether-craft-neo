@@ -1,0 +1,47 @@
+{
+  "type": "ether_craft:ether_process",
+  "input": [
+    {
+      "id": "I0",
+      "item": "#c:ingots/iron",
+      "next": "P2"
+    }
+  ],
+  "process": [
+    {
+      "id": "P2",
+      "item": [
+        {
+          "chip": "ether_craft:heating_chip"
+        }
+      ],
+      "next": "P1"
+    },
+    {
+      "id": "P1",
+      "item": [
+        {
+          "chip": "ether_craft:stamping_chip"
+        }
+      ],
+      "next": "P0"
+    },
+    {
+      "id": "P0",
+      "item": [
+        {
+          "chip": "ether_craft:stamping_chip"
+        }
+      ],
+      "next": "O"
+    }
+  ],
+  "output": {
+    "id": "O",
+    "item": [
+      {
+        "id": "ether_craft:blade"
+      }
+    ]
+  }
+}

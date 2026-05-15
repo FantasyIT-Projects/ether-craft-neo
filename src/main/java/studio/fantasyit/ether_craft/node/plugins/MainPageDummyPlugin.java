@@ -4,27 +4,26 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
-import net.neoforged.neoforge.transfer.item.ItemResource;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.block.base.ItemFilter;
 import studio.fantasyit.ether_craft.block.node.EtherAdaptNodeEntity;
-import studio.fantasyit.ether_craft.block.node.OversizedEtherSlot;
-import studio.fantasyit.ether_craft.menu.base.slot.BaseDataSlot;
 import studio.fantasyit.ether_craft.menu.base.RangeLimitPlaceContainer;
-import studio.fantasyit.ether_craft.menu.base.slot.BaseSlot;
+import studio.fantasyit.ether_craft.menu.base.slot.BaseDataSlot;
 import studio.fantasyit.ether_craft.menu.base.slot.FilterSlot;
-import studio.fantasyit.ether_craft.menu.base.slot.RangeLimitSlot;
 import studio.fantasyit.ether_craft.menu.factory.slot.SingleStackSlot;
 import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeContainerMenu;
+import studio.fantasyit.ether_craft.menu.node.slot.OversizedEtherSlot;
+import studio.fantasyit.ether_craft.menu.node.slot.RangeLimitFilterSlot;
+import studio.fantasyit.ether_craft.node.NodeProperty;
 import studio.fantasyit.ether_craft.node.plugins.base.AbstractNodePlugin;
 import studio.fantasyit.ether_craft.node.plugins.base.PluginMenuContext;
-import studio.fantasyit.ether_craft.node.NodeProperty;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class MainPageDummyPlugin extends AbstractNodePlugin {
     public static final Identifier ID = EtherCraft.id("main_page_dummy");
+
     public MainPageDummyPlugin(EtherAdaptNodeEntity nodeEntity, InstalledPlugin installedId) {
         super(nodeEntity, installedId);
     }
@@ -74,10 +73,10 @@ public class MainPageDummyPlugin extends AbstractNodePlugin {
         }
 
         menu.addSlotArea(nodeEntity.normalStorage, 0, 9, 76, 9, 18, 3, 18,
-                (a, b, c, d, e, f) -> new RangeLimitSlot((RangeLimitPlaceContainer) a, b, c, d),
+                (a, b, c, d, e, f) -> new RangeLimitFilterSlot((RangeLimitPlaceContainer) a, nodeEntity.normalStorageFilter, b, c, d),
                 (s, i, j) -> {
                     menu.toDrawSlot.add(s);
-                    ctx.mainSlots.add(s);
+                    ctx.mainSlots.add((RangeLimitFilterSlot) s);
                 });
 
         menu.addSlotArea(nodeEntity.normalStorageFilter, 0, 9, 76, 9, 18, 3, 18,
@@ -96,7 +95,7 @@ public class MainPageDummyPlugin extends AbstractNodePlugin {
 
     public static class MainPageContext extends PluginMenuContext<MainPageDummyPlugin> {
         public List<FilterSlot> filterSlots = new ArrayList<>();
-        public List<Slot> mainSlots = new ArrayList<>();
+        public List<RangeLimitFilterSlot> mainSlots = new ArrayList<>();
 
         public MainPageContext(EtherAdaptNodeContainerMenu menu, MainPageDummyPlugin plugin) {
             super(menu, plugin);

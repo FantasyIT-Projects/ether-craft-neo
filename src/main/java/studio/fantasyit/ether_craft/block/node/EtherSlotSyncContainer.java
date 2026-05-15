@@ -77,6 +77,15 @@ public class EtherSlotSyncContainer implements Container, ResourceHandler<ItemRe
         }
     }
 
+    public ItemStack insertItemStack(ItemStack itemStack) {
+        int maxStackSize = getMaxStackSize();
+        int originalCount = getItem(0).getCount();
+        int toInsert = Math.min(maxStackSize - originalCount, itemStack.getCount());
+        etherContainer.receiveEther((long) toInsert * Config.etherConvert);
+        itemStack.shrink(toInsert);
+        return itemStack;
+    }
+
     @Override
     public void setChanged() {
         etherContainer.syncClient();

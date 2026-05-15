@@ -16,9 +16,13 @@ const Recipe = {
         if (typeof raw !== 'string') return raw;
         const parsed = this.tryParseJson(raw);
         if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) return parsed;
-        if (raw.startsWith('#')) return { tag: raw.slice(1) };
+        // Count syntax: modid:item::N or #tag::N => SizedIngredient.NESTED_CODEC format
         const dm = raw.match(/^(.+?)::(\d+)$/);
-        if (dm) return { item: dm[1], count: parseInt(dm[2], 10) };
+        if (dm) {
+            const id = dm[1];
+            const count = parseInt(dm[2], 10);
+            return { ingredient: id, count: count };
+        }
         return raw;
     },
 

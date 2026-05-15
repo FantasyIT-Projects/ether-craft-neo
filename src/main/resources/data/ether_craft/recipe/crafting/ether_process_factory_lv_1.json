@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "group": "ether_craft",
+  "key": {
+    "#": "ether_craft:inactivated_ether",
+    "A": "#c:chests/wooden"
+  },
+  "pattern": [
+    "###",
+    "#A#",
+    "###"
+  ],
+  "result": {
+    "count": 1,
+    "id": "ether_craft:ether_process_factory_lv_1"
+  }
+}

@@ -38,16 +38,13 @@ import java.util.*;
 public class EtherProcessCategory implements IRecipeCategory<EtherProcessFactoryRecipe> {
     private static final int SLOT_SIZE = 18;
     private static final int CHIP_GAP = 1;
-    private static final int NODE_GAP = 3;
+    private static final int NODE_GAP = 6;
     private static final int PADDING = 4;
     static final int WIDTH = 140;
     static final int HEIGHT = 80;
     private static final int MIN_SPACING = 20;
     private static final int SCROLL_STEP = 20;
     private static final int LINE_COLOR = 0xFFAAAAAA;
-    private static final int SLOT_BG = 0xFF8B8B8B;
-    private static final int SLOT_BORDER_DARK = 0xFF373737;
-    private static final int SLOT_BORDER_LIGHT = 0xFFFFFFFF;
 
     private final IDrawable icon;
 
@@ -91,16 +88,19 @@ public class EtherProcessCategory implements IRecipeCategory<EtherProcessFactory
 
         for (TreeLayout.Entry e : layout.inputs) {
             builder.addInputSlot(e.x, e.y)
-                    .add(e.ingredient);
+                    .add(e.ingredient)
+                    .setStandardSlotBackground();
         }
         for (TreeLayout.ChipEntry e : layout.chips) {
             builder.addSlot(RecipeIngredientRole.CRAFTING_STATION, e.x, e.y)
-                    .add(e.ingredient);
+                    .add(e.ingredient)
+                    .setStandardSlotBackground();
         }
         int outX = layout.outputX;
         for (var item : recipe.json.output().item()) {
             builder.addOutputSlot(outX, layout.outputY)
-                    .add(item);
+                    .add(item)
+                    .setOutputSlotBackground();
             outX += SLOT_SIZE + 2;
         }
     }
@@ -214,22 +214,7 @@ public class EtherProcessCategory implements IRecipeCategory<EtherProcessFactory
             }
 
             for (SlotInfo s : slots) {
-                int sx = s.vx - panX;
-                int sy = s.vy;
-                graphics.fill(sx, sy, sx + 18, sy + 18, SLOT_BG);
-                graphics.fill(sx - 1, sy - 1, sx + 19, sy, SLOT_BORDER_DARK);
-                graphics.fill(sx - 1, sy - 1, sx, sy + 19, SLOT_BORDER_DARK);
-                graphics.fill(sx - 1, sy + 18, sx + 19, sy + 19, SLOT_BORDER_LIGHT);
-                graphics.fill(sx + 18, sy - 1, sx + 19, sy + 19, SLOT_BORDER_LIGHT);
-
                 s.slot.draw(graphics);
-            }
-
-            for (SlotInfo s : slots) {
-                if (s.slot.isMouseOver(mouseX, mouseY)) {
-                    s.slot.drawHoverOverlays(graphics);
-                    break;
-                }
             }
 
             leftArrow.drawWidget(graphics, mouseX, mouseY);
@@ -240,10 +225,9 @@ public class EtherProcessCategory implements IRecipeCategory<EtherProcessFactory
 
         @Override
         public Optional<RecipeSlotUnderMouse> getSlotUnderMouse(double mouseX, double mouseY) {
-            for (int i = 0; i < slots.size(); i++) {
-                SlotInfo s = slots.get(i);
+            for (SlotInfo s : slots) {
                 if (s.slot.isMouseOver(mouseX, mouseY)) {
-                    return Optional.of(new RecipeSlotUnderMouse(s.slot, (int) mouseX, (int) mouseY));
+                    return Optional.of(new RecipeSlotUnderMouse(s.slot, new ScreenPosition(0, 0)));
                 }
             }
             return Optional.empty();

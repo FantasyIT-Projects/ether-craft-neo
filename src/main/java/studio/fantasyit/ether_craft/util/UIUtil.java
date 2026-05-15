@@ -6,13 +6,13 @@ import studio.fantasyit.ether_craft.menu.base.ImageAsset;
 
 public class UIUtil {
     private static final int[] ETHER_BAR_COLORS = new int[]{
-            0xa6a6a6ff,
-            0x002fa7ff,
-            0x1c56c9ff,
-            0x56c5fcff,
-            0x63f8ffff,
-            0x8affffff,
-            0xe4ffffff
+            0xffa6a6a6,
+            0xff002fa7,
+            0xff1c56c9,
+            0xff56c5fc,
+            0xff63f8ff,
+            0xff8affff,
+            0xffe4ffff
     };
 
     public static void renderEtherBarProgress(long value, long max, int x, int y, int w, int h, GuiGraphicsExtractor graphics) {
@@ -37,8 +37,11 @@ public class UIUtil {
     }
 
     public static void renderItemStackSlotPlaceholder(GuiGraphicsExtractor graphics, ItemStack itemStack, int x, int y) {
+        renderItemStackSlotPlaceholder(graphics, itemStack, x, y, 0x9AA5B9);
+    }
+    public static void renderItemStackSlotPlaceholder(GuiGraphicsExtractor graphics, ItemStack itemStack, int x, int y,int baseColor) {
         graphics.item(itemStack, x, y);
-        graphics.fill(x, y, x + 16, y + 16, 0x8B8B8B80);
+        graphics.fill(x, y, x + 16, y + 16, 0x80000000 | ((baseColor) & 0x00ffffff));
     }
 
     public static void nineSliced(GuiGraphicsExtractor graphics, ImageAsset asset, int x, int y, int w, int h, int border) {

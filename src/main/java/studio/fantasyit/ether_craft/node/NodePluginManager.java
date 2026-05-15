@@ -19,6 +19,7 @@ import studio.fantasyit.ether_craft.node.plugins.function.FunctionFurnaceGenerat
 import studio.fantasyit.ether_craft.node.plugins.function.FunctionMagnet;
 import studio.fantasyit.ether_craft.node.plugins.function.FunctionNodeProcess;
 import studio.fantasyit.ether_craft.node.plugins.function.FunctionStoneGenerator;
+import studio.fantasyit.ether_craft.node.plugins.upgrade.EtherFilterUpgrade;
 import studio.fantasyit.ether_craft.node.plugins.upgrade.EtherStreamBreakBlockUpgrade;
 import studio.fantasyit.ether_craft.node.plugins.upgrade.EtherStreamDamageUpgrade;
 import studio.fantasyit.ether_craft.node.plugins.upgrade.EtherStreamPreventDecayUpgrade;
@@ -88,6 +89,7 @@ public class NodePluginManager {
         registerPlugin(PluginType.UPGRADE, EtherStreamPreventDecayUpgrade.ID, EtherStreamPreventDecayUpgrade::new, Items.REPEATER);
         registerPlugin(PluginType.UPGRADE, EtherStreamBreakBlockUpgrade.ID, EtherStreamBreakBlockUpgrade::new, Items.IRON_PICKAXE);
         registerPlugin(PluginType.UPGRADE, EtherStreamDamageUpgrade.ID, EtherStreamDamageUpgrade::new, stack -> stack.has(DataComponents.WEAPON), Items.IRON_SWORD);
+        registerPlugin(PluginType.UPGRADE, EtherFilterUpgrade.ID, EtherFilterUpgrade::new, Items.PAPER);
     }
 
     public boolean matches(Predicate<NodePluginManager.PluginType> type, ItemStack itemStack, @Nullable Identifier identifier) {

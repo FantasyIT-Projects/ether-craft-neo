@@ -1,14 +1,16 @@
-package studio.fantasyit.ether_craft.menu.base.slot;
+package studio.fantasyit.ether_craft.menu.node.slot;
 
 import net.minecraft.world.item.ItemStack;
+import studio.fantasyit.ether_craft.block.base.ItemFilter;
 import studio.fantasyit.ether_craft.menu.base.RangeLimitPlaceContainer;
+import studio.fantasyit.ether_craft.menu.base.slot.BaseSlot;
 
-public class RangeLimitSlot extends BaseSlot {
+public class RangeLimitFilterSlot extends OptionalFilterSlot {
 
     private final RangeLimitPlaceContainer handler;
 
-    public RangeLimitSlot(RangeLimitPlaceContainer container, int slot, int x, int y) {
-        super(container, slot, x, y);
+    public RangeLimitFilterSlot(RangeLimitPlaceContainer container, ItemFilter filter, int slot, int x, int y) {
+        super(container,filter, slot, x, y);
         this.handler = container;
     }
 

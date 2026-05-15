@@ -55,6 +55,13 @@ public class ModelDataGen extends ModelProvider {
         itemModels.generateFlatItem(ItemRegistry.ETHER.get(), ITEM_SIMPLE);
         itemModels.generateFlatItem(ItemRegistry.ETHER_CREATIVE.get(), ITEM_SIMPLE);
         itemModels.generateFlatItem(ItemRegistry.WRENCH.get(), ITEM_SIMPLE);
+        itemModels.generateFlatItem(ItemRegistry.BLADE.get(), ITEM_SIMPLE);
+        itemModels.generateFlatItem(ItemRegistry.DIAMOND_NEEDLE.get(), ITEM_SIMPLE);
+        itemModels.generateFlatItem(ItemRegistry.ETHER_CRYSTAL.get(), ITEM_SIMPLE);
+        itemModels.generateFlatItem(ItemRegistry.ETHERPHILIC_BOWL.get(), ITEM_SIMPLE);
+        itemModels.generateFlatItem(ItemRegistry.GOLD_SCREW.get(), ITEM_SIMPLE);
+        itemModels.generateFlatItem(ItemRegistry.INACTIVATED_ETHER.get(), ITEM_SIMPLE);
+        itemModels.generateFlatItem(ItemRegistry.VACUUM_PIPE.get(), ITEM_SIMPLE);
         rm.listResources("ether_process_chip", t -> t.getPath().endsWith(".json")).forEach((_id, resource) -> {
             String path = _id.getPath();
             Identifier id = Identifier.fromNamespaceAndPath(

@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "group": "ether_craft",
+  "key": {
+    "#": "ether_craft:inactivated_ether",
+    "A": "minecraft:furnace",
+    "B": "minecraft:flint_and_steel"
+  },
+  "pattern": [
+    "#A#",
+    "# #",
+    "#B#"
+  ],
+  "result": {
+    "count": 1,
+    "id": "ether_craft:process_chip",
+    "components": {
+      "minecraft:item_model": "ether_craft:heating_chip",
+      "ether_craft:ether_process_chip_id": "ether_craft:heating_chip"
+    }
+  }
+}

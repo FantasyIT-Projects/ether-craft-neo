@@ -23,6 +23,7 @@ public class IASwitchButton extends AbstractWidget {
     private final Component downMessage;
     private final Function<Boolean,Boolean> onClick;
     private boolean down;
+    private boolean hidden = false;
 
     public IASwitchButton(int x, int y, ImageAsset mainNormal, ImageAsset mainHover, ImageAsset downNormal, ImageAsset downHover, @Nullable ImageAsset icon, Component mainMessage, Component downMessage, Function<Boolean,Boolean> onClick) {
         super(x, y, mainNormal.w, mainNormal.h, mainMessage);
@@ -40,6 +41,8 @@ public class IASwitchButton extends AbstractWidget {
 
     @Override
     protected void extractWidgetRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+        if(this.hidden)
+            return;
         if (this.down) {
             if (this.isHoveredOrFocused()) {
                 this.downHover.blit(graphics, this.getX(), this.getY());
@@ -65,6 +68,8 @@ public class IASwitchButton extends AbstractWidget {
 
     @Override
     public void onClick(MouseButtonEvent event, boolean doubleClick) {
+        if(this.hidden)
+            return;
         if(this.onClick.apply(this.down)){
             this.setDown(!this.down);
             this.playDownSound(Minecraft.getInstance().getSoundManager());
@@ -79,5 +84,12 @@ public class IASwitchButton extends AbstractWidget {
     public boolean isDown() {
 
         return this.down;
+    }
+
+    public void setHidden(boolean hidden) {
+        this.hidden = hidden;
+    }
+    public boolean isHidden() {
+        return hidden;
     }
 }

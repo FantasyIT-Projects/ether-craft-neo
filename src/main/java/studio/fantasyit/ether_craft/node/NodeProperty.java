@@ -7,6 +7,8 @@ public class NodeProperty {
     public int slotUnlock;
 
     public int streamPreventDecay;
+    public boolean enableFilter;
+
     public NodeProperty() {
         reset();
     }
@@ -15,5 +17,6 @@ public class NodeProperty {
         this.maxEther = Config.nodeDefMaxEther;
         this.slotUnlock = 0;
         this.streamPreventDecay = 0;
+        this.enableFilter = false;
     }
 }

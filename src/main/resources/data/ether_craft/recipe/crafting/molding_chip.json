@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "group": "ether_craft",
+  "key": {
+    "#": "ether_craft:inactivated_ether",
+    "A": "minecraft:piston",
+    "B": "ether_craft:ether_bowl"
+  },
+  "pattern": [
+    "#A#",
+    "# #",
+    "#B#"
+  ],
+  "result": {
+    "count": 1,
+    "id": "ether_craft:process_chip",
+    "components": {
+      "minecraft:item_model": "ether_craft:molding_chip",
+      "ether_craft:ether_process_chip_id": "ether_craft:molding_chip"
+    }
+  }
+}

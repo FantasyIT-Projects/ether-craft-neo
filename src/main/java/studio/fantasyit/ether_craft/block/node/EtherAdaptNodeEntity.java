@@ -193,9 +193,11 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
             return false;
         if (index - 1 >= nodeProperty.slotUnlock)
             return false;
-        ItemStack filterStack = normalStorageFilter.getItem(index - 1);
-        if (!filterStack.isEmpty() && !resource.is(filterStack.getItem()))
-            return false;
+        if (nodeProperty.enableFilter) {
+            ItemStack filterStack = normalStorageFilter.getItem(index - 1);
+            if (!filterStack.isEmpty() && !resource.is(filterStack.getItem()))
+                return false;
+        }
         for (AbstractNodePlugin plugin : getPlugins()) {
             if (!plugin.inputFilter(resource))
                 return false;

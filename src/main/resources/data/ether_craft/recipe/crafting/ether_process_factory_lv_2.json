@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "group": "ether_craft",
+  "key": {
+    "#": "ether_craft:inactivated_ether",
+    "A": "ether_craft:ether_process_factory_lv_1",
+    "B": "ether_craft:gold_screw"
+  },
+  "pattern": [
+    "B#B",
+    "#A#",
+    "B#B"
+  ],
+  "result": {
+    "count": 1,
+    "id": "ether_craft:ether_process_factory_lv_2"
+  }
+}

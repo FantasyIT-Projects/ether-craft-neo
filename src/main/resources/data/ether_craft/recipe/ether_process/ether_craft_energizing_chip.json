@@ -1,0 +1,96 @@
+{
+  "type": "ether_craft:ether_process",
+  "input": [
+    {
+      "id": "I0",
+      "item": "minecraft:enchanting_table",
+      "next": "P3"
+    },
+    {
+      "id": "I1",
+      "item": "ether_craft:vacuum_pipe",
+      "next": "P6"
+    }
+  ],
+  "process": [
+    {
+      "id": "P6",
+      "item": [
+        {
+          "chip": "ether_craft:carving_chip"
+        }
+      ],
+      "next": "P5"
+    },
+    {
+      "id": "P5",
+      "item": [
+        {
+          "chip": "ether_craft:converging_chip"
+        }
+      ],
+      "next": "P4"
+    },
+    {
+      "id": "P4",
+      "item": [
+        {
+          "chip": "ether_craft:molding_chip"
+        }
+      ],
+      "next": "P0"
+    },
+    {
+      "id": "P3",
+      "item": [
+        {
+          "chip": "ether_craft:cutting_chip"
+        }
+      ],
+      "next": "P2"
+    },
+    {
+      "id": "P2",
+      "item": [
+        {
+          "chip": "ether_craft:stamping_chip"
+        }
+      ],
+      "next": "P1"
+    },
+    {
+      "id": "P1",
+      "item": [
+        {
+          "chip": "ether_craft:heating_chip"
+        }
+      ],
+      "next": "P0"
+    },
+    {
+      "id": "P0",
+      "item": [
+        {
+          "chip": "ether_craft:heating_chip"
+        },
+        {
+          "chip": "ether_craft:molding_chip"
+        }
+      ],
+      "next": "O"
+    }
+  ],
+  "output": {
+    "id": "O",
+    "item": [
+      {
+        "count": 1,
+        "id": "ether_craft:process_chip",
+        "components": {
+          "minecraft:item_model": "ether_craft:energizing_chip",
+          "ether_craft:ether_process_chip_id": "ether_craft:energizing_chip"
+        }
+      }
+    ]
+  }
+}

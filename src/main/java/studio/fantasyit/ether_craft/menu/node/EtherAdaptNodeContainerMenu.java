@@ -12,10 +12,13 @@ import org.apache.commons.lang3.function.TriConsumer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import studio.fantasyit.ether_craft.block.node.EtherAdaptNodeEntity;
-import studio.fantasyit.ether_craft.block.node.OversizedEtherSlot;
+import studio.fantasyit.ether_craft.block.node.EtherSlotSyncContainer;
 import studio.fantasyit.ether_craft.menu.base.BaseContainerMenu;
 import studio.fantasyit.ether_craft.menu.base.BaseMenu;
+import studio.fantasyit.ether_craft.menu.base.slot.BaseDataSlot;
+import studio.fantasyit.ether_craft.menu.base.slot.FilterSlot;
 import studio.fantasyit.ether_craft.menu.factory.slot.SingleStackSlot;
+import studio.fantasyit.ether_craft.menu.node.slot.OversizedEtherSlot;
 import studio.fantasyit.ether_craft.network.base.ISyncTargetMenu;
 import studio.fantasyit.ether_craft.network.c2s.SyncScreenDataC2S;
 import studio.fantasyit.ether_craft.node.NodePluginManager;
@@ -61,12 +64,15 @@ public class EtherAdaptNodeContainerMenu extends BaseMenu<EtherAdaptNodeEntity> 
                     Slot target = this.slots.get(i);
                     if (target instanceof SingleStackSlot) continue;
                     if (isEtherItem) {
-                        if (target instanceof OversizedEtherSlot) {
-                            this.moveItemStackTo(stack, i, i + 1, false);
+                        if (target instanceof OversizedEtherSlot && target.container instanceof EtherSlotSyncContainer essc) {
+                            essc.insertItemStack(stack);
                         }
                     } else {
                         if (target instanceof OversizedEtherSlot) continue;
-                        this.moveItemStackTo(stack, i, i + 1, false);
+                        if (target instanceof FilterSlot fs && !fs.hasItem())
+                            fs.set(stack.copyWithCount(1));
+                        else if (target.mayPlace(stack) && (target.isActive() || !player.level().isClientSide()))
+                            this.moveItemStackTo(stack, i, i + 1, false);
                     }
                 }
             }
@@ -107,6 +113,10 @@ public class EtherAdaptNodeContainerMenu extends BaseMenu<EtherAdaptNodeEntity> 
         }
         addMachineSlots();
         addPlayerSlots(player.getInventory());
+        addDataSlot(new BaseDataSlot(
+                () -> entity.nodeProperty.enableFilter ? 1 : 0,
+                val -> entity.nodeProperty.enableFilter = (val == 1)
+        ));
         entity.syncClient();
     }
 

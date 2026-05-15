@@ -3,13 +3,13 @@
   "input": [
     {
       "id": "I0",
-      "item": "minecraft:glass",
+      "item": "ether_craft:ether_glass",
       "next": "P8"
     },
     {
       "id": "I1",
       "item": {
-        "ingredient": "minecraft:stone",
+        "ingredient": "ether_craft:inactivated_ether",
         "count": 4
       },
       "next": "P7"
@@ -117,7 +117,7 @@
     "id": "O",
     "item": [
       {
-        "id": "minecraft:dirt"
+        "id": "ether_craft:vacuum_pipe"
       }
     ]
   }

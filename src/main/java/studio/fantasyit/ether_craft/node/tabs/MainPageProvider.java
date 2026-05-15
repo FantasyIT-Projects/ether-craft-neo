@@ -6,10 +6,10 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.inventory.Slot;
 import studio.fantasyit.ether_craft.menu.base.RangeLimitPlaceContainer;
 import studio.fantasyit.ether_craft.menu.base.slot.BaseSlot;
-import studio.fantasyit.ether_craft.menu.base.slot.RangeLimitSlot;
 import studio.fantasyit.ether_craft.menu.base.widget.IASwitchButton;
 import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeAsset;
 import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeScreen;
+import studio.fantasyit.ether_craft.menu.node.slot.RangeLimitFilterSlot;
 import studio.fantasyit.ether_craft.node.plugins.MainPageDummyPlugin;
 import studio.fantasyit.ether_craft.node.plugins.MainPageDummyPlugin.MainPageContext;
 import studio.fantasyit.ether_craft.node.plugins.base.PluginMenuContext;
@@ -18,6 +18,8 @@ import studio.fantasyit.ether_craft.util.UIUtil;
 import java.util.List;
 
 public class MainPageProvider extends BaseEtherNodeTabWidgetProvider<MainPageDummyPlugin> {
+
+    private IASwitchButton filterBtn;
 
     public MainPageProvider(PluginMenuContext<MainPageDummyPlugin> context, EtherAdaptNodeScreen screen) {
         super(context, screen);
@@ -36,8 +38,12 @@ public class MainPageProvider extends BaseEtherNodeTabWidgetProvider<MainPageDum
 
     @Override
     public void createWidget() {
-        IASwitchButton btn = screen.addRenderableWidget(new IASwitchButton(
-                lx(155), ly(131),
+        if (!screen.getMenu().entity.nodeProperty.enableFilter) {
+            ctx().filterSlots.forEach(s -> s.setActive(false));
+            return;
+        }
+        filterBtn = screen.addRenderableWidget(new IASwitchButton(
+                lx(EtherAdaptNodeAsset.UI_BASE.w + 10), ly(141),
                 EtherAdaptNodeAsset.BTN_BLANK,
                 EtherAdaptNodeAsset.BTN_BLANK_HOVER,
                 EtherAdaptNodeAsset.BTN_BLANK_DOWN,
@@ -54,7 +60,8 @@ public class MainPageProvider extends BaseEtherNodeTabWidgetProvider<MainPageDum
                     return true;
                 }
         ));
-        btn.setDown(false);
+        filterBtn.setHidden(true);
+        filterBtn.setDown(false);
     }
 
     @Override
@@ -64,7 +71,14 @@ public class MainPageProvider extends BaseEtherNodeTabWidgetProvider<MainPageDum
             EtherAdaptNodeAsset.SLOT_ETHER.blit(graphics, lx(26), ly(17));
         else
             EtherAdaptNodeAsset.SLOT_LARGE.blit(graphics, lx(26), ly(17));
-        EtherAdaptNodeAsset.FILTER_PANEL.blit(graphics, lx(151), ly(130));
+        if (screen.getMenu().entity.nodeProperty.enableFilter)
+            EtherAdaptNodeAsset.FILTER_PANEL.blit(graphics, lx(EtherAdaptNodeAsset.UI_BASE.w + 5), ly(138));
+        if (screen.getMenu().entity.nodeProperty.enableFilter) {
+            for (Slot s : ctx().filterSlots) {
+                if (s.hasItem())
+                    UIUtil.renderItemStackSlotPlaceholder(graphics, s.getItem(), lx(s.x), ly(s.y));
+            }
+        }
     }
 
     @Override
@@ -76,7 +90,7 @@ public class MainPageProvider extends BaseEtherNodeTabWidgetProvider<MainPageDum
                 lx(27), ly(39), EtherAdaptNodeAsset.ETHER_BAR_CTR.w - 2, 2, graphics
         );
         for (Slot s : screen.getMenu().slots) {
-            if (s instanceof RangeLimitSlot rls && !rls.valid()) {
+            if (s instanceof RangeLimitFilterSlot rls && !rls.valid()) {
                 graphics.fill(lx(s.x - 1), ly(s.y - 1), lx(s.x + 17), ly(s.y + 17), 0x60000000);
             }
         }
@@ -88,5 +102,16 @@ public class MainPageProvider extends BaseEtherNodeTabWidgetProvider<MainPageDum
             int lastX = 7 + (accessibleCount % 7) * 18;
             EtherAdaptNodeAsset.LOCK.blit(graphics, lx(lastX + 186 - EtherAdaptNodeAsset.LOCK.w / 2), ly(114));
         }
+    }
+
+    @Override
+    public void tick() {
+        super.tick();
+        if (filterBtn != null)
+            filterBtn.setHidden(!screen.getMenu().entity.nodeProperty.enableFilter);
+        if (ctx().mainSlots != null)
+            for (RangeLimitFilterSlot s : ctx().mainSlots) {
+                s.setEnableFilter(screen.getMenu().entity.nodeProperty.enableFilter);
+            }
     }
 }

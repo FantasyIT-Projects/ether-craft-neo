@@ -28,6 +28,13 @@ public class ItemRegistry {
     public static final DeferredHolder<Item, @NotNull ProcessChipItem> DIRECT_INPUT_ITEM_CHIP = ITEMS.register("direct_input", ProcessChipItem::new);
 
     public static final DeferredHolder<Item, @NotNull Item> WRENCH = ITEMS.register("wrench", i -> new Item(new Item.Properties().stacksTo(1).setId(ResourceKey.create(Registries.ITEM, i))));
+    public static final DeferredHolder<Item, @NotNull Item> BLADE = ITEMS.register("blade", i -> new Item(new Item.Properties().stacksTo(64).setId(ResourceKey.create(Registries.ITEM, i))));
+    public static final DeferredHolder<Item, @NotNull Item> DIAMOND_NEEDLE = ITEMS.register("diamond_needle", i -> new Item(new Item.Properties().stacksTo(64).setId(ResourceKey.create(Registries.ITEM, i))));
+    public static final DeferredHolder<Item, @NotNull Item> ETHER_CRYSTAL = ITEMS.register("ether_crystal", i -> new Item(new Item.Properties().stacksTo(64).setId(ResourceKey.create(Registries.ITEM, i))));
+    public static final DeferredHolder<Item, @NotNull Item> ETHERPHILIC_BOWL = ITEMS.register("etherphilic_bowl", i -> new Item(new Item.Properties().stacksTo(64).setId(ResourceKey.create(Registries.ITEM, i))));
+    public static final DeferredHolder<Item, @NotNull Item> GOLD_SCREW = ITEMS.register("gold_screw", i -> new Item(new Item.Properties().stacksTo(64).setId(ResourceKey.create(Registries.ITEM, i))));
+    public static final DeferredHolder<Item, @NotNull Item> INACTIVATED_ETHER = ITEMS.register("inactivated_ether", i -> new Item(new Item.Properties().stacksTo(64).setId(ResourceKey.create(Registries.ITEM, i))));
+    public static final DeferredHolder<Item, @NotNull Item> VACUUM_PIPE = ITEMS.register("vacuum_pipe", i -> new Item(new Item.Properties().stacksTo(64).setId(ResourceKey.create(Registries.ITEM, i))));
     public static final DeferredHolder<Item, @NotNull Item> ETHER_STREAM_EMITTER_ITEM = block(BlockRegistry.ETHER_STREAM_EMITTER);
     public static final DeferredHolder<Item, @NotNull Item> ETHER_PROCESS_FACTORY_ITEM_LV_1 = ITEMS.register("ether_process_factory_lv_1", EtherProcessFactoryBlockItem.withLevel(1));
     public static final DeferredHolder<Item, @NotNull Item> ETHER_PROCESS_FACTORY_ITEM_LV_2 = ITEMS.register("ether_process_factory_lv_2", EtherProcessFactoryBlockItem.withLevel(2));
