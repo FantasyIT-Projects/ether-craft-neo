@@ -9,6 +9,7 @@ import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.common.crafting.SizedIngredient;
 import org.jetbrains.annotations.NotNull;
+import studio.fantasyit.ether_craft.register.RecipeSerializerRegistry;
 import studio.fantasyit.ether_craft.register.RecipeTypeRegistry;
 
 import java.util.ArrayList;
@@ -87,7 +88,7 @@ public class NodeProcessRecipe implements Recipe<@NotNull NodeProcessRecipeInput
 
     @Override
     public @NotNull RecipeSerializer<@NotNull NodeProcessRecipe> getSerializer() {
-        return new RecipeSerializer<>(CODEC, STREAM_CODEC);
+        return RecipeSerializerRegistry.NODE_PROCESS_RECIPE_SERIALIZER.get();
     }
 
     @Override

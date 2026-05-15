@@ -51,5 +51,7 @@
   "tooltip.ether_craft.heating_chip": "Heating Chip",
   "tooltip.ether_craft.process_chip_ether": "Contains [%d] E",
   "tooltip.ether_craft.separator_chip": "Separator Chip",
-  "tooltip.ether_craft.stamping_chip": "Stamping Chip"
+  "tooltip.ether_craft.stamping_chip": "Stamping Chip",
+
+  "jei.ether_craft.ether_process": "Ether Process"
 }

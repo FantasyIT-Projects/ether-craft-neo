@@ -12,6 +12,7 @@ import org.jetbrains.annotations.NotNull;
 import studio.fantasyit.ether_craft.base.TreeLike;
 import studio.fantasyit.ether_craft.recipe.DelayedIngredient;
 import studio.fantasyit.ether_craft.register.ItemRegistry;
+import studio.fantasyit.ether_craft.register.RecipeSerializerRegistry;
 import studio.fantasyit.ether_craft.register.RecipeTypeRegistry;
 import studio.fantasyit.ether_craft.util.EtherProcessorRecipeUtil;
 
@@ -159,7 +160,7 @@ public class EtherProcessFactoryRecipe implements Recipe<@NotNull EtherFactoryRe
 
     @Override
     public @NotNull RecipeSerializer<@NotNull EtherProcessFactoryRecipe> getSerializer() {
-        return new RecipeSerializer<>(CODEC, STREAM_CODEC);
+        return RecipeSerializerRegistry.ETHER_PROCESS_RECIPE_SERIALIZER.get();
     }
 
     @Override

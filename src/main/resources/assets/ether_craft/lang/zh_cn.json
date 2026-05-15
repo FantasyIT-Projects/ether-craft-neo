@@ -51,5 +51,7 @@
   "tooltip.ether_craft.heating_chip": "加热芯片",
   "tooltip.ether_craft.process_chip_ether": "含 [%d] E",
   "tooltip.ether_craft.separator_chip": "分离芯片",
-  "tooltip.ether_craft.stamping_chip": "冲压芯片"
+  "tooltip.ether_craft.stamping_chip": "冲压芯片",
+
+  "jei.ether_craft.ether_process": "以太加工"
 }
