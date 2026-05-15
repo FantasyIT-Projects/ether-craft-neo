@@ -22,9 +22,10 @@ import java.util.Optional;
 public record SyncEtherAdaptNodeExtraS2C(
         Optional<InstalledPlugin> functionPlugin,
         Map<Direction, InstalledPlugin> pluginDirection,
-        Map<Identifier, Integer> pluginValue,
+        Map<InstalledPlugin, Map<Identifier, Integer>> pluginValue,
         BlockPos pos,
-        Identifier levelId
+        Identifier levelId,
+        int maxEther
 ) implements CustomPacketPayload {
     public static final Type<@NotNull SyncEtherAdaptNodeExtraS2C> TYPE = new Type<>(
             Identifier.fromNamespaceAndPath(
@@ -45,6 +46,8 @@ public record SyncEtherAdaptNodeExtraS2C(
             SyncEtherAdaptNodeExtraS2C::pos,
             Identifier.STREAM_CODEC,
             SyncEtherAdaptNodeExtraS2C::levelId,
+            ByteBufCodecs.INT,
+            SyncEtherAdaptNodeExtraS2C::maxEther,
             SyncEtherAdaptNodeExtraS2C::new
     );
 
@@ -58,7 +61,7 @@ public record SyncEtherAdaptNodeExtraS2C(
             Level level = iPayloadContext.player().level();
             if (level.dimension().identifier().equals(levelId)) {
                 if (level.getBlockEntity(pos) instanceof EtherAdaptNodeEntity nodeEntity) {
-                    nodeEntity.fromNetwork(pluginDirection, functionPlugin.orElse(null), pluginValue);
+                    nodeEntity.fromNetwork(pluginDirection, functionPlugin.orElse(null), pluginValue, maxEther);
                 }
             }
         });

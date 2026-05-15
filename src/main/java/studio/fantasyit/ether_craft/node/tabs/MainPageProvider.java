@@ -5,10 +5,13 @@ import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.inventory.Slot;
 import studio.fantasyit.ether_craft.menu.base.RangeLimitPlaceContainer;
+import studio.fantasyit.ether_craft.menu.base.slot.BaseSlot;
 import studio.fantasyit.ether_craft.menu.base.slot.RangeLimitSlot;
+import studio.fantasyit.ether_craft.menu.base.widget.IASwitchButton;
 import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeAsset;
 import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeScreen;
 import studio.fantasyit.ether_craft.node.plugins.MainPageDummyPlugin;
+import studio.fantasyit.ether_craft.node.plugins.MainPageDummyPlugin.MainPageContext;
 import studio.fantasyit.ether_craft.node.plugins.base.PluginMenuContext;
 import studio.fantasyit.ether_craft.util.UIUtil;
 
@@ -27,6 +30,33 @@ public class MainPageProvider extends BaseEtherNodeTabWidgetProvider<MainPageDum
         );
     }
 
+    private MainPageContext ctx() {
+        return (MainPageContext) context;
+    }
+
+    @Override
+    public void createWidget() {
+        IASwitchButton btn = screen.addRenderableWidget(new IASwitchButton(
+                lx(155), ly(131),
+                EtherAdaptNodeAsset.BTN_BLANK,
+                EtherAdaptNodeAsset.BTN_BLANK_HOVER,
+                EtherAdaptNodeAsset.BTN_BLANK_DOWN,
+                EtherAdaptNodeAsset.BTN_BLANK_DOWN_HOVER,
+                null,
+                Component.translatable("ether_craft.gui.node.filter_mode"),
+                Component.translatable("ether_craft.gui.node.filter_mode"),
+                (currentlyDown) -> {
+                    boolean activate = !currentlyDown;
+                    ctx().filterSlots.forEach(s -> s.setActive(activate));
+                    ctx().mainSlots.forEach(s -> {
+                        if (s instanceof BaseSlot bs) bs.setActive(!activate);
+                    });
+                    return true;
+                }
+        ));
+        btn.setDown(false);
+    }
+
     @Override
     public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
         super.extractBackground(graphics, mouseX, mouseY, a);
@@ -34,6 +64,7 @@ public class MainPageProvider extends BaseEtherNodeTabWidgetProvider<MainPageDum
             EtherAdaptNodeAsset.SLOT_ETHER.blit(graphics, lx(26), ly(17));
         else
             EtherAdaptNodeAsset.SLOT_LARGE.blit(graphics, lx(26), ly(17));
+        EtherAdaptNodeAsset.FILTER_PANEL.blit(graphics, lx(151), ly(130));
     }
 
     @Override

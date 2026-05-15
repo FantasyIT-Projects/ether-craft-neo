@@ -11,6 +11,7 @@ import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
 import studio.fantasyit.ether_craft.node.plugins.feature.FeatureContainerInteract;
 import studio.fantasyit.ether_craft.node.plugins.feature.FeatureDropperThrower;
 import studio.fantasyit.ether_craft.node.plugins.feature.FeatureEtherStreamEmitter;
+import studio.fantasyit.ether_craft.node.plugins.function.AbstractItemConsumeFunction;
 import studio.fantasyit.ether_craft.node.plugins.function.FunctionFurnaceGenerator;
 import studio.fantasyit.ether_craft.node.plugins.function.FunctionMagnet;
 import studio.fantasyit.ether_craft.node.plugins.function.FunctionStoneGenerator;
@@ -20,7 +21,7 @@ import java.util.Map;
 
 public class PluginRenderManager {
     public interface PluginRender {
-        void render(Direction key, Integer dTick, EtherAdaptNodeEntity entity, EtherAdapterNodeRenderState state);
+        void render(Direction key, Integer dTick, EtherAdaptNodeEntity entity, EtherAdapterNodeRenderState state, InstalledPlugin installedPlugin);
     }
 
     public static PluginRenderManager Instance = new PluginRenderManager();
@@ -28,21 +29,21 @@ public class PluginRenderManager {
     public Map<Identifier, PluginRender> pluginRenderer = new HashMap<>();
 
     public void collect() {
-        PluginRender generatorLayer = (face, dTick, nodeEntity, state) -> {
-            FunctionFurnaceGenerator.WorkingMaterial value = FunctionFurnaceGenerator.WorkingMaterial.values()[nodeEntity.getSyncedPluginData(FunctionFurnaceGenerator.WORKING_MATERIAL)];
+        PluginRender generatorLayer = (face, dTick, nodeEntity, state, installedPlugin) -> {
+            AbstractItemConsumeFunction.WorkingMaterial value = AbstractItemConsumeFunction.WorkingMaterial.values()[nodeEntity.getSyncedPluginData(installedPlugin, AbstractItemConsumeFunction.WORKING_MATERIAL)];
             state.setSideAtlas(face, EtherAdapterNodeAtlas.FUNCTION_BURNER_EMPTY);
 
-            if (value == FunctionFurnaceGenerator.WorkingMaterial.COAL) {
+            if (value == AbstractItemConsumeFunction.WorkingMaterial.COAL) {
                 state.addOverlay(face, EtherAdapterNodeAtlas.OVERLAY_FUNCTION_BURNER_COAL.get(dTick));
-            } else if (value == FunctionFurnaceGenerator.WorkingMaterial.LAVA) {
+            } else if (value == AbstractItemConsumeFunction.WorkingMaterial.LAVA) {
                 state.addOverlay(face, EtherAdapterNodeAtlas.OVERLAY_FUNCTION_BURNER_LAVA.get(dTick));
-            } else if (value == FunctionFurnaceGenerator.WorkingMaterial.WOOD) {
+            } else if (value == AbstractItemConsumeFunction.WorkingMaterial.WOOD) {
                 state.addOverlay(face, EtherAdapterNodeAtlas.OVERLAY_FUNCTION_BURNER_WOOD);
-            } else if (value == FunctionFurnaceGenerator.WorkingMaterial.STONE) {
+            } else if (value == AbstractItemConsumeFunction.WorkingMaterial.STONE) {
                 state.addOverlay(face, EtherAdapterNodeAtlas.OVERLAY_FUNCTION_BURNER_STONE);
-            } else if (value == FunctionFurnaceGenerator.WorkingMaterial.DEEPSLATE) {
+            } else if (value == AbstractItemConsumeFunction.WorkingMaterial.DEEPSLATE) {
                 state.addOverlay(face, EtherAdapterNodeAtlas.OVERLAY_FUNCTION_BURNER_DEEPSLATE);
-            } else if (value != FunctionFurnaceGenerator.WorkingMaterial.IDLE) {
+            } else if (value != AbstractItemConsumeFunction.WorkingMaterial.IDLE) {
                 state.addOverlay(face, EtherAdapterNodeAtlas.OVERLAY_FUNCTION_BURNER_COAL.get(dTick));
             }
 
@@ -53,25 +54,25 @@ public class PluginRenderManager {
         };
         register(FunctionFurnaceGenerator.ID, generatorLayer);
         register(FunctionStoneGenerator.ID, generatorLayer);
-        register(FeatureContainerInteract.ID, (face, dTick, nodeEntity, state) ->
+        register(FeatureContainerInteract.ID, (face, dTick, nodeEntity, state, installedPlugin) ->
                 state.setSideAtlas(face, switch (face) {
                     case UP -> EtherAdapterNodeAtlas.FEATURE_CONTAINER_INT_TOP;
                     case DOWN -> EtherAdapterNodeAtlas.FEATURE_CONTAINER_INT_BOTTOM;
                     default -> EtherAdapterNodeAtlas.FEATURE_CONTAINER_INT_SIDE;
                 }));
-        register(FeatureDropperThrower.ID, (face, dTick, nodeEntity, state) ->
+        register(FeatureDropperThrower.ID, (face, dTick, nodeEntity, state, installedPlugin) ->
                 state.setSideAtlas(face, switch (face) {
                     case UP -> EtherAdapterNodeAtlas.FEATURE_DROPPER_TOP;
                     case DOWN -> EtherAdapterNodeAtlas.FEATURE_DROPPER_BOTTOM;
                     default -> EtherAdapterNodeAtlas.FEATURE_DROPPER_SIDE;
                 }));
-        register(FunctionMagnet.ID, (face, dTick, nodeEntity, state) ->
+        register(FunctionMagnet.ID, (face, dTick, nodeEntity, state, installedPlugin) ->
                 state.setSideAtlas(face, switch (face) {
                     case UP -> EtherAdapterNodeAtlas.FEATURE_MAGNET_TOP;
                     case DOWN -> EtherAdapterNodeAtlas.FEATURE_MAGNET_BOTTOM;
                     default -> EtherAdapterNodeAtlas.FEATURE_MAGNET_SIDE;
                 }));
-        register(FeatureEtherStreamEmitter.ID, (face, dTick, nodeEntity, state) ->
+        register(FeatureEtherStreamEmitter.ID, (face, dTick, nodeEntity, state, installedPlugin) ->
                 state.setSideAtlas(face, switch (face) {
                     case UP -> EtherAdapterNodeAtlas.FEATURE_STREAM_EMITTER_TOP;
                     case DOWN -> EtherAdapterNodeAtlas.FEATURE_STREAM_EMITTER_BOTTOM;
@@ -85,14 +86,14 @@ public class PluginRenderManager {
     }
 
     public void register(Identifier id, EtherAdapterNodeAtlas.AtlasUV renderer) {
-        pluginRenderer.put(id, (d, _, _, s) -> s.setSideAtlas(d, renderer));
+        pluginRenderer.put(id, (d, _, _, s, ip) -> s.setSideAtlas(d, renderer));
     }
 
     public void render(Direction key, InstalledPlugin value, EtherAdaptNodeEntity entity, EtherAdapterNodeRenderState state) {
         LocalPlayer p = Minecraft.getInstance().player;
         int dTick = p == null ? 0 : p.tickCount;
         if (pluginRenderer.containsKey(value.pluginId())) {
-            pluginRenderer.get(value.pluginId()).render(key, dTick, entity, state);
+            pluginRenderer.get(value.pluginId()).render(key, dTick, entity, state, value);
         }
     }
 }

@@ -1,6 +1,7 @@
 package studio.fantasyit.ether_craft.node.plugins.function;
 
 import com.mojang.serialization.Codec;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
@@ -8,6 +9,7 @@ import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
+import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.block.base.ItemFilter;
 import studio.fantasyit.ether_craft.block.node.EtherAdaptNodeEntity;
 import studio.fantasyit.ether_craft.block.node.OversizedEtherSlot;
@@ -21,6 +23,7 @@ import studio.fantasyit.ether_craft.node.plugins.base.AbstractNodePlugin;
 import studio.fantasyit.ether_craft.util.ContainerOps;
 
 public abstract class AbstractItemConsumeFunction extends AbstractNodePlugin {
+    public static final Identifier WORKING_MATERIAL = EtherCraft.id("generator/material");
     public static final String FILTER_PREFIX = "item_consume/";
     public ItemFilter filter = new ItemFilter(21, nodeEntity::setChanged);
     SimpleContainer container = new SimpleContainer(1);

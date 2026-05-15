@@ -12,7 +12,6 @@ import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
 
 public class FunctionFurnaceGenerator extends AbstractItemConsumeFunction {
     public static Identifier ID = EtherCraft.id("generator/furnace");
-    public static Identifier WORKING_MATERIAL = EtherCraft.id("generator/furnace/material");
 
     public FunctionFurnaceGenerator(EtherAdaptNodeEntity nodeEntity, InstalledPlugin ID) {
         super(nodeEntity, ID);
@@ -37,13 +36,13 @@ public class FunctionFurnaceGenerator extends AbstractItemConsumeFunction {
         this.remainBurnTicks = itemStack.getBurnTime(null, nodeEntity.getLevel().fuelValues());
 
         if (itemStack.is(ItemTags.LOGS) || itemStack.is(ItemTags.PLANKS))
-            nodeEntity.setSyncedPluginData(WORKING_MATERIAL, WorkingMaterial.WOOD.ordinal());
+            nodeEntity.setSyncedPluginData(installedId, WORKING_MATERIAL, WorkingMaterial.WOOD.ordinal());
         else if (itemStack.is(Items.LAVA_BUCKET))
-            nodeEntity.setSyncedPluginData(WORKING_MATERIAL, WorkingMaterial.LAVA.ordinal());
+            nodeEntity.setSyncedPluginData(installedId, WORKING_MATERIAL, WorkingMaterial.LAVA.ordinal());
         else if (itemStack.is(ItemTags.COALS))
-            nodeEntity.setSyncedPluginData(WORKING_MATERIAL, WorkingMaterial.COAL.ordinal());
+            nodeEntity.setSyncedPluginData(installedId, WORKING_MATERIAL, WorkingMaterial.COAL.ordinal());
         else
-            nodeEntity.setSyncedPluginData(WORKING_MATERIAL, WorkingMaterial.ANY.ordinal());
+            nodeEntity.setSyncedPluginData(installedId, WORKING_MATERIAL, WorkingMaterial.ANY.ordinal());
 
         return remainStack;
     }
@@ -57,6 +56,6 @@ public class FunctionFurnaceGenerator extends AbstractItemConsumeFunction {
     public void tick() {
         super.tick();
         if(remainBurnTicks == 0)
-            nodeEntity.setSyncedPluginData(WORKING_MATERIAL, WorkingMaterial.IDLE.ordinal());
+            nodeEntity.setSyncedPluginData(installedId, WORKING_MATERIAL, WorkingMaterial.IDLE.ordinal());
     }
 }

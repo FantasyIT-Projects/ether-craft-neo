@@ -15,7 +15,6 @@ import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
 
 public class FunctionStoneGenerator extends AbstractItemConsumeFunction {
     public static Identifier ID = EtherCraft.id("generator/stone");
-    public static Identifier WORKING_MATERIAL = EtherCraft.id("generator/furnace/material");
 
     int ept = 0;
 
@@ -45,9 +44,9 @@ public class FunctionStoneGenerator extends AbstractItemConsumeFunction {
         ept = stoneGeneratorRatio.etherPerTick();
 
         if (itemStack.is(Items.COBBLED_DEEPSLATE))
-            nodeEntity.setSyncedPluginData(WORKING_MATERIAL, WorkingMaterial.DEEPSLATE.ordinal());
+            nodeEntity.setSyncedPluginData(installedId, WORKING_MATERIAL, WorkingMaterial.DEEPSLATE.ordinal());
         else
-            nodeEntity.setSyncedPluginData(WORKING_MATERIAL, WorkingMaterial.STONE.ordinal());
+            nodeEntity.setSyncedPluginData(installedId, WORKING_MATERIAL, WorkingMaterial.STONE.ordinal());
 
         return remainStack;
     }
@@ -61,7 +60,7 @@ public class FunctionStoneGenerator extends AbstractItemConsumeFunction {
     public void tick() {
         super.tick();
         if (remainBurnTicks == 0)
-            nodeEntity.setSyncedPluginData(WORKING_MATERIAL, WorkingMaterial.IDLE.ordinal());
+            nodeEntity.setSyncedPluginData(installedId, WORKING_MATERIAL, WorkingMaterial.IDLE.ordinal());
     }
 
     @Override

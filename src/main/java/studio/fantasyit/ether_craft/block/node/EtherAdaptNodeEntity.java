@@ -27,6 +27,7 @@ import oshi.util.tuples.Pair;
 import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.block.base.EtherContainer;
 import studio.fantasyit.ether_craft.block.base.ITickable;
+import studio.fantasyit.ether_craft.block.base.ItemFilter;
 import studio.fantasyit.ether_craft.menu.base.RangeLimitPlaceContainer;
 import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeContainerMenu;
 import studio.fantasyit.ether_craft.network.s2c.SyncEtherAdaptNodeExtraS2C;
@@ -51,9 +52,10 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
     public final EtherPluginUpgradeContainer functionStorage;
     public final EtherPluginUpgradeContainer featureUpgradeStorage;
     public final RangeLimitPlaceContainer normalStorage;
+    public final ItemFilter normalStorageFilter;
     public @Nullable InstalledPlugin functionPlugin;
     public final Map<Direction, InstalledPlugin> featureAttachedDirection = new HashMap<>();
-    public final Map<Identifier, Integer> syncedPluginData = new HashMap<>();
+    public final Map<InstalledPlugin, Map<Identifier, Integer>> syncedPluginData = new HashMap<>();
     public final QueuedTicket ticket = new QueuedTicket();
 
 
@@ -62,6 +64,7 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
         nodeProperty = new NodeProperty();
         etherStorage = new EtherSlotSyncContainer(this);
         normalStorage = new RangeLimitPlaceContainer(new SimpleContainer(27), 0);
+        normalStorageFilter = new ItemFilter(27, this::setChanged);
         normalHandler = VanillaContainerWrapper.of(normalStorage);
         functionStorage = new EtherPluginUpgradeContainer(1, NodePluginManager.FUNCTION_TYPE, this);
         featureUpgradeStorage = new EtherPluginUpgradeContainer(6, NodePluginManager.FEATURE_UPGRADE_TYPE, this);
@@ -100,7 +103,8 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
                     featureAttachedDirection,
                     syncedPluginData,
                     this.getBlockPos(),
-                    this.level.dimension().identifier()
+                    this.level.dimension().identifier(),
+                    nodeProperty.maxEther
             ));
     }
 
@@ -134,7 +138,11 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
         functionStorage.loadAddition(input.childOrEmpty("functionStorage"));
         featureUpgradeStorage.loadAddition(input.childOrEmpty("featureUpgradeStorage"));
         normalStorage.deserialize(input.childOrEmpty("normalStorage"));
-        input.read("sync", SerializeUtil.PIMap.CODEC).ifPresent(syncedPluginData::putAll);
+        normalStorageFilter.deserialize(input.childOrEmpty("normalStorageFilter"));
+        input.read("sync", SerializeUtil.PIMap.CODEC).ifPresent(m -> {
+            syncedPluginData.clear();
+            syncedPluginData.putAll(m);
+        });
         pluginUpdate();
     }
 
@@ -144,6 +152,7 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
         functionStorage.saveAddition(output.child("functionStorage"));
         featureUpgradeStorage.saveAddition(output.child("featureUpgradeStorage"));
         normalStorage.serialize(output.child("normalStorage"));
+        normalStorageFilter.serialize(output.child("normalStorageFilter"));
         output.store("sync", SerializeUtil.PIMap.CODEC, syncedPluginData);
     }
 
@@ -180,6 +189,9 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
         if (resource.is(ItemRegistry.ETHER))
             return false;
         if (index - 1 >= nodeProperty.slotUnlock)
+            return false;
+        ItemStack filterStack = normalStorageFilter.getItem(index - 1);
+        if (!filterStack.isEmpty() && !resource.is(filterStack.getItem()))
             return false;
         for (AbstractNodePlugin plugin : getPlugins()) {
             if (!plugin.inputFilter(resource))
@@ -272,6 +284,10 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
         return Config.nodeLevelSlotArr.get(level - 1);
     }
 
+    public ItemFilter getNormalStorageFilter() {
+        return normalStorageFilter;
+    }
+
     public MenuProvider getMenuProvider(@Nullable InstalledPlugin installedPlugin) {
         return new MenuProvider() {
             @Override
@@ -297,12 +313,13 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
         };
     }
 
-    public void fromNetwork(Map<Direction, InstalledPlugin> pluginDirection, @Nullable InstalledPlugin functionPlugin, Map<Identifier, Integer> pluginValue) {
+    public void fromNetwork(Map<Direction, InstalledPlugin> pluginDirection, @Nullable InstalledPlugin functionPlugin, Map<InstalledPlugin, Map<Identifier, Integer>> pluginValue, int maxEther) {
         featureAttachedDirection.clear();
         featureAttachedDirection.putAll(pluginDirection);
         this.functionPlugin = functionPlugin;
         this.syncedPluginData.clear();
         this.syncedPluginData.putAll(pluginValue);
+        this.nodeProperty.maxEther = maxEther;
     }
 
     public boolean isPluginInstalled(InstalledPlugin plugin) {
@@ -343,12 +360,12 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
             markUpdate = true;
     }
 
-    public void setSyncedPluginData(Identifier actionId, int value) {
-        syncedPluginData.put(actionId, value);
+    public void setSyncedPluginData(InstalledPlugin plugin, Identifier actionId, int value) {
+        syncedPluginData.computeIfAbsent(plugin, _ -> new HashMap<>()).put(actionId, value);
         pluginUpdate();
     }
 
-    public int getSyncedPluginData(Identifier actionId) {
-        return syncedPluginData.getOrDefault(actionId, 0);
+    public int getSyncedPluginData(InstalledPlugin plugin, Identifier actionId) {
+        return syncedPluginData.getOrDefault(plugin, Map.of()).getOrDefault(actionId, 0);
     }
 }

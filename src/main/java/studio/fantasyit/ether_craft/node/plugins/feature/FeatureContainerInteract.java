@@ -149,7 +149,7 @@ public class FeatureContainerInteract extends AbstractDirectionalFilterFeature {
     public void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
         extractMode = input.read("extractMode", Codec.INT).orElse(1) == 1;
-        nodeEntity.setSyncedPluginData(WORKING_MODE, extractMode ? 1 : 0);
+        nodeEntity.setSyncedPluginData(installedId, WORKING_MODE, extractMode ? 1 : 0);
     }
 
     @Override
@@ -157,7 +157,7 @@ public class FeatureContainerInteract extends AbstractDirectionalFilterFeature {
         super.syncScreenData(message);
         if (message.id().equals(SYNC_EXTRACT_MODE) && message.index() == installedId.id()) {
             extractMode = message.data() == 1;
-            nodeEntity.setSyncedPluginData(WORKING_MODE, extractMode ? 1 : 0);
+            nodeEntity.setSyncedPluginData(installedId, WORKING_MODE, extractMode ? 1 : 0);
             nodeEntity.pluginUpdate();
         }
     }

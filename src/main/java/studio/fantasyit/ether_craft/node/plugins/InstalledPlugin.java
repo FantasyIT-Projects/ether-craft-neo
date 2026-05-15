@@ -1,5 +1,7 @@
 package studio.fantasyit.ether_craft.node.plugins;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -9,6 +11,12 @@ import org.jetbrains.annotations.Nullable;
 import studio.fantasyit.ether_craft.node.NodePluginManager;
 
 public record InstalledPlugin(NodePluginManager.PluginType type, int id, Identifier pluginId) {
+    public static final Codec<InstalledPlugin> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            NodePluginManager.PluginType.CODEC.fieldOf("type").forGetter(InstalledPlugin::type),
+            Codec.INT.fieldOf("id").forGetter(InstalledPlugin::id),
+            Identifier.CODEC.fieldOf("pluginId").forGetter(InstalledPlugin::pluginId)
+    ).apply(instance, InstalledPlugin::new));
+
     public static final StreamCodec<RegistryFriendlyByteBuf, @NotNull InstalledPlugin> STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.STRING_UTF8.map(NodePluginManager.PluginType::valueOf, NodePluginManager.PluginType::name),
             InstalledPlugin::type,

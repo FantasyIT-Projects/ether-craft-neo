@@ -1,6 +1,8 @@
 package studio.fantasyit.ether_craft.node;
 
+import com.mojang.serialization.Codec;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ItemLike;
@@ -28,11 +30,24 @@ import java.util.function.Predicate;
 
 public class NodePluginManager {
 
-    public enum PluginType {
-        FUNCTION,
-        FEATURE,
-        UPGRADE,
-        DUMMY
+    public enum PluginType implements StringRepresentable {
+        FUNCTION("function"),
+        FEATURE("feature"),
+        UPGRADE("upgrade"),
+        DUMMY("dummy");
+
+        public static final Codec<PluginType> CODEC = StringRepresentable.fromEnum(PluginType::values);
+
+        private final String name;
+
+        PluginType(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public String getSerializedName() {
+            return name;
+        }
     }
 
     public final static Predicate<PluginType> FUNCTION_TYPE = t -> t == PluginType.FUNCTION;

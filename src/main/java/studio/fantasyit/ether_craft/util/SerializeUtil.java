@@ -10,6 +10,7 @@ import org.jetbrains.annotations.NotNull;
 import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 public class SerializeUtil {
@@ -31,22 +32,35 @@ public class SerializeUtil {
         }
     }
 
-    public record PIMap(Identifier plugin, Integer value) {
+    public record PIMap(InstalledPlugin installed, Identifier action, Integer value) {
         public static final StreamCodec<RegistryFriendlyByteBuf, @NotNull PIMap> STREAM_CODEC = StreamCodec.composite(
+                InstalledPlugin.STREAM_CODEC,
+                PIMap::installed,
                 Identifier.STREAM_CODEC,
-                PIMap::plugin,
+                PIMap::action,
                 ByteBufCodecs.INT,
                 PIMap::value,
                 PIMap::new
         );
-        public static final Codec<Map<Identifier, Integer>> CODEC = Codec.unboundedMap(Identifier.CODEC, Codec.INT);
+        public static final Codec<Map<InstalledPlugin, Map<Identifier, Integer>>> CODEC =
+                Codec.unboundedMap(InstalledPlugin.CODEC, Codec.unboundedMap(Identifier.CODEC, Codec.INT));
 
-        public static ArrayList<PIMap> fromMap(Map<Identifier, Integer> map) {
-            return new ArrayList<>(map.entrySet().stream().map(entry -> new PIMap(entry.getKey(), entry.getValue())).toList());
+        public static ArrayList<PIMap> fromMap(Map<InstalledPlugin, Map<Identifier, Integer>> map) {
+            ArrayList<PIMap> list = new ArrayList<>();
+            for (var entry : map.entrySet()) {
+                for (var inner : entry.getValue().entrySet()) {
+                    list.add(new PIMap(entry.getKey(), inner.getKey(), inner.getValue()));
+                }
+            }
+            return list;
         }
 
-        public static Map<Identifier, Integer> toMap(ArrayList<PIMap> list) {
-            return list.stream().collect(java.util.stream.Collectors.toMap(PIMap::plugin, PIMap::value));
+        public static Map<InstalledPlugin, Map<Identifier, Integer>> toMap(ArrayList<PIMap> list) {
+            Map<InstalledPlugin, Map<Identifier, Integer>> map = new HashMap<>();
+            for (PIMap pimap : list) {
+                map.computeIfAbsent(pimap.installed, _ -> new HashMap<>()).put(pimap.action, pimap.value);
+            }
+            return map;
         }
     }
 }
