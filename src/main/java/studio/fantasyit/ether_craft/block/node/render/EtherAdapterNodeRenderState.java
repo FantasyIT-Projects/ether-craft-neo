@@ -9,7 +9,9 @@ import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.util.ARGB;
 import net.minecraft.util.LightCoordsUtil;
+import net.minecraft.world.level.CardinalLighting;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LightLayer;
 import studio.fantasyit.ether_craft.block.node.EtherAdaptNodeEntity;
@@ -35,7 +37,7 @@ public class EtherAdapterNodeRenderState extends BlockEntityRenderState {
     public int getNeighborLight(Level level, BlockPos pos) {
         int sky = level.getBrightness(LightLayer.SKY, pos);
         int block = level.getBrightness(LightLayer.BLOCK, pos);
-        return LightCoordsUtil.pack(Math.max(0, block - 1), Math.max(0, sky - 1));
+        return LightCoordsUtil.pack(block, sky);
     }
 
     public void extractPackedLight(Level level, BlockPos pos, EtherAdaptNodeEntity blockEntity) {
@@ -88,7 +90,7 @@ public class EtherAdapterNodeRenderState extends BlockEntityRenderState {
                             VertexConsumer buffer,
                             int light, int overlay,
                             float u0, float v0, float u1, float v1) {
-        int color = 0xFFFFFFFF;
+        int color = ARGB.gray(CardinalLighting.DEFAULT.byFace(direction));
 
         switch (direction) {
             case DOWN -> { // Y=0, 法线 (0,-1,0)

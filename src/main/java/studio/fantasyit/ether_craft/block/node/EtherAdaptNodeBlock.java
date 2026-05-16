@@ -74,6 +74,9 @@ public class EtherAdaptNodeBlock extends BaseBlock {
             @NotNull Direction facing = state.getValue(FACING);
             Direction counterClockWise = facing.getCounterClockWise(hitResult.getDirection().getAxis());
             level.setBlockAndUpdate(pos, state.setValue(FACING, counterClockWise));
+            if (!level.isClientSide() && level.getBlockEntity(pos) instanceof EtherAdaptNodeEntity eane) {
+                eane.rotatePluginsByAxis(hitResult.getDirection().getAxis());
+            }
             if (!facing.equals(counterClockWise))
                 return InteractionResult.SUCCESS;
             return InteractionResult.CONSUME;

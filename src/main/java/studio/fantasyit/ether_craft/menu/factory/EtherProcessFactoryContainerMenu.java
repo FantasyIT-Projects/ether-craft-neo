@@ -136,8 +136,13 @@ public class EtherProcessFactoryContainerMenu extends BaseContainerMenu<@NotNull
                 if (!stack.isEmpty()) {
                     this.moveItemStackTo(stack, 0, inputSlots, false);
                 }
-                if (!stack.isEmpty() && !filterSlots.isEmpty() && isFilterActive()) {
-                    this.moveItemStackTo(stack, filterSlots.getFirst().index, filterSlots.getFirst().index + filterSlots.size(), false);
+                if (isFilterActive()) {
+                    for (FilterSlot fs : filterSlots) {
+                        if (stack.isEmpty()) break;
+                        if (!fs.hasItem()) {
+                            fs.set(stack.copyWithCount(1));
+                        }
+                    }
                 }
             }
 

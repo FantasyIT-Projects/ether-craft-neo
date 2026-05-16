@@ -359,6 +359,18 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
         return ItemStack.EMPTY;
     }
 
+    public void rotatePluginsByAxis(Direction.Axis axis) {
+        for (AbstractNodePlugin plugin : getPlugins()) {
+            plugin.onWrenchRotate(axis);
+            if (plugin instanceof AbstractDirectionalFeature directional) {
+                if (directional.direction != null) {
+                    directional.direction = directional.direction.getCounterClockWise(axis);
+                }
+            }
+        }
+        pluginUpdate();
+    }
+
     public void pluginUpdate() {
         setChanged();
         if (level != null && !level.isClientSide())
