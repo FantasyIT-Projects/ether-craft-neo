@@ -40,9 +40,9 @@ public class FeatureDropperThrower extends AbstractDirectionalFilterFeature {
         Direction dir = direction;
         Vec3 dirVec = dir.getUnitVec3();
         Vec3 spawnPos = nodeEntity.getBlockPos().getCenter().add(
-                dirVec.x * 0.5,
-                dirVec.y * 0.5,
-                dirVec.z * 0.5
+                dirVec.x * 0.8,
+                dirVec.y * 0.8,
+                dirVec.z * 0.8
         );
         double speedX = dirVec.x * 0.3;
         double speedY = dirVec.y * 0.3;
