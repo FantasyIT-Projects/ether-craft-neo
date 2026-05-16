@@ -11,7 +11,9 @@ When viewing **ANY file within this project** or **ANY class from external depen
 - `idea_search_symbol` — for looking up classes/methods/fields by name
 - `idea_get_symbol_info` — for inspecting a specific symbol's declaration
 
-**YOU ARE ABSOLUTELY FORBIDDEN FROM USING**: `Read` tool (local filesystem read), `Glob`, `Grep`, `Write`, `Edit`, `Bash` file operations, or any other non-IDE tool to read, search, or inspect project source files or dependency classes.
+**YOU ARE ABSOLUTELY FORBIDDEN FROM USING**: `Read` tool (local filesystem read), `Glob`, `Grep`, `Bash` file operations, or any other non-IDE tool to **read, search, or inspect** project source files or dependency classes.
+
+**When editing/writing code**, you may use any tool: `Edit`, `Write`, `idea_replace_text_in_file`, `idea_create_new_file` are all acceptable. There is no restriction on editing tools.
 
 **THE ONLY EXCEPTION** is for non-Java files like `build.gradle`, `gradle.properties`, JSON resources, Gradle wrapper, `.gitignore`, and other config/asset files — these may be read with any tool.
 

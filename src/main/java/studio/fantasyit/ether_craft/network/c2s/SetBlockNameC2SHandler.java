@@ -1,5 +1,6 @@
 package studio.fantasyit.ether_craft.network.c2s;
 
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.network.PacketDistributor;
@@ -12,9 +13,11 @@ public class SetBlockNameC2SHandler {
         var be = player.level().getBlockEntity(message.pos());
         if (be instanceof EtherAdaptNodeEntity node) {
             node.name = message.name();
+            node.toRenderName = node.name.isEmpty() ? null : Component.literal(node.name);
             node.setChanged();
         } else if (be instanceof EtherProcessFactoryEntity factory) {
             factory.name = message.name();
+            factory.toRenderName = factory.name.isEmpty() ? null : Component.literal(factory.name);
             factory.setChanged();
         }
         if (player.level() instanceof ServerLevel serverLevel) {

@@ -28,9 +28,11 @@ import oshi.util.tuples.Pair;
 import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.block.base.EtherContainer;
 import studio.fantasyit.ether_craft.block.base.ITickable;
+import studio.fantasyit.ether_craft.block.base.IWorldRenderBE;
 import studio.fantasyit.ether_craft.block.base.ItemFilter;
 import studio.fantasyit.ether_craft.menu.base.RangeLimitPlaceContainer;
 import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeContainerMenu;
+import studio.fantasyit.ether_craft.network.s2c.SyncBlockNameS2C;
 import studio.fantasyit.ether_craft.network.s2c.SyncEtherAdaptNodeExtraS2C;
 import studio.fantasyit.ether_craft.node.NodePluginManager;
 import studio.fantasyit.ether_craft.node.NodeProperty;
@@ -45,7 +47,7 @@ import java.util.function.Predicate;
 
 import static studio.fantasyit.ether_craft.register.BlockEntityRegistry.ETHER_NODE_ENTITY;
 
-public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler<@NotNull ItemResource>, EtherContainer, ITickable {
+public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler<@NotNull ItemResource>, EtherContainer, ITickable, IWorldRenderBE {
     private final ResourceHandler<ItemResource> normalHandler;
     private boolean markUpdate = true;
     public final NodeProperty nodeProperty;
@@ -59,6 +61,7 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
     public final Map<InstalledPlugin, Map<Identifier, Integer>> syncedPluginData = new HashMap<>();
     public final QueuedTicket ticket = new QueuedTicket();
     public String name = "";
+    public Component toRenderName = null;
 
 
     public EtherAdaptNodeEntity(BlockPos worldPosition, BlockState blockState) {
@@ -119,6 +122,8 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
             markUpdate = false;
             updateProperty();
             updatePluginInfos();
+            if (!name.isEmpty() && level instanceof ServerLevel sl)
+                PacketDistributor.sendToPlayersInDimension(sl, new SyncBlockNameS2C(getBlockPos(), name));
         }
     }
 
@@ -137,7 +142,10 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
     @Override
     protected void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
-        input.read("name", Codec.STRING).ifPresent(n -> name = n);
+        input.read("name", Codec.STRING).ifPresent(n -> {
+            name = n;
+            toRenderName = name.isEmpty() ? null : Component.literal(name);
+        });
         functionStorage.loadAddition(input.childOrEmpty("functionStorage"));
         featureUpgradeStorage.loadAddition(input.childOrEmpty("featureUpgradeStorage"));
         normalStorage.deserialize(input.childOrEmpty("normalStorage"));
@@ -388,5 +396,15 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
 
     public int getSyncedPluginData(InstalledPlugin plugin, Identifier actionId) {
         return syncedPluginData.getOrDefault(plugin, Map.of()).getOrDefault(actionId, 0);
+    }
+
+    @Override
+    public @Nullable Component getRenderName() {
+        return toRenderName;
+    }
+
+    @Override
+    public void setRenderName(@Nullable Component name) {
+        toRenderName = name;
     }
 }

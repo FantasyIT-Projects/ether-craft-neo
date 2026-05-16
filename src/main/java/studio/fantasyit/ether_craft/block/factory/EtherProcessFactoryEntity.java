@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
+import net.neoforged.neoforge.network.PacketDistributor;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
@@ -22,12 +23,14 @@ import org.joml.Vector2i;
 import studio.fantasyit.ether_craft.block.base.BaseEtherContainerBlockEntity;
 import studio.fantasyit.ether_craft.block.base.EtherContainer;
 import studio.fantasyit.ether_craft.block.base.ITickable;
+import studio.fantasyit.ether_craft.block.base.IWorldRenderBE;
 import studio.fantasyit.ether_craft.block.base.ItemFilter;
 import studio.fantasyit.ether_craft.menu.factory.EtherProcessFactoryContainerMenu;
 import studio.fantasyit.ether_craft.recipe.factory.EtherFactoryRecipeInput;
 import studio.fantasyit.ether_craft.recipe.factory.EtherProcessFactoryRecipe;
 import studio.fantasyit.ether_craft.register.ItemRegistry;
 import studio.fantasyit.ether_craft.register.RecipeTypeRegistry;
+import studio.fantasyit.ether_craft.network.s2c.SyncBlockNameS2C;
 import studio.fantasyit.ether_craft.register.Tags;
 import studio.fantasyit.ether_craft.util.EtherProcessorRecipeUtil;
 
@@ -36,7 +39,7 @@ import java.util.Optional;
 
 import static studio.fantasyit.ether_craft.register.BlockEntityRegistry.ETHER_PROCESS_FACTORY_ENTITY;
 
-public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity implements EtherContainer, MenuProvider, ITickable {
+public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity implements EtherContainer, MenuProvider, ITickable, IWorldRenderBE {
     public static final int MAX_PROGRESS = 100;
     public final int ROWS;
     public final int COLS;
@@ -52,6 +55,7 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
     public int leak = 0;
     boolean markUpdate = false;
     public String name = "";
+    public Component toRenderName = null;
 
     public static int[] getSlots(BlockState state) {
         FactoryLevelDef d = FactoryLevelDef.getByLevel(state.getValue(EtherProcessFactoryBlock.LEVEL));
@@ -244,6 +248,8 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
         if (markUpdate) {
             markUpdate = false;
             updateRecipe((ServerLevel) level);
+            if (!name.isEmpty() && level instanceof ServerLevel sl)
+                PacketDistributor.sendToPlayersInDimension(sl, new SyncBlockNameS2C(getBlockPos(), name));
         }
         if (leak > 0) {
             extractEther(leak * 20L * pressureBonus);
@@ -252,7 +258,10 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
 
     @Override
     protected void loadAdditional(ValueInput input) {
-        input.read("name", Codec.STRING).ifPresent(n -> name = n);
+        input.read("name", Codec.STRING).ifPresent(n -> {
+            name = n;
+            toRenderName = name.isEmpty() ? null : Component.literal(name);
+        });
         input.read("progress", Codec.INT.listOf()).ifPresent(l -> {
             for (int i = 0; i < l.size(); i++)
                 processingProgress[i] = l.get(i);
@@ -289,5 +298,15 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
         if (index < ROWS && !filters[index].accepts(resource) && !resource.is(ItemRegistry.ETHER))
             return 0;
         return super.extract(index, resource, amount, transaction);
+    }
+
+    @Override
+    public @Nullable Component getRenderName() {
+        return toRenderName;
+    }
+
+    @Override
+    public void setRenderName(@Nullable Component name) {
+        toRenderName = name;
     }
 }

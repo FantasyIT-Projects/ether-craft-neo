@@ -2,6 +2,7 @@ package studio.fantasyit.ether_craft.network.s2c;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -37,8 +38,10 @@ public record SyncBlockNameS2C(BlockPos pos, String name) implements CustomPacke
             var be = level.getBlockEntity(pos);
             if (be instanceof EtherAdaptNodeEntity node) {
                 node.name = name;
+                node.toRenderName = node.name.isEmpty() ? null : Component.literal(node.name);
             } else if (be instanceof EtherProcessFactoryEntity factory) {
                 factory.name = name;
+                factory.toRenderName = factory.name.isEmpty() ? null : Component.literal(factory.name);
             }
         });
     }
