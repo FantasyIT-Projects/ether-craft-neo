@@ -32,6 +32,11 @@ public class NetworkClient {
                 SyncFilterActiveC2S.CODEC,
                 wrapWithPlayer(SyncFilterActiveC2SHandler::handle)
         );
+        event.playToServer(
+                SetBlockNameC2S.TYPE,
+                SetBlockNameC2S.CODEC,
+                wrapWithPlayer(SetBlockNameC2SHandler::handle)
+        );
     }
 
     private static <T extends CustomPacketPayload> IPayloadHandler<@NotNull T> wrapWithPlayer(BiConsumer<T, Player> t) {

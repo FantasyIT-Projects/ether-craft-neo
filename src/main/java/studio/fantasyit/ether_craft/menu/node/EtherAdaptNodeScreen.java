@@ -1,10 +1,12 @@
 package studio.fantasyit.ether_craft.menu.node;
 
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
@@ -13,6 +15,7 @@ import org.jetbrains.annotations.NotNull;
 import oshi.util.tuples.Pair;
 import studio.fantasyit.ether_craft.block.node.EtherAdaptNodeEntity;
 import studio.fantasyit.ether_craft.menu.node.widget.TabWidget;
+import studio.fantasyit.ether_craft.menu.base.widget.NamePencilButton;
 import studio.fantasyit.ether_craft.network.c2s.TriggerSwitchTabC2S;
 import studio.fantasyit.ether_craft.node.EtherAdaptNodeUpgradeTabManager;
 import studio.fantasyit.ether_craft.node.NodePluginManager;
@@ -52,6 +55,30 @@ public class EtherAdaptNodeScreen extends AbstractContainerScreen<@NotNull Ether
         updateTabs();
         if (tabProvider != null)
             tabProvider.tick();
+    }
+
+    @Override
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        boolean result = super.mouseClicked(event, doubleClick);
+        for (var child : children()) {
+            if (child instanceof EditBox editBox && editBox.isFocused()) {
+                double mx = event.x();
+                double my = event.y();
+                boolean onEdit = editBox.isMouseOver(mx, my);
+                boolean onPencil = false;
+                for (var c : children()) {
+                    if (c instanceof NamePencilButton p && p.isMouseOver(mx, my)) {
+                        onPencil = true;
+                        break;
+                    }
+                }
+                if (!onEdit && !onPencil) {
+                    this.setFocused(false);
+                }
+                break;
+            }
+        }
+        return result;
     }
 
     protected void updateTabs() {

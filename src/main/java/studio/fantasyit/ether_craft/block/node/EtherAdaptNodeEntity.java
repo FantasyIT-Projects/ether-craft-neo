@@ -1,5 +1,6 @@
 package studio.fantasyit.ether_craft.block.node;
 
+import com.mojang.serialization.Codec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -57,6 +58,7 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
     public final Map<Direction, InstalledPlugin> featureAttachedDirection = new HashMap<>();
     public final Map<InstalledPlugin, Map<Identifier, Integer>> syncedPluginData = new HashMap<>();
     public final QueuedTicket ticket = new QueuedTicket();
+    public String name = "";
 
 
     public EtherAdaptNodeEntity(BlockPos worldPosition, BlockState blockState) {
@@ -135,6 +137,7 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
     @Override
     protected void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
+        input.read("name", Codec.STRING).ifPresent(n -> name = n);
         functionStorage.loadAddition(input.childOrEmpty("functionStorage"));
         featureUpgradeStorage.loadAddition(input.childOrEmpty("featureUpgradeStorage"));
         normalStorage.deserialize(input.childOrEmpty("normalStorage"));
@@ -152,6 +155,7 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
     @Override
     protected void saveAdditional(ValueOutput output) {
         super.saveAdditional(output);
+        output.store("name", Codec.STRING, name);
         functionStorage.saveAddition(output.child("functionStorage"));
         featureUpgradeStorage.saveAddition(output.child("featureUpgradeStorage"));
         normalStorage.serialize(output.child("normalStorage"));

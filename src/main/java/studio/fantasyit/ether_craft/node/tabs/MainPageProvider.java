@@ -1,16 +1,23 @@
 package studio.fantasyit.ether_craft.node.tabs;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.inventory.Slot;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+import org.lwjgl.glfw.GLFW;
 import studio.fantasyit.ether_craft.menu.base.RangeLimitPlaceContainer;
 import studio.fantasyit.ether_craft.menu.base.slot.BaseSlot;
 import studio.fantasyit.ether_craft.menu.base.widget.IASwitchButton;
+import studio.fantasyit.ether_craft.menu.base.widget.NamePencilButton;
 import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeAsset;
 import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeScreen;
 import studio.fantasyit.ether_craft.menu.node.slot.RangeLimitFilterSlot;
+import studio.fantasyit.ether_craft.network.c2s.SetBlockNameC2S;
 import studio.fantasyit.ether_craft.network.c2s.SyncFilterActiveC2S;
 import studio.fantasyit.ether_craft.node.plugins.MainPageDummyPlugin;
 import studio.fantasyit.ether_craft.node.plugins.MainPageDummyPlugin.MainPageContext;
@@ -18,10 +25,14 @@ import studio.fantasyit.ether_craft.node.plugins.base.PluginMenuContext;
 import studio.fantasyit.ether_craft.util.UIUtil;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 public class MainPageProvider extends BaseEtherNodeTabWidgetProvider<MainPageDummyPlugin> {
 
     private IASwitchButton filterBtn;
+    private EditBox nameEdit;
+    private NamePencilButton namePencil;
+    private boolean wasFocused = false;
 
     public MainPageProvider(PluginMenuContext<MainPageDummyPlugin> context, EtherAdaptNodeScreen screen) {
         super(context, screen);
@@ -40,6 +51,27 @@ public class MainPageProvider extends BaseEtherNodeTabWidgetProvider<MainPageDum
 
     @Override
     public void createWidget() {
+        Consumer<Boolean> containerSetFocus = this.screen::setFocused;
+        nameEdit = new EditBox(Minecraft.getInstance().font, lx(5), ly(5), 80, 12,
+                Component.translatable("ether_craft.gui.name_placeholder")) {
+            @Override
+            public boolean keyPressed(KeyEvent event) {
+                if (event.key() == GLFW.GLFW_KEY_ENTER || event.key() == GLFW.GLFW_KEY_KP_ENTER) {
+                    containerSetFocus.accept(null);
+                    return true;
+                }
+                return super.keyPressed(event);
+            }
+        };
+        nameEdit.setMaxLength(32);
+        nameEdit.setBordered(false);
+        nameEdit.setValue(screen.getMenu().entity.name);
+        screen.addRenderableWidget(nameEdit);
+
+        namePencil = new NamePencilButton(lx(5 + 80 + 2), ly(5 + 2), nameEdit,
+                EtherAdaptNodeAsset.PENCIL_ON, EtherAdaptNodeAsset.PENCIL_OFF);
+        screen.addRenderableWidget(namePencil);
+
         if (!screen.getMenu().entity.nodeProperty.enableFilter) {
             ctx().filterSlots.forEach(s -> s.setActive(false));
             return;
@@ -110,6 +142,19 @@ public class MainPageProvider extends BaseEtherNodeTabWidgetProvider<MainPageDum
     @Override
     public void tick() {
         super.tick();
+        if (nameEdit != null) {
+            boolean focused = nameEdit.isFocused();
+            if (wasFocused && !focused) {
+                ClientPacketDistributor.sendToServer(new SetBlockNameC2S(
+                        screen.getMenu().entity.getBlockPos(), nameEdit.getValue()));
+            }
+            wasFocused = focused;
+            Font font = Minecraft.getInstance().font;
+            int textWidth = font.width(nameEdit.getValue());
+            int textEndX = nameEdit.getX() + textWidth + 2;
+            namePencil.setX(textEndX);
+            namePencil.setY(nameEdit.getY() + (nameEdit.getHeight() - namePencil.getHeight()) / 2);
+        }
         boolean active = plugin.isFilterActive();
         if (filterBtn != null) {
             filterBtn.setHidden(!screen.getMenu().entity.nodeProperty.enableFilter);

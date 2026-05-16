@@ -6,6 +6,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import studio.fantasyit.ether_craft.network.s2c.SyncBlockEtherValueS2C;
+import studio.fantasyit.ether_craft.network.s2c.SyncBlockNameS2C;
 import studio.fantasyit.ether_craft.network.s2c.SyncEtherAdaptNodeExtraS2C;
 
 import static studio.fantasyit.ether_craft.network.NetworkClient.clientMsg;
@@ -21,6 +22,11 @@ public class Network {
                 SyncEtherAdaptNodeExtraS2C.TYPE,
                 SyncEtherAdaptNodeExtraS2C.CODEC,
                 SyncEtherAdaptNodeExtraS2C::handle
+        );
+        event.playToClient(
+                SyncBlockNameS2C.TYPE,
+                SyncBlockNameS2C.CODEC,
+                SyncBlockNameS2C::handle
         );
     }
 

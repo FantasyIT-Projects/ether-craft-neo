@@ -3,6 +3,7 @@ package studio.fantasyit.ether_craft.menu.factory;
 import net.minecraft.resources.Identifier;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.menu.base.ImageAsset;
+import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeAsset;
 
 public class EtherProcessFactoryAsset {
     public static Identifier BACKGROUND = Identifier.fromNamespaceAndPath(EtherCraft.MODID, "textures/gui/ether_process_factory.png");
@@ -18,4 +19,7 @@ public class EtherProcessFactoryAsset {
     public static ImageAsset ARROW = ImageAsset.from4Point(BACKGROUND, 194, 16, 207, 25);
     public static ImageAsset BAR = ImageAsset.from4Point(BACKGROUND, 194, 26, 211, 29);
     public static ImageAsset FILTER = ImageAsset.from4Point(BACKGROUND, 208, 16, 215, 24);
+
+    public static final ImageAsset PENCIL_ON = EtherAdaptNodeAsset.PENCIL_ON;
+    public static final ImageAsset PENCIL_OFF = EtherAdaptNodeAsset.PENCIL_OFF;
 }

@@ -2,6 +2,9 @@ package studio.fantasyit.ether_craft.menu.factory;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.core.component.DataComponents;
@@ -12,11 +15,14 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector2i;
+import org.lwjgl.glfw.GLFW;
 import studio.fantasyit.ether_craft.block.factory.EtherProcessChipManager;
 import studio.fantasyit.ether_craft.block.factory.EtherProcessFactoryEntity;
 import studio.fantasyit.ether_craft.block.factory.FactoryLevelDef;
 import studio.fantasyit.ether_craft.menu.base.slot.BaseSlot;
 import studio.fantasyit.ether_craft.menu.base.widget.IASwitchButton;
+import studio.fantasyit.ether_craft.menu.base.widget.NamePencilButton;
+import studio.fantasyit.ether_craft.network.c2s.SetBlockNameC2S;
 import studio.fantasyit.ether_craft.network.c2s.SyncFilterActiveC2S;
 import studio.fantasyit.ether_craft.util.UIUtil;
 
@@ -29,6 +35,9 @@ public class EtherProcessFactoryScreen extends AbstractContainerScreen<@NotNull 
     FactoryLevelDef f;
     Rect2i etherShowArea;
     boolean isFiltering = false;
+    private EditBox nameEdit;
+    private NamePencilButton namePencil;
+    private boolean wasFocused = false;
 
     public EtherProcessFactoryScreen(EtherProcessFactoryContainerMenu menu, Inventory p_97742_, Component p_97743_) {
         super(menu, p_97742_, p_97743_, menu.entity.getLevelDef().guiSize().x, menu.entity.getLevelDef().guiSize().y);
@@ -40,6 +49,28 @@ public class EtherProcessFactoryScreen extends AbstractContainerScreen<@NotNull 
     @Override
     protected void init() {
         super.init();
+
+        int nameX = getLeftPos() + 5;
+        int nameY = getTopPos() + 5;
+        nameEdit = new EditBox(font, nameX, nameY, 80, 12,
+                Component.translatable("ether_craft.gui.name_placeholder")) {
+            @Override
+            public boolean keyPressed(KeyEvent event) {
+                if (event.key() == GLFW.GLFW_KEY_ENTER || event.key() == GLFW.GLFW_KEY_KP_ENTER) {
+                    setFocused(false);
+                    return true;
+                }
+                return super.keyPressed(event);
+            }
+        };
+        nameEdit.setMaxLength(32);
+        nameEdit.setBordered(false);
+        nameEdit.setValue(be.name);
+        addRenderableWidget(nameEdit);
+
+        namePencil = new NamePencilButton(nameX + 80 + 2, nameY + 2, nameEdit,
+                PENCIL_ON, PENCIL_OFF);
+        addRenderableWidget(namePencil);
 
         int rpx = getLeftPos() + f.panelRight().x;
         int rpy = getTopPos() + f.panelRight().y;
@@ -68,10 +99,33 @@ public class EtherProcessFactoryScreen extends AbstractContainerScreen<@NotNull 
     @Override
     protected void containerTick() {
         super.containerTick();
+        if (nameEdit != null) {
+            boolean focused = nameEdit.isFocused();
+            if (wasFocused && !focused) {
+                ClientPacketDistributor.sendToServer(new SetBlockNameC2S(
+                        be.getBlockPos(), nameEdit.getValue()));
+            }
+            wasFocused = focused;
+            int textWidth = font.width(nameEdit.getValue());
+            int textEndX = nameEdit.getX() + textWidth + 2;
+            namePencil.setX(textEndX);
+            namePencil.setY(nameEdit.getY() + (nameEdit.getHeight() - namePencil.getHeight()) / 2);
+        }
         boolean serverState = menu.isFilterActive();
         if (isFiltering != serverState) {
             setUsingFilter(serverState);
         }
+    }
+
+    @Override
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        boolean result = super.mouseClicked(event, doubleClick);
+        if (nameEdit != null && nameEdit.isFocused()) {
+            if (!nameEdit.isMouseOver(event.x(), event.y()) && !namePencil.isMouseOver(event.x(), event.y())) {
+                this.setFocused(null);
+            }
+        }
+        return result;
     }
 
     @Override

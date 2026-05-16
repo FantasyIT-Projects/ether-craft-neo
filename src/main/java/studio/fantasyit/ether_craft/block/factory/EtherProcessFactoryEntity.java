@@ -51,6 +51,7 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
     public int pressureBonus = 1;
     public int leak = 0;
     boolean markUpdate = false;
+    public String name = "";
 
     public static int[] getSlots(BlockState state) {
         FactoryLevelDef d = FactoryLevelDef.getByLevel(state.getValue(EtherProcessFactoryBlock.LEVEL));
@@ -251,6 +252,7 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
 
     @Override
     protected void loadAdditional(ValueInput input) {
+        input.read("name", Codec.STRING).ifPresent(n -> name = n);
         input.read("progress", Codec.INT.listOf()).ifPresent(l -> {
             for (int i = 0; i < l.size(); i++)
                 processingProgress[i] = l.get(i);
@@ -260,6 +262,7 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
 
     @Override
     protected void saveAdditional(ValueOutput output) {
+        output.store("name", Codec.STRING, name);
         output.store("progress", Codec.INT.listOf(), Arrays.stream(processingProgress).boxed().toList());
         super.saveAdditional(output);
     }
