@@ -75,8 +75,8 @@ public class EtherProcessFactoryScreen extends AbstractContainerScreen<@NotNull 
         int rpx = getLeftPos() + f.panelRight().x;
         int rpy = getTopPos() + f.panelRight().y;
         if (f.showPanel()) {
-            rpx += 4;
-            rpy += 7;
+            rpx += 5;
+            rpy += 6;
         }
         IASwitchButton iaSwitchButton = addRenderableWidget(new IASwitchButton(
                 rpx, rpy,
