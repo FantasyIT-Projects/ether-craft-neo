@@ -15,6 +15,7 @@ import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.block.base.ItemFilter;
 import studio.fantasyit.ether_craft.block.node.EtherAdaptNodeEntity;
+import studio.fantasyit.ether_craft.menu.base.IFilterSwitchable;
 import studio.fantasyit.ether_craft.menu.node.slot.OversizedEtherSlot;
 import studio.fantasyit.ether_craft.menu.base.slot.BaseDataSlot;
 import studio.fantasyit.ether_craft.menu.base.slot.BaseSlot;
@@ -31,9 +32,10 @@ import studio.fantasyit.ether_craft.recipe.node.NodeProcessRecipe;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FunctionNodeProcess extends AbstractNodePlugin {
+public class FunctionNodeProcess extends AbstractNodePlugin implements IFilterSwitchable {
     public static final Identifier ID = EtherCraft.id("node_process");
     public static final String FILTER_PREFIX = "node_process/";
+    private boolean filterActive = false;
 
     public ItemFilter targetItemFilter;
     public ItemFilter inputItemFilter;
@@ -268,5 +270,15 @@ public class FunctionNodeProcess extends AbstractNodePlugin {
             super(menu, plugin);
             plugin.registerSlotsWithContext(menu, this);
         }
+    }
+
+    @Override
+    public boolean isFilterActive() {
+        return filterActive;
+    }
+
+    @Override
+    public void setFilterActive(boolean active) {
+        this.filterActive = active;
     }
 }

@@ -27,6 +27,11 @@ public class NetworkClient {
                 SyncScreenDataC2S.CODEC,
                 wrapWithPlayer(SyncScreenDataC2SHandler::handle)
         );
+        event.playToServer(
+                SyncFilterActiveC2S.TYPE,
+                SyncFilterActiveC2S.CODEC,
+                wrapWithPlayer(SyncFilterActiveC2SHandler::handle)
+        );
     }
 
     private static <T extends CustomPacketPayload> IPayloadHandler<@NotNull T> wrapWithPlayer(BiConsumer<T, Player> t) {

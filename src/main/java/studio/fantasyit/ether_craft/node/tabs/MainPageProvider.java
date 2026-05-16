@@ -4,12 +4,14 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.inventory.Slot;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import studio.fantasyit.ether_craft.menu.base.RangeLimitPlaceContainer;
 import studio.fantasyit.ether_craft.menu.base.slot.BaseSlot;
 import studio.fantasyit.ether_craft.menu.base.widget.IASwitchButton;
 import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeAsset;
 import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeScreen;
 import studio.fantasyit.ether_craft.menu.node.slot.RangeLimitFilterSlot;
+import studio.fantasyit.ether_craft.network.c2s.SyncFilterActiveC2S;
 import studio.fantasyit.ether_craft.node.plugins.MainPageDummyPlugin;
 import studio.fantasyit.ether_craft.node.plugins.MainPageDummyPlugin.MainPageContext;
 import studio.fantasyit.ether_craft.node.plugins.base.PluginMenuContext;
@@ -57,11 +59,12 @@ public class MainPageProvider extends BaseEtherNodeTabWidgetProvider<MainPageDum
                     ctx().mainSlots.forEach(s -> {
                         if (s instanceof BaseSlot bs) bs.setActive(!activate);
                     });
+                    ClientPacketDistributor.sendToServer(new SyncFilterActiveC2S(activate));
                     return true;
                 }
         ));
         filterBtn.setHidden(true);
-        filterBtn.setDown(false);
+        filterBtn.setDown(plugin.isFilterActive());
     }
 
     @Override
@@ -107,8 +110,15 @@ public class MainPageProvider extends BaseEtherNodeTabWidgetProvider<MainPageDum
     @Override
     public void tick() {
         super.tick();
-        if (filterBtn != null)
+        boolean active = plugin.isFilterActive();
+        if (filterBtn != null) {
             filterBtn.setHidden(!screen.getMenu().entity.nodeProperty.enableFilter);
+            filterBtn.setDown(active);
+        }
+        ctx().filterSlots.forEach(s -> s.setActive(active));
+        ctx().mainSlots.forEach(s -> {
+            if (s instanceof BaseSlot bs) bs.setActive(!active);
+        });
         if (ctx().mainSlots != null)
             for (RangeLimitFilterSlot s : ctx().mainSlots) {
                 s.setEnableFilter(screen.getMenu().entity.nodeProperty.enableFilter);

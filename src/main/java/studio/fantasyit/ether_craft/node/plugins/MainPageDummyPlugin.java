@@ -7,6 +7,7 @@ import net.minecraft.world.level.storage.ValueOutput;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.block.base.ItemFilter;
 import studio.fantasyit.ether_craft.block.node.EtherAdaptNodeEntity;
+import studio.fantasyit.ether_craft.menu.base.IFilterSwitchable;
 import studio.fantasyit.ether_craft.menu.base.RangeLimitPlaceContainer;
 import studio.fantasyit.ether_craft.menu.base.slot.BaseDataSlot;
 import studio.fantasyit.ether_craft.menu.base.slot.FilterSlot;
@@ -21,8 +22,9 @@ import studio.fantasyit.ether_craft.node.plugins.base.PluginMenuContext;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainPageDummyPlugin extends AbstractNodePlugin {
+public class MainPageDummyPlugin extends AbstractNodePlugin implements IFilterSwitchable {
     public static final Identifier ID = EtherCraft.id("main_page_dummy");
+    private boolean filterActive = false;
 
     public MainPageDummyPlugin(EtherAdaptNodeEntity nodeEntity, InstalledPlugin installedId) {
         super(nodeEntity, installedId);
@@ -101,5 +103,15 @@ public class MainPageDummyPlugin extends AbstractNodePlugin {
             super(menu, plugin);
             plugin.registerSlotsWithContext(menu, this);
         }
+    }
+
+    @Override
+    public boolean isFilterActive() {
+        return filterActive;
+    }
+
+    @Override
+    public void setFilterActive(boolean active) {
+        this.filterActive = active;
     }
 }

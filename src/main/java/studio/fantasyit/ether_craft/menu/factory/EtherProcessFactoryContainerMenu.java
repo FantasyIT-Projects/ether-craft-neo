@@ -8,6 +8,7 @@ import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector2i;
 import studio.fantasyit.ether_craft.block.base.ItemFilter;
+import studio.fantasyit.ether_craft.menu.base.IFilterSwitchable;
 import studio.fantasyit.ether_craft.block.factory.EtherProcessFactoryEntity;
 import studio.fantasyit.ether_craft.block.factory.FactoryLevelDef;
 import studio.fantasyit.ether_craft.menu.base.*;
@@ -29,13 +30,14 @@ import static studio.fantasyit.ether_craft.register.GuiRegistry.ETHER_PROCESS_FA
 import static studio.fantasyit.ether_craft.register.ItemRegistry.ETHER;
 import static studio.fantasyit.ether_craft.register.ItemRegistry.ETHER_CREATIVE;
 
-public class EtherProcessFactoryContainerMenu extends BaseContainerMenu<@NotNull EtherProcessFactoryEntity> {
+public class EtherProcessFactoryContainerMenu extends BaseContainerMenu<@NotNull EtherProcessFactoryEntity> implements IFilterSwitchable {
     public Map<Integer, Vector2i> internalSlotMapping;
     public List<Slot> mainUiSlots;
     public List<BaseSlot> internalAndOutputSlots;
     public List<FilterSlot> filterSlots;
     public Slot etherSlot;
     public int machineSlotEnd;
+    private boolean filterActive = false;
 
     public EtherProcessFactoryContainerMenu(int windowId, Player player, BlockPos pos) {
         super(windowId, player, pos, ETHER_PROCESS_FACTORY_CONTAINER.get());
@@ -87,6 +89,7 @@ public class EtherProcessFactoryContainerMenu extends BaseContainerMenu<@NotNull
 
         addDataSlot(new BaseDataSlot(() -> entity.pressureBonus, (v) -> entity.pressureBonus = v));
         addDataSlot(new BaseDataSlot(() -> entity.leak, (v) -> entity.leak = v));
+        addDataSlot(new BaseDataSlot(() -> isFilterActive() ? 1 : 0, (v) -> setFilterActive(v == 1)));
         for (int i = 0; i < outputSlots; i++) {
             addSlot(new InvisibleSlot(entity.possibleResults, i, 0, 0));
         }
@@ -133,7 +136,7 @@ public class EtherProcessFactoryContainerMenu extends BaseContainerMenu<@NotNull
                 if (!stack.isEmpty()) {
                     this.moveItemStackTo(stack, 0, inputSlots, false);
                 }
-                if (!stack.isEmpty() && !filterSlots.isEmpty()) {
+                if (!stack.isEmpty() && !filterSlots.isEmpty() && isFilterActive()) {
                     this.moveItemStackTo(stack, filterSlots.getFirst().index, filterSlots.getFirst().index + filterSlots.size(), false);
                 }
             }
@@ -151,5 +154,15 @@ public class EtherProcessFactoryContainerMenu extends BaseContainerMenu<@NotNull
             slot.onTake(player, stack);
         }
         return itemstack;
+    }
+
+    @Override
+    public boolean isFilterActive() {
+        return filterActive;
+    }
+
+    @Override
+    public void setFilterActive(boolean active) {
+        this.filterActive = active;
     }
 }

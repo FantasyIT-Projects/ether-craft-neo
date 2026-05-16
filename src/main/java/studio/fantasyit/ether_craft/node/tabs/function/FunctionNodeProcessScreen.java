@@ -12,6 +12,7 @@ import studio.fantasyit.ether_craft.menu.base.widget.IASwitchButton;
 import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeAsset;
 import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeScreen;
 import studio.fantasyit.ether_craft.network.c2s.SetFilterSlotC2S;
+import studio.fantasyit.ether_craft.network.c2s.SyncFilterActiveC2S;
 import studio.fantasyit.ether_craft.node.filter.FilterGuiRegClient;
 import studio.fantasyit.ether_craft.node.plugins.base.PluginMenuContext;
 import studio.fantasyit.ether_craft.node.plugins.function.FunctionNodeProcess;
@@ -66,6 +67,7 @@ public class FunctionNodeProcessScreen extends BaseEtherNodeTabWidgetProvider<Fu
                 (a) -> {
                     ctx().filterSlots.forEach(t -> t.setActive(a));
                     ctx().inputSlots.forEach(t -> t.setActive(!a));
+                    ClientPacketDistributor.sendToServer(new SyncFilterActiveC2S(a));
                     return true;
                 }
         ));
@@ -92,5 +94,13 @@ public class FunctionNodeProcessScreen extends BaseEtherNodeTabWidgetProvider<Fu
                 ClientPacketDistributor.sendToServer(new SetFilterSlotC2S(ctx().targetFilterIdx, 0, carried));
             }
         });
+    }
+
+    @Override
+    public void tick() {
+        super.tick();
+        boolean active = plugin.isFilterActive();
+        ctx().filterSlots.forEach(t -> t.setActive(active));
+        ctx().inputSlots.forEach(t -> t.setActive(!active));
     }
 }

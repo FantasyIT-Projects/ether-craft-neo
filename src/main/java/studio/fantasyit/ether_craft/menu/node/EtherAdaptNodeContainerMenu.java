@@ -15,6 +15,7 @@ import studio.fantasyit.ether_craft.block.node.EtherAdaptNodeEntity;
 import studio.fantasyit.ether_craft.block.node.EtherSlotSyncContainer;
 import studio.fantasyit.ether_craft.menu.base.BaseContainerMenu;
 import studio.fantasyit.ether_craft.menu.base.BaseMenu;
+import studio.fantasyit.ether_craft.menu.base.IFilterSwitchable;
 import studio.fantasyit.ether_craft.menu.base.slot.BaseDataSlot;
 import studio.fantasyit.ether_craft.menu.base.slot.FilterSlot;
 import studio.fantasyit.ether_craft.menu.factory.slot.SingleStackSlot;
@@ -32,7 +33,7 @@ import java.util.List;
 
 import static studio.fantasyit.ether_craft.register.GuiRegistry.ETHER_ADAPT_NODE_CONTAINER;
 
-public class EtherAdaptNodeContainerMenu extends BaseMenu<EtherAdaptNodeEntity> implements ISyncTargetMenu {
+public class EtherAdaptNodeContainerMenu extends BaseMenu<EtherAdaptNodeEntity> implements ISyncTargetMenu, IFilterSwitchable {
     public final Player player;
     public final AbstractNodePlugin plugin;
     public final InstalledPlugin installedPlugin;
@@ -60,6 +61,8 @@ public class EtherAdaptNodeContainerMenu extends BaseMenu<EtherAdaptNodeEntity> 
                 }
             } else {
                 boolean isEtherItem = stack.is(ItemRegistry.ETHER) || stack.is(ItemRegistry.ETHER_CREATIVE);
+                boolean hasToggle = plugin instanceof IFilterSwitchable;
+                boolean skipNormalSlots = hasToggle && isFilterActive();
                 for (int i = 0; i < machineSlotStart && !stack.isEmpty(); i++) {
                     Slot target = this.slots.get(i);
                     if (target instanceof SingleStackSlot) continue;
@@ -69,9 +72,9 @@ public class EtherAdaptNodeContainerMenu extends BaseMenu<EtherAdaptNodeEntity> 
                         }
                     } else {
                         if (target instanceof OversizedEtherSlot) continue;
-                        if (target instanceof FilterSlot fs && !fs.hasItem())
+                        if (target instanceof FilterSlot fs && isFilterActive() && !fs.hasItem())
                             fs.set(stack.copyWithCount(1));
-                        else if (target.mayPlace(stack) && (target.isActive() || !player.level().isClientSide()))
+                        else if (target.mayPlace(stack) && !skipNormalSlots && target.isActive())
                             this.moveItemStackTo(stack, i, i + 1, false);
                     }
                 }
@@ -116,6 +119,10 @@ public class EtherAdaptNodeContainerMenu extends BaseMenu<EtherAdaptNodeEntity> 
         addDataSlot(new BaseDataSlot(
                 () -> entity.nodeProperty.enableFilter ? 1 : 0,
                 val -> entity.nodeProperty.enableFilter = (val == 1)
+        ));
+        addDataSlot(new BaseDataSlot(
+                () -> isFilterActive() ? 1 : 0,
+                val -> setFilterActive(val == 1)
         ));
         entity.syncClient();
     }
@@ -176,5 +183,16 @@ public class EtherAdaptNodeContainerMenu extends BaseMenu<EtherAdaptNodeEntity> 
         for (int i = 0; i < entity.featureUpgradeStorage.getContainerSize(); i++)
             if (entity.featureUpgradeStorage.hasPlugin(i))
                 entity.featureUpgradeStorage.getPlugin(i).syncScreenData(message);
+    }
+
+    @Override
+    public boolean isFilterActive() {
+        if (plugin instanceof IFilterSwitchable s) return s.isFilterActive();
+        return true;
+    }
+
+    @Override
+    public void setFilterActive(boolean active) {
+        if (plugin instanceof IFilterSwitchable s) s.setFilterActive(active);
     }
 }

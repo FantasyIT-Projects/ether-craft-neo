@@ -9,6 +9,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector2i;
 import studio.fantasyit.ether_craft.block.factory.EtherProcessChipManager;
@@ -16,6 +17,7 @@ import studio.fantasyit.ether_craft.block.factory.EtherProcessFactoryEntity;
 import studio.fantasyit.ether_craft.block.factory.FactoryLevelDef;
 import studio.fantasyit.ether_craft.menu.base.slot.BaseSlot;
 import studio.fantasyit.ether_craft.menu.base.widget.IASwitchButton;
+import studio.fantasyit.ether_craft.network.c2s.SyncFilterActiveC2S;
 import studio.fantasyit.ether_craft.util.UIUtil;
 
 import java.util.List;
@@ -53,12 +55,23 @@ public class EtherProcessFactoryScreen extends AbstractContainerScreen<@NotNull 
                 Component.translatable("menu.ether_craft.factory.filter"),
                 Component.translatable("menu.ether_craft.factory.filter"),
                 f -> {
-                    setUsingFilter(!f);
+                    boolean newState = !f;
+                    setUsingFilter(newState);
+                    ClientPacketDistributor.sendToServer(new SyncFilterActiveC2S(newState));
                     return true;
                 }
         ));
-        iaSwitchButton.setDown(false);
-        setUsingFilter(false);
+        iaSwitchButton.setDown(menu.isFilterActive());
+        setUsingFilter(menu.isFilterActive());
+    }
+
+    @Override
+    protected void containerTick() {
+        super.containerTick();
+        boolean serverState = menu.isFilterActive();
+        if (isFiltering != serverState) {
+            setUsingFilter(serverState);
+        }
     }
 
     @Override
