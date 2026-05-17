@@ -18,6 +18,8 @@ import studio.fantasyit.ether_craft.node.plugins.feature.FeatureEtherStreamEmitt
 import studio.fantasyit.ether_craft.node.plugins.function.FunctionFurnaceGenerator;
 import studio.fantasyit.ether_craft.node.plugins.function.FunctionMagnet;
 import studio.fantasyit.ether_craft.node.plugins.function.FunctionNodeProcess;
+import studio.fantasyit.ether_craft.node.plugins.function.FunctionEquipmentConsumeGenerator;
+import studio.fantasyit.ether_craft.node.plugins.function.FunctionEquipmentConsumeGenerator;
 import studio.fantasyit.ether_craft.node.plugins.function.FunctionStoneGenerator;
 import studio.fantasyit.ether_craft.node.plugins.upgrade.EtherFilterUpgrade;
 import studio.fantasyit.ether_craft.node.plugins.upgrade.EtherStreamBreakBlockUpgrade;
@@ -81,6 +83,7 @@ public class NodePluginManager {
         registerPlugin(PluginType.FUNCTION, FunctionStoneGenerator.ID, FunctionStoneGenerator::new, Items.STONECUTTER);
         registerPlugin(PluginType.FUNCTION, FunctionMagnet.ID, FunctionMagnet::new, Items.IRON_BLOCK);
         registerPlugin(PluginType.FUNCTION, FunctionNodeProcess.ID, FunctionNodeProcess::new, Items.GRINDSTONE);
+        registerPlugin(PluginType.FUNCTION, FunctionEquipmentConsumeGenerator.ID, FunctionEquipmentConsumeGenerator::new, Items.ANVIL);
         registerPlugin(PluginType.FEATURE, FeatureEtherStreamEmitter.ID, FeatureEtherStreamEmitter::new, Items.DISPENSER);
         registerPlugin(PluginType.FEATURE, FeatureDropperThrower.ID, FeatureDropperThrower::new, Items.DROPPER);
         registerPlugin(PluginType.FEATURE, FeatureContainerInteract.ID, FeatureContainerInteract::new, Items.HOPPER);

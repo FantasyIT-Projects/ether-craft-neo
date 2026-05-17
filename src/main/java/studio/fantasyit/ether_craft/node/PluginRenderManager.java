@@ -14,6 +14,7 @@ import studio.fantasyit.ether_craft.node.plugins.feature.FeatureEtherStreamEmitt
 import studio.fantasyit.ether_craft.node.plugins.function.AbstractItemConsumeFunction;
 import studio.fantasyit.ether_craft.node.plugins.function.FunctionFurnaceGenerator;
 import studio.fantasyit.ether_craft.node.plugins.function.FunctionMagnet;
+import studio.fantasyit.ether_craft.node.plugins.function.FunctionEquipmentConsumeGenerator;
 import studio.fantasyit.ether_craft.node.plugins.function.FunctionStoneGenerator;
 
 import java.util.HashMap;
@@ -54,6 +55,7 @@ public class PluginRenderManager {
         };
         register(FunctionFurnaceGenerator.ID, generatorLayer);
         register(FunctionStoneGenerator.ID, generatorLayer);
+        register(FunctionEquipmentConsumeGenerator.ID, generatorLayer);
         register(FeatureContainerInteract.ID, (face, dTick, nodeEntity, state, installedPlugin) ->
                 state.setSideAtlas(face, switch (face) {
                     case UP -> EtherAdapterNodeAtlas.FEATURE_CONTAINER_INT_TOP;

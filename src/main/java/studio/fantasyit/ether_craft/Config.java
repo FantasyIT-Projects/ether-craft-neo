@@ -61,6 +61,9 @@ public class Config {
     private static final ModConfigSpec.IntValue DAMAGE_CONSTANT_COST = BUILDER
             .comment("Constant ether cost added per damage instance on top of the formula")
             .defineInRange("damage.constant_cost", 0, 0, Integer.MAX_VALUE);
+    private static final ModConfigSpec.IntValue EQUIPMENT_ETHER_COEFFICIENT = BUILDER
+            .comment("Coefficient for ether generation from equipment consumption")
+            .defineInRange("equipment_generator.ether_coefficient", 10, 1, 10000);
     static final ModConfigSpec SPEC = BUILDER.build();
 
     public static int etherConvert;
@@ -76,6 +79,7 @@ public class Config {
     public static int emitterMinEtherMax;
     public static int breakBlockConstantCost;
     public static int damageConstantCost;
+    public static int equipmentEtherCoefficient;
 
     @SubscribeEvent
     static void onLoad(final ModConfigEvent event) {
@@ -92,5 +96,6 @@ public class Config {
         damageEtherMultiplier = DAMAGE_ETHER_MULTIPLIER.get();
         breakBlockConstantCost = BREAK_BLOCK_CONSTANT_COST.get();
         damageConstantCost = DAMAGE_CONSTANT_COST.get();
+        equipmentEtherCoefficient = EQUIPMENT_ETHER_COEFFICIENT.get();
     }
 }
