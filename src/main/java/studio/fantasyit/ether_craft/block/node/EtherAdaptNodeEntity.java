@@ -227,14 +227,17 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
         if (index - 1 >= nodeProperty.slotUnlock)
             return 0;
 
+        int earlyCosted = 0;
         for (AbstractNodePlugin plugin : getPlugins()) {
-            amount -= plugin.earlyHandleInput(resource, amount, transaction);
+            earlyCosted += plugin.earlyHandleInput(resource, amount - earlyCosted, transaction);
+            if (earlyCosted >= amount)
+                return earlyCosted;
         }
         for (AbstractNodePlugin plugin : getPlugins()) {
             if (!plugin.inputFilter(resource))
-                return 0;
+                return earlyCosted;
         }
-        return normalHandler.insert(index - 1, resource, amount, transaction);
+        return normalHandler.insert(index - 1, resource, amount - earlyCosted, transaction) + earlyCosted;
     }
 
     @Override

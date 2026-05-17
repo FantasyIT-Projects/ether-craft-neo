@@ -151,4 +151,12 @@ public class EtherAdaptNodeScreen extends AbstractContainerScreen<@NotNull Ether
     @Override
     protected void extractLabels(GuiGraphicsExtractor graphics, int xm, int ym) {
     }
+
+    @Override
+    public boolean mouseScrolled(double x, double y, double scrollX, double scrollY) {
+        for(var child : children())
+            if(child.mouseScrolled(x, y, scrollX, scrollY))
+                return true;
+        return super.mouseScrolled(x, y, scrollX, scrollY);
+    }
 }

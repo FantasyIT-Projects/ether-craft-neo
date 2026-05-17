@@ -2,9 +2,11 @@ package studio.fantasyit.ether_craft.node.plugins.function;
 
 import com.mojang.serialization.Codec;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.EtherCraft;
@@ -49,6 +51,12 @@ public class FunctionEtherConverter extends AbstractNodePlugin {
             if (remainWorkTicks <= 0)
                 nodeEntity.setSyncedPluginData(installedId, STATE, 0);
         }
+        try (Transaction t = Transaction.openRoot()) {
+            ItemStack itemStack = nodeEntity.extractWithPredicate(r -> true, t, 64);
+            t.commit();
+
+        }
+
     }
 
     @Override

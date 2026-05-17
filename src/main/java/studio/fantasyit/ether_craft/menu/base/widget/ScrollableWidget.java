@@ -69,6 +69,7 @@ public class ScrollableWidget extends AbstractWidget {
     @Override
     public boolean mouseScrolled(double x, double y, double scrollX, double scrollY) {
         this.value = Math.clamp(this.value - (scrollY > 0 ? 1 : -1), 0, maxValue);
+        this.onValueChange.accept(value);
         return true;
     }
 
