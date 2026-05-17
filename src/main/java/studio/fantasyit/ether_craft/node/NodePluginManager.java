@@ -71,28 +71,33 @@ public class NodePluginManager {
     public static NodePluginManager Instance = new NodePluginManager();
     public List<PluginInfo> plugins;
 
+    public static final List<PluginInfo> ALL_PLUGINS = new ArrayList<>();
+
+    static {
+        ALL_PLUGINS.add(MAIN_PAGE_INFO);
+        ALL_PLUGINS.add(new PluginInfo(PluginType.FUNCTION, FunctionFurnaceGenerator.ID, FunctionFurnaceGenerator::new, t -> t.is(Items.FURNACE), Items.FURNACE));
+        ALL_PLUGINS.add(new PluginInfo(PluginType.FUNCTION, FunctionStoneGenerator.ID, FunctionStoneGenerator::new, t -> t.is(Items.STONECUTTER), Items.STONECUTTER));
+        ALL_PLUGINS.add(new PluginInfo(PluginType.FUNCTION, FunctionMagnet.ID, FunctionMagnet::new, t -> t.is(Items.IRON_BLOCK), Items.IRON_BLOCK));
+        ALL_PLUGINS.add(new PluginInfo(PluginType.FUNCTION, FunctionNodeProcess.ID, FunctionNodeProcess::new, t -> t.is(Items.GRINDSTONE), Items.GRINDSTONE));
+        ALL_PLUGINS.add(new PluginInfo(PluginType.FUNCTION, FunctionEquipmentConsumeGenerator.ID, FunctionEquipmentConsumeGenerator::new, t -> t.is(Items.ANVIL), Items.ANVIL));
+        ALL_PLUGINS.add(new PluginInfo(PluginType.FEATURE, FeatureEtherStreamEmitter.ID, FeatureEtherStreamEmitter::new, t -> t.is(Items.DISPENSER), Items.DISPENSER));
+        ALL_PLUGINS.add(new PluginInfo(PluginType.FEATURE, FeatureDropperThrower.ID, FeatureDropperThrower::new, t -> t.is(Items.DROPPER), Items.DROPPER));
+        ALL_PLUGINS.add(new PluginInfo(PluginType.FEATURE, FeatureContainerInteract.ID, FeatureContainerInteract::new, t -> t.is(Items.HOPPER), Items.HOPPER));
+        ALL_PLUGINS.add(new PluginInfo(PluginType.UPGRADE, StorageUpgrade.ID, StorageUpgrade::new, t -> t.is(Items.CHEST), Items.CHEST));
+        ALL_PLUGINS.add(new PluginInfo(PluginType.UPGRADE, EtherStreamStorageUpgrade.ID, EtherStreamStorageUpgrade::new, t -> t.is(Items.CHEST_MINECART), Items.CHEST_MINECART));
+        ALL_PLUGINS.add(new PluginInfo(PluginType.UPGRADE, EtherStreamPreventDecayUpgrade.ID, EtherStreamPreventDecayUpgrade::new, t -> t.is(Items.REPEATER), Items.REPEATER));
+        ALL_PLUGINS.add(new PluginInfo(PluginType.UPGRADE, EtherStreamBreakBlockUpgrade.ID, EtherStreamBreakBlockUpgrade::new, t -> t.is(Items.IRON_PICKAXE), Items.IRON_PICKAXE));
+        ALL_PLUGINS.add(new PluginInfo(PluginType.UPGRADE, EtherStreamDamageUpgrade.ID, EtherStreamDamageUpgrade::new, stack -> stack.has(DataComponents.WEAPON), Items.IRON_SWORD));
+        ALL_PLUGINS.add(new PluginInfo(PluginType.UPGRADE, EtherFilterUpgrade.ID, EtherFilterUpgrade::new, t -> t.is(Items.PAPER), Items.PAPER));
+    }
+
     public NodePluginManager() {
         plugins = new ArrayList<>();
     }
 
     public void collect() {
         plugins.clear();
-        plugins.add(MAIN_PAGE_INFO);
-        //TODO
-        registerPlugin(PluginType.FUNCTION, FunctionFurnaceGenerator.ID, FunctionFurnaceGenerator::new, Items.FURNACE);
-        registerPlugin(PluginType.FUNCTION, FunctionStoneGenerator.ID, FunctionStoneGenerator::new, Items.STONECUTTER);
-        registerPlugin(PluginType.FUNCTION, FunctionMagnet.ID, FunctionMagnet::new, Items.IRON_BLOCK);
-        registerPlugin(PluginType.FUNCTION, FunctionNodeProcess.ID, FunctionNodeProcess::new, Items.GRINDSTONE);
-        registerPlugin(PluginType.FUNCTION, FunctionEquipmentConsumeGenerator.ID, FunctionEquipmentConsumeGenerator::new, Items.ANVIL);
-        registerPlugin(PluginType.FEATURE, FeatureEtherStreamEmitter.ID, FeatureEtherStreamEmitter::new, Items.DISPENSER);
-        registerPlugin(PluginType.FEATURE, FeatureDropperThrower.ID, FeatureDropperThrower::new, Items.DROPPER);
-        registerPlugin(PluginType.FEATURE, FeatureContainerInteract.ID, FeatureContainerInteract::new, Items.HOPPER);
-        registerPlugin(PluginType.UPGRADE, StorageUpgrade.ID,StorageUpgrade::new, Items.CHEST);
-        registerPlugin(PluginType.UPGRADE, EtherStreamStorageUpgrade.ID, EtherStreamStorageUpgrade::new, Items.CHEST_MINECART);
-        registerPlugin(PluginType.UPGRADE, EtherStreamPreventDecayUpgrade.ID, EtherStreamPreventDecayUpgrade::new, Items.REPEATER);
-        registerPlugin(PluginType.UPGRADE, EtherStreamBreakBlockUpgrade.ID, EtherStreamBreakBlockUpgrade::new, Items.IRON_PICKAXE);
-        registerPlugin(PluginType.UPGRADE, EtherStreamDamageUpgrade.ID, EtherStreamDamageUpgrade::new, stack -> stack.has(DataComponents.WEAPON), Items.IRON_SWORD);
-        registerPlugin(PluginType.UPGRADE, EtherFilterUpgrade.ID, EtherFilterUpgrade::new, Items.PAPER);
+        plugins.addAll(ALL_PLUGINS);
     }
 
     public boolean matches(Predicate<NodePluginManager.PluginType> type, ItemStack itemStack, @Nullable Identifier identifier) {

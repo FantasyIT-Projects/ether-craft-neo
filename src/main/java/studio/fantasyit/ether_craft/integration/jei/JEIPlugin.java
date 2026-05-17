@@ -12,6 +12,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.event.ClientRecipeSyncEvent;
+import studio.fantasyit.ether_craft.node.NodePluginManager;
 import studio.fantasyit.ether_craft.recipe.factory.EtherProcessFactoryRecipe;
 import studio.fantasyit.ether_craft.register.ItemRegistry;
 import studio.fantasyit.ether_craft.register.RecipeTypeRegistry;
@@ -23,6 +24,8 @@ import java.util.List;
 public class JEIPlugin implements IModPlugin {
     public static final IRecipeType<EtherProcessFactoryRecipe> ETHER_PROCESS_TYPE =
             IRecipeType.create(EtherCraft.MODID, "ether_process", EtherProcessFactoryRecipe.class);
+    public static final IRecipeType<NodePluginInfoRecipe> NODE_PLUGIN_INFO_TYPE =
+            IRecipeType.create(EtherCraft.MODID, "node_plugin_info", NodePluginInfoRecipe.class);
 
     @Override
     public Identifier getPluginUid() {
@@ -31,7 +34,11 @@ public class JEIPlugin implements IModPlugin {
 
     @Override
     public void registerCategories(IRecipeCategoryRegistration registration) {
-        registration.addRecipeCategories(new EtherProcessCategory(registration.getJeiHelpers().getGuiHelper()));
+        var guiHelper = registration.getJeiHelpers().getGuiHelper();
+        registration.addRecipeCategories(
+                new EtherProcessCategory(guiHelper),
+                new NodePluginInfoCategory(guiHelper)
+        );
     }
 
     @Override
@@ -40,6 +47,17 @@ public class JEIPlugin implements IModPlugin {
         if (!recipes.isEmpty()) {
             registration.addRecipes(ETHER_PROCESS_TYPE, recipes);
         }
+        registerNodePluginInfo(registration);
+    }
+
+    private void registerNodePluginInfo(IRecipeRegistration registration) {
+        List<NodePluginInfoRecipe> recipes = new ArrayList<>();
+        for (var info : NodePluginManager.ALL_PLUGINS) {
+            if (info.type() == NodePluginManager.PluginType.DUMMY)
+                continue;
+            recipes.add(NodePluginInfoRecipe.fromPluginInfo(info));
+        }
+        registration.addRecipes(NODE_PLUGIN_INFO_TYPE, recipes);
     }
 
     private static List<EtherProcessFactoryRecipe> getRecipes() {
@@ -75,6 +93,11 @@ public class JEIPlugin implements IModPlugin {
                 new ItemStack(ItemRegistry.ETHER_PROCESS_FACTORY_ITEM_LV_2.get()),
                 new ItemStack(ItemRegistry.ETHER_PROCESS_FACTORY_ITEM_LV_3.get()),
                 new ItemStack(ItemRegistry.ETHER_PROCESS_FACTORY_ITEM_LV_4.get())
+        );
+        registration.addCraftingStation(NODE_PLUGIN_INFO_TYPE,
+                new ItemStack(ItemRegistry.ETHER_ADAPT_NODE_ITEM_LV_1.get()),
+                new ItemStack(ItemRegistry.ETHER_ADAPT_NODE_ITEM_LV_2.get()),
+                new ItemStack(ItemRegistry.ETHER_ADAPT_NODE_ITEM_LV_3.get())
         );
     }
 }

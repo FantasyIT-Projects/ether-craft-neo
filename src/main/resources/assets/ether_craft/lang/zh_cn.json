@@ -75,5 +75,25 @@
   "tooltip.ether_craft.welding_chip": "焊接芯片",
   "tooltip.ether_craft.energizing_chip": "充能芯片",
 
-  "jei.ether_craft.ether_process": "以太加工"
+  "jei.ether_craft.ether_process": "以太加工",
+  "jei.ether_craft.node_plugin_info": "节点插件信息",
+
+  "jei.ether_craft.plugin_type.function": "[功能插件]",
+  "jei.ether_craft.plugin_type.feature": "[特性插件]",
+  "jei.ether_craft.plugin_type.upgrade": "[升级插件]",
+
+  "jei.ether_craft.plugin.ether_craft.generator.furnace": "从熔炉冶炼操作产生以太能量。",
+  "jei.ether_craft.plugin.ether_craft.generator.stone": "从切石机操作产生以太能量。",
+  "jei.ether_craft.plugin.ether_craft.magnet": "将附近物品吸引到节点物品栏。",
+  "jei.ether_craft.plugin.ether_craft.node_process": "使用节点处理配方加工物品。",
+  "jei.ether_craft.plugin.ether_craft.generator.equipment": "消耗装备物品产生以太能量。",
+  "jei.ether_craft.plugin.ether_craft.ether_stream_emitter": "从节点发射以太流。",
+  "jei.ether_craft.plugin.ether_craft.dropper_thrower": "像投掷器一样从节点物品栏投掷物品。",
+  "jei.ether_craft.plugin.ether_craft.container_interact": "允许节点与相邻容器交互。",
+  "jei.ether_craft.plugin.ether_craft.storage_upgrade": "增加节点的内部存储容量。",
+  "jei.ether_craft.plugin.ether_craft.ether_stream_storage_upgrade": "增加以太流传输量（大小）。",
+  "jei.ether_craft.plugin.ether_craft.ether_stream_prevent_decay_upgrade": "防止以太流在传输中衰减。",
+  "jei.ether_craft.plugin.ether_craft.block_breaker_upgrade": "允许以太流接触时破坏方块。",
+  "jei.ether_craft.plugin.ether_craft.damage_upgrade": "允许以太流接触时伤害实体。",
+  "jei.ether_craft.plugin.ether_craft.ether_filter_upgrade": "为以太流添加物品过滤功能。"
 }

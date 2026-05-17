@@ -75,5 +75,25 @@
   "tooltip.ether_craft.welding_chip": "Welding Chip",
   "tooltip.ether_craft.energizing_chip": "Energizing Chip",
 
-  "jei.ether_craft.ether_process": "Ether Process"
+  "jei.ether_craft.ether_process": "Ether Process",
+  "jei.ether_craft.node_plugin_info": "Node Plugin Info",
+
+  "jei.ether_craft.plugin_type.function": "[Function Plugin]",
+  "jei.ether_craft.plugin_type.feature": "[Feature Plugin]",
+  "jei.ether_craft.plugin_type.upgrade": "[Upgrade Plugin]",
+
+  "jei.ether_craft.plugin.ether_craft.generator.furnace": "Generates ether energy from furnace smelting operations.",
+  "jei.ether_craft.plugin.ether_craft.generator.stone": "Generates ether energy from stonecutter operations.",
+  "jei.ether_craft.plugin.ether_craft.magnet": "Attracts nearby items into the node inventory.",
+  "jei.ether_craft.plugin.ether_craft.node_process": "Processes items using Node Process recipes.",
+  "jei.ether_craft.plugin.ether_craft.generator.equipment": "Generates ether energy by consuming equipment items.",
+  "jei.ether_craft.plugin.ether_craft.ether_stream_emitter": "Emits ether streams from the node.",
+  "jei.ether_craft.plugin.ether_craft.dropper_thrower": "Throws items from the node inventory like a dropper.",
+  "jei.ether_craft.plugin.ether_craft.container_interact": "Allows the node to interact with adjacent containers.",
+  "jei.ether_craft.plugin.ether_craft.storage_upgrade": "Increases the node's internal storage capacity.",
+  "jei.ether_craft.plugin.ether_craft.ether_stream_storage_upgrade": "Increases ether stream transfer amount (size).",
+  "jei.ether_craft.plugin.ether_craft.ether_stream_prevent_decay_upgrade": "Prevents ether stream decay over distance.",
+  "jei.ether_craft.plugin.ether_craft.block_breaker_upgrade": "Allows ether streams to break blocks on contact.",
+  "jei.ether_craft.plugin.ether_craft.damage_upgrade": "Allows ether streams to damage entities on contact.",
+  "jei.ether_craft.plugin.ether_craft.ether_filter_upgrade": "Adds item filtering capabilities to ether streams."
 }
