@@ -131,7 +131,8 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
         nodeProperty.reset();
         functionStorage.modifyNodeProperty(nodeProperty);
         featureUpgradeStorage.modifyNodeProperty(nodeProperty);
-        normalStorage.setAccessibleCount(Math.min(nodeProperty.slotUnlock, normalStorage.getContainerSize()));
+        nodeProperty.slotUnlock = Math.min(nodeProperty.slotUnlock, normalStorage.getContainerSize());
+        normalStorage.setAccessibleCount(nodeProperty.slotUnlock);
     }
 
     @Override

@@ -84,7 +84,7 @@ public class EtherAdapterNodeAtlas {
         }
     }
 
-    private static final GridSplitter MAIN_MACHINE_ATLAS = new GridSplitter(16, 160, 160, EtherCraft.id("textures/block/ether_adapt_node_atlas.png"));
+    private static final GridSplitter MAIN_MACHINE_ATLAS = new GridSplitter(16, 160, 176, EtherCraft.id("textures/block/ether_adapt_node_atlas.png"));
     public static final AtlasUV BOTTOM = MAIN_MACHINE_ATLAS.next();
     public static final AtlasUV TOP = MAIN_MACHINE_ATLAS.next();
     public static final AtlasUV SIDE = MAIN_MACHINE_ATLAS.next();
@@ -92,7 +92,7 @@ public class EtherAdapterNodeAtlas {
 
     public static final AtlasUV FEATURE_DROPPER_ZIMING = MAIN_MACHINE_ATLAS.nextRow().next();
     public static final AtlasUV FEATURE_STREAM_EMITTER_SIDE = MAIN_MACHINE_ATLAS.next();
-    public static final AtlasUV FUNCTION_TRANSFORM = MAIN_MACHINE_ATLAS.next();
+    public static final AtlasUV FUNCTION_ETHER_CONVERTER = MAIN_MACHINE_ATLAS.next();
     public static final AtlasUV FUNCTION_BURNER_EMPTY = MAIN_MACHINE_ATLAS.next();
     public static final AtlasUV FUNCTION_BURNER_WORKING = MAIN_MACHINE_ATLAS.next();
     public static final AtlasUV FUNCTION_BURNER_FULL = MAIN_MACHINE_ATLAS.next();
@@ -147,7 +147,7 @@ public class EtherAdapterNodeAtlas {
     public static final AtlasUV OVERLAY_FUNCTION_BURNER_FILL_9 = MAIN_MACHINE_ATLAS.next();
 
 
-    public static final GroupAtlasUV FUNCTION_TRANSFORM_WORKING = new GroupAtlasUV(
+    public static final GroupAtlasUV OVERLAY_FUNCTION_ETHER_CONVERTER_WORKING = new GroupAtlasUV(
             FUNCTION_TRANSFORM_WORKING_0,
             FUNCTION_TRANSFORM_WORKING_1,
             FUNCTION_TRANSFORM_WORKING_2,
@@ -169,6 +169,7 @@ public class EtherAdapterNodeAtlas {
             OVERLAY_FUNCTION_BURNER_LAVA_2,
             OVERLAY_FUNCTION_BURNER_LAVA_3
     );
+
     public static final GroupAtlasUV OVERLAY_FUNCTION_BURNER_FILL = new GroupAtlasUV(
             OVERLAY_FUNCTION_BURNER_FILL_0,
             OVERLAY_FUNCTION_BURNER_FILL_1,

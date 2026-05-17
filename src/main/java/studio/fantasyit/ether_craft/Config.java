@@ -64,6 +64,9 @@ public class Config {
     private static final ModConfigSpec.IntValue EQUIPMENT_ETHER_COEFFICIENT = BUILDER
             .comment("Coefficient for ether generation from equipment consumption")
             .defineInRange("equipment_generator.ether_coefficient", 10, 1, 10000);
+    private static final ModConfigSpec.IntValue ETHER_CONVERTER_COEFFICIENT = BUILDER
+            .comment("Ether generated per item by the Ether Converter function plugin")
+            .defineInRange("ether_converter.coefficient", 100, 1, Integer.MAX_VALUE);
     static final ModConfigSpec SPEC = BUILDER.build();
 
     public static int etherConvert;
@@ -80,6 +83,7 @@ public class Config {
     public static int breakBlockConstantCost;
     public static int damageConstantCost;
     public static int equipmentEtherCoefficient;
+    public static int etherConverterCoefficient;
 
     @SubscribeEvent
     static void onLoad(final ModConfigEvent event) {
@@ -97,5 +101,6 @@ public class Config {
         breakBlockConstantCost = BREAK_BLOCK_CONSTANT_COST.get();
         damageConstantCost = DAMAGE_CONSTANT_COST.get();
         equipmentEtherCoefficient = EQUIPMENT_ETHER_COEFFICIENT.get();
+        etherConverterCoefficient = ETHER_CONVERTER_COEFFICIENT.get();
     }
 }

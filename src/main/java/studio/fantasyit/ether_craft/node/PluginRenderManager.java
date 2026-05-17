@@ -12,6 +12,8 @@ import studio.fantasyit.ether_craft.node.plugins.feature.FeatureContainerInterac
 import studio.fantasyit.ether_craft.node.plugins.feature.FeatureDropperThrower;
 import studio.fantasyit.ether_craft.node.plugins.feature.FeatureEtherStreamEmitter;
 import studio.fantasyit.ether_craft.node.plugins.function.AbstractItemConsumeFunction;
+import studio.fantasyit.ether_craft.node.plugins.function.FunctionEquipmentConsumeGenerator;
+import studio.fantasyit.ether_craft.node.plugins.function.FunctionEtherConverter;
 import studio.fantasyit.ether_craft.node.plugins.function.FunctionFurnaceGenerator;
 import studio.fantasyit.ether_craft.node.plugins.function.FunctionMagnet;
 import studio.fantasyit.ether_craft.node.plugins.function.FunctionEquipmentConsumeGenerator;
@@ -56,6 +58,13 @@ public class PluginRenderManager {
         register(FunctionFurnaceGenerator.ID, generatorLayer);
         register(FunctionStoneGenerator.ID, generatorLayer);
         register(FunctionEquipmentConsumeGenerator.ID, generatorLayer);
+        register(FunctionEtherConverter.ID, (face, dTick, nodeEntity, state, installedPlugin) -> {
+            state.setSideAtlas(face, EtherAdapterNodeAtlas.FUNCTION_ETHER_CONVERTER);
+            int workState = nodeEntity.getSyncedPluginData(installedPlugin, FunctionEtherConverter.STATE);
+            if (workState == 1) {
+                state.addOverlay(face, EtherAdapterNodeAtlas.OVERLAY_FUNCTION_ETHER_CONVERTER_WORKING.get(dTick));
+            }
+        });
         register(FeatureContainerInteract.ID, (face, dTick, nodeEntity, state, installedPlugin) ->
                 state.setSideAtlas(face, switch (face) {
                     case UP -> EtherAdapterNodeAtlas.FEATURE_CONTAINER_INT_TOP;
