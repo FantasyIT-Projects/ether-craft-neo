@@ -24,7 +24,7 @@ public class EtherStreamEmitterScreen extends DirectionalFilterScreen {
         super.createWidget();
         FeatureEtherStreamEmitter plugin = (FeatureEtherStreamEmitter) this.plugin;
 
-        int maxValue = Config.emitterMinEtherMax;
+        int maxValue = Math.toIntExact(Math.min(Config.emitterMinEtherMax, screen.getMenu().entity.getMaxEther()));
         minEtherScroll = new ScrollableWidget(
                 lx(90), ly(12),
                 maxValue,
