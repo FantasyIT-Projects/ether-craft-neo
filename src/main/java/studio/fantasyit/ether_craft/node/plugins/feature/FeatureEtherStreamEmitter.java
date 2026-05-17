@@ -1,12 +1,19 @@
 package studio.fantasyit.ether_craft.node.plugins.feature;
 
+import com.mojang.serialization.Codec;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
+import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.block.node.EtherAdaptNodeEntity;
 import studio.fantasyit.ether_craft.entity.EtherStreamEntity;
+import studio.fantasyit.ether_craft.menu.base.slot.BaseDataSlot;
+import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeContainerMenu;
+import studio.fantasyit.ether_craft.network.c2s.SyncScreenDataC2S;
 import studio.fantasyit.ether_craft.node.plugins.base.AbstractNodePlugin;
 import studio.fantasyit.ether_craft.node.plugins.base.IEtherStreamCapabilityProviderPlugin;
 import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
@@ -16,6 +23,9 @@ import java.util.Optional;
 
 public class FeatureEtherStreamEmitter extends AbstractDirectionalFilterFeature {
     public static final Identifier ID = EtherCraft.id("ether_stream_emitter");
+    public static final Identifier SYNC_MIN_ETHER = EtherCraft.id("emitter/min_ether");
+
+    public int minEther = 1000;
 
     public FeatureEtherStreamEmitter(EtherAdaptNodeEntity nodeEntity, InstalledPlugin ID) {
         super(nodeEntity, ID);
@@ -27,7 +37,7 @@ public class FeatureEtherStreamEmitter extends AbstractDirectionalFilterFeature 
     }
 
     private boolean process() {
-        if (direction != null && nodeEntity.getEther() > 1000) {
+        if (direction != null && nodeEntity.getEther() > minEther) {
             long sendWith = Math.min(Integer.MAX_VALUE, nodeEntity.getEther());
             nodeEntity.extractEther(sendWith);
             Vec3 dir = direction.getUnitVec3();
@@ -65,5 +75,34 @@ public class FeatureEtherStreamEmitter extends AbstractDirectionalFilterFeature 
             return true;
         }
         return false;
+    }
+
+    @Override
+    public void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        output.store("minEther", Codec.INT, minEther);
+    }
+
+    @Override
+    public void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        minEther = input.read("minEther", Codec.INT).orElse(1000);
+        nodeEntity.setSyncedPluginData(installedId, SYNC_MIN_ETHER, minEther);
+    }
+
+    @Override
+    public void syncScreenData(SyncScreenDataC2S message) {
+        super.syncScreenData(message);
+        if (message.id().equals(SYNC_MIN_ETHER) && message.index() == installedId.id()) {
+            minEther = Math.clamp(message.data(), Config.emitterMinEtherMin, Config.emitterMinEtherMax);
+            nodeEntity.setSyncedPluginData(installedId, SYNC_MIN_ETHER, minEther);
+            nodeEntity.pluginUpdate();
+        }
+    }
+
+    @Override
+    public void registerSlots(EtherAdaptNodeContainerMenu menu) {
+        super.registerSlots(menu);
+        menu.addDataSlot(new BaseDataSlot(() -> minEther, t -> minEther = t));
     }
 }

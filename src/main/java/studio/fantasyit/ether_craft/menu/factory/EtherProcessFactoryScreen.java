@@ -131,9 +131,9 @@ public class EtherProcessFactoryScreen extends AbstractContainerScreen<@NotNull 
     @Override
     public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
         super.extractRenderState(graphics, mouseX, mouseY, a);
-        graphics.text(font, Component.literal("Ether:" + be.getEther()), getLeftPos() + 5, getTopPos() + 200, 0xffffffff);
-        graphics.text(font, Component.literal("Spd:" + be.pressureBonus), getLeftPos() + 5, getTopPos() + 220, 0xffffffff);
-        graphics.text(font, Component.literal("Leak:" + be.leak), getLeftPos() + 5, getTopPos() + 240, 0xffffffff);
+        graphics.text(font, Component.translatable("menu.ether_craft.factory.debug.ether", be.getEther()), getLeftPos() + 5, getTopPos() + 200, 0xffffffff);
+        graphics.text(font, Component.translatable("menu.ether_craft.factory.debug.speed", be.pressureBonus), getLeftPos() + 5, getTopPos() + 220, 0xffffffff);
+        graphics.text(font, Component.translatable("menu.ether_craft.factory.debug.leak", be.leak), getLeftPos() + 5, getTopPos() + 240, 0xffffffff);
 
         int internalX = f.posInternal().x;
         int internalY = f.posInternal().y;
