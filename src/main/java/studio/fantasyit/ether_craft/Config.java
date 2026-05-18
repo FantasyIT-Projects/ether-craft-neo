@@ -67,6 +67,9 @@ public class Config {
     private static final ModConfigSpec.IntValue ETHER_CONVERTER_COEFFICIENT = BUILDER
             .comment("Ether generated per item by the Ether Converter function plugin")
             .defineInRange("ether_converter.coefficient", 100, 1, Integer.MAX_VALUE);
+    private static final ModConfigSpec.IntValue ETHER_INACTIVATE_TICK = BUILDER
+            .comment("Tick to wait before inactivating an ether inactivate convert")
+            .defineInRange("ether_inactivate_convert.tick", 60, 1, Integer.MAX_VALUE);
     static final ModConfigSpec SPEC = BUILDER.build();
 
     public static int etherConvert;
@@ -84,6 +87,7 @@ public class Config {
     public static int damageConstantCost;
     public static int equipmentEtherCoefficient;
     public static int etherConverterCoefficient;
+    public static int etherInactivateTick;
 
     @SubscribeEvent
     static void onLoad(final ModConfigEvent event) {
@@ -102,5 +106,6 @@ public class Config {
         damageConstantCost = DAMAGE_CONSTANT_COST.get();
         equipmentEtherCoefficient = EQUIPMENT_ETHER_COEFFICIENT.get();
         etherConverterCoefficient = ETHER_CONVERTER_COEFFICIENT.get();
+        etherInactivateTick = ETHER_INACTIVATE_TICK.get();
     }
 }

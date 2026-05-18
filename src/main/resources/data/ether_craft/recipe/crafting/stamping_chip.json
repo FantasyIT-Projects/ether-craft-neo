@@ -14,6 +14,7 @@
   ],
   "result": {
     "count": 1,
-    "id": "ether_craft:stamping_chip"
+    "id": "ether_craft:process_chip",
+    "components": {"minecraft:item_model": "ether_craft:stamping_chip", "ether_craft:ether_process_chip_id": "ether_craft:stamping_chip"}
   }
 }

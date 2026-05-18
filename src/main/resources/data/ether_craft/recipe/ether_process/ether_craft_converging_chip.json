@@ -84,7 +84,11 @@
     "id": "O",
     "item": [
       {
-        "id": "ether_craft:converging_chip"
+        "id": "ether_craft:process_chip",
+        "components": {
+          "minecraft:item_model": "ether_craft:converging_chip_chip",
+          "ether_craft:ether_process_chip_id": "ether_craft:converging_chip_chip"
+        }
       }
     ]
   }

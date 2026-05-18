@@ -1,6 +1,8 @@
 {
   "type": "ether_craft:node_process",
-  "ingredients": "#c:glass_blocks/cheap",
+  "ingredients": [
+    "#c:glass_blocks/cheap"
+  ],
   "result": "ether_craft:ether_glass",
   "etherCost": 100
 }

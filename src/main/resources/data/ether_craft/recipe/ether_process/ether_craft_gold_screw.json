@@ -3,7 +3,7 @@
   "input": [
     {
       "id": "I0",
-      "item": "c:ingots/gold",
+      "item": "#c:ingots/gold",
       "next": "P2"
     }
   ],

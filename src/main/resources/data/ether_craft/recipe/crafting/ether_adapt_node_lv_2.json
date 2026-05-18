@@ -4,7 +4,7 @@
   "group": "ether_craft",
   "key": {
     "#": "ether_craft:inactivated_ether",
-    "A": "ether_craft:ether_bowl",
+    "A": "ether_craft:etherphilic_bowl",
     "B": "ether_craft:ether_glass"
   },
   "pattern": [

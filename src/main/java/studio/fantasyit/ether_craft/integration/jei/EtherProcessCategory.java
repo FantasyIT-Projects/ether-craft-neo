@@ -41,7 +41,7 @@ public class EtherProcessCategory implements IRecipeCategory<EtherProcessFactory
     private static final int NODE_GAP = 6;
     private static final int PADDING = 4;
     static final int WIDTH = 140;
-    static final int HEIGHT = 80;
+    static final int HEIGHT = 200;
     private static final int MIN_SPACING = 20;
     private static final int SCROLL_STEP = 20;
     private static final int LINE_COLOR = 0xFFAAAAAA;
