@@ -4,6 +4,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.ProblemReporter;
@@ -31,6 +32,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.Nullable;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.block.base.BaseBlock;
+import studio.fantasyit.ether_craft.node.NodePluginManager;
+import studio.fantasyit.ether_craft.node.plugins.base.AbstractNodePlugin;
+import studio.fantasyit.ether_craft.node.plugins.feature.AbstractDirectionalFeature;
 import studio.fantasyit.ether_craft.register.ItemRegistry;
 
 import java.util.List;
@@ -70,6 +74,47 @@ public class EtherAdaptNodeBlock extends BaseBlock {
 
     @Override
     protected InteractionResult useItemOn(ItemStack itemStack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+        if (!player.isShiftKeyDown() && !level.isClientSide() && level.getBlockEntity(pos) instanceof EtherAdaptNodeEntity eane) {
+            NodePluginManager.PluginInfo info = NodePluginManager.Instance.getInfoFor(itemStack, NodePluginManager.FEATURE_UPGRADE_TYPE);
+            if (info == null)
+                info = NodePluginManager.Instance.getInfoFor(itemStack, NodePluginManager.FUNCTION_TYPE);
+            if (info != null) {
+                EtherPluginUpgradeContainer container;
+                if (info.type() == NodePluginManager.PluginType.FUNCTION)
+                    container = eane.functionStorage;
+                else
+                    container = eane.featureUpgradeStorage;
+
+                int targetSlot = -1;
+                for (int i = 0; i < container.getContainerSize(); i++) {
+                    if (container.getItem(i).isEmpty()) {
+                        targetSlot = i;
+                        break;
+                    }
+                }
+                if (targetSlot == -1) {
+                    player.sendSystemMessage(Component.translatable("message.ether_craft.plugin_slots_full"));
+                    return InteractionResult.SUCCESS;
+                }
+
+                ItemStack toInstall = itemStack.copy();
+                toInstall.setCount(1);
+                itemStack.shrink(1);
+
+                container.setItem(targetSlot, toInstall);
+
+                if (info.type() == NodePluginManager.PluginType.FEATURE) {
+                    AbstractNodePlugin plugin = container.getPlugin(targetSlot);
+                    if (plugin instanceof AbstractDirectionalFeature directional) {
+                        directional.direction = hitResult.getDirection();
+                        eane.pluginUpdate();
+                    }
+                }
+
+                player.sendSystemMessage(Component.translatable("message.ether_craft.plugin_installed"));
+                return InteractionResult.SUCCESS;
+            }
+        }
         if (itemStack.is(ItemRegistry.WRENCH)) {
             @NotNull Direction facing = state.getValue(FACING);
             Direction counterClockWise = facing.getCounterClockWise(hitResult.getDirection().getAxis());

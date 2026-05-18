@@ -3,17 +3,16 @@
   "category": "misc",
   "group": "ether_craft",
   "key": {
-    "#": "ether_craft:inactivated_ether",
-    "A": "ether_craft:diamond_needle",
-    "B": "#c:obsidians/normal"
+    "#": "ether_craft:ether_ingot",
+    "A": "ether_craft:ether_process_factory_lv_2"
   },
   "pattern": [
+    "###",
     "#A#",
-    "# #",
-    "#B#"
+    "###"
   ],
   "result": {
     "count": 1,
-    "id": "ether_craft:molding_chip"
+    "id": "ether_craft:ether_process_factory_lv_3"
   }
 }

@@ -4,16 +4,16 @@
   "group": "ether_craft",
   "key": {
     "#": "ether_craft:inactivated_ether",
-    "A": "ether_craft:diamond_needle",
-    "B": "#c:obsidians/normal"
+    "A": "ether_craft:ether_bowl",
+    "B": "ether_craft:ether_glass"
   },
   "pattern": [
     "#A#",
-    "# #",
-    "#B#"
+    "B B",
+    "#A#"
   ],
   "result": {
     "count": 1,
-    "id": "ether_craft:molding_chip"
+    "id": "ether_craft:ether_adapt_node_lv_2"
   }
 }
