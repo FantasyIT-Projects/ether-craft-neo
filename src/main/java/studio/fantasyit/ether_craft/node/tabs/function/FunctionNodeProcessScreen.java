@@ -8,7 +8,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import studio.fantasyit.ether_craft.Config;
-import studio.fantasyit.ether_craft.menu.base.IFilterSwitchable;
 import studio.fantasyit.ether_craft.menu.base.widget.IASwitchButton;
 import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeAsset;
 import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeScreen;
@@ -36,7 +35,7 @@ public class FunctionNodeProcessScreen extends BaseEtherNodeTabWidgetProvider<Fu
     public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
         super.extractBackground(graphics, mouseX, mouseY, a);
         UIUtil.nineSliced(graphics, EtherAdaptNodeAsset.INFO_PANEL, lx(93), ly(15), 75, 48, 1);
-        EtherAdaptNodeAsset.PROGRESS_INDICATOR_FILL.blit(graphics, lx(108), ly(96), 0, 0,
+        EtherAdaptNodeAsset.PROGRESS_INDICATOR_FILL.blit(graphics, lx(108), ly(95), 0, 0,
                 plugin.progressing * EtherAdaptNodeAsset.PROGRESS_INDICATOR_FILL.w / Config.nodeProcessMaxProgress,
                 EtherAdaptNodeAsset.PROGRESS_INDICATOR_FILL.h
         );
@@ -56,7 +55,7 @@ public class FunctionNodeProcessScreen extends BaseEtherNodeTabWidgetProvider<Fu
     @Override
     public void createWidget() {
         FilterGuiRegClient.widget(screen, plugin.inputItemFilter.whitelist, FunctionNodeProcess.FILTER_PREFIX);
-        screen.addRenderableWidget(new IASwitchButton(
+        IASwitchButton filterBtn = new IASwitchButton(
                 lx(15), ly(96),
                 EtherAdaptNodeAsset.BTN_BLANK,
                 EtherAdaptNodeAsset.BTN_BLANK_HOVER,
@@ -71,7 +70,9 @@ public class FunctionNodeProcessScreen extends BaseEtherNodeTabWidgetProvider<Fu
                     ClientPacketDistributor.sendToServer(new SyncFilterActiveC2S(a));
                     return true;
                 }
-        ));
+        );
+        filterBtn.setDown(!ctx().isFilterActive());
+        screen.addRenderableWidget(filterBtn);
         screen.addRenderableWidget(new AbstractWidget(lx(134), ly(94), 18, 18, Component.empty()) {
             @Override
             protected void extractWidgetRenderState(GuiGraphicsExtractor guiGraphicsExtractor, int x, int y, float v) {
@@ -100,8 +101,9 @@ public class FunctionNodeProcessScreen extends BaseEtherNodeTabWidgetProvider<Fu
     @Override
     public void tick() {
         super.tick();
-        boolean active = ((IFilterSwitchable) context).isFilterActive();
+        boolean active = ctx().isFilterActive();
         ctx().filterSlots.forEach(t -> t.setActive(active));
         ctx().inputSlots.forEach(t -> t.setActive(!active));
+
     }
 }
