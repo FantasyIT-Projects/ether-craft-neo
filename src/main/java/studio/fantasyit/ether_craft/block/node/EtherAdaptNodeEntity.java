@@ -362,12 +362,6 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
             return output.buildResult();
         }
     }
-
-    @Override
-    public void onDataPacket(Connection net, ValueInput valueInput) {
-        handleUpdateTag(valueInput);
-    }
-
     @Override
     public void handleUpdateTag(ValueInput input) {
         Map<Direction, InstalledPlugin> pluginDirection = input.read("pd", SerializeUtil.PDMap.CODEC.listOf())
