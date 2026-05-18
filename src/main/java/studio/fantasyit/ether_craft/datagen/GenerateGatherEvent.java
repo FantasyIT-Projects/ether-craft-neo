@@ -15,5 +15,7 @@ public class GenerateGatherEvent {
         event.createProvider(TagGenItem::new);
         event.createProvider(TagGenBlock::new);
         event.createProvider(DataMapGen::new);
+        event.createProvider(LootTableGen::new);
+        event.createProvider(WorldGenData::new);
     }
 }

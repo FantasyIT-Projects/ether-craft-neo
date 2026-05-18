@@ -35,6 +35,7 @@ public class ItemRegistry {
     public static final DeferredHolder<Item, @NotNull Item> GOLD_SCREW = ITEMS.register("gold_screw", i -> new Item(new Item.Properties().stacksTo(64).setId(ResourceKey.create(Registries.ITEM, i))));
     public static final DeferredHolder<Item, @NotNull Item> INACTIVATED_ETHER = ITEMS.register("inactivated_ether", i -> new Item(new Item.Properties().stacksTo(64).setId(ResourceKey.create(Registries.ITEM, i))));
     public static final DeferredHolder<Item, @NotNull Item> VACUUM_PIPE = ITEMS.register("vacuum_pipe", i -> new Item(new Item.Properties().stacksTo(64).setId(ResourceKey.create(Registries.ITEM, i))));
+    public static final DeferredHolder<Item, @NotNull Item> ETHER_INGOT = ITEMS.register("ether_ingot", i -> new Item(new Item.Properties().stacksTo(64).setId(ResourceKey.create(Registries.ITEM, i))));
     public static final DeferredHolder<Item, @NotNull Item> ETHER_STREAM_EMITTER_ITEM = block(BlockRegistry.ETHER_STREAM_EMITTER);
     public static final DeferredHolder<Item, @NotNull Item> ETHER_PROCESS_FACTORY_ITEM_LV_1 = ITEMS.register("ether_process_factory_lv_1", EtherProcessFactoryBlockItem.withLevel(1));
     public static final DeferredHolder<Item, @NotNull Item> ETHER_PROCESS_FACTORY_ITEM_LV_2 = ITEMS.register("ether_process_factory_lv_2", EtherProcessFactoryBlockItem.withLevel(2));
@@ -43,6 +44,11 @@ public class ItemRegistry {
     public static final DeferredHolder<Item, @NotNull Item> ETHER_ADAPT_NODE_ITEM_LV_1 = ITEMS.register("ether_adapt_node_lv_1", EtherAdaptNodeBlockItem.withLevel(1));
     public static final DeferredHolder<Item, @NotNull Item> ETHER_ADAPT_NODE_ITEM_LV_2 = ITEMS.register("ether_adapt_node_lv_2", EtherAdaptNodeBlockItem.withLevel(2));
     public static final DeferredHolder<Item, @NotNull Item> ETHER_ADAPT_NODE_ITEM_LV_3 = ITEMS.register("ether_adapt_node_lv_3", EtherAdaptNodeBlockItem.withLevel(3));
+    public static final DeferredHolder<Item, @NotNull Item> ETHER_BLOCK_ITEM = block(BlockRegistry.ETHER_BLOCK);
+    public static final DeferredHolder<Item, @NotNull Item> ETHER_ORE_ITEM = block(BlockRegistry.ETHER_ORE);
+    public static final DeferredHolder<Item, @NotNull Item> DEEPSLATE_ETHER_ORE_ITEM = block(BlockRegistry.DEEPSLATE_ETHER_ORE);
+    public static final DeferredHolder<Item, @NotNull Item> NETHER_ETHER_ORE_ITEM = block(BlockRegistry.NETHER_ETHER_ORE);
+    public static final DeferredHolder<Item, @NotNull Item> ETHER_GLASS_ITEM = block(BlockRegistry.ETHER_GLASS);
 
     public static void register(IEventBus modbus) {
         ITEMS.register(modbus);

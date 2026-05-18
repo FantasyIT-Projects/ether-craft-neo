@@ -2,5 +2,5 @@
   "maxEther": 10,
   "etherDecay":10,
   "etherRequire": 1,
-  "etherConsume":1
+  "etherConsume":5
 }

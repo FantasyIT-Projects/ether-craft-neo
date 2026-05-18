@@ -62,6 +62,7 @@ public class ModelDataGen extends ModelProvider {
         itemModels.generateFlatItem(ItemRegistry.GOLD_SCREW.get(), ITEM_SIMPLE);
         itemModels.generateFlatItem(ItemRegistry.INACTIVATED_ETHER.get(), ITEM_SIMPLE);
         itemModels.generateFlatItem(ItemRegistry.VACUUM_PIPE.get(), ITEM_SIMPLE);
+        itemModels.generateFlatItem(ItemRegistry.ETHER_INGOT.get(), ITEM_SIMPLE);
         rm.listResources("ether_process_chip", t -> t.getPath().endsWith(".json")).forEach((_id, resource) -> {
             String path = _id.getPath();
             Identifier id = Identifier.fromNamespaceAndPath(
@@ -102,5 +103,11 @@ public class ModelDataGen extends ModelProvider {
                         BlockModelGenerators.variant(variantEan)
                 )
         );
+
+        blockModels.createTrivialCube(BlockRegistry.ETHER_BLOCK.get());
+        blockModels.createTrivialCube(BlockRegistry.ETHER_ORE.get());
+        blockModels.createTrivialCube(BlockRegistry.DEEPSLATE_ETHER_ORE.get());
+        blockModels.createTrivialCube(BlockRegistry.NETHER_ETHER_ORE.get());
+        blockModels.createTrivialCube(BlockRegistry.ETHER_GLASS.get());
     }
 }

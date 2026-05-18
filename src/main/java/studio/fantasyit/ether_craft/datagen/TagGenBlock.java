@@ -5,6 +5,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.tags.TagsProvider;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -32,5 +33,21 @@ public class TagGenBlock extends TagsProvider<Block> {
                 .addElement(BlockRegistry.ETHER_PROCESS_FACTORY.getKey().identifier())
                 .addElement(BlockRegistry.ETHER_STREAM_EMITTER.getKey().identifier())
                 .addElement(BlockRegistry.ETHER_ADAPT_NODE.getKey().identifier());
+
+        getOrCreateRawBuilder(BlockTags.MINEABLE_WITH_PICKAXE)
+                .addElement(BlockRegistry.ETHER_PROCESS_FACTORY.getKey().identifier())
+                .addElement(BlockRegistry.ETHER_STREAM_EMITTER.getKey().identifier())
+                .addElement(BlockRegistry.ETHER_ADAPT_NODE.getKey().identifier())
+                .addElement(BlockRegistry.ETHER_GLASS.getKey().identifier())
+                .addElement(BlockRegistry.ETHER_BLOCK.getKey().identifier())
+                .addElement(BlockRegistry.ETHER_ORE.getKey().identifier())
+                .addElement(BlockRegistry.DEEPSLATE_ETHER_ORE.getKey().identifier())
+                .addElement(BlockRegistry.NETHER_ETHER_ORE.getKey().identifier());
+
+        getOrCreateRawBuilder(BlockTags.NEEDS_IRON_TOOL)
+                .addElement(BlockRegistry.ETHER_BLOCK.getKey().identifier())
+                .addElement(BlockRegistry.ETHER_ORE.getKey().identifier())
+                .addElement(BlockRegistry.DEEPSLATE_ETHER_ORE.getKey().identifier())
+                .addElement(BlockRegistry.NETHER_ETHER_ORE.getKey().identifier());
     }
 }
