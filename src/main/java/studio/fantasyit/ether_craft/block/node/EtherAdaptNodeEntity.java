@@ -1,12 +1,20 @@
 package studio.fantasyit.ether_craft.block.node;
 
+import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.Connection;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
@@ -15,6 +23,7 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.TagValueOutput;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.network.PacketDistributor;
@@ -226,7 +235,8 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
             return 0;
         if (index - 1 >= nodeProperty.slotUnlock)
             return 0;
-
+        if (!isValid(index, resource))
+            return 0;
         int earlyCosted = 0;
         for (AbstractNodePlugin plugin : getPlugins()) {
             earlyCosted += plugin.earlyHandleInput(resource, amount - earlyCosted, transaction);
@@ -332,6 +342,43 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
                 return new EtherAdaptNodeContainerMenu(i, player, getBlockPos(), installedPlugin);
             }
         };
+    }
+
+    @Override
+    public @Nullable Packet<ClientGamePacketListener> getUpdatePacket() {
+        return ClientboundBlockEntityDataPacket.create(this);
+    }
+
+    @Override
+    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
+        try (ProblemReporter.ScopedCollector reporter = new ProblemReporter.ScopedCollector(this.problemPath(), LogUtils.getLogger())) {
+            TagValueOutput output = TagValueOutput.createWithContext(reporter, registries);
+            if (functionPlugin != null) {
+                output.store("fp", InstalledPlugin.CODEC, functionPlugin);
+            }
+            output.store("pd", SerializeUtil.PDMap.CODEC.listOf(), SerializeUtil.PDMap.fromMap(featureAttachedDirection));
+            output.store("pv", SerializeUtil.PIMap.CODEC.listOf(), SerializeUtil.PIMap.fromMap(syncedPluginData));
+            output.putInt("me", nodeProperty.maxEther);
+            return output.buildResult();
+        }
+    }
+
+    @Override
+    public void onDataPacket(Connection net, ValueInput valueInput) {
+        handleUpdateTag(valueInput);
+    }
+
+    @Override
+    public void handleUpdateTag(ValueInput input) {
+        Map<Direction, InstalledPlugin> pluginDirection = input.read("pd", SerializeUtil.PDMap.CODEC.listOf())
+                .map(SerializeUtil.PDMap::toMap)
+                .orElse(Map.of());
+        Map<InstalledPlugin, Map<Identifier, Integer>> pluginValue = input.read("pv", SerializeUtil.PIMap.CODEC.listOf())
+                .map(SerializeUtil.PIMap::toMap)
+                .orElse(Map.of());
+        InstalledPlugin funcPlugin = input.read("fp", InstalledPlugin.CODEC).orElse(null);
+        int maxEther = input.read("me", Codec.INT).orElse(nodeProperty.maxEther);
+        fromNetwork(pluginDirection, funcPlugin, pluginValue, maxEther);
     }
 
     public void fromNetwork(Map<Direction, InstalledPlugin> pluginDirection, @Nullable InstalledPlugin functionPlugin, Map<InstalledPlugin, Map<Identifier, Integer>> pluginValue, int maxEther) {

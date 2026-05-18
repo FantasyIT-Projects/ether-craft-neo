@@ -17,7 +17,12 @@ import java.util.Map;
 
 public class SerializeUtil {
     public record PDMap(InstalledPlugin plugin, Direction direction) {
-        public static final StreamCodec<RegistryFriendlyByteBuf, @NotNull PDMap> CODEC = StreamCodec.composite(
+        public static final Codec<PDMap> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+                InstalledPlugin.CODEC.fieldOf("plugin").forGetter(PDMap::plugin),
+                Direction.CODEC.fieldOf("direction").forGetter(PDMap::direction)
+        ).apply(instance, PDMap::new));
+
+        public static final StreamCodec<RegistryFriendlyByteBuf, @NotNull PDMap> STREAM_CODEC = StreamCodec.composite(
                 InstalledPlugin.STREAM_CODEC,
                 PDMap::plugin,
                 Direction.STREAM_CODEC,
@@ -29,7 +34,7 @@ public class SerializeUtil {
             return new ArrayList<>(map.entrySet().stream().map(entry -> new PDMap(entry.getValue(), entry.getKey())).toList());
         }
 
-        public static Map<Direction, InstalledPlugin> toMap(ArrayList<PDMap> list) {
+        public static Map<Direction, InstalledPlugin> toMap(List<PDMap> list) {
             return list.stream().collect(java.util.stream.Collectors.toMap(PDMap::direction, PDMap::plugin));
         }
     }

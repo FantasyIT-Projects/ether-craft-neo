@@ -2,12 +2,14 @@ package studio.fantasyit.ether_craft.menu.node;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.DataSlot;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.apache.commons.lang3.function.TriConsumer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -22,11 +24,14 @@ import studio.fantasyit.ether_craft.menu.factory.slot.SingleStackSlot;
 import studio.fantasyit.ether_craft.menu.node.slot.OversizedEtherSlot;
 import studio.fantasyit.ether_craft.network.base.ISyncTargetMenu;
 import studio.fantasyit.ether_craft.network.c2s.SyncScreenDataC2S;
+import studio.fantasyit.ether_craft.network.s2c.SyncEtherAdaptNodeExtraS2C;
 import studio.fantasyit.ether_craft.node.NodePluginManager;
 import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
 import studio.fantasyit.ether_craft.node.plugins.base.AbstractNodePlugin;
 import studio.fantasyit.ether_craft.node.plugins.base.PluginMenuContext;
 import studio.fantasyit.ether_craft.register.ItemRegistry;
+
+import java.util.Optional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -125,6 +130,16 @@ public class EtherAdaptNodeContainerMenu extends BaseMenu<EtherAdaptNodeEntity> 
                 val -> setFilterActive(val == 1)
         ));
         entity.syncClient();
+        if (player instanceof ServerPlayer sp) {
+            PacketDistributor.sendToPlayer(sp, new SyncEtherAdaptNodeExtraS2C(
+                    Optional.ofNullable(entity.functionPlugin),
+                    entity.featureAttachedDirection,
+                    entity.syncedPluginData,
+                    entity.getBlockPos(),
+                    entity.getLevel().dimension().identifier(),
+                    entity.nodeProperty.maxEther
+            ));
+        }
     }
 
     @Override

@@ -37,7 +37,7 @@ public class ContainerInteractScreen extends DirectionalFilterScreen {
                     ClientPacketDistributor.sendToServer(new SyncScreenDataC2S(
                             FeatureContainerInteract.SYNC_EXTRACT_MODE,
                             plugin.installedId.id(),
-                            down ? 1 : 0
+                            down ? 0 : 1
                     ));
                     return true;
                 }

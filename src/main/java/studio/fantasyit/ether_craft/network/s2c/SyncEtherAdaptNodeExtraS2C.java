@@ -38,7 +38,7 @@ public record SyncEtherAdaptNodeExtraS2C(
     public static final StreamCodec<RegistryFriendlyByteBuf, @NotNull SyncEtherAdaptNodeExtraS2C> CODEC = StreamCodec.composite(
             ByteBufCodecs.optional(InstalledPlugin.STREAM_CODEC),
             SyncEtherAdaptNodeExtraS2C::functionPlugin,
-            ByteBufCodecs.collection(ArrayList::new, SerializeUtil.PDMap.CODEC).map(SerializeUtil.PDMap::toMap, SerializeUtil.PDMap::fromMap),
+            ByteBufCodecs.collection(ArrayList::new, SerializeUtil.PDMap.STREAM_CODEC).map(SerializeUtil.PDMap::toMap, SerializeUtil.PDMap::fromMap),
             SyncEtherAdaptNodeExtraS2C::pluginDirection,
             ByteBufCodecs.collection(ArrayList::new, SerializeUtil.PIMap.STREAM_CODEC).map(SerializeUtil.PIMap::toMap, SerializeUtil.PIMap::fromMap),
             SyncEtherAdaptNodeExtraS2C::pluginValue,
