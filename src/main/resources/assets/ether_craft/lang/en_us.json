@@ -79,6 +79,8 @@
 
   "jei.ether_craft.ether_process": "Ether Process",
   "jei.ether_craft.node_plugin_info": "Node Plugin Info",
+  "jei.ether_craft.node_process": "Node Process",
+  "jei.ether_craft.node_process.ether_cost": "Ether: %d",
 
   "jei.ether_craft.plugin_type.function": "[Function Plugin]",
   "jei.ether_craft.plugin_type.feature": "[Feature Plugin]",

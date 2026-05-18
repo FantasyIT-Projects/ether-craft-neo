@@ -14,6 +14,7 @@ import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.event.ClientRecipeSyncEvent;
 import studio.fantasyit.ether_craft.node.NodePluginManager;
 import studio.fantasyit.ether_craft.recipe.factory.EtherProcessFactoryRecipe;
+import studio.fantasyit.ether_craft.recipe.node.NodeProcessRecipe;
 import studio.fantasyit.ether_craft.register.ItemRegistry;
 import studio.fantasyit.ether_craft.register.RecipeTypeRegistry;
 
@@ -26,6 +27,8 @@ public class JEIPlugin implements IModPlugin {
             IRecipeType.create(EtherCraft.MODID, "ether_process", EtherProcessFactoryRecipe.class);
     public static final IRecipeType<NodePluginInfoRecipe> NODE_PLUGIN_INFO_TYPE =
             IRecipeType.create(EtherCraft.MODID, "node_plugin_info", NodePluginInfoRecipe.class);
+    public static final IRecipeType<NodeProcessRecipe> NODE_PROCESS_TYPE =
+            IRecipeType.create(EtherCraft.MODID, "node_process", NodeProcessRecipe.class);
 
     @Override
     public Identifier getPluginUid() {
@@ -37,15 +40,20 @@ public class JEIPlugin implements IModPlugin {
         var guiHelper = registration.getJeiHelpers().getGuiHelper();
         registration.addRecipeCategories(
                 new EtherProcessCategory(guiHelper),
-                new NodePluginInfoCategory(guiHelper)
+                new NodePluginInfoCategory(guiHelper),
+                new NodeProcessCategory(guiHelper)
         );
     }
 
     @Override
     public void registerRecipes(IRecipeRegistration registration) {
-        var recipes = getRecipes();
-        if (!recipes.isEmpty()) {
-            registration.addRecipes(ETHER_PROCESS_TYPE, recipes);
+        var etherProcessRecipes = getEtherProcessRecipes();
+        if (!etherProcessRecipes.isEmpty()) {
+            registration.addRecipes(ETHER_PROCESS_TYPE, etherProcessRecipes);
+        }
+        var nodeProcessRecipes = getNodeProcessRecipes();
+        if (!nodeProcessRecipes.isEmpty()) {
+            registration.addRecipes(NODE_PROCESS_TYPE, nodeProcessRecipes);
         }
         registerNodePluginInfo(registration);
     }
@@ -60,7 +68,7 @@ public class JEIPlugin implements IModPlugin {
         registration.addRecipes(NODE_PLUGIN_INFO_TYPE, recipes);
     }
 
-    private static List<EtherProcessFactoryRecipe> getRecipes() {
+    private static List<EtherProcessFactoryRecipe> getEtherProcessRecipes() {
         List<EtherProcessFactoryRecipe> result = new ArrayList<>();
 
         var syncedMap = ClientRecipeSyncEvent.getSyncedRecipeMap();
@@ -86,6 +94,21 @@ public class JEIPlugin implements IModPlugin {
         return result;
     }
 
+    private static List<NodeProcessRecipe> getNodeProcessRecipes() {
+        List<NodeProcessRecipe> result = new ArrayList<>();
+
+        var server = Minecraft.getInstance().getSingleplayerServer();
+        if (server != null) {
+            for (RecipeHolder<?> holder : server.getRecipeManager().getRecipes()) {
+                if (holder.value() instanceof NodeProcessRecipe recipe) {
+                    result.add(recipe);
+                }
+            }
+        }
+
+        return result;
+    }
+
     @Override
     public void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
         registration.addCraftingStation(ETHER_PROCESS_TYPE,
@@ -95,6 +118,11 @@ public class JEIPlugin implements IModPlugin {
                 new ItemStack(ItemRegistry.ETHER_PROCESS_FACTORY_ITEM_LV_4.get())
         );
         registration.addCraftingStation(NODE_PLUGIN_INFO_TYPE,
+                new ItemStack(ItemRegistry.ETHER_ADAPT_NODE_ITEM_LV_1.get()),
+                new ItemStack(ItemRegistry.ETHER_ADAPT_NODE_ITEM_LV_2.get()),
+                new ItemStack(ItemRegistry.ETHER_ADAPT_NODE_ITEM_LV_3.get())
+        );
+        registration.addCraftingStation(NODE_PROCESS_TYPE,
                 new ItemStack(ItemRegistry.ETHER_ADAPT_NODE_ITEM_LV_1.get()),
                 new ItemStack(ItemRegistry.ETHER_ADAPT_NODE_ITEM_LV_2.get()),
                 new ItemStack(ItemRegistry.ETHER_ADAPT_NODE_ITEM_LV_3.get())

@@ -79,6 +79,8 @@
 
   "jei.ether_craft.ether_process": "以太加工",
   "jei.ether_craft.node_plugin_info": "节点插件信息",
+  "jei.ether_craft.node_process": "节点处理",
+  "jei.ether_craft.node_process.ether_cost": "以太: %d",
 
   "jei.ether_craft.plugin_type.function": "[功能插件]",
   "jei.ether_craft.plugin_type.feature": "[特性插件]",
