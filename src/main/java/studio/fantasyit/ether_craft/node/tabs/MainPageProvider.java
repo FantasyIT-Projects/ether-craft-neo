@@ -96,7 +96,7 @@ public class MainPageProvider extends BaseEtherNodeTabWidgetProvider<MainPageDum
                 }
         ));
         filterBtn.setHidden(true);
-        filterBtn.setDown(plugin.isFilterActive());
+        filterBtn.setDown(ctx().isFilterActive());
     }
 
     @Override
@@ -155,7 +155,7 @@ public class MainPageProvider extends BaseEtherNodeTabWidgetProvider<MainPageDum
             namePencil.setX(textEndX);
             namePencil.setY(nameEdit.getY() + (nameEdit.getHeight() - namePencil.getHeight()) / 2);
         }
-        boolean active = plugin.isFilterActive();
+        boolean active = ctx().isFilterActive();
         if (filterBtn != null) {
             filterBtn.setHidden(!screen.getMenu().entity.nodeProperty.enableFilter);
             filterBtn.setDown(active);

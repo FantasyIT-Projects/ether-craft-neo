@@ -8,6 +8,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import studio.fantasyit.ether_craft.Config;
+import studio.fantasyit.ether_craft.menu.base.IFilterSwitchable;
 import studio.fantasyit.ether_craft.menu.base.widget.IASwitchButton;
 import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeAsset;
 import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeScreen;
@@ -99,7 +100,7 @@ public class FunctionNodeProcessScreen extends BaseEtherNodeTabWidgetProvider<Fu
     @Override
     public void tick() {
         super.tick();
-        boolean active = plugin.isFilterActive();
+        boolean active = ((IFilterSwitchable) context).isFilterActive();
         ctx().filterSlots.forEach(t -> t.setActive(active));
         ctx().inputSlots.forEach(t -> t.setActive(!active));
     }

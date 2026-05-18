@@ -16,11 +16,11 @@ import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.block.base.ItemFilter;
 import studio.fantasyit.ether_craft.block.node.EtherAdaptNodeEntity;
 import studio.fantasyit.ether_craft.menu.base.IFilterSwitchable;
-import studio.fantasyit.ether_craft.menu.node.slot.OversizedEtherSlot;
 import studio.fantasyit.ether_craft.menu.base.slot.BaseDataSlot;
 import studio.fantasyit.ether_craft.menu.base.slot.BaseSlot;
 import studio.fantasyit.ether_craft.menu.base.slot.FilterSlot;
 import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeContainerMenu;
+import studio.fantasyit.ether_craft.menu.node.slot.OversizedEtherSlot;
 import studio.fantasyit.ether_craft.network.c2s.SyncScreenDataC2S;
 import studio.fantasyit.ether_craft.node.NodeProperty;
 import studio.fantasyit.ether_craft.node.filter.FilterGuiRegCommon;
@@ -32,7 +32,7 @@ import studio.fantasyit.ether_craft.recipe.node.NodeProcessRecipe;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FunctionNodeProcess extends AbstractNodePlugin implements IFilterSwitchable {
+public class FunctionNodeProcess extends AbstractNodePlugin {
     public static final Identifier ID = EtherCraft.id("node_process");
     public static final String FILTER_PREFIX = "node_process/";
     private boolean filterActive = false;
@@ -121,7 +121,7 @@ public class FunctionNodeProcess extends AbstractNodePlugin implements IFilterSw
                     boolean alreadyHas = false;
                     for (int i = 0; i < inputSlots.getContainerSize(); i++) {
                         ItemStack stack = inputSlots.getItem(i);
-                        if (!stack.isEmpty() && ingredient.ingredient().test(stack)) {
+                        if (!stack.isEmpty() && ingredient.ingredient().test(stack) && inputItemFilter.acceptsAt(ItemResource.of(stack), i)) {
                             alreadyHas = true;
                             break;
                         }
@@ -152,8 +152,9 @@ public class FunctionNodeProcess extends AbstractNodePlugin implements IFilterSw
                 if (!inputSlots.getItem(i).isEmpty())
                     continue;
                 try (Transaction tx = Transaction.openRoot()) {
+                    int finalI = i;
                     ItemStack pulled = nodeEntity.extractWithPredicate(
-                            res -> true, tx, 64
+                            res -> inputItemFilter.acceptsAt(res, finalI), tx, 64
                     );
                     if (!pulled.isEmpty()) {
                         inputSlots.setItem(i, pulled);
@@ -260,9 +261,10 @@ public class FunctionNodeProcess extends AbstractNodePlugin implements IFilterSw
         return new ProgressMenuContext(etherAdaptNodeContainerMenu, this);
     }
 
-    public static class ProgressMenuContext extends PluginMenuContext<FunctionNodeProcess> {
+    public static class ProgressMenuContext extends PluginMenuContext<FunctionNodeProcess> implements IFilterSwitchable {
 
         public int targetFilterIdx = 0;
+        boolean filterActive = false;
         public List<FilterSlot> filterSlots = new ArrayList<>();
         public List<BaseSlot> inputSlots = new ArrayList<>();
 
@@ -270,15 +272,15 @@ public class FunctionNodeProcess extends AbstractNodePlugin implements IFilterSw
             super(menu, plugin);
             plugin.registerSlotsWithContext(menu, this);
         }
+
+        @Override
+        public void setFilterActive(boolean active) {
+            this.filterActive = active;
+        }
+        @Override
+        public boolean isFilterActive() {
+            return filterActive;
+        }
     }
 
-    @Override
-    public boolean isFilterActive() {
-        return filterActive;
-    }
-
-    @Override
-    public void setFilterActive(boolean active) {
-        this.filterActive = active;
-    }
 }

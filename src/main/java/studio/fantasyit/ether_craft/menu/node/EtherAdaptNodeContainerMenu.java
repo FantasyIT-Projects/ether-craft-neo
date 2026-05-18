@@ -202,12 +202,12 @@ public class EtherAdaptNodeContainerMenu extends BaseMenu<EtherAdaptNodeEntity> 
 
     @Override
     public boolean isFilterActive() {
-        if (plugin instanceof IFilterSwitchable s) return s.isFilterActive();
+        if (context instanceof IFilterSwitchable s) return s.isFilterActive();
         return true;
     }
 
     @Override
     public void setFilterActive(boolean active) {
-        if (plugin instanceof IFilterSwitchable s) s.setFilterActive(active);
+        if (context instanceof IFilterSwitchable s) s.setFilterActive(active);
     }
 }

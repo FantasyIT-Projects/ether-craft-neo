@@ -1,7 +1,6 @@
 package studio.fantasyit.ether_craft.node.plugins;
 
 import net.minecraft.resources.Identifier;
-import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import studio.fantasyit.ether_craft.EtherCraft;
@@ -22,7 +21,7 @@ import studio.fantasyit.ether_craft.node.plugins.base.PluginMenuContext;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainPageDummyPlugin extends AbstractNodePlugin implements IFilterSwitchable {
+public class MainPageDummyPlugin extends AbstractNodePlugin {
     public static final Identifier ID = EtherCraft.id("main_page_dummy");
     private boolean filterActive = false;
 
@@ -95,23 +94,24 @@ public class MainPageDummyPlugin extends AbstractNodePlugin implements IFilterSw
         menu.addDataSlot(new BaseDataSlot(nodeEntity.normalStorage::getAccessibleCount, nodeEntity.normalStorage::setAccessibleCount));
     }
 
-    public static class MainPageContext extends PluginMenuContext<MainPageDummyPlugin> {
+    public static class MainPageContext extends PluginMenuContext<MainPageDummyPlugin> implements IFilterSwitchable {
         public List<FilterSlot> filterSlots = new ArrayList<>();
         public List<RangeLimitFilterSlot> mainSlots = new ArrayList<>();
+        public boolean filterActive = false;
 
         public MainPageContext(EtherAdaptNodeContainerMenu menu, MainPageDummyPlugin plugin) {
             super(menu, plugin);
             plugin.registerSlotsWithContext(menu, this);
         }
-    }
 
-    @Override
-    public boolean isFilterActive() {
-        return filterActive;
-    }
+        @Override
+        public boolean isFilterActive() {
+            return filterActive;
+        }
 
-    @Override
-    public void setFilterActive(boolean active) {
-        this.filterActive = active;
+        @Override
+        public void setFilterActive(boolean active) {
+            this.filterActive = active;
+        }
     }
 }

@@ -97,6 +97,9 @@ public class ItemFilter implements Container, ValueIOSerializable {
     public boolean accepts(ItemResource stack) {
         return Arrays.stream(items).anyMatch(itemStack -> itemStack.isEmpty() || itemStack.is(stack.getItem()));
     }
+    public boolean acceptsAt(ItemResource stack, int index) {
+        return items[index].isEmpty() || items[index].is(stack.getItem());
+    }
 
     @Override
     public void serialize(ValueOutput output) {
