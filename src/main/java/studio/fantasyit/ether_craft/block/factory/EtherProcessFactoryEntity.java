@@ -4,7 +4,6 @@ import com.mojang.serialization.Codec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
-import net.neoforged.neoforge.network.PacketDistributor;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
@@ -15,24 +14,21 @@ import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
+import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2i;
-import studio.fantasyit.ether_craft.block.base.BaseEtherContainerBlockEntity;
-import studio.fantasyit.ether_craft.block.base.EtherContainer;
-import studio.fantasyit.ether_craft.block.base.ITickable;
-import studio.fantasyit.ether_craft.block.base.IWorldRenderBE;
-import studio.fantasyit.ether_craft.block.base.ItemFilter;
+import studio.fantasyit.ether_craft.block.base.*;
+import studio.fantasyit.ether_craft.factory.EtherProcessRecipeManager;
 import studio.fantasyit.ether_craft.factory.EtherProcessWorkingChip;
 import studio.fantasyit.ether_craft.factory.FactoryLevelDef;
 import studio.fantasyit.ether_craft.menu.factory.EtherProcessFactoryContainerMenu;
+import studio.fantasyit.ether_craft.network.s2c.SyncBlockNameS2C;
 import studio.fantasyit.ether_craft.recipe.factory.EtherFactoryRecipeInput;
 import studio.fantasyit.ether_craft.recipe.factory.EtherProcessFactoryRecipe;
 import studio.fantasyit.ether_craft.register.ItemRegistry;
-import studio.fantasyit.ether_craft.register.RecipeTypeRegistry;
-import studio.fantasyit.ether_craft.network.s2c.SyncBlockNameS2C;
 import studio.fantasyit.ether_craft.register.Tags;
 import studio.fantasyit.ether_craft.util.EtherProcessorRecipeUtil;
 
@@ -168,12 +164,11 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
         leak = factoryStructure.leakingSpeed;
         boolean[] hasRecipe = new boolean[ROWS];
         for (int i = 0; i < factoryStructure.recipes.size(); i++) {
-            Optional<RecipeHolder<@NotNull EtherProcessFactoryRecipe>> recipeFor = level.recipeAccess().getRecipeFor(RecipeTypeRegistry.ETHER_PROCESS_FACTORY_RECIPE.get(),
-                    factoryStructure.recipes.get(i),
-                    level);
+
+            Optional<EtherProcessFactoryRecipe> recipeFor = EtherProcessRecipeManager.getRecipe(level, level.recipeAccess(), factoryStructure.recipes.get(i));
             Integer outputId = factoryStructure.recipes.get(i).outputId;
             if (recipeFor.isPresent()) {
-                EtherProcessFactoryRecipe currentRecipe = recipeFor.get().value();
+                EtherProcessFactoryRecipe currentRecipe = recipeFor.get();
                 hasRecipe[outputId] = true;
                 if (processingRecipes[outputId] != null && processingRecipes[outputId] == currentRecipe) {
                     continue;
