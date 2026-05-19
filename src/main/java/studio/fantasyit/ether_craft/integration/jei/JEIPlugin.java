@@ -8,11 +8,14 @@ import mezz.jei.api.registration.IRecipeCategoryRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
 import mezz.jei.api.registration.ISubtypeRegistration;
 import net.minecraft.client.Minecraft;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.event.ClientRecipeSyncEvent;
+import studio.fantasyit.ether_craft.factory.EtherProcessRecipeManager;
+import studio.fantasyit.ether_craft.factory.ExtraRecipeProvider;
 import studio.fantasyit.ether_craft.node.NodePluginManager;
 import studio.fantasyit.ether_craft.recipe.factory.EtherProcessFactoryRecipe;
 import studio.fantasyit.ether_craft.recipe.node.NodeProcessRecipe;
@@ -32,6 +35,13 @@ public class JEIPlugin implements IModPlugin {
     public static final IRecipeType<NodeProcessRecipe> NODE_PROCESS_TYPE =
             IRecipeType.create(EtherCraft.MODID, "node_process", NodeProcessRecipe.class);
 
+    private record DynamicCategory(
+            IRecipeType<EtherProcessFactoryRecipe> type,
+            Identifier categoryId
+    ) {}
+
+    private final List<DynamicCategory> dynamicCategories = new ArrayList<>();
+
     @Override
     public Identifier getPluginUid() {
         return EtherCraft.id("jei_plugin");
@@ -40,11 +50,30 @@ public class JEIPlugin implements IModPlugin {
     @Override
     public void registerCategories(IRecipeCategoryRegistration registration) {
         var guiHelper = registration.getJeiHelpers().getGuiHelper();
+
         registration.addRecipeCategories(
-                new EtherProcessCategory(guiHelper),
+                new EtherProcessCategory(guiHelper,
+                        ETHER_PROCESS_TYPE,
+                        Component.translatable("jei.ether_craft.ether_process"),
+                        new ItemStack(ItemRegistry.ETHER_PROCESS_FACTORY_ITEM_LV_1.get())),
                 new NodePluginInfoCategory(guiHelper),
                 new NodeProcessCategory(guiHelper)
         );
+
+        for (ExtraRecipeProvider provider : EtherProcessRecipeManager.extraRecipeProviders) {
+            Identifier catId = provider.getCategoryId();
+            String ns = catId.getNamespace();
+            String path = catId.getPath().replace('/', '.');
+            String uid = "ether_process_" + path;
+            IRecipeType<EtherProcessFactoryRecipe> type =
+                    IRecipeType.create(EtherCraft.MODID, uid, EtherProcessFactoryRecipe.class);
+            Component title = Component.translatable(
+                    "jei.ether_craft.category." + ns + "." + catId.getPath().replace('/', '.'));
+            EtherProcessCategory category = new EtherProcessCategory(guiHelper, type, title,
+                    new ItemStack(provider.getIcon().asItem()));
+            registration.addRecipeCategories(category);
+            dynamicCategories.add(new DynamicCategory(type, catId));
+        }
     }
 
     @Override
@@ -58,6 +87,16 @@ public class JEIPlugin implements IModPlugin {
             registration.addRecipes(NODE_PROCESS_TYPE, nodeProcessRecipes);
         }
         registerNodePluginInfo(registration);
+
+        for (var dyn : dynamicCategories) {
+            List<EtherProcessFactoryRecipe> catRecipes = EtherProcessRecipeManager.extraRecipes.stream()
+                    .filter(e -> e.categoryId().equals(dyn.categoryId))
+                    .map(EtherProcessRecipeManager.ExtraRecipe::recipe)
+                    .toList();
+            if (!catRecipes.isEmpty()) {
+                registration.addRecipes(dyn.type, catRecipes);
+            }
+        }
     }
 
     private void registerNodePluginInfo(IRecipeRegistration registration) {
@@ -129,6 +168,15 @@ public class JEIPlugin implements IModPlugin {
                 new ItemStack(ItemRegistry.ETHER_ADAPT_NODE_ITEM_LV_2.get()),
                 new ItemStack(ItemRegistry.ETHER_ADAPT_NODE_ITEM_LV_3.get())
         );
+
+        for (var dyn : dynamicCategories) {
+            registration.addCraftingStation(dyn.type,
+                    new ItemStack(ItemRegistry.ETHER_PROCESS_FACTORY_ITEM_LV_1.get()),
+                    new ItemStack(ItemRegistry.ETHER_PROCESS_FACTORY_ITEM_LV_2.get()),
+                    new ItemStack(ItemRegistry.ETHER_PROCESS_FACTORY_ITEM_LV_3.get()),
+                    new ItemStack(ItemRegistry.ETHER_PROCESS_FACTORY_ITEM_LV_4.get())
+            );
+        }
     }
 
     @Override
