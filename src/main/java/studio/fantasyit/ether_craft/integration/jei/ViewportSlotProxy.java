@@ -38,7 +38,6 @@ class ViewportSlotProxy implements IRecipeSlotDrawable {
     @Override
     public void drawHoverOverlays(GuiGraphicsExtractor guiGraphics) {
         guiGraphics.pose().pushMatrix();
-        //如果你不进行这个缩放，那么至少在
         guiGraphics.pose().translate((float) panX.getAsDouble(), (float) panY.getAsDouble());
         guiGraphics.pose().scale((float) zoom.getAsDouble(), (float) zoom.getAsDouble());
         delegate.drawHoverOverlays(guiGraphics);
@@ -84,15 +83,7 @@ class ViewportSlotProxy implements IRecipeSlotDrawable {
 
     @Override
     public Rect2i getAreaIncludingBackground() {
-        Rect2i world = delegate.getAreaIncludingBackground();
-        double z = zoom.getAsDouble();
-        double px = panX.getAsDouble();
-        double py = panY.getAsDouble();
-        int screenX = (int) (world.getX() * z + px);
-        int screenY = (int) (world.getY() * z + py);
-        int screenW = (int) (world.getWidth() * z);
-        int screenH = (int) (world.getHeight() * z);
-        return new Rect2i(screenX, screenY, screenW, screenH);
+        return delegate.getAreaIncludingBackground();
     }
 
     @Override

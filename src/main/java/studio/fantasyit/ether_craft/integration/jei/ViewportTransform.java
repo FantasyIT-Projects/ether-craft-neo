@@ -118,9 +118,7 @@ class ViewportTransform implements ISlottedRecipeWidget, IJeiInputHandler {
         double worldMY = (mouseY - panY) / zoom;
         for (SlotInfo s : slots) {
             if (s.slot.isMouseOver(worldMX, worldMY)) {
-                int offsetX = (int) (mouseX - worldMX);
-                int offsetY = (int) (mouseY - worldMY);
-                return Optional.of(new RecipeSlotUnderMouse(s.slot, offsetX, offsetY));
+                return Optional.of(new RecipeSlotUnderMouse(s.slot, getPosition()));
             }
         }
         return Optional.empty();
