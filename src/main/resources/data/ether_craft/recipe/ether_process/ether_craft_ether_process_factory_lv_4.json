@@ -1,0 +1,197 @@
+{
+  "type": "ether_craft:ether_process",
+  "input": [
+    {
+      "id": "I0",
+      "item": "ether_craft:ether_block",
+      "next": "P18"
+    }
+  ],
+  "process": [
+    {
+      "id": "P18",
+      "item": [
+        {
+          "chip": "ether_craft:high_heating_chip"
+        },
+        {
+          "chip": "ether_craft:high_heating_chip"
+        }
+      ],
+      "next": "P17"
+    },
+    {
+      "id": "P17",
+      "item": [
+        {
+          "chip": "ether_craft:cutting_chip"
+        }
+      ],
+      "next": "P16"
+    },
+    {
+      "id": "P16",
+      "item": [
+        {
+          "chip": "ether_craft:cutting_chip"
+        }
+      ],
+      "next": "P15"
+    },
+    {
+      "id": "P15",
+      "item": [
+        {
+          "chip": "ether_craft:energizing_chip"
+        }
+      ],
+      "next": "P14"
+    },
+    {
+      "id": "P14",
+      "item": [
+        {
+          "chip": "ether_craft:energizing_chip"
+        }
+      ],
+      "next": "P13"
+    },
+    {
+      "id": "P13",
+      "item": [
+        {
+          "chip": "ether_craft:heating_chip"
+        }
+      ],
+      "next": "P12"
+    },
+    {
+      "id": "P12",
+      "item": [
+        {
+          "chip": "ether_craft:stamping_chip"
+        }
+      ],
+      "next": "P11"
+    },
+    {
+      "id": "P11",
+      "item": [
+        {
+          "chip": "ether_craft:cutting_chip"
+        }
+      ],
+      "next": "P10"
+    },
+    {
+      "id": "P10",
+      "item": [
+        {
+          "chip": "ether_craft:molding_chip"
+        }
+      ],
+      "next": "P9"
+    },
+    {
+      "id": "P9",
+      "item": [
+        {
+          "chip": "ether_craft:converging_chip"
+        }
+      ],
+      "next": "P8"
+    },
+    {
+      "id": "P8",
+      "item": [
+        {
+          "chip": "ether_craft:carving_chip"
+        }
+      ],
+      "next": "P7"
+    },
+    {
+      "id": "P7",
+      "item": [
+        {
+          "chip": "ether_craft:energizing_chip"
+        }
+      ],
+      "next": "P6"
+    },
+    {
+      "id": "P6",
+      "item": [
+        {
+          "chip": "ether_craft:high_heating_chip"
+        }
+      ],
+      "next": "P5"
+    },
+    {
+      "id": "P5",
+      "item": [
+        {
+          "chip": "ether_craft:welding_chip"
+        }
+      ],
+      "next": "P4"
+    },
+    {
+      "id": "P4",
+      "item": [
+        {
+          "chip": "ether_craft:energizing_chip"
+        }
+      ],
+      "next": "P3"
+    },
+    {
+      "id": "P3",
+      "item": [
+        {
+          "chip": "ether_craft:energizing_chip"
+        }
+      ],
+      "next": "P2"
+    },
+    {
+      "id": "P2",
+      "item": [
+        {
+          "chip": "ether_craft:molding_chip"
+        }
+      ],
+      "next": "P1"
+    },
+    {
+      "id": "P1",
+      "item": [
+        {
+          "chip": "ether_craft:molding_chip"
+        }
+      ],
+      "next": "P0"
+    },
+    {
+      "id": "P0",
+      "item": [
+        {
+          "chip": "ether_craft:welding_chip"
+        },
+        {
+          "chip": "ether_craft:welding_chip"
+        }
+      ],
+      "next": "O"
+    }
+  ],
+  "output": {
+    "id": "O",
+    "item": [
+      {
+        "id": "ether_craft_ether_process_factory_lv_4"
+      }
+    ]
+  }
+}
