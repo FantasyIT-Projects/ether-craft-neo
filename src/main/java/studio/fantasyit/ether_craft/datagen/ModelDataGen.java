@@ -3,6 +3,7 @@ package studio.fantasyit.ether_craft.datagen;
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.ItemModelGenerators;
 import net.minecraft.client.data.models.ModelProvider;
+import net.minecraft.client.data.models.MultiVariant;
 import net.minecraft.client.data.models.blockstates.MultiVariantGenerator;
 import net.minecraft.client.data.models.blockstates.PropertyDispatch;
 import net.minecraft.client.data.models.model.*;
@@ -15,7 +16,9 @@ import net.minecraft.data.PackOutput;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.neoforged.neoforge.client.model.generators.blockstate.CustomBlockStateModelBuilder;
 import studio.fantasyit.ether_craft.EtherCraft;
+import studio.fantasyit.ether_craft.block.glass.render.EtherGlassUnbakedModel;
 import studio.fantasyit.ether_craft.register.BlockRegistry;
 import studio.fantasyit.ether_craft.register.ItemRegistry;
 
@@ -108,6 +111,11 @@ public class ModelDataGen extends ModelProvider {
         blockModels.createTrivialCube(BlockRegistry.ETHER_ORE.get());
         blockModels.createTrivialCube(BlockRegistry.DEEPSLATE_ETHER_ORE.get());
         blockModels.createTrivialCube(BlockRegistry.NETHER_ETHER_ORE.get());
-        blockModels.createTrivialCube(BlockRegistry.ETHER_GLASS.get());
+
+        // 以太玻璃 - 连接纹理
+        var etherGlassCustom = MultiVariant.of(new CustomBlockStateModelBuilder.Simple(new EtherGlassUnbakedModel()));
+        blockModels.blockStateOutput.accept(
+                MultiVariantGenerator.dispatch(BlockRegistry.ETHER_GLASS.get(), etherGlassCustom)
+        );
     }
 }
