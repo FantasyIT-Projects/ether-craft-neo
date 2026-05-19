@@ -28,22 +28,29 @@ import java.util.List;
 
 public class EtherProcessCategory implements IRecipeCategory<EtherProcessFactoryRecipe> {
     private final IDrawable icon;
+    private final IRecipeType<EtherProcessFactoryRecipe> recipeType;
+    private final Component title;
 
-    public EtherProcessCategory(IGuiHelper guiHelper) {
+    public EtherProcessCategory(IGuiHelper guiHelper,
+                                 IRecipeType<EtherProcessFactoryRecipe> recipeType,
+                                 Component title,
+                                 ItemStack iconStack) {
+        this.recipeType = recipeType;
+        this.title = title;
         this.icon = guiHelper.createDrawableIngredient(
                 VanillaTypes.ITEM_STACK,
-                new ItemStack(ItemRegistry.ETHER_PROCESS_FACTORY_ITEM_LV_1.get())
+                iconStack
         );
     }
 
     @Override
     public IRecipeType<EtherProcessFactoryRecipe> getRecipeType() {
-        return JEIPlugin.ETHER_PROCESS_TYPE;
+        return recipeType;
     }
 
     @Override
     public Component getTitle() {
-        return Component.translatable("jei.ether_craft.ether_process");
+        return title;
     }
 
     @Override
