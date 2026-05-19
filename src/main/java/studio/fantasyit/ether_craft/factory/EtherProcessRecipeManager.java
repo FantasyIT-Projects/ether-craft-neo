@@ -14,7 +14,6 @@ import studio.fantasyit.ether_craft.register.RecipeTypeRegistry;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Function;
 
 public class EtherProcessRecipeManager {
     public record ExtraRecipe(Identifier categoryId, Identifier id, EtherProcessFactoryRecipe recipe) {
@@ -31,10 +30,19 @@ public class EtherProcessRecipeManager {
     }
 
     public static List<ExtraRecipe> extraRecipes = new ArrayList<>();
-    public static List<Function<RecipeManager, List<ExtraRecipe>>> extraRecipeProviders = new ArrayList<>();
+    public static List<ExtraRecipeProvider> extraRecipeProviders = new ArrayList<>();
 
-    public static void registerExtraRecipeProvider(Function<RecipeManager, List<ExtraRecipe>> provider) {
+    public static void registerExtraRecipeProvider(ExtraRecipeProvider provider) {
         extraRecipeProviders.add(provider);
+    }
+
+    public static ExtraRecipeProvider getProviderFor(Identifier categoryId) {
+        for (ExtraRecipeProvider p : extraRecipeProviders) {
+            if (p.getCategoryId().equals(categoryId)) {
+                return p;
+            }
+        }
+        return null;
     }
 
     public static void collectProvider() {
@@ -43,8 +51,8 @@ public class EtherProcessRecipeManager {
 
     public static void onReload(RecipeManager manager) {
         extraRecipes.clear();
-        for (Function<RecipeManager, List<ExtraRecipe>> provider : extraRecipeProviders) {
-            extraRecipes.addAll(provider.apply(manager));
+        for (ExtraRecipeProvider provider : extraRecipeProviders) {
+            extraRecipes.addAll(provider.generate(manager));
         }
         //TODO sync
     }
