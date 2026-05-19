@@ -15,11 +15,11 @@ public class ItemEntityTickEvent {
     @SubscribeEvent
     public static void onItemEntityTick(EntityTickEvent.Post event) {
         if (event.getEntity().level().isClientSide()) return;
-        if (event.getEntity() instanceof ItemEntity ie && ie.getItem().is(ItemRegistry.ETHER.get())) {
+        if (event.getEntity() instanceof ItemEntity ie && ie.getItem().is(ItemRegistry.ETHER.get()) && ie.getItem().count() == ie.getItem().getMaxStackSize()) {
             int i = ((ServerLevel) event.getEntity().level()).getDataStorage().computeIfAbsent(EtherInactivateConvertData.ID)
                     .entityTick(ie.getUUID(), event.getEntity().tickCount);
             if (i > Config.etherInactivateTick) {
-                ie.setItem(ItemRegistry.INACTIVATED_ETHER.get().getDefaultInstance().copyWithCount(ie.getItem().count()));
+                ie.setItem(ItemRegistry.INACTIVATED_ETHER.get().getDefaultInstance().copyWithCount(1));
                 ((ServerLevel) event.getEntity().level()).getDataStorage().computeIfAbsent(EtherInactivateConvertData.ID)
                         .reset(ie.getUUID());
             }

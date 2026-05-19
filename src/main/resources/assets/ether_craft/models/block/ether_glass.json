@@ -1,0 +1,10 @@
+{
+  "parent": "block/cube_all",
+  "texture_size": [
+    16,
+    16
+  ],
+  "textures": {
+    "all": "ether_craft:block/glass/15"
+  }
+}

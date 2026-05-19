@@ -33,26 +33,33 @@ public class TreeLayout {
     static TreeLayout compute(EtherProcessRecipeJson json) {
         TreeLayout layout = new TreeLayout();
 
-        Set<String> allIds = new HashSet<>();
-        Map<String, String> nextMap = new HashMap<>();
         Map<String, Boolean> isInput = new HashMap<>();
-
+        Set<String> allIds = new HashSet<>();
         for (var in : json.input()) {
             allIds.add(in.id());
-            nextMap.put(in.id(), in.next());
             isInput.put(in.id(), true);
         }
         for (var proc : json.process()) {
             allIds.add(proc.id());
-            nextMap.put(proc.id(), proc.next());
             isInput.put(proc.id(), false);
         }
 
-        Map<String, Integer> levels = new HashMap<>();
-        for (String id : allIds) {
-            computeLevel(id, nextMap, allIds, levels);
+        Map<String, Integer> levels = computeLevels(json, allIds);
+        int maxLevel = levels.values().stream().max(Integer::compareTo).orElse(0);
+
+        Map<String, Integer> nodeH = new HashMap<>();
+        for (var in : json.input())
+            nodeH.put(in.id(), SLOT_SIZE);
+        for (var proc : json.process()) {
+            int cnt = proc.item().size();
+            nodeH.put(proc.id(), cnt * SLOT_SIZE + (cnt - 1) * CHIP_GAP);
         }
-        int maxLevel = levels.values().stream().max(Integer::compare).orElse(0);
+
+        Map<String, String> nextMap = new HashMap<>();
+        for (var in : json.input())
+            nextMap.put(in.id(), in.next());
+        for (var proc : json.process())
+            nextMap.put(proc.id(), proc.next());
 
         int outCount = json.output().item().size();
         int outWidth = outCount * SLOT_SIZE + Math.max(0, outCount - 1) * 2;
@@ -67,26 +74,30 @@ public class TreeLayout {
 
         Map<String, Integer> nodeX = new HashMap<>();
         Map<String, Integer> nodeY = new HashMap<>();
-        Map<String, Integer> nodeH = new HashMap<>();
 
         for (var entry : byLevel.entrySet()) {
             int level = entry.getKey();
             int colX = PADDING + (maxLevel - level) * spacing;
-            List<String> ids = entry.getValue();
+            List<String> ids = new ArrayList<>(entry.getValue());
+
+            if (level == 1) {
+                ids.sort(String::compareTo);
+            } else {
+                ids.sort((a, b) -> {
+                    String na = nextMap.get(a);
+                    String nb = nextMap.get(b);
+                    int ya = na != null && nodeY.containsKey(na) ? nodeY.get(na) : 0;
+                    int yb = nb != null && nodeY.containsKey(nb) ? nodeY.get(nb) : 0;
+                    if (ya != yb) return Integer.compare(ya, yb);
+                    return a.compareTo(b);
+                });
+            }
 
             int totalH = 0;
             for (String id : ids) {
-                int h;
-                if (isInput.get(id)) {
-                    h = SLOT_SIZE;
-                } else {
-                    int cnt = chipCount(json, id);
-                    h = cnt * SLOT_SIZE + (cnt - 1) * CHIP_GAP;
-                }
-                nodeH.put(id, h);
-                totalH += h + NODE_GAP;
+                totalH += nodeH.get(id) + NODE_GAP;
             }
-            totalH -= NODE_GAP;
+            if (totalH > 0) totalH -= NODE_GAP;
 
             int curY = PADDING + (HEIGHT - 2 * PADDING - totalH) / 2;
             for (String id : ids) {
@@ -149,24 +160,45 @@ public class TreeLayout {
         return isInput ? SLOT_SIZE / 2 : h / 2;
     }
 
-    private static int chipCount(EtherProcessRecipeJson json, String id) {
-        for (var p : json.process()) {
-            if (p.id().equals(id)) return p.item().size();
-        }
-        return 1;
-    }
+    private static Map<String, Integer> computeLevels(EtherProcessRecipeJson json, Set<String> allIds) {
+        Map<String, Integer> levels = new HashMap<>();
+        Map<String, List<String>> predecessors = new HashMap<>();
+        Deque<String> queue = new ArrayDeque<>();
 
-    private static int computeLevel(String id, Map<String, String> nextMap,
-                                    Set<String> allIds, Map<String, Integer> levels) {
-        if (levels.containsKey(id)) return levels.get(id);
-        String next = nextMap.getOrDefault(id, null);
-        int lvl;
-        if (next == null || !allIds.contains(next)) {
-            lvl = 1;
-        } else {
-            lvl = computeLevel(next, nextMap, allIds, levels) + 1;
+        for (var in : json.input()) {
+            String next = in.next();
+            if (next != null && allIds.contains(next))
+                predecessors.computeIfAbsent(next, k -> new ArrayList<>()).add(in.id());
+            else {
+                levels.put(in.id(), 1);
+                queue.add(in.id());
+            }
         }
-        levels.put(id, lvl);
-        return lvl;
+        for (var proc : json.process()) {
+            String next = proc.next();
+            if (next != null && allIds.contains(next))
+                predecessors.computeIfAbsent(next, k -> new ArrayList<>()).add(proc.id());
+            else {
+                levels.put(proc.id(), 1);
+                queue.add(proc.id());
+            }
+        }
+
+        while (!queue.isEmpty()) {
+            String id = queue.poll();
+            int level = levels.get(id);
+            for (String pred : predecessors.getOrDefault(id, List.of())) {
+                if (!levels.containsKey(pred)) {
+                    levels.put(pred, level + 1);
+                    queue.add(pred);
+                }
+            }
+        }
+
+        for (String id : allIds) {
+            levels.putIfAbsent(id, 1);
+        }
+
+        return levels;
     }
 }

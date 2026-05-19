@@ -6,6 +6,7 @@ import mezz.jei.api.recipe.types.IRecipeType;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeCategoryRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
+import mezz.jei.api.registration.ISubtypeRegistration;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
@@ -15,6 +16,7 @@ import studio.fantasyit.ether_craft.event.ClientRecipeSyncEvent;
 import studio.fantasyit.ether_craft.node.NodePluginManager;
 import studio.fantasyit.ether_craft.recipe.factory.EtherProcessFactoryRecipe;
 import studio.fantasyit.ether_craft.recipe.node.NodeProcessRecipe;
+import studio.fantasyit.ether_craft.register.DataComponentRegistry;
 import studio.fantasyit.ether_craft.register.ItemRegistry;
 import studio.fantasyit.ether_craft.register.RecipeTypeRegistry;
 
@@ -126,6 +128,14 @@ public class JEIPlugin implements IModPlugin {
                 new ItemStack(ItemRegistry.ETHER_ADAPT_NODE_ITEM_LV_1.get()),
                 new ItemStack(ItemRegistry.ETHER_ADAPT_NODE_ITEM_LV_2.get()),
                 new ItemStack(ItemRegistry.ETHER_ADAPT_NODE_ITEM_LV_3.get())
+        );
+    }
+
+    @Override
+    public void registerItemSubtypes(ISubtypeRegistration registration) {
+        registration.registerFromDataComponentTypes(
+                ItemRegistry.PROCESS_CHIP_ITEM.get(),
+                DataComponentRegistry.CHIP_ID.get()
         );
     }
 }

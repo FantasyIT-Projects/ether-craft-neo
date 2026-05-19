@@ -21,13 +21,11 @@ import java.util.List;
 import java.util.Map;
 
 public class EtherGlassDynamicModel implements DynamicBlockStateModel {
-    private static final float BORDER = 1.0f / 16.0f;
-    private static final float CORNER = 3.0f / 16.0f;
     private static final Map<Direction, Pair> FACE_LOCAL_DIRS = new EnumMap<>(Direction.class);
 
     static {
-        FACE_LOCAL_DIRS.put(Direction.UP, new Pair(Direction.SOUTH, Direction.WEST));
-        FACE_LOCAL_DIRS.put(Direction.DOWN, new Pair(Direction.NORTH, Direction.WEST));
+        FACE_LOCAL_DIRS.put(Direction.UP, new Pair(Direction.SOUTH, Direction.EAST));
+        FACE_LOCAL_DIRS.put(Direction.DOWN, new Pair(Direction.SOUTH, Direction.EAST));
         FACE_LOCAL_DIRS.put(Direction.NORTH, new Pair(Direction.UP, Direction.WEST));
         FACE_LOCAL_DIRS.put(Direction.SOUTH, new Pair(Direction.UP, Direction.EAST));
         FACE_LOCAL_DIRS.put(Direction.WEST, new Pair(Direction.UP, Direction.SOUTH));
@@ -35,17 +33,11 @@ public class EtherGlassDynamicModel implements DynamicBlockStateModel {
     }
 
     private final Material.Baked particleMaterial;
-    private final TextureAtlasSprite border;
-    private final TextureAtlasSprite bg;
-    private final TextureAtlasSprite borderBg;
-    private final TextureAtlasSprite borderCorner;
+    private final TextureAtlasSprite[] s;
 
-    public EtherGlassDynamicModel(TextureAtlasSprite bg, TextureAtlasSprite borderBg, TextureAtlasSprite borderCorner, TextureAtlasSprite border) {
-        this.bg = bg;
-        this.borderBg = borderBg;
-        this.borderCorner = borderCorner;
-        this.border = border;
-        this.particleMaterial = new Material.Baked(bg, true);
+    public EtherGlassDynamicModel(TextureAtlasSprite[] bg) {
+        this.s = bg;
+        this.particleMaterial = new Material.Baked(bg[0], true);
     }
 
     @Override
@@ -69,29 +61,15 @@ public class EtherGlassDynamicModel implements DynamicBlockStateModel {
 
             List<BakedQuad> quads = new ArrayList<>();
 
-            // center (always rendered when face is visible)
-            quads.add(buildQuad(face, BORDER, BORDER, 1 - BORDER, 1 - BORDER, bg));
-
-            // top border
-            quads.add(buildQuad(face, 0, 0, BORDER, BORDER, topConn ? borderBg : border));
-            // bottom border
-            quads.add(buildQuad(face, 1 - BORDER, 0, BORDER, BORDER, botConn ? borderBg : border));
-            // left border
-            quads.add(buildQuad(face, BORDER, 0, BORDER, 1 - BORDER, leftConn ? borderBg : border));
-            // right border
-            quads.add(buildQuad(face, BORDER, 1 - BORDER, 1 - BORDER, BORDER, rightConn ? borderBg : border));
-            // corner TL
-            quads.add(buildQuad(face, 0, 0, CORNER, CORNER, (!topConn && !leftConn) ? borderBg : borderCorner));
-            // corner TR
-            quads.add(buildQuad(face, 0, 1 - CORNER, CORNER, CORNER, (!topConn && !rightConn) ? borderBg : borderCorner));
-            // corner BL
-            quads.add(buildQuad(face, 1 - CORNER, 0, CORNER, CORNER, (!botConn && !leftConn) ? borderBg : borderCorner));
-            // corner BR
-            quads.add(buildQuad(face, 1 - CORNER, 1 - CORNER, CORNER, CORNER, (!botConn && !rightConn) ? borderBg : borderCorner));
-
+            int idx = !topConn ? 1 : 0;
+            idx = (idx << 1) | (!botConn ? 1 : 0);
+            idx = (idx << 1) | (!rightConn ? 1 : 0);
+            idx = (idx << 1) | (!leftConn ? 1 : 0);
+            quads.add(buildQuad(face, 0, 0, 1, 1, s[idx]));
             parts.add(new FacePart(quads, face));
         }
     }
+
 
     private static BakedQuad buildQuad(Direction face, float u0, float v0, float u1, float v1, TextureAtlasSprite sprite) {
         BakedQuad.MaterialInfo matInfo = new BakedQuad.MaterialInfo(
