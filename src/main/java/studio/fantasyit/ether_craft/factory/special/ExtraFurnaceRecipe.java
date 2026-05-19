@@ -4,6 +4,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.crafting.BlastingRecipe;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.level.ItemLike;
 import net.neoforged.neoforge.common.crafting.SizedIngredient;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.factory.EtherProcessRecipeManager;
@@ -12,14 +13,26 @@ import studio.fantasyit.ether_craft.recipe.IngredientSerializer;
 import studio.fantasyit.ether_craft.recipe.factory.EtherProcessFactoryRecipe;
 import studio.fantasyit.ether_craft.recipe.factory.EtherProcessRecipeJson;
 
-import java.util.List;
-import java.util.function.Function;
+import studio.fantasyit.ether_craft.factory.ExtraRecipeProvider;
+import studio.fantasyit.ether_craft.register.ItemRegistry;
 
-public class ExtraFurnaceRecipe implements Function<RecipeManager, List<EtherProcessRecipeManager.ExtraRecipe>> {
+import java.util.List;
+
+public class ExtraFurnaceRecipe implements ExtraRecipeProvider {
     public static final Identifier CATEGORY = EtherCraft.id("special/furnace");
 
     @Override
-    public List<EtherProcessRecipeManager.ExtraRecipe> apply(RecipeManager recipeManager) {
+    public Identifier getCategoryId() {
+        return CATEGORY;
+    }
+
+    @Override
+    public ItemLike getIcon() {
+        return ItemRegistry.ETHER_PROCESS_FACTORY_ITEM_LV_1.get();
+    }
+
+    @Override
+    public List<EtherProcessRecipeManager.ExtraRecipe> generate(RecipeManager recipeManager) {
         return recipeManager.getRecipes()
                 .stream()
                 .filter(r -> r.value().getType() == RecipeType.BLASTING)
