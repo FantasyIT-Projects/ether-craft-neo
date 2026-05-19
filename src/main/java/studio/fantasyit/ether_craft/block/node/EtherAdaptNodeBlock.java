@@ -2,16 +2,13 @@ package studio.fantasyit.ether_craft.block.node;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -24,20 +21,15 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
-import net.minecraft.world.level.storage.TagValueOutput;
-import net.minecraft.world.level.storage.loot.LootParams;
-import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.Nullable;
-import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.block.base.BaseBlock;
 import studio.fantasyit.ether_craft.node.NodePluginManager;
 import studio.fantasyit.ether_craft.node.plugins.base.AbstractNodePlugin;
 import studio.fantasyit.ether_craft.node.plugins.feature.AbstractDirectionalFeature;
 import studio.fantasyit.ether_craft.register.ItemRegistry;
 
-import java.util.List;
 import java.util.function.Function;
 
 public class EtherAdaptNodeBlock extends BaseBlock {
@@ -107,10 +99,10 @@ public class EtherAdaptNodeBlock extends BaseBlock {
                     AbstractNodePlugin plugin = container.getPlugin(targetSlot);
                     if (plugin instanceof AbstractDirectionalFeature directional) {
                         directional.direction = hitResult.getDirection();
-                        eane.pluginUpdate();
                     }
                 }
 
+                eane.pluginUpdate();
                 player.sendSystemMessage(Component.translatable("message.ether_craft.plugin_installed"));
                 return InteractionResult.SUCCESS;
             }
@@ -118,7 +110,8 @@ public class EtherAdaptNodeBlock extends BaseBlock {
         if (itemStack.is(ItemRegistry.WRENCH)) {
             @NotNull Direction facing = state.getValue(FACING);
             Direction counterClockWise = facing.getCounterClockWise(hitResult.getDirection().getAxis());
-            level.setBlockAndUpdate(pos, state.setValue(FACING, counterClockWise));
+            if (Direction.Plane.HORIZONTAL.test(facing))
+                level.setBlockAndUpdate(pos, state.setValue(FACING, counterClockWise));
             if (!level.isClientSide() && level.getBlockEntity(pos) instanceof EtherAdaptNodeEntity eane) {
                 eane.rotatePluginsByAxis(hitResult.getDirection().getAxis());
             }

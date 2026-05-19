@@ -1,15 +1,12 @@
 package studio.fantasyit.ether_craft.datapack;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.resources.FileToIdConverter;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
-import studio.fantasyit.ether_craft.block.factory.EtherProcessChipManager;
+import studio.fantasyit.ether_craft.factory.EtherProcessChipManager;
 
-import java.util.HashMap;
 import java.util.Map;
 
 public class ProcessChipDataLoader extends SimpleJsonResourceReloadListener<EtherProcessChipManager.ProcessChipRecord> {

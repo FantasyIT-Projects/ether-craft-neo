@@ -18,4 +18,8 @@ public record DelayedIngredient(Either<IngredientSerializer.SizedIngredientLike,
     public static DelayedIngredient of(SizedIngredient ingredient) {
         return new DelayedIngredient(Either.right(ingredient));
     }
+
+    public static DelayedIngredient of(IngredientSerializer.SizedIngredientLike ingredient) {
+        return new DelayedIngredient(Either.left(ingredient));
+    }
 }

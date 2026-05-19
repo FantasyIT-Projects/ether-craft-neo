@@ -8,7 +8,7 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import studio.fantasyit.ether_craft.EtherCraft;
-import studio.fantasyit.ether_craft.block.factory.EtherProcessChipManager;
+import studio.fantasyit.ether_craft.factory.EtherProcessChipManager;
 import studio.fantasyit.ether_craft.item.ProcessChipItem;
 
 public class CreativeTabRegistry {

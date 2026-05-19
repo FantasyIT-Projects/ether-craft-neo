@@ -1,4 +1,4 @@
-package studio.fantasyit.ether_craft.block.factory;
+package studio.fantasyit.ether_craft.factory;
 
 import org.joml.Vector2i;
 import org.joml.Vector4i;

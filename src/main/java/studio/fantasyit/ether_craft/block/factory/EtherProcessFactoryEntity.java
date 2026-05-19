@@ -25,6 +25,8 @@ import studio.fantasyit.ether_craft.block.base.EtherContainer;
 import studio.fantasyit.ether_craft.block.base.ITickable;
 import studio.fantasyit.ether_craft.block.base.IWorldRenderBE;
 import studio.fantasyit.ether_craft.block.base.ItemFilter;
+import studio.fantasyit.ether_craft.factory.EtherProcessWorkingChip;
+import studio.fantasyit.ether_craft.factory.FactoryLevelDef;
 import studio.fantasyit.ether_craft.menu.factory.EtherProcessFactoryContainerMenu;
 import studio.fantasyit.ether_craft.recipe.factory.EtherFactoryRecipeInput;
 import studio.fantasyit.ether_craft.recipe.factory.EtherProcessFactoryRecipe;

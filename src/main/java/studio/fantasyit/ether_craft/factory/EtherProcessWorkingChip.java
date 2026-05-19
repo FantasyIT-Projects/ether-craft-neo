@@ -1,4 +1,4 @@
-package studio.fantasyit.ether_craft.block.factory;
+package studio.fantasyit.ether_craft.factory;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;

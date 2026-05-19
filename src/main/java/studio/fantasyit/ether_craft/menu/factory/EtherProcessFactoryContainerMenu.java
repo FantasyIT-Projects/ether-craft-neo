@@ -10,7 +10,7 @@ import org.joml.Vector2i;
 import studio.fantasyit.ether_craft.block.base.ItemFilter;
 import studio.fantasyit.ether_craft.menu.base.IFilterSwitchable;
 import studio.fantasyit.ether_craft.block.factory.EtherProcessFactoryEntity;
-import studio.fantasyit.ether_craft.block.factory.FactoryLevelDef;
+import studio.fantasyit.ether_craft.factory.FactoryLevelDef;
 import studio.fantasyit.ether_craft.menu.base.*;
 import studio.fantasyit.ether_craft.menu.base.ether.EtherSlot;
 import studio.fantasyit.ether_craft.menu.base.slot.BaseDataSlot;

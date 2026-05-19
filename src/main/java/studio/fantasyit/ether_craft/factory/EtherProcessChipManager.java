@@ -1,4 +1,4 @@
-package studio.fantasyit.ether_craft.block.factory;
+package studio.fantasyit.ether_craft.factory;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -11,7 +11,6 @@ import studio.fantasyit.ether_craft.register.ItemRegistry;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 public class EtherProcessChipManager {
     public static void update(Map<Identifier, ProcessChipRecord> identifierProcessChipRecordMap) {

@@ -10,7 +10,7 @@ import net.neoforged.neoforge.common.crafting.SizedIngredient;
 import org.joml.Vector2i;
 import studio.fantasyit.ether_craft.base.GraphLike;
 import studio.fantasyit.ether_craft.base.TreeLike;
-import studio.fantasyit.ether_craft.block.factory.EtherProcessWorkingChip;
+import studio.fantasyit.ether_craft.factory.EtherProcessWorkingChip;
 import studio.fantasyit.ether_craft.item.ProcessChipItem;
 import studio.fantasyit.ether_craft.recipe.DelayedIngredient;
 import studio.fantasyit.ether_craft.recipe.factory.EtherFactoryRecipeInput;

@@ -6,7 +6,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.Connection;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
@@ -103,11 +102,22 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
         else
             functionPlugin = null;
         Direction functionDirection = getBlockState().getValueOrElse(EtherAdaptNodeBlock.FACING, Direction.NORTH);
-        if (featureAttachedDirection.containsKey(functionDirection)) {
+        if (featureAttachedDirection.containsKey(functionDirection) || !Direction.Plane.HORIZONTAL.test(functionDirection)) {
+            boolean found = false;
             for (Direction d : Direction.values()) {
-                if (!featureAttachedDirection.containsKey(d)) {
-                    getBlockState().setValue(EtherAdaptNodeBlock.FACING, d);
+                if (Direction.Plane.HORIZONTAL.test(d) && !featureAttachedDirection.containsKey(d)) {
+                    BlockState blockState = getBlockState().setValue(EtherAdaptNodeBlock.FACING, d);
+                    if (level != null) {
+                        level.setBlockAndUpdate(worldPosition, blockState);
+                    }
+                    found = true;
                     break;
+                }
+            }
+            if (!found) {
+                BlockState blockState = getBlockState().setValue(EtherAdaptNodeBlock.FACING, Direction.UP);
+                if (level != null) {
+                    level.setBlockAndUpdate(worldPosition, blockState);
                 }
             }
         }
@@ -362,6 +372,7 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
             return output.buildResult();
         }
     }
+
     @Override
     public void handleUpdateTag(ValueInput input) {
         Map<Direction, InstalledPlugin> pluginDirection = input.read("pd", SerializeUtil.PDMap.CODEC.listOf())

@@ -1,14 +1,11 @@
 package studio.fantasyit.ether_craft.recipe.factory;
 
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeInput;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector2i;
 import studio.fantasyit.ether_craft.base.TreeLike;
-import studio.fantasyit.ether_craft.block.factory.EtherProcessWorkingChip;
+import studio.fantasyit.ether_craft.factory.EtherProcessWorkingChip;
 
 import java.util.List;
 import java.util.Set;
