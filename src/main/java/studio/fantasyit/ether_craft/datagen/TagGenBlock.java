@@ -6,18 +6,14 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.tags.TagsProvider;
 import net.minecraft.tags.BlockTags;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import org.jetbrains.annotations.NotNull;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.register.BlockRegistry;
-import studio.fantasyit.ether_craft.register.ItemRegistry;
 import studio.fantasyit.ether_craft.register.Tags;
 
 import java.util.concurrent.CompletableFuture;
-
-import static studio.fantasyit.ether_craft.register.Tags.PROCESS_CHIP;
 
 public class TagGenBlock extends TagsProvider<Block> {
 
@@ -28,7 +24,9 @@ public class TagGenBlock extends TagsProvider<Block> {
     @Override
     protected void addTags(HolderLookup.@NotNull Provider provider) {
         getOrCreateRawBuilder(Tags.ETHER_STREAM_PASS_THROUGH)
-                .addElement(BuiltInRegistries.BLOCK.getKey(Blocks.GLASS));
+                .addElement(BuiltInRegistries.BLOCK.getKey(Blocks.GLASS))
+                .addElement(BuiltInRegistries.BLOCK.getKey(Blocks.GLASS_PANE))
+                .addElement(BlockRegistry.ETHER_BLOCK.getId());
         getOrCreateRawBuilder(Tags.ETHER_MACHINE)
                 .addElement(BlockRegistry.ETHER_PROCESS_FACTORY.getKey().identifier())
                 .addElement(BlockRegistry.ETHER_STREAM_EMITTER.getKey().identifier())

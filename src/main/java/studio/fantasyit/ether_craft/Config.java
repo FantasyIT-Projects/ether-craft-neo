@@ -23,6 +23,9 @@ public class Config {
     private static final ModConfigSpec.IntValue NODE_FURNACE_BURNTIME_FACTOR = BUILDER
             .comment("...")
             .defineInRange("node.furnace.factor", 1, 1, 100);
+    private static final ModConfigSpec.IntValue NODE_FURNACE_ETHER_PRE_TICK = BUILDER
+            .comment("...")
+            .defineInRange("node.furnace.ether_pre_tick", 10, 1, Integer.MAX_VALUE);
     private static final ModConfigSpec.IntValue NODE_MAGNET_CONSUME_PRE_STACK = BUILDER
             .comment("Ether the magnet function will consume when picking up one stack")
             .defineInRange("node.magnet.consume_pre_stack", 100, 1, Integer.MAX_VALUE);
@@ -78,6 +81,7 @@ public class Config {
     public static int etherConvert;
     public static int nodeDefMaxEther;
     public static int nodeFurnaceBurntimeFactor;
+    public static int nodeFurnaceEtherPreTick;
     public static List<Integer> nodeLevelSlotArr;
     public static int nodeMagnetConsumePreStack;
     public static int containerInteractEtherPreItem;
@@ -98,6 +102,7 @@ public class Config {
         etherConvert = ETHER_CONVERT.get();
         nodeDefMaxEther = NODE_DEF_MAX_ETHER.get();
         nodeFurnaceBurntimeFactor = NODE_FURNACE_BURNTIME_FACTOR.get();
+        nodeFurnaceEtherPreTick = NODE_FURNACE_ETHER_PRE_TICK.get();
         nodeLevelSlotArr = NODE_LEVEL_SLOT_ARR.get().stream().map(t -> (Integer) t).toList();
         nodeMagnetConsumePreStack = NODE_MAGNET_CONSUME_PRE_STACK.get();
         containerInteractEtherPreItem = NODE_CONTAINER_INTERACT_ETHER_PRE_ITEM.get();

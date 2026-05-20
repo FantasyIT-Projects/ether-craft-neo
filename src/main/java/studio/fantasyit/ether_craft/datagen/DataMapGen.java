@@ -19,7 +19,7 @@ public class DataMapGen extends DataMapProvider {
     protected void gather(HolderLookup.Provider provider) {
         this.builder(StoneGeneratorRatio.STONE_GENERATOR_RATIO)
                 .replace(true)
-                .add(Items.COBBLESTONE.builtInRegistryHolder(), new StoneGeneratorRatio(100, 50), false)
-                .add(Items.BASALT.builtInRegistryHolder(), new StoneGeneratorRatio(200, 50), false);
+                .add(Items.COBBLESTONE.builtInRegistryHolder(), new StoneGeneratorRatio(100, 10), false)
+                .add(Items.BASALT.builtInRegistryHolder(), new StoneGeneratorRatio(200, 10), false);
     }
 }

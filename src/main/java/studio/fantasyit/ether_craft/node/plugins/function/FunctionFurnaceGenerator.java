@@ -50,7 +50,7 @@ public class FunctionFurnaceGenerator extends AbstractItemConsumeFunction {
 
     @Override
     void onBurnTick() {
-        nodeEntity.receiveEther(50);
+        nodeEntity.receiveEther(Config.nodeFurnaceEtherPreTick);
     }
 
     @Override
