@@ -38,7 +38,8 @@ public class JEIPlugin implements IModPlugin {
     private record DynamicCategory(
             IRecipeType<EtherProcessFactoryRecipe> type,
             Identifier categoryId
-    ) {}
+    ) {
+    }
 
     private final List<DynamicCategory> dynamicCategories = new ArrayList<>();
 
@@ -102,7 +103,7 @@ public class JEIPlugin implements IModPlugin {
     private void registerNodePluginInfo(IRecipeRegistration registration) {
         List<NodePluginInfoRecipe> recipes = new ArrayList<>();
         for (var info : NodePluginManager.ALL_PLUGINS) {
-            if (info.type() == NodePluginManager.PluginType.DUMMY)
+            if (info.type() == NodePluginManager.PluginType.DUMMY || info.id().equals(NodePluginManager.MAIN_PAGE.pluginId()))
                 continue;
             recipes.add(NodePluginInfoRecipe.fromPluginInfo(info));
         }

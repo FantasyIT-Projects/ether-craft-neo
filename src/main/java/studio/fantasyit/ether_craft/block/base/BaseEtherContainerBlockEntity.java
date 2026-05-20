@@ -62,11 +62,13 @@ public class BaseEtherContainerBlockEntity extends BlockEntity implements Resour
     protected void loadAdditional(ValueInput input) {
         input.read("content", ItemStack.OPTIONAL_CODEC.listOf()).ifPresent(l ->
                 ContainerOps.fillContainerByItemList(container, l));
+        super.loadAdditional(input);
     }
 
     @Override
     protected void saveAdditional(ValueOutput output) {
         output.store("content", ItemStack.OPTIONAL_CODEC.listOf(), ContainerOps.containerToItemList(container));
+        super.saveAdditional(output);
     }
 
     @Override

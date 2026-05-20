@@ -9,6 +9,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import org.jspecify.annotations.NonNull;
 import studio.fantasyit.ether_craft.register.BlockRegistry;
+import studio.fantasyit.ether_craft.register.ItemRegistry;
 
 import java.util.List;
 import java.util.Set;
@@ -29,9 +30,9 @@ public class LootTableGen extends LootTableProvider {
         @Override
         protected void generate() {
             dropSelf(BlockRegistry.ETHER_BLOCK.get());
-            add(BlockRegistry.ETHER_ORE.get(), createOreDrop(BlockRegistry.ETHER_ORE.get(), BlockRegistry.ETHER_ORE.get().asItem()));
-            add(BlockRegistry.DEEPSLATE_ETHER_ORE.get(), createOreDrop(BlockRegistry.DEEPSLATE_ETHER_ORE.get(), BlockRegistry.DEEPSLATE_ETHER_ORE.get().asItem()));
-            add(BlockRegistry.NETHER_ETHER_ORE.get(), createOreDrop(BlockRegistry.NETHER_ETHER_ORE.get(), BlockRegistry.NETHER_ETHER_ORE.get().asItem()));
+            add(BlockRegistry.ETHER_ORE.get(), createOreDrop(BlockRegistry.ETHER_ORE.get(), ItemRegistry.INACTIVATED_ETHER.get()));
+            add(BlockRegistry.DEEPSLATE_ETHER_ORE.get(), createOreDrop(BlockRegistry.DEEPSLATE_ETHER_ORE.get(), ItemRegistry.INACTIVATED_ETHER.get()));
+            add(BlockRegistry.NETHER_ETHER_ORE.get(), createOreDrop(BlockRegistry.NETHER_ETHER_ORE.get(), ItemRegistry.INACTIVATED_ETHER.get()));
             dropSelf(BlockRegistry.ETHER_GLASS.get());
         }
 

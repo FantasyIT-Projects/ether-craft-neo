@@ -6,6 +6,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
+import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.block.node.EtherAdaptNodeEntity;
 import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
@@ -20,7 +21,7 @@ public class FunctionFurnaceGenerator extends AbstractItemConsumeFunction {
     @Override
     boolean accepts(ItemResource stack) {
         int burnTime = stack.toStack().getBurnTime(null, nodeEntity.getLevel().fuelValues());
-        return burnTime > 0;
+        return burnTime >= Config.nodeFurnaceBurntimeFactor;
     }
 
     @Override
@@ -33,7 +34,7 @@ public class FunctionFurnaceGenerator extends AbstractItemConsumeFunction {
             }
         }
         ItemStack remainStack = itemStack.copyWithCount(itemStack.getCount() - 1);
-        this.remainBurnTicks = itemStack.getBurnTime(null, nodeEntity.getLevel().fuelValues());
+        this.remainBurnTicks = itemStack.getBurnTime(null, nodeEntity.getLevel().fuelValues()) / Config.nodeFurnaceBurntimeFactor;
 
         if (itemStack.is(ItemTags.LOGS) || itemStack.is(ItemTags.PLANKS))
             nodeEntity.setSyncedPluginData(installedId, WORKING_MATERIAL, WorkingMaterial.WOOD.ordinal());
@@ -49,7 +50,7 @@ public class FunctionFurnaceGenerator extends AbstractItemConsumeFunction {
 
     @Override
     void onBurnTick() {
-        nodeEntity.receiveEther(40);
+        nodeEntity.receiveEther(50);
     }
 
     @Override

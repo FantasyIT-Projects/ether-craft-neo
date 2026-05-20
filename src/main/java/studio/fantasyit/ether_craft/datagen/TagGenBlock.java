@@ -34,6 +34,12 @@ public class TagGenBlock extends TagsProvider<Block> {
                 .addElement(BlockRegistry.ETHER_STREAM_EMITTER.getKey().identifier())
                 .addElement(BlockRegistry.ETHER_ADAPT_NODE.getKey().identifier());
 
+        getOrCreateRawBuilder(Tags.ETHER_WRENCHABLE)
+                .addElement(BlockRegistry.ETHER_PROCESS_FACTORY.getKey().identifier())
+                .addElement(BlockRegistry.ETHER_STREAM_EMITTER.getKey().identifier())
+                .addElement(BlockRegistry.ETHER_ADAPT_NODE.getKey().identifier())
+                .addElement(BlockRegistry.ETHER_GLASS.getKey().identifier());
+
         getOrCreateRawBuilder(BlockTags.MINEABLE_WITH_PICKAXE)
                 .addElement(BlockRegistry.ETHER_PROCESS_FACTORY.getKey().identifier())
                 .addElement(BlockRegistry.ETHER_STREAM_EMITTER.getKey().identifier())

@@ -1,252 +1,184 @@
-# Language Key Reference for AI Auto-Generation
+# 翻译键查找与生成指南
 
-> 本文档列出项目中所有需要动态生成（由字段拼接而来）或非字面量引用的语言键，供 AI 自动生成 `en_us.json` 条目使用。
+> 如何系统性地发现项目中所有需要翻译的语言键，以及如何为 `en_us.json` / `zh_cn.json` 生成正确的条目。
+>
+> **最后更新:** 2026-05-20
 
 ---
 
-## 一、Minecraft / NeoForge 框架自动生成的键
+## 一、翻译键来源分类
 
-这些键由 NeoForge 根据注册名自动推导，**代码中不可见**，但必须在语言文件中定义，否则游戏中会显示原始 registry ID。
+一个 Minecraft NeoForge 模组的翻译键来自以下四类：
 
-### 1.1 方块 (Blocks)
-
-命名规则: `block.<modid>.<registry_id>`
-
-| 键 | 注册位置 | 注册 ID |
+| 来源 | 代码中可见? | 示例 |
 |---|---|---|
-| `block.ether_craft.ether_process_factory` | `BlockRegistry.java:16` | `ether_process_factory` |
-| `block.ether_craft.ether_stream_emitter` | `BlockRegistry.java:17` | `ether_stream_emitter` |
-| `block.ether_craft.ether_adapt_node` | `BlockRegistry.java:18` | `ether_adapt_node` |
-
-### 1.2 物品 (Items)
-
-命名规则: `item.<modid>.<registry_id>`
-
-| 键 | 注册位置 | 注册 ID | 备注 |
-|---|---|---|---|
-| `item.ether_craft.ether` | `ItemRegistry.java:25` | `ether` | |
-| `item.ether_craft.ether_creative` | `ItemRegistry.java:26` | `ether_creative` | |
-| `item.ether_craft.process_chip` | `ItemRegistry.java:27` | `process_chip` | |
-| `item.ether_craft.direct_input` | `ItemRegistry.java:28` | `direct_input` | |
-| `item.ether_craft.wrench` | `ItemRegistry.java:30` | `wrench` | |
-| `item.ether_craft.ether_stream_emitter` | `ItemRegistry.java:31` | `ether_stream_emitter` | 通过 `block()` 方法，ID 来自方块 |
-| `item.ether_craft.ether_process_factory_lv_1` | `ItemRegistry.java:32` | `ether_process_factory_lv_1` | |
-| `item.ether_craft.ether_process_factory_lv_2` | `ItemRegistry.java:33` | `ether_process_factory_lv_2` | |
-| `item.ether_craft.ether_process_factory_lv_3` | `ItemRegistry.java:34` | `ether_process_factory_lv_3` | |
-| `item.ether_craft.ether_process_factory_lv_4` | `ItemRegistry.java:35` | `ether_process_factory_lv_4` | |
-| `item.ether_craft.ether_adapt_node_lv_1` | `ItemRegistry.java:36` | `ether_adapt_node_lv_1` | |
-| `item.ether_craft.ether_adapt_node_lv_2` | `ItemRegistry.java:37` | `ether_adapt_node_lv_2` | |
-| `item.ether_craft.ether_adapt_node_lv_3` | `ItemRegistry.java:38` | `ether_adapt_node_lv_3` | |
+| **框架自动生成** | 否 — 由注册 ID 推导 | `block.<modid>.<id>`, `item.<modid>.<id>` |
+| **动态拼接** | 是 — `Component.translatable(key + variable)` | 枚举/数组/Identifier 拼接 |
+| **静态字面量** | 是 — `Component.translatable("key")` | 直接写在代码中的键 |
+| **间接引用** | 是 — `Component.translatable(CONSTANT)` | 通过常量变量引用 |
 
 ---
 
-## 二、运行时拼接生成的动态键 (Dynamic Concatenation)
+## 二、查找流程（按优先级执行）
 
-### 2.1 处理芯片 Tooltip 键 — 来自数据组件 ID
+### 第 1 步：扫描注册表类，推导框架自动生成的键
 
-**代码位置:** `ProcessChipItem.java:46-47`
+**目标文件:** `*Registry.java`
 
-```java
-String baseKey = "tooltip." + id.getNamespace() + "." + id.getPath();
-builder.accept(Component.translatable(baseKey));
+对每个 `DeferredRegister.register("id", ...)`，NeoForge 会按注册类型自动生成键：
+
+| 注册类型 | 自动生成键格式 | 注意事项 |
+|---|---|---|---|
+| `BLOCK` | `block.<modid>.<id>` | 方块本身。若方块也在 `ItemRegistry` 中注册了 BlockItem，还需要对应的 `item.<modid>.<id>` |
+| `ITEM` | `item.<modid>.<id>` | **所有 Item（包括 BlockItem）都应有此键**。通用 BlockItem 不会自动继承 block 键 |
+| `CREATIVE_MODE_TAB` | `itemGroup.<modid>` | 除非显式设置了 `.title(Component.translatable(...))` |
+
+> **关键规则：每个在 `ItemRegistry` 中注册的 Item（无论是纯物品还是 BlockItem），都必须有对应的 `item.<modid>.<id>` 翻译键。** BlockItem 不会自动回退到 `block.<modid>.<id>`——若不提供 item 键，物品栏中会显示原始 registry ID。
+
+**当前项目示例 (ether_craft):**
+
+- 纯物品 (`ether`, `wrench`, `blade`, ...) → `item.ether_craft.<id>`
+- 通用 BlockItem (`ether_block`, `ether_ore`, `ether_glass`, ...) → 同时需要 `block.ether_craft.<id>` 和 `item.ether_craft.<id>`
+- 自定义 BlockItem 子类 (factory lv1-4, node lv1-3) → `item.ether_craft.<id>`（方块使用 `block.ether_craft.ether_process_factory` 等）
+- `CreativeTabRegistry` 使用 `TAB_NAME = "ether_craft_tab_main"` → 需要 `ether_craft_tab_main`，而非 `itemGroup.ether_craft`
+
+**命令:**
+```bash
+# 查找所有已注册的方块
+grep "BLOCKS.register" src/main/java/**/register/BlockRegistry.java
+
+# 查找所有已注册的物品
+grep "ITEMS.register" src/main/java/**/register/ItemRegistry.java
 ```
 
-**拼接规则:** `"tooltip." + <namespace> + "." + <chip_id>`
+### 第 2 步：搜索所有 `Component.translatable()` 调用
 
-**动态来源:** `itemStack.get(DataComponentRegistry.CHIP_ID)` — 来自物品数据组件，芯片 ID 由数据包定义。
+**命令:**
+```bash
+rg "Component\.translatable\(" src/main/java/ -n
+```
 
-**已知芯片 ID (来自 `data/ether_craft/ether_process_chip/` 目录):**
+对每个调用，提取第一个参数：
+- **若为字符串字面量**（如 `"menu.ether_craft.factory.filter"`）→ 直接加入列表
+- **若含 `+` 拼接**（如 `"prefix." + id.getNamespace() + "." + id.getPath()`）→ 进入第 3 步
+- **若为常量引用**（如 `Component.translatable(TAB_NAME)`）→ 追溯常量定义
 
-| 芯片 ID 文件名 | 生成的键 |
-|---|---|
-| `separator_chip.json` | `tooltip.ether_craft.separator_chip` |
-| `heating_chip.json` | `tooltip.ether_craft.heating_chip` |
-| `stamping_chip.json` | `tooltip.ether_craft.stamping_chip` |
-| `fan_chip.json` | `tooltip.ether_craft.fan_chip` |
-| `cutting_chip.json` | `tooltip.ether_craft.cutting_chip` |
+### 第 3 步：展开动态拼接键
 
-> **注意:** 芯片数据包可在运行时通过数据包系统扩展，因此可能会有额外的未知键。AI 生成时应扫描 `data/**/ether_process_chip/*.json` 获取所有已知 ID。
+动态键需要追溯拼接源获取所有可能值：
 
-### 2.2 方向筛选器 Tooltip 键 — 来自 Direction 枚举
-
-**代码位置:** `DirectionalFilterScreen.java:59`
+#### 3a. 枚举遍历
 
 ```java
+// 模式: "prefix." + enumValue.getName().toLowerCase()
 Component.translatable("menu.ether_craft.node.directional_filter.direction." + direction.getName().toLowerCase())
 ```
 
-**拼接规则:** `"menu.ether_craft.node.directional_filter.direction." + <direction_lowercase>`
+**做法:** 找到枚举类（IDE: Ctrl+Click 类型），列出所有枚举常量。本例中 `Direction` 有 6 个值，故生成 6 个键。
 
-**动态来源:** `net.minecraft.core.Direction` 枚举的 `.getName().toLowerCase()`，共 6 个值。
-
-**生成的键:**
-
-| Direction | 生成的键 |
-|---|---|
-| UP | `menu.ether_craft.node.directional_filter.direction.up` |
-| DOWN | `menu.ether_craft.node.directional_filter.direction.down` |
-| NORTH | `menu.ether_craft.node.directional_filter.direction.north` |
-| SOUTH | `menu.ether_craft.node.directional_filter.direction.south` |
-| EAST | `menu.ether_craft.node.directional_filter.direction.east` |
-| WEST | `menu.ether_craft.node.directional_filter.direction.west` |
-
-### 2.3 磁铁功能标签键 — 来自数组遍历
-
-**代码位置:** `MagnetFunctionScreen.java:71-74`
+#### 3b. 数组遍历
 
 ```java
+// 模式: "prefix." + array[i]
 String[] labels = {"cx", "cy", "cz", "sx", "sy", "sz"};
-// ...
 Component.translatable("menu.ether_craft.node.magnet." + labels[i])
 ```
 
-**拼接规则:** `"menu.ether_craft.node.magnet." + <label>`
+**做法:** 找到数组定义，每个元素生成一个键。
 
-**动态来源:** 硬编码字符串数组 `{"cx", "cy", "cz", "sx", "sy", "sz"}`。
-
-**生成的键:**
-
-| labels[i] | 生成的键 |
-|---|---|
-| cx | `menu.ether_craft.node.magnet.cx` |
-| cy | `menu.ether_craft.node.magnet.cy` |
-| cz | `menu.ether_craft.node.magnet.cz` |
-| sx | `menu.ether_craft.node.magnet.sx` |
-| sy | `menu.ether_craft.node.magnet.sy` |
-| sz | `menu.ether_craft.node.magnet.sz` |
-
----
-
-## 三、通过变量间接引用的静态键 (Indirect Static Keys)
-
-### 3.1 创造模式标签页标题
-
-**代码位置:** `CreativeTabRegistry.java:15,20`
+#### 3c. Identifier / 数据组件拼接
 
 ```java
-public static final String TAB_NAME = "ether_craft_tab_main";
-// ...
-.title(Component.translatable(TAB_NAME))
+// 模式: "prefix." + id.getNamespace() + "." + id.getPath()
+String baseKey = "tooltip." + id.getNamespace() + "." + id.getPath();
 ```
 
-**键:** `ether_craft_tab_main`
+**做法:**
+1. 追溯 `id` 的来源（数据组件、数据包、注册表）
+2. 扫描数据目录获取所有可能的 ID
 
-> 键本身是静态的，但通过常量变量 `TAB_NAME` 间接引用，可能被遗漏。
+```bash
+# 扫描芯片数据文件
+find src/main/resources/data -path "*/ether_process_chip/*.json" -exec basename {} .json \;
+```
 
----
-
-## 四、硬编码英文文本 — 应转为可翻译键 (Hardcoded Literals)
-
-这些使用 `Component.literal()` 拼接运行时的值，无法本地化。如需支持多语言，应改为 `Component.translatable()`。
-
-### 4.1 工厂屏幕调试信息
-
-**代码位置:** `EtherProcessFactoryScreen.java:67-69`
+#### 3d. ExtraRecipeProvider / 插件注册
 
 ```java
-Component.literal("Ether:" + be.getEther())   // 第 67 行 — 建议键: menu.ether_craft.factory.debug.ether
-Component.literal("Spd:" + be.pressureBonus)   // 第 68 行 — 建议键: menu.ether_craft.factory.debug.speed
-Component.literal("Leak:" + be.leak)           // 第 69 行 — 建议键: menu.ether_craft.factory.debug.leak
+// 模式: "jei.ether_craft.plugin." + namespace + "." + pluginPath
+String descKey = "jei.ether_craft.plugin." + recipe.pluginId().getNamespace() + "." + recipe.pluginId().getPath();
 ```
 
-**拼接规则:** `"<prefix>:" + <int/long value>`
+**做法:** 找到插件注册列表（`ALL_PLUGINS` 静态初始化块），提取每个插件的 `Identifier ID` 字段。
 
-**建议替换键:**
-- `menu.ether_craft.factory.debug.ether` → "Ether: %d"
-- `menu.ether_craft.factory.debug.speed` → "Spd: %d"
-- `menu.ether_craft.factory.debug.leak` → "Leak: %d"
+### 第 4 步：检查 `Component.literal()` 硬编码文本
 
----
+```bash
+rg "Component\.literal\(" src/main/java/ -n
+```
 
-## 五、当前已定义的静态键 (对照用)
+若 `literal()` 内容为纯英文且不含 `+` → 界面静态文本，应改为 `Component.translatable()` 以支持本地化。
 
-以下是 `en_us.json` 中**已存在**的所有键，供参考哪些已被覆盖。
+若含 `+` 拼接运行时值：
+```java
+Component.literal("Ether:" + be.getEther())  // 应改为
+Component.translatable("menu.ether_craft.factory.debug.ether", be.getEther())
+```
 
-| 键 | 当前值 |
-|---|---|
-| `itemGroup.ether_craft` | Example Mod Tab |
-| `block.ether_craft.example_block` | Example Block |
-| `item.ether_craft.example_item` | Example Item |
-| `tooltip.ether_craft.ether_process_chip.max_ether` | Max [%d] |
-| `tooltip.ether_craft.ether_process_chip.ether_decay` | Decay [%d] |
-| `tooltip.ether_craft.ether_process_chip.ether_require` | Require [%d] |
-| `tooltip.ether_craft.ether_process_chip.ether_consume` | Consume [%d] |
-| `tooltip.ether_craft.process_chip_ether` | Contains [%d] E |
-| `menu.ether_craft.node.directional_filter.cancel` | Cancel |
-| `ether_craft.gui.node.filter.using_black_list` | Using Blacklist |
-| `ether_craft.gui.node.filter.using_white_list` | Using Whitelist |
-| `menu.ether_craft.factory.filter` | Setting Filter |
-| `menu.ether_craft.ether_bar_tooltip` | Ether: %d |
-| `menu.ether_craft.node.magnet.cx` | X |
-| `menu.ether_craft.node.magnet.cy` | Y |
-| `menu.ether_craft.node.magnet.cz` | Z |
-| `menu.ether_craft.node.magnet.sx` | rX |
-| `menu.ether_craft.node.magnet.sy` | rY |
-| `menu.ether_craft.node.magnet.sz` | rZ |
-| `menu.ether_craft.node.magnet.value` | %d |
-| `ether_craft.gui.node.container_interact.extract` | Extract |
-| `ether_craft.gui.node.container_interact.insert` | Insert |
+### 第 5 步：检查数据生成产生的隐含键
+
+数据生成 (`datagen/`) 可能生成 JSON 模型或 recipe，其中可能嵌入 title/description 文本。检查：
+- `src/main/resources/data/<modid>/` 下的 recipe JSON
+- JEI 插件注册中的动态分类
 
 ---
 
-## 六、AI 自动生成语言键通用指南
+## 三、动态键拼接模式速查
 
-### 6.1 语言键发现清单
-
-AI 扫描代码时应按以下优先级搜索所有需要语言键的位置：
-
-1. **搜索 `Component.translatable()` 调用** — grep `Component\.translatable\(`，提取键参数。若参数为非字面量（含 `+`、变量、方法调用），则为**动态键**，需展开枚举/数组/数据源获取所有可能值。
-
-2. **搜索 `Component.literal()` 调用** — grep `Component\.literal\(`，标记为**硬编码文本**。若含 `+` 拼接运行时值，建议转为 `Component.translatable(key, args...)`。
-
-3. **扫描注册表类** (`*Registry.java`) — 对每个 `DeferredRegister.register("id", ...)` 调用，推导框架自动生成的键：
-   - 方块: `block.<modid>.<registry_id>`
-   - 物品: `item.<modid>.<registry_id>`
-   - 创造模式标签页: `itemGroup.<modid>` (如果未显式设置 title)
-   - 实体类型: `entity.<modid>.<registry_id>`
-   - 方块实体: `block.<modid>.<registry_id>` (BlockEntity 通常跟随方块名)
-
-4. **扫描数据驱动内容** — 检查 `data/<modid>/` 目录下的 JSON 定义，确认是否有基于数据 ID 构造的 tooltip/名称键（如 `ProcessChipItem.java:46` 的模式）。
-
-### 6.2 动态键拼接模式
-
-本项目出现的动态键拼接模式（同类项目通用）：
-
-| 模式 | 检测方式 | 示例 |
+| 模式 | 检测特征 | 展开方式 |
 |---|---|---|
-| `key + enum.getName()` | 循环遍历枚举的 `Component.translatable()` 调用 | `"prefix." + direction.getName().toLowerCase()` |
-| `key + array[i]` | 循环内 `Component.translatable()` 含数组索引 | `"prefix." + labels[i]` |
-| `key + Identifier` | `Component.translatable()` 含 `id.getNamespace()` / `id.getPath()` | `"prefix." + id.getNamespace() + "." + id.getPath()` |
-| 变量引用 | `Component.translatable(CONSTANT_NAME)` | `Component.translatable(TAB_NAME)` |
+| `key + enum.getName()` | 含枚举变量的 `translatable()` | 列出枚举所有常量 |
+| `key + array[i]` | 循环内含数组索引 | 展开数组定义 |
+| `key + Identifier(NS, path)` | 含 `id.getNamespace()` / `id.getPath()` | 扫描数据目录/注册列表 |
+| `key + forEach` | 含集合/流的 `.forEach()` | 追溯集合来源 |
+| `key + CONSTANT` | `translatable()` 参数为大写常量 | Ctrl+Click 查看常量定义 |
 
-### 6.3 键命名规范
+---
 
-> `modid` = `ether_craft`，以下用 `modid` 表示通用模式。
+## 四、键命名规范
 
-| 前缀 | 用途 | 参数 | 示例 |
-|---|---|---|---|
-| `block.<modid>.<id>` | 方块显示名 | 无 | `block.ether_craft.ether_adapt_node` |
-| `item.<modid>.<id>` | 物品显示名 | 无 | `item.ether_craft.wrench` |
-| `itemGroup.<modid>` | 创造模式标签页 | 无 | `itemGroup.ether_craft` |
-| `tooltip.<modid>.<id>` | 物品简单 tooltip | `%d`/`%s` | `tooltip.ether_craft.process_chip_ether` |
-| `tooltip.<modid>.<id>.<field>` | 物品多字段 tooltip | `%d` | `tooltip.ether_craft.ether_process_chip.max_ether` |
-| `menu.<modid>.<screen>.<widget>` | GUI 控件文本 | 按需 | `menu.ether_craft.factory.filter` |
-| `menu.<modid>.<screen>.debug.<field>` | GUI 调试信息 | `%d` | `menu.ether_craft.factory.debug.ether` |
-| `menu.<modid>.node.<widget>.<label>` | 节点 GUI 标签 | `%d` | `menu.ether_craft.node.magnet.cx` |
-| `<modid>.gui.node.<feature>.<state>` | 节点功能状态切换 | 无 | `ether_craft.gui.node.filter.using_black_list` |
+| 前缀 | 用途 | 示例 |
+|---|---|---|
+| `block.<modid>.<id>` | 方块名 | `block.ether_craft.ether_adapt_node` |
+| `item.<modid>.<id>` | 物品名 | `item.ether_craft.wrench` |
+| `itemGroup.<modid>` | 默认创造标签页名 | `itemGroup.ether_craft` |
+| `tooltip.<modid>.<id>` | 物品 tooltip | `tooltip.ether_craft.heating_chip` |
+| `menu.<modid>.<screen>.<widget>` | GUI 控件 | `menu.ether_craft.factory.filter` |
+| `jei.<modid>.<category>` | JEI 分类标题 | `jei.ether_craft.ether_process` |
+| `jei.<modid>.plugin.<ns>.<pid>` | JEI 插件描述 | `jei.ether_craft.plugin.ether_craft.magnet` |
+| `jei.<modid>.category.<ns>.<path>` | JEI 动态分类 | `jei.ether_craft.category.ether_craft.special.furnace` |
+| `message.<modid>.<id>` | 系统消息 | `message.ether_craft.plugin_installed` |
+| `<modid>.gui.<element>` | 自定义 GUI 元素 | `ether_craft.gui.name_placeholder` |
+| `<modid>_tab_main` | 自定义标签页标题 | `ether_craft_tab_main` |
 
-### 6.4 参数占位符规范
+---
 
-- `%d` — 整数 (int, long)
+## 五、参数占位符
+
+- `%d` — 整数
 - `%s` — 字符串
 - `%f` — 浮点数
-- `[%d]` — 装饰性方括号内的数值 (仅视觉分隔，不影响格式化)
-- Minecraft `Component.translatable(key, args...)` 底层使用 `String.format()`，占位符语法与 Java 标准一致。
+- `[%d]` — 装饰性方括号包裹的数值（不影响格式化）
 
-### 6.5 与现有 lang 文件合并
+底层使用 `String.format()`，与 Java 标准一致。
 
-生成新键时：
-1. 读取当前 `src/main/resources/assets/<modid>/lang/en_us.json`
-2. 将新键**追加**到 JSON 末尾，保持键的字母/层级排序
-3. 不要覆盖或删除已有键
-4. 对动态键来源的数据文件（如芯片 JSON），同步检查 `data/<modid>/` 目录下的文件列表以确认所有可能的 ID
+---
+
+## 六、新键追加流程
+
+1. 按上述步骤收集所有需要的键
+2. 读取现有的 `src/main/resources/assets/<modid>/lang/en_us.json`
+3. 找出差集：收集的键中尚不在现有 JSON 中的 → 需要新增
+4. 将新键追加到 JSON 末尾，保持按前缀层级排序
+5. 同步更新 `zh_cn.json`（或其他语言文件）
+6. **不要覆盖或删除已有键**

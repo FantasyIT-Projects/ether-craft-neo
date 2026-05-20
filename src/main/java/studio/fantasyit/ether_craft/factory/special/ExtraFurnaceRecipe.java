@@ -4,6 +4,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.crafting.BlastingRecipe;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.item.crafting.SmeltingRecipe;
 import net.minecraft.world.level.ItemLike;
 import net.neoforged.neoforge.common.crafting.SizedIngredient;
 import studio.fantasyit.ether_craft.EtherCraft;
@@ -35,16 +36,16 @@ public class ExtraFurnaceRecipe implements ExtraRecipeProvider {
     public List<EtherProcessRecipeManager.ExtraRecipe> generate(RecipeManager recipeManager) {
         return recipeManager.getRecipes()
                 .stream()
-                .filter(r -> r.value().getType() == RecipeType.BLASTING)
+                .filter(r -> r.value().getType() == RecipeType.SMELTING)
                 .map(t -> new EtherProcessRecipeManager.ExtraRecipe(
                         CATEGORY,
                         t.id().identifier(),
-                        new EtherProcessFactoryRecipe(getFor((BlastingRecipe) t.value()))
+                        new EtherProcessFactoryRecipe(getFor((SmeltingRecipe) t.value()))
                 ))
                 .toList();
     }
 
-    public EtherProcessRecipeJson getFor(BlastingRecipe r) {
+    public EtherProcessRecipeJson getFor(SmeltingRecipe r) {
         EtherProcessRecipeJson.InputEntry input = new EtherProcessRecipeJson.InputEntry(
                 "I",
                 new SizedIngredient(r.input(), 1),

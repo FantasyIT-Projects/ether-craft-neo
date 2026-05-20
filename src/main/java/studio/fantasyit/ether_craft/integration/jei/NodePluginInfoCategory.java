@@ -90,17 +90,8 @@ public class NodePluginInfoCategory implements IRecipeCategory<NodePluginInfoRec
         int availableTextWidth = WIDTH - TEXT_X - 4;
 
         graphics.text(font, typeLabel, TEXT_X, LINE1_Y, 0xFFFFFFFF);
-        graphics.text(font, idLine, TEXT_X, LINE1_Y + 10, 0xFFFFFFFF);
 
-        String descStr = desc.getString();
-        if (font.width(descStr) > availableTextWidth) {
-            for (String line : wrapText(font, descStr, availableTextWidth)) {
-                graphics.text(font, Component.literal(line).withStyle(ChatFormatting.WHITE),
-                        TEXT_X, LINE2_Y, 0xFFFFFFFF);
-            }
-        } else {
-            graphics.text(font, desc, TEXT_X, LINE2_Y, 0xFFFFFFFF);
-        }
+        graphics.textWithWordWrap(font, desc, TEXT_X, LINE2_Y, availableTextWidth, 0xffffffff);
     }
 
     @Override

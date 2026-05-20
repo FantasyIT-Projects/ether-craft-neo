@@ -32,6 +32,7 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import org.slf4j.Logger;
+import studio.fantasyit.ether_craft.event.WrenchEventHandler;
 import studio.fantasyit.ether_craft.register.*;
 
 @Mod(EtherCraft.MODID)
@@ -41,6 +42,7 @@ public class EtherCraft
     public static final Logger LOGGER = LogUtils.getLogger();
     public EtherCraft(IEventBus modEventBus, ModContainer modContainer)
     {
+        WrenchEventHandler.register();
         BlockAttachmentDataRegistry.register(modEventBus);
         BlockEntityRegistry.register(modEventBus);
         BlockRegistry.register(modEventBus);

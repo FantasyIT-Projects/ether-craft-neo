@@ -66,7 +66,7 @@ public class EtherAdaptNodeBlock extends BaseBlock {
 
     @Override
     protected InteractionResult useItemOn(ItemStack itemStack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
-        if (!player.isShiftKeyDown() && !level.isClientSide() && level.getBlockEntity(pos) instanceof EtherAdaptNodeEntity eane) {
+        if (!player.isShiftKeyDown() && !level.isClientSide() && level.getBlockEntity(pos) instanceof EtherAdaptNodeEntity eane && player.getOffhandItem().is(ItemRegistry.WRENCH)) {
             NodePluginManager.PluginInfo info = NodePluginManager.Instance.getInfoFor(itemStack, NodePluginManager.FEATURE_UPGRADE_TYPE);
             if (info == null)
                 info = NodePluginManager.Instance.getInfoFor(itemStack, NodePluginManager.FUNCTION_TYPE);
@@ -77,8 +77,12 @@ public class EtherAdaptNodeBlock extends BaseBlock {
                 else
                     container = eane.featureUpgradeStorage;
 
+                int sz = container.getContainerSize();
+                if (info.type() != NodePluginManager.PluginType.FUNCTION)
+                    sz = Math.min(sz, eane.getUpgradeCount());
+
                 int targetSlot = -1;
-                for (int i = 0; i < container.getContainerSize(); i++) {
+                for (int i = 0; i < sz; i++) {
                     if (container.getItem(i).isEmpty()) {
                         targetSlot = i;
                         break;
@@ -115,9 +119,7 @@ public class EtherAdaptNodeBlock extends BaseBlock {
             if (!level.isClientSide() && level.getBlockEntity(pos) instanceof EtherAdaptNodeEntity eane) {
                 eane.rotatePluginsByAxis(hitResult.getDirection().getAxis());
             }
-            if (!facing.equals(counterClockWise))
-                return InteractionResult.SUCCESS;
-            return InteractionResult.CONSUME;
+            return level.isClientSide() ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
         }
         return super.useItemOn(itemStack, state, level, pos, player, hand, hitResult);
     }

@@ -19,7 +19,10 @@ public class Config {
 
     private static final ModConfigSpec.IntValue NODE_DEF_MAX_ETHER = BUILDER
             .comment("Max ether value of Ether Adapt Node by default")
-            .defineInRange("node.def.max", 1000, 1, Integer.MAX_VALUE);
+            .defineInRange("node.def.max", 6400, 1, Integer.MAX_VALUE);
+    private static final ModConfigSpec.IntValue NODE_FURNACE_BURNTIME_FACTOR = BUILDER
+            .comment("...")
+            .defineInRange("node.furnace.factor", 1, 1, 100);
     private static final ModConfigSpec.IntValue NODE_MAGNET_CONSUME_PRE_STACK = BUILDER
             .comment("Ether the magnet function will consume when picking up one stack")
             .defineInRange("node.magnet.consume_pre_stack", 100, 1, Integer.MAX_VALUE);
@@ -37,12 +40,12 @@ public class Config {
                     return false;
                 }
             });
-    private static final ModConfigSpec.IntValue BREAK_BLOCK_HARDNESS_MULTIPLIER = BUILDER
-            .comment("Multiplier for block hardness in ether consumption per block break")
-            .defineInRange("break_block.hardness_multiplier", 10, 1, Integer.MAX_VALUE);
     private static final ModConfigSpec.IntValue NODE_PROCESS_MAX_PROGRESS = BUILDER
             .comment("Max progress ticks for Node Process function to complete one recipe")
             .defineInRange("node.process.max_progress", 100, 1, Integer.MAX_VALUE);
+    private static final ModConfigSpec.IntValue BREAK_BLOCK_HARDNESS_MULTIPLIER = BUILDER
+            .comment("Multiplier for block hardness in ether consumption per block break")
+            .defineInRange("break_block.hardness_multiplier", 20, 1, Integer.MAX_VALUE);
     private static final ModConfigSpec.IntValue BREAK_BLOCK_EFFICIENCY_DIVISOR = BUILDER
             .comment("How much ether to reduce per level of Efficiency enchantment")
             .defineInRange("break_block.efficiency_divisor", 3, 0, Integer.MAX_VALUE);
@@ -74,6 +77,7 @@ public class Config {
 
     public static int etherConvert;
     public static int nodeDefMaxEther;
+    public static int nodeFurnaceBurntimeFactor;
     public static List<Integer> nodeLevelSlotArr;
     public static int nodeMagnetConsumePreStack;
     public static int containerInteractEtherPreItem;
@@ -93,6 +97,7 @@ public class Config {
     static void onLoad(final ModConfigEvent event) {
         etherConvert = ETHER_CONVERT.get();
         nodeDefMaxEther = NODE_DEF_MAX_ETHER.get();
+        nodeFurnaceBurntimeFactor = NODE_FURNACE_BURNTIME_FACTOR.get();
         nodeLevelSlotArr = NODE_LEVEL_SLOT_ARR.get().stream().map(t -> (Integer) t).toList();
         nodeMagnetConsumePreStack = NODE_MAGNET_CONSUME_PRE_STACK.get();
         containerInteractEtherPreItem = NODE_CONTAINER_INTERACT_ETHER_PRE_ITEM.get();

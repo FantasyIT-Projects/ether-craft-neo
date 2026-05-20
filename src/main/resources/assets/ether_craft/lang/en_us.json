@@ -32,6 +32,11 @@
   "item.ether_craft.ether_process_factory_lv_3": "Ether Process Factory (LV 3)",
   "item.ether_craft.ether_process_factory_lv_4": "Ether Process Factory (LV 4)",
   "item.ether_craft.ether_stream_emitter": "Ether Stream Emitter",
+  "item.ether_craft.ether_block": "Ether Block",
+  "item.ether_craft.ether_ore": "Ether Ore",
+  "item.ether_craft.deepslate_ether_ore": "Deepslate Ether Ore",
+  "item.ether_craft.nether_ether_ore": "Nether Ether Ore",
+  "item.ether_craft.ether_glass": "Ether Glass",
 
   "item.ether_craft.process_chip": "Process Chip",
   "item.ether_craft.wrench": "Wrench",
@@ -87,6 +92,7 @@
   "jei.ether_craft.node_plugin_info": "Node Plugin Info",
   "jei.ether_craft.node_process": "Node Process",
   "jei.ether_craft.node_process.ether_cost": "Ether: %d",
+  "jei.ether_craft.category.ether_craft.special.furnace": "Blasting",
 
   "jei.ether_craft.plugin_type.function": "[Function Plugin]",
   "jei.ether_craft.plugin_type.feature": "[Feature Plugin]",
@@ -97,6 +103,7 @@
   "jei.ether_craft.plugin.ether_craft.magnet": "Attracts nearby items into the node inventory.",
   "jei.ether_craft.plugin.ether_craft.node_process": "Processes items using Node Process recipes.",
   "jei.ether_craft.plugin.ether_craft.generator.equipment": "Generates ether energy by consuming equipment items.",
+  "jei.ether_craft.plugin.ether_craft.generator.ether_converter": "Converts input items into ether energy.",
   "jei.ether_craft.plugin.ether_craft.ether_stream_emitter": "Emits ether streams from the node.",
   "jei.ether_craft.plugin.ether_craft.dropper_thrower": "Throws items from the node inventory like a dropper.",
   "jei.ether_craft.plugin.ether_craft.container_interact": "Allows the node to interact with adjacent containers.",

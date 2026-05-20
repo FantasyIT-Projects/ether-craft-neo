@@ -67,7 +67,8 @@ public class EtherStreamEntity extends Projectile {
     }
 
     public void consumeEther(int amount) {
-        this.ether -= amount;
+        this.ether -= (int) Math.ceil(amount / getLowerFactory());
+        this.entityData.set(ETHER_COUNT, ether);
     }
 
     public void addCapability(IStreamCapability capability) {
@@ -91,12 +92,11 @@ public class EtherStreamEntity extends Projectile {
             renderTail[(renderTailIndex++) % renderTail.length] = this.getY();
             renderTail[(renderTailIndex++) % renderTail.length] = this.getZ();
         } else {
-            this.ether -= this.getConsumption();
+            this.consumeEther(this.getConsumption());
             if (ether <= 0) {
                 this.dropAndDiscard();
                 return;
             }
-            this.entityData.set(ETHER_COUNT, ether);
         }
 
         for (IStreamCapability capability : capabilities) {
@@ -119,7 +119,11 @@ public class EtherStreamEntity extends Projectile {
         for (IStreamCapability capability : capabilities) {
             value += capability.getConsumption();
         }
-        return (int) Math.ceil(value * Math.pow(2, lowerConsumeFactor));
+        return (int) Math.ceil(value);
+    }
+
+    public double getLowerFactory() {
+        return Math.pow(2, lowerConsumeFactor);
     }
 
     @Override

@@ -64,11 +64,11 @@ public class WorldGenData extends DatapackBuiltinEntriesProvider {
 
         PlacementUtils.register(context, ORE_ETHER_PLACED,
                 configuredFeatures.getOrThrow(ORE_ETHER),
-                commonOrePlacement(8, HeightRangePlacement.uniform(VerticalAnchor.absolute(-64), VerticalAnchor.absolute(64))));
+                commonOrePlacement(4, HeightRangePlacement.uniform(VerticalAnchor.absolute(-64), VerticalAnchor.absolute(32))));
 
         PlacementUtils.register(context, ORE_NETHER_ETHER_PLACED,
                 configuredFeatures.getOrThrow(ORE_NETHER_ETHER),
-                commonOrePlacement(8, HeightRangePlacement.uniform(VerticalAnchor.absolute(0), VerticalAnchor.absolute(128))));
+                commonOrePlacement(2, HeightRangePlacement.uniform(VerticalAnchor.absolute(0), VerticalAnchor.absolute(128))));
     }
 
     private static void bootstrapBiomeModifiers(BootstrapContext<BiomeModifier> context) {
