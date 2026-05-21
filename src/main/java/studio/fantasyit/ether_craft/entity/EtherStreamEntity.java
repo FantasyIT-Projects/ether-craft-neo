@@ -21,6 +21,7 @@ import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
+import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.block.base.EtherContainer;
 import studio.fantasyit.ether_craft.particle.ether_stream.EtherStreamData;
 import studio.fantasyit.ether_craft.register.EntityRegistry;
@@ -92,6 +93,10 @@ public class EtherStreamEntity extends Projectile {
             renderTail[(renderTailIndex++) % renderTail.length] = this.getY();
             renderTail[(renderTailIndex++) % renderTail.length] = this.getZ();
         } else {
+            if (this.tickCount >= Config.streamMaxTick) {
+                this.dropAndDiscard();
+                return;
+            }
             this.consumeEther(this.getConsumption());
             if (ether <= 0) {
                 this.dropAndDiscard();

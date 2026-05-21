@@ -76,6 +76,9 @@ public class Config {
     private static final ModConfigSpec.IntValue ETHER_INACTIVATE_TICK = BUILDER
             .comment("Tick to wait before inactivating an ether inactivate convert")
             .defineInRange("ether_inactivate_convert.tick", 60, 1, Integer.MAX_VALUE);
+    private static final ModConfigSpec.IntValue STREAM_MAX_TICK = BUILDER
+            .comment("Maximum existence time of an Ether Stream entity in ticks (default 1200 = 60 seconds)")
+            .defineInRange("stream.max_tick", 1200, 1, Integer.MAX_VALUE);
     static final ModConfigSpec SPEC = BUILDER.build();
 
     public static int etherConvert;
@@ -96,6 +99,7 @@ public class Config {
     public static int equipmentEtherCoefficient;
     public static int etherConverterCoefficient;
     public static int etherInactivateTick;
+    public static int streamMaxTick;
 
     @SubscribeEvent
     static void onLoad(final ModConfigEvent event) {
@@ -117,5 +121,6 @@ public class Config {
         equipmentEtherCoefficient = EQUIPMENT_ETHER_COEFFICIENT.get();
         etherConverterCoefficient = ETHER_CONVERTER_COEFFICIENT.get();
         etherInactivateTick = ETHER_INACTIVATE_TICK.get();
+        streamMaxTick = STREAM_MAX_TICK.get();
     }
 }
