@@ -2,15 +2,17 @@ package studio.fantasyit.ether_craft.block.factory;
 
 import com.mojang.serialization.Codec;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
@@ -20,6 +22,7 @@ import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2i;
+import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.block.base.*;
 import studio.fantasyit.ether_craft.factory.EtherProcessRecipeManager;
 import studio.fantasyit.ether_craft.factory.EtherProcessWorkingChip;
@@ -212,29 +215,8 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
                 } else if (processingProgress[i] < MAX_PROGRESS) {
                     processingProgress[i] += pressureBonus;
                 } else {
+                    consumeAndPlaceOutput(i);
                     processingProgress[i] = 0;
-                    if (!processingInputs[i].relevantChips.stream().allMatch(EtherProcessWorkingChip::canConsume))
-                        continue;
-                    for (int j = 0; j < processingRecipes[i].output.size(); j++) {
-                        ItemStack r = processingRecipes[i].getResultItem();
-                        int oCnt = outputContainer.getItem(i).getCount();
-                        int nCnt = Math.min(oCnt + r.getCount(), r.getMaxStackSize());
-                        if (outputContainer.canPlaceItem(i, r))
-                            outputContainer.setItem(i, r.copyWithCount(nCnt));
-                    }
-                    int[] matchingRecipes = EtherProcessorRecipeUtil.getToCostCountByInputAndIngredient(
-                            processingInputs[i].inputs,
-                            processingRecipes[i].input
-                    );
-                    for (int j = 0; j < processingInputs[i].inputIds.size(); j++) {
-                        int cNum = processingRecipes[i].input.get(matchingRecipes[j]).count();
-                        inputContainer.getItem(processingInputs[i].inputIds.get(j)).shrink(cNum);
-                        inputContainer.setChanged();
-                    }
-
-                    for (EtherProcessWorkingChip c : processingInputs[i].relevantChips) {
-                        c.consume();
-                    }
                 }
                 changed = true;
             }
@@ -305,5 +287,90 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
     @Override
     public void setRenderName(@Nullable Component name) {
         toRenderName = name;
+    }
+
+    private boolean consumeAndPlaceOutput(int row) {
+        EtherProcessFactoryRecipe recipe = processingRecipes[row];
+        EtherFactoryRecipeInput input = processingInputs[row];
+
+        if (!input.relevantChips.stream().allMatch(EtherProcessWorkingChip::canConsume))
+            return false;
+
+        ItemStack[] results = new ItemStack[recipe.output.size()];
+        for (int j = 0; j < recipe.output.size(); j++) {
+            ItemStack template = recipe.getResultItem(j);
+            ItemStack source = findCopySource(template, input);
+            results[j] = recipe.getResultItem(j, source);
+        }
+
+        if (!tryPlaceOutputs(row, results))
+            return false;
+
+        int[] matchingRecipes = EtherProcessorRecipeUtil.getToCostCountByInputAndIngredient(
+                input.inputs,
+                recipe.input
+        );
+        for (int j = 0; j < input.inputIds.size(); j++) {
+            int cNum = recipe.input.get(matchingRecipes[j]).count();
+            inputContainer.getItem(input.inputIds.get(j)).shrink(cNum);
+            inputContainer.setChanged();
+        }
+
+        for (EtherProcessWorkingChip c : input.relevantChips) {
+            c.consume();
+        }
+
+        return true;
+    }
+
+    private boolean tryPlaceOutputs(int startSlot, ItemStack[] results) {
+        SimpleContainer sim = new SimpleContainer(ROWS);
+        for (int s = 0; s < ROWS; s++)
+            sim.setItem(s, outputContainer.getItem(s).copy());
+
+        for (ItemStack result : results) {
+            if (result.isEmpty())
+                continue;
+            boolean placed = false;
+            for (int attempt = 0; attempt < ROWS; attempt++) {
+                int slot = (startSlot + attempt) % ROWS;
+                ItemStack existing = sim.getItem(slot);
+                if (existing.isEmpty()) {
+                    sim.setItem(slot, result.copy());
+                    placed = true;
+                    break;
+                } else if (ItemStack.isSameItemSameComponents(existing, result)
+                        && existing.getCount() + result.getCount() <= result.getMaxStackSize()) {
+                    existing.grow(result.getCount());
+                    placed = true;
+                    break;
+                }
+            }
+            if (!placed)
+                return false;
+        }
+
+        for (int s = 0; s < ROWS; s++)
+            outputContainer.setItem(s, sim.getItem(s));
+        outputContainer.setChanged();
+        return true;
+    }
+
+    private static ItemStack findCopySource(ItemStack outputTemplate, EtherFactoryRecipeInput input) {
+        if (!isContainerBlock(outputTemplate))
+            return null;
+        return input.inputs.stream()
+                .filter(EtherProcessFactoryEntity::isContainerBlock)
+                .findFirst().orElse(null);
+    }
+
+    private static boolean isContainerBlock(ItemStack stack) {
+        if (stack.isEmpty() || !(stack.getItem() instanceof BlockItem))
+            return false;
+        Identifier id = BuiltInRegistries.ITEM.getKey(stack.getItem());
+        if (!EtherCraft.MODID.equals(id.getNamespace()))
+            return false;
+        String path = id.getPath();
+        return path.startsWith("ether_adapt_node") || path.startsWith("ether_process_factory");
     }
 }

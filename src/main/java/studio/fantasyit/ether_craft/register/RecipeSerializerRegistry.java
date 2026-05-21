@@ -6,6 +6,7 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import org.jetbrains.annotations.NotNull;
+import studio.fantasyit.ether_craft.recipe.crafting.UpgradeShapedRecipe;
 import studio.fantasyit.ether_craft.recipe.factory.EtherProcessFactoryRecipe;
 import studio.fantasyit.ether_craft.recipe.node.NodeProcessRecipe;
 
@@ -20,6 +21,11 @@ public class RecipeSerializerRegistry {
             recipeSerializerIDeferredHolder.register("node_process", () -> new RecipeSerializer<>(
                     NodeProcessRecipe.CODEC,
                     NodeProcessRecipe.STREAM_CODEC
+            ));
+    public static final DeferredHolder<RecipeSerializer<?>, @NotNull RecipeSerializer<UpgradeShapedRecipe>> UPGRADE_SHAPED_RECIPE_SERIALIZER =
+            recipeSerializerIDeferredHolder.register("upgrade_shaped", () -> new RecipeSerializer<>(
+                    UpgradeShapedRecipe.CODEC,
+                    UpgradeShapedRecipe.STREAM_CODEC
             ));
 
     public static void register(IEventBus eventBus) {

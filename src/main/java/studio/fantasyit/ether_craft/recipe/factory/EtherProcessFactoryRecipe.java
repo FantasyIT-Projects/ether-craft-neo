@@ -9,6 +9,7 @@ import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.common.crafting.SizedIngredient;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import studio.fantasyit.ether_craft.base.TreeLike;
 import studio.fantasyit.ether_craft.recipe.DelayedIngredient;
 import studio.fantasyit.ether_craft.register.ItemRegistry;
@@ -142,8 +143,24 @@ public class EtherProcessFactoryRecipe implements Recipe<@NotNull EtherFactoryRe
     }
 
     public ItemStack getResultItem() {
-        if (!output.isEmpty()) {
-            return output.get(0).create();
+        return getResultItem(null);
+    }
+
+    public ItemStack getResultItem(int index) {
+        return getResultItem(index, null);
+    }
+
+    public ItemStack getResultItem(@Nullable ItemStack baseStack) {
+        return getResultItem(0, baseStack);
+    }
+
+    public ItemStack getResultItem(int index, @Nullable ItemStack baseStack) {
+        if (index >= 0 && index < output.size()) {
+            ItemStack result = output.get(index).create();
+            if (baseStack != null && !baseStack.isEmpty()) {
+                result.applyComponents(baseStack.getComponentsPatch());
+            }
+            return result;
         }
         return null;
     }

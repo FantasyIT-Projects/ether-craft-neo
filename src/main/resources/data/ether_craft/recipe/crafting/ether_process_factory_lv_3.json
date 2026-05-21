@@ -1,6 +1,7 @@
 {
-  "type": "minecraft:crafting_shaped",
+  "type": "ether_craft:upgrade_shaped",
   "category": "misc",
+  "copyComponentsFrom": "A",
   "group": "ether_craft",
   "key": {
     "#": "ether_craft:ether_ingot",
