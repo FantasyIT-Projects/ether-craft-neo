@@ -70,6 +70,7 @@ public abstract class BaseEtherNodeTabWidgetProvider<T extends AbstractNodePlugi
     }
 
     public void tick() {
+
     }
 
     public int lx(int x) {

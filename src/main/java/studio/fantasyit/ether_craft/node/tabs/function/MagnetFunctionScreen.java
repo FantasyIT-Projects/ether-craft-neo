@@ -30,7 +30,7 @@ public class MagnetFunctionScreen extends BaseEtherNodeTabWidgetProvider<Functio
 
     @Override
     public void createWidget() {
-        FilterGuiRegClient.widget(screen, plugin.filter.whitelist, FunctionMagnet.FILTER_PREFIX);
+        FilterGuiRegClient.widget(screen, () -> plugin.filter.whitelist, FunctionMagnet.FILTER_PREFIX);
 
         int[] startValues = {
                 plugin.centerX + CENTER_RANGE,

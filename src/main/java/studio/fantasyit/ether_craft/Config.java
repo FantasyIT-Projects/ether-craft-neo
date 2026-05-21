@@ -25,7 +25,7 @@ public class Config {
             .defineInRange("node.furnace.factor", 1, 1, 100);
     private static final ModConfigSpec.IntValue NODE_FURNACE_ETHER_PRE_TICK = BUILDER
             .comment("...")
-            .defineInRange("node.furnace.ether_pre_tick", 10, 1, Integer.MAX_VALUE);
+            .defineInRange("node.furnace.ether_pre_tick", 25, 1, Integer.MAX_VALUE);
     private static final ModConfigSpec.IntValue NODE_MAGNET_CONSUME_PRE_STACK = BUILDER
             .comment("Ether the magnet function will consume when picking up one stack")
             .defineInRange("node.magnet.consume_pre_stack", 100, 1, Integer.MAX_VALUE);
@@ -74,6 +74,9 @@ public class Config {
             .comment("Ether generated per item by the Ether Converter function plugin")
             .defineInRange("ether_converter.coefficient", 100, 1, Integer.MAX_VALUE);
     private static final ModConfigSpec.IntValue ETHER_INACTIVATE_TICK = BUILDER
+            .comment("Tick to wait before inactivating an ether inactivate convert")
+            .defineInRange("ether_inactivate_convert.tick", 60, 1, Integer.MAX_VALUE);
+    private static final ModConfigSpec.IntValue ETHER_CONVERTER_INACTIVATE_TICK = BUILDER
             .comment("Tick to wait before inactivating an ether inactivate convert")
             .defineInRange("ether_inactivate_convert.tick", 60, 1, Integer.MAX_VALUE);
     private static final ModConfigSpec.IntValue STREAM_MAX_TICK = BUILDER

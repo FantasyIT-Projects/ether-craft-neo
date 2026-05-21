@@ -69,8 +69,10 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
         ROWS = vector2i.y;
         COLS = vector2i.x;
         filters = new ItemFilter[ROWS];
-        for (int i = 0; i < ROWS; i++)
+        for (int i = 0; i < ROWS; i++) {
             filters[i] = new ItemFilter(9, this::setChanged);
+            filters[i].whitelist = true;
+        }
         possibleResults = new SimpleContainer(ROWS);
         processingProgress = new int[ROWS];
         processingRecipes = new EtherProcessFactoryRecipe[ROWS];
@@ -274,7 +276,7 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
 
     @Override
     public boolean isValid(int index, ItemResource resource) {
-        if(!resource.is(ItemRegistry.ETHER) && index < ROWS) {
+        if (!resource.is(ItemRegistry.ETHER) && index < ROWS) {
             if (!filters[index].isEmpty() && !filters[index].accepts(resource))
                 return false;
             if (!internalContainer.getItem(index * COLS).isEmpty())

@@ -10,6 +10,7 @@ import studio.fantasyit.ether_craft.menu.base.ImageAsset;
 import studio.fantasyit.ether_craft.menu.base.widget.IASwitchButton;
 import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeAsset;
 import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeScreen;
+import studio.fantasyit.ether_craft.menu.node.ScreenMenuSyncer;
 import studio.fantasyit.ether_craft.network.c2s.SyncScreenDataC2S;
 import studio.fantasyit.ether_craft.node.filter.FilterGuiRegClient;
 import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
@@ -44,6 +45,7 @@ public class DirectionalFilterScreen extends BaseEtherNodeTabWidgetProvider<Abst
 
     public DirectionalFilterScreen(PluginMenuContext<AbstractDirectionalFilterFeature> context, EtherAdaptNodeScreen screen) {
         super(context, screen);
+        screen.registerMenuSyncer(new ScreenMenuSyncer<>(() -> context.plugin.direction, this::trySelectBtn));
     }
 
     @Override
@@ -75,7 +77,7 @@ public class DirectionalFilterScreen extends BaseEtherNodeTabWidgetProvider<Abst
             directionButton.put(direction, button);
             this.screen.addRenderableWidget(button);
         }
-        FilterGuiRegClient.widget(screen, plugin.filter.whitelist, AbstractDirectionalFilterFeature.FILTER_PREFIX);
+        FilterGuiRegClient.widget(screen, ()->plugin.filter.whitelist, AbstractDirectionalFilterFeature.FILTER_PREFIX);
     }
 
     @Override
@@ -92,6 +94,8 @@ public class DirectionalFilterScreen extends BaseEtherNodeTabWidgetProvider<Abst
     }
 
     private boolean trySelectBtn(Direction direction) {
+        if (directionButton == null)
+            return false;
         Map<Direction, InstalledPlugin> featureAttachedDirection = Objects.requireNonNull(screen.getMenu().entity).featureAttachedDirection;
         if (featureAttachedDirection.containsKey(direction)) {
             return false;

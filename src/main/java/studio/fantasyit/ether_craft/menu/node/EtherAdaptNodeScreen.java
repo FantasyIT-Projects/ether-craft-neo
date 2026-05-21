@@ -24,12 +24,12 @@ import studio.fantasyit.ether_craft.node.tabs.BaseEtherNodeTabWidgetProvider;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
 import static studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeAsset.UI_BASE;
 
 public class EtherAdaptNodeScreen extends AbstractContainerScreen<@NotNull EtherAdaptNodeContainerMenu> {
-
-
+    List<ScreenMenuSyncer<?>> syncers = new ArrayList<>();
     BaseEtherNodeTabWidgetProvider<?> tabProvider;
     EtherAdaptNodeEntity be;
     List<TabWidget> tabs = new ArrayList<>();
@@ -55,6 +55,7 @@ public class EtherAdaptNodeScreen extends AbstractContainerScreen<@NotNull Ether
         updateTabs();
         if (tabProvider != null)
             tabProvider.tick();
+        syncers.forEach(ScreenMenuSyncer::sync);
     }
 
     @Override
@@ -158,5 +159,9 @@ public class EtherAdaptNodeScreen extends AbstractContainerScreen<@NotNull Ether
             if(child.mouseScrolled(x, y, scrollX, scrollY))
                 return true;
         return super.mouseScrolled(x, y, scrollX, scrollY);
+    }
+
+    public void registerMenuSyncer(ScreenMenuSyncer<?> integerScreenMenuSyncer) {
+        syncers.add(integerScreenMenuSyncer);
     }
 }

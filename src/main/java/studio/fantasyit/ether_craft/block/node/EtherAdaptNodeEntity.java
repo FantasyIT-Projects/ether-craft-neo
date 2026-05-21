@@ -8,9 +8,6 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ClientGamePacketListener;
-import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.ProblemReporter;
@@ -262,6 +259,8 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
 
     @Override
     public int extract(int index, @NotNull ItemResource resource, int amount, TransactionContext transaction) {
+        if (index == 0 && !nodeProperty.itemifyEther)
+            return 0;
         if (index == 0)
             return etherStorage.extract(index, resource, amount, transaction);
         if (resource.is(ItemRegistry.ETHER))
@@ -276,6 +275,13 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
     }
 
     public ItemStack extractWithPredicate(Predicate<ItemResource> predicate, TransactionContext transaction, int maxAmount) {
+        ItemResource re = ItemResource.of(ItemRegistry.ETHER);
+        if (nodeProperty.itemifyEther && predicate.test(re)) {
+            int extract = etherStorage.extract(re, re.getMaxStackSize(), transaction);
+            if (extract > 0)
+                return re.toStack(extract);
+        }
+
         for (int i = 0; i < normalHandler.size(); i++) {
             ItemResource resource = normalHandler.getResource(i);
             if (resource.isEmpty())
@@ -355,11 +361,6 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
     }
 
     @Override
-    public @Nullable Packet<ClientGamePacketListener> getUpdatePacket() {
-        return ClientboundBlockEntityDataPacket.create(this);
-    }
-
-    @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         try (ProblemReporter.ScopedCollector reporter = new ProblemReporter.ScopedCollector(this.problemPath(), LogUtils.getLogger())) {
             TagValueOutput output = TagValueOutput.createWithContext(reporter, registries);
@@ -369,6 +370,7 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
             output.store("pd", SerializeUtil.PDMap.CODEC.listOf(), SerializeUtil.PDMap.fromMap(featureAttachedDirection));
             output.store("pv", SerializeUtil.PIMap.CODEC.listOf(), SerializeUtil.PIMap.fromMap(syncedPluginData));
             output.putInt("me", nodeProperty.maxEther);
+            output.putString("name", name);
             return output.buildResult();
         }
     }
@@ -383,6 +385,9 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
                 .orElse(Map.of());
         InstalledPlugin funcPlugin = input.read("fp", InstalledPlugin.CODEC).orElse(null);
         int maxEther = input.read("me", Codec.INT).orElse(nodeProperty.maxEther);
+        name = input.getStringOr("name", "");
+        if (!name.isEmpty())
+            setRenderName(Component.literal(name));
         fromNetwork(pluginDirection, funcPlugin, pluginValue, maxEther);
     }
 
@@ -393,6 +398,12 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
         this.syncedPluginData.clear();
         this.syncedPluginData.putAll(pluginValue);
         this.nodeProperty.maxEther = maxEther;
+    }
+
+    public boolean allowInteract(ItemResource resource) {
+        if (resource.is(ItemRegistry.ETHER))
+            return nodeProperty.itemifyEther;
+        return true;
     }
 
     public boolean isPluginInstalled(InstalledPlugin plugin) {
@@ -463,4 +474,5 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
     public void setRenderName(@Nullable Component name) {
         toRenderName = name;
     }
+
 }

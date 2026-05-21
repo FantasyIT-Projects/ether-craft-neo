@@ -7,6 +7,7 @@ import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.menu.base.widget.ScrollableWidget;
 import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeAsset;
 import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeScreen;
+import studio.fantasyit.ether_craft.menu.node.ScreenMenuSyncer;
 import studio.fantasyit.ether_craft.network.c2s.SyncScreenDataC2S;
 import studio.fantasyit.ether_craft.node.plugins.base.PluginMenuContext;
 import studio.fantasyit.ether_craft.node.plugins.feature.AbstractDirectionalFilterFeature;
@@ -17,6 +18,10 @@ public class EtherStreamEmitterScreen extends DirectionalFilterScreen {
 
     public EtherStreamEmitterScreen(PluginMenuContext<AbstractDirectionalFilterFeature> context, EtherAdaptNodeScreen screen) {
         super(context, screen);
+        screen.registerMenuSyncer(new ScreenMenuSyncer<>(() -> ((FeatureEtherStreamEmitter) context.plugin).minEther, v -> {
+            if (minEtherScroll != null)
+                minEtherScroll.setValue(v);
+        }));
     }
 
     @Override

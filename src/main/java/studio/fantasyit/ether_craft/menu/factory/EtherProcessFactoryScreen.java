@@ -3,9 +3,9 @@ package studio.fantasyit.ether_craft.menu.factory;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
-import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
@@ -16,8 +16,8 @@ import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector2i;
 import org.lwjgl.glfw.GLFW;
-import studio.fantasyit.ether_craft.factory.EtherProcessChipManager;
 import studio.fantasyit.ether_craft.block.factory.EtherProcessFactoryEntity;
+import studio.fantasyit.ether_craft.factory.EtherProcessChipManager;
 import studio.fantasyit.ether_craft.factory.FactoryLevelDef;
 import studio.fantasyit.ether_craft.menu.base.slot.BaseSlot;
 import studio.fantasyit.ether_craft.menu.base.widget.IASwitchButton;
@@ -137,29 +137,30 @@ public class EtherProcessFactoryScreen extends AbstractContainerScreen<@NotNull 
 
         int internalX = f.posInternal().x;
         int internalY = f.posInternal().y;
-        for (int i = 0; i < be.ROWS; i++) {
-            for (int j = 0; j < be.COLS; j++) {
-                ItemStack chipItem = be.internalContainer.getItem(i * be.COLS + j);
-                EtherProcessChipManager.ProcessChipRecord r = EtherProcessChipManager.get(chipItem);
-                if (r == null) continue;
-                int ether = be.currentEther[i][j];
-                int color = 0xff26c6da; //RGB#f57f17
-                if (ether >= r.maxEther() - r.etherConsume() * 2)
-                    color = 0xff81c784; //RGB#81c784
-                if (ether < r.etherConsume())
-                    color = 0xffe65100;
-                if (ether < r.etherRequire())
-                    color = 0xffff3d00;
+        if (!menu.isFilterActive())
+            for (int i = 0; i < be.ROWS; i++) {
+                for (int j = 0; j < be.COLS; j++) {
+                    ItemStack chipItem = be.internalContainer.getItem(i * be.COLS + j);
+                    EtherProcessChipManager.ProcessChipRecord r = EtherProcessChipManager.get(chipItem);
+                    if (r == null) continue;
+                    int ether = be.currentEther[i][j];
+                    int color = 0xff26c6da; //RGB#f57f17
+                    if (ether >= r.maxEther() - r.etherConsume() * 2)
+                        color = 0xff81c784; //RGB#81c784
+                    if (ether < r.etherConsume())
+                        color = 0xffe65100;
+                    if (ether < r.etherRequire())
+                        color = 0xffff3d00;
 
-                graphics.fill(
-                        getLeftPos() + internalX + j * 18 + 2,
-                        getTopPos() + internalY + i * 18 + 2,
-                        getLeftPos() + internalX + j * 18 + 5,
-                        getTopPos() + internalY + i * 18 + 5,
-                        color
-                );
+                    graphics.fill(
+                            getLeftPos() + internalX + j * 18 + 2,
+                            getTopPos() + internalY + i * 18 + 2,
+                            getLeftPos() + internalX + j * 18 + 5,
+                            getTopPos() + internalY + i * 18 + 5,
+                            color
+                    );
+                }
             }
-        }
     }
 
     @Override
@@ -179,24 +180,25 @@ public class EtherProcessFactoryScreen extends AbstractContainerScreen<@NotNull 
 
         int internalX = f.posInternal().x;
         int internalY = f.posInternal().y;
-        for (int i = 0; i < be.processingInputs.length; i++) {
-            int progress = be.processingProgress[i];
-            if (progress == 0) continue;
-            int progressRealWidth = (int) (1.0 * progress / EtherProcessFactoryEntity.MAX_PROGRESS * 18 * be.COLS);
-            for (int j = 0; j < be.COLS; j++) {
-                for (int k = 0; k < be.ROWS; k++) {
-                    if (be.pathBelongings[k][j] != i) continue;
-                    int fillWid = Math.min(Math.max(0, progressRealWidth - j * 18), 18);
-                    graphics.fill(
-                            getLeftPos() + internalX + j * 18,
-                            getTopPos() + internalY + k * 18,
-                            getLeftPos() + internalX + j * 18 + fillWid,
-                            getTopPos() + internalY + k * 18 + 18,
-                            0x80c5e1a5
-                    );
+        if (!menu.isFilterActive())
+            for (int i = 0; i < be.processingInputs.length; i++) {
+                int progress = be.processingProgress[i];
+                if (progress == 0) continue;
+                int progressRealWidth = (int) (1.0 * progress / EtherProcessFactoryEntity.MAX_PROGRESS * 18 * be.COLS);
+                for (int j = 0; j < be.COLS; j++) {
+                    for (int k = 0; k < be.ROWS; k++) {
+                        if (be.pathBelongings[k][j] != i) continue;
+                        int fillWid = Math.min(Math.max(0, progressRealWidth - j * 18), 18);
+                        graphics.fill(
+                                getLeftPos() + internalX + j * 18,
+                                getTopPos() + internalY + k * 18,
+                                getLeftPos() + internalX + j * 18 + fillWid,
+                                getTopPos() + internalY + k * 18 + 18,
+                                0x80c5e1a5
+                        );
+                    }
                 }
             }
-        }
         for (int i = 0; i < be.processingRecipes.length; i++) {
             ItemStack it = be.possibleResults.getItem(i);
             if (it.isEmpty()) continue;

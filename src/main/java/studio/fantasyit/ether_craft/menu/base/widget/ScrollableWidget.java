@@ -1,5 +1,6 @@
 package studio.fantasyit.ether_craft.menu.base.widget;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
@@ -32,6 +33,7 @@ public class ScrollableWidget extends AbstractWidget {
     }
 
     public void setValue(int value) {
+        if (isDragging) return;
         this.value = Math.clamp(value, 0, maxValue);
     }
 
@@ -68,7 +70,12 @@ public class ScrollableWidget extends AbstractWidget {
 
     @Override
     public boolean mouseScrolled(double x, double y, double scrollX, double scrollY) {
-        this.value = Math.clamp(this.value - (scrollY > 0 ? 1 : -1), 0, maxValue);
+        int v = (scrollY > 0 ? 1 : -1);
+        if (Minecraft.getInstance().hasControlDown())
+            v *= 10;
+        if (Minecraft.getInstance().hasShiftDown())
+            v *= 10;
+        this.value = Math.clamp(this.value - v, 0, maxValue);
         this.onValueChange.accept(value);
         return true;
     }

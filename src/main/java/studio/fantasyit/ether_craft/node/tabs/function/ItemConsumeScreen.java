@@ -31,6 +31,6 @@ public class ItemConsumeScreen extends BaseEtherNodeTabWidgetProvider<AbstractIt
     @Override
     public void createWidget() {
         super.createWidget();
-        FilterGuiRegClient.widget(screen, plugin.filter.whitelist, AbstractItemConsumeFunction.FILTER_PREFIX);
+        FilterGuiRegClient.widget(screen, ()->plugin.filter.whitelist, AbstractItemConsumeFunction.FILTER_PREFIX);
     }
 }
