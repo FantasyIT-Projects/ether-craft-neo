@@ -7,7 +7,11 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.*;
+import net.minecraft.world.item.crafting.display.RecipeDisplay;
+import net.minecraft.world.item.crafting.display.ShapedCraftingRecipeDisplay;
+import net.minecraft.world.item.crafting.display.SlotDisplay;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 import studio.fantasyit.ether_craft.register.RecipeSerializerRegistry;
@@ -155,8 +159,24 @@ public class UpgradeShapedRecipe extends NormalCraftingRecipe {
     }
 
     @Override
+    public List<RecipeDisplay> display() {
+        return List.of(new ShapedCraftingRecipeDisplay(
+                this.pattern.width(),
+                this.pattern.height(),
+                this.pattern.ingredients().stream()
+                        .map(e -> e.map(Ingredient::display).orElse(SlotDisplay.Empty.INSTANCE))
+                        .toList(),
+                new SlotDisplay.ItemStackSlotDisplay(this.result),
+                new SlotDisplay.ItemSlotDisplay(Items.CRAFTING_TABLE)));
+    }
+
+    @Override
     protected PlacementInfo createPlacementInfo() {
         return PlacementInfo.createFromOptionals(this.pattern.ingredients());
+    }
+
+    public ShapedRecipePattern.Data getPatternData() {
+        return patternData;
     }
 
     @Override

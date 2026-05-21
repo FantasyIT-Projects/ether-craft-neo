@@ -105,7 +105,7 @@ public class BaseEtherContainerBlockEntity extends BlockEntity implements Resour
         }
         if (index >= input)
             return 0;
-        return handler.insert(resource, amount, transaction);
+        return handler.insert(index, resource, amount, transaction);
     }
 
     @Override
@@ -117,6 +117,6 @@ public class BaseEtherContainerBlockEntity extends BlockEntity implements Resour
             return 0;
         if (index >= input && index < input + internal)
             return 0;
-        return handler.extract(resource, amount, transaction);
+        return handler.extract(index, resource, amount, transaction);
     }
 }

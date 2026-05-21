@@ -7,6 +7,7 @@ import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeCategoryRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
 import mezz.jei.api.registration.ISubtypeRegistration;
+import mezz.jei.api.registration.IVanillaCategoryExtensionRegistration;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -17,6 +18,7 @@ import studio.fantasyit.ether_craft.event.ClientRecipeSyncEvent;
 import studio.fantasyit.ether_craft.factory.EtherProcessRecipeManager;
 import studio.fantasyit.ether_craft.factory.ExtraRecipeProvider;
 import studio.fantasyit.ether_craft.node.NodePluginManager;
+import studio.fantasyit.ether_craft.recipe.crafting.UpgradeShapedRecipe;
 import studio.fantasyit.ether_craft.recipe.factory.EtherProcessFactoryRecipe;
 import studio.fantasyit.ether_craft.recipe.node.NodeProcessRecipe;
 import studio.fantasyit.ether_craft.register.DataComponentRegistry;
@@ -185,6 +187,14 @@ public class JEIPlugin implements IModPlugin {
         registration.registerFromDataComponentTypes(
                 ItemRegistry.PROCESS_CHIP_ITEM.get(),
                 DataComponentRegistry.CHIP_ID.get()
+        );
+    }
+
+    @Override
+    public void registerVanillaCategoryExtensions(IVanillaCategoryExtensionRegistration registration) {
+        registration.getCraftingCategory().addExtension(
+                UpgradeShapedRecipe.class,
+                new UpgradeShapedRecipeExtension()
         );
     }
 }

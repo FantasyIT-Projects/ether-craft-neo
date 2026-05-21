@@ -267,9 +267,20 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
 
     @Override
     public int insert(int index, ItemResource resource, int amount, @NotNull TransactionContext transaction) {
-        if (index < ROWS && !filters[index].accepts(resource) && !resource.is(ItemRegistry.ETHER))
+        if (!isValid(index, resource))
             return 0;
         return super.insert(index, resource, amount, transaction);
+    }
+
+    @Override
+    public boolean isValid(int index, ItemResource resource) {
+        if(!resource.is(ItemRegistry.ETHER) && index < ROWS) {
+            if (!filters[index].isEmpty() && !filters[index].accepts(resource))
+                return false;
+            if (!internalContainer.getItem(index * COLS).isEmpty())
+                return false;
+        }
+        return super.isValid(index, resource);
     }
 
     @Override
