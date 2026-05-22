@@ -7,9 +7,11 @@ import net.minecraft.world.level.storage.ValueOutput;
 import org.jetbrains.annotations.Nullable;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.block.node.EtherAdaptNodeEntity;
+import studio.fantasyit.ether_craft.menu.base.slot.BaseDataSlot;
+import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeContainerMenu;
 import studio.fantasyit.ether_craft.network.c2s.SyncScreenDataC2S;
-import studio.fantasyit.ether_craft.node.plugins.base.AbstractNodePlugin;
 import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
+import studio.fantasyit.ether_craft.node.plugins.base.AbstractNodePlugin;
 
 public abstract class AbstractDirectionalFeature extends AbstractNodePlugin {
     public static final Identifier SYNC_DIRECTION = EtherCraft.id("directional_feature/direction");
@@ -38,5 +40,11 @@ public abstract class AbstractDirectionalFeature extends AbstractNodePlugin {
                 direction = Direction.values()[message.data()];
             nodeEntity.pluginUpdate();
         }
+    }
+
+    @Override
+    public void registerSlots(EtherAdaptNodeContainerMenu menu) {
+        super.registerSlots(menu);
+        menu.addDataSlot(new BaseDataSlot(() -> direction == null ? -1 : direction.ordinal(), t -> direction = (t == -1 ? null : Direction.values()[t])));
     }
 }

@@ -45,7 +45,15 @@ public class DirectionalFilterScreen extends BaseEtherNodeTabWidgetProvider<Abst
 
     public DirectionalFilterScreen(PluginMenuContext<AbstractDirectionalFilterFeature> context, EtherAdaptNodeScreen screen) {
         super(context, screen);
-        screen.registerMenuSyncer(new ScreenMenuSyncer<>(() -> context.plugin.direction, this::trySelectBtn));
+        screen.registerMenuSyncer(new ScreenMenuSyncer<>(() -> context.plugin.direction, v -> {
+            for (Direction d : Direction.values()) {
+                if (directionButton.get(d).isDown()) {
+                    directionButton.get(d).setDown(false);
+                }
+            }
+            if (v != null)
+                directionButton.get(v).setDown(true);
+        }));
     }
 
     @Override
@@ -77,7 +85,7 @@ public class DirectionalFilterScreen extends BaseEtherNodeTabWidgetProvider<Abst
             directionButton.put(direction, button);
             this.screen.addRenderableWidget(button);
         }
-        FilterGuiRegClient.widget(screen, ()->plugin.filter.whitelist, AbstractDirectionalFilterFeature.FILTER_PREFIX);
+        FilterGuiRegClient.widget(screen, () -> plugin.filter.whitelist, AbstractDirectionalFilterFeature.FILTER_PREFIX);
     }
 
     @Override

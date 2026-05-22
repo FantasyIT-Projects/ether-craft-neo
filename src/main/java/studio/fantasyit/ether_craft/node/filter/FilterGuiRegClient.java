@@ -24,11 +24,12 @@ public class FilterGuiRegClient {
                 Component.translatable("ether_craft.gui.node.filter.using_white_list"),
                 t -> FilterGuiRegClient.useWhitelist(prefix, t)
         ));
+        iaSwitchButton.setDown(vGetter.get());
         screen.registerMenuSyncer(new ScreenMenuSyncer<>(vGetter, iaSwitchButton::setDown));
     }
 
     private static Boolean useWhitelist(String prefix, Boolean aBoolean) {
-        ClientPacketDistributor.sendToServer(new SyncScreenDataC2S(FilterGuiRegCommon.SYNC_FILTER.withPrefix(prefix), 0, aBoolean ? 1 : 0));
+        ClientPacketDistributor.sendToServer(new SyncScreenDataC2S(FilterGuiRegCommon.SYNC_FILTER.withPrefix(prefix), 0, aBoolean ? 0 : 1));
         return true;
     }
 }

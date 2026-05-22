@@ -3,6 +3,7 @@ package studio.fantasyit.ether_craft.node.plugins.feature;
 import com.mojang.serialization.Codec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
@@ -16,7 +17,6 @@ import studio.fantasyit.ether_craft.block.node.EtherAdaptNodeEntity;
 import studio.fantasyit.ether_craft.menu.base.slot.BaseDataSlot;
 import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeContainerMenu;
 import studio.fantasyit.ether_craft.network.c2s.SyncScreenDataC2S;
-import studio.fantasyit.ether_craft.node.filter.FilterGuiRegCommon;
 import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
 
 public class FeatureContainerInteract extends AbstractDirectionalFilterFeature {
@@ -62,6 +62,8 @@ public class FeatureContainerInteract extends AbstractDirectionalFilterFeature {
 
     private boolean pullFromAdjacent(ResourceHandler<ItemResource> adjacentHandler) {
         long costPerItem = Config.containerInteractEtherPreItem;
+        if (nodeEntity.getEther() < costPerItem)
+            return false;
         try (Transaction transaction = Transaction.openRoot()) {
             for (int i = 0; i < adjacentHandler.size(); i++) {
                 ItemResource resource = adjacentHandler.getResource(i);
@@ -71,7 +73,16 @@ public class FeatureContainerInteract extends AbstractDirectionalFilterFeature {
                 if (!filter.accepts(resource)) {
                     continue;
                 }
-                int extracted = adjacentHandler.extract(i, resource, resource.getMaxStackSize(), transaction);
+                int maxToExtract = Math.toIntExact(nodeEntity.getEther() / costPerItem);
+                try (Transaction t1 = Transaction.open(transaction)) {
+                    int t = adjacentHandler.extract(i, resource, maxToExtract, t1);
+                    if (t < maxToExtract)
+                        maxToExtract = t;
+                }
+                if (maxToExtract <= 0) {
+                    continue;
+                }
+                int extracted = adjacentHandler.extract(i, resource, maxToExtract, transaction);
                 if (extracted <= 0) {
                     continue;
                 }
@@ -79,17 +90,7 @@ public class FeatureContainerInteract extends AbstractDirectionalFilterFeature {
                 if (nodeEntity.getEther() < totalCost) {
                     return false;
                 }
-                int remaining = extracted;
-                for (int j = 0; j < nodeEntity.size(); j++) {
-                    if (nodeEntity.isValid(j, resource)) {
-                        int inserted = nodeEntity.insert(j, resource, remaining, transaction);
-                        remaining -= inserted;
-                        if (remaining <= 0) {
-                            break;
-                        }
-                    }
-                }
-                if (remaining > 0) {
+                if (nodeEntity.insert(resource, extracted, transaction) < extracted) {
                     return false;
                 }
                 transaction.commit();
@@ -102,42 +103,25 @@ public class FeatureContainerInteract extends AbstractDirectionalFilterFeature {
 
     private boolean pushToAdjacent(ResourceHandler<ItemResource> adjacentHandler) {
         long costPerItem = Config.containerInteractEtherPreItem;
+        if (nodeEntity.getEther() < costPerItem)
+            return false;
         try (Transaction transaction = Transaction.openRoot()) {
-            for (int i = 0; i < nodeEntity.size(); i++) {
-                ItemResource resource = nodeEntity.getResource(i);
-                if (resource.isEmpty() && nodeEntity.allowInteract(resource)) {
-                    continue;
-                }
-                if (!filter.accepts(resource)) {
-                    continue;
-                }
-                int extracted = nodeEntity.extract(i, resource, resource.getMaxStackSize(), transaction);
-                if (extracted <= 0) {
-                    continue;
-                }
-                long totalCost = (long) extracted * costPerItem;
-                if (nodeEntity.getEther() < totalCost) {
-                    return false;
-                }
-                int remaining = extracted;
-                for (int j = 0; j < adjacentHandler.size(); j++) {
-                    if (adjacentHandler.isValid(j, resource)) {
-                        int inserted = adjacentHandler.insert(j, resource, remaining, transaction);
-                        remaining -= inserted;
-                        if (remaining <= 0) {
-                            break;
-                        }
-                    }
-                }
-                if (remaining > 0) {
-                    return false;
-                }
-                transaction.commit();
-                nodeEntity.extractEther(totalCost);
-                return true;
+            ItemStack extracted = nodeEntity.extractWithPredicate(filter::accepts, transaction, (int) (nodeEntity.getEther() / costPerItem));
+            if (extracted.isEmpty()) {
+                return false;
             }
+            ItemResource resource = ItemResource.of(extracted);
+            int extractedAmount = extracted.getCount();
+            long totalCost = (long) extractedAmount * costPerItem;
+            if (nodeEntity.getEther() < totalCost) {
+                return false;
+            }
+            if (adjacentHandler.insert(resource, extractedAmount, transaction) < extractedAmount)
+                return false;
+            transaction.commit();
+            nodeEntity.extractEther(totalCost);
+            return true;
         }
-        return false;
     }
 
     @Override

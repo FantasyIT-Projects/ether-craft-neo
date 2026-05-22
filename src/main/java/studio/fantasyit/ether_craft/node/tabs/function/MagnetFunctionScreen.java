@@ -6,11 +6,14 @@ import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import studio.fantasyit.ether_craft.menu.base.widget.ScrollableWidget;
 import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeAsset;
 import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeScreen;
+import studio.fantasyit.ether_craft.menu.node.ScreenMenuSyncer;
 import studio.fantasyit.ether_craft.network.c2s.SyncScreenDataC2S;
 import studio.fantasyit.ether_craft.node.filter.FilterGuiRegClient;
 import studio.fantasyit.ether_craft.node.plugins.base.PluginMenuContext;
 import studio.fantasyit.ether_craft.node.plugins.function.FunctionMagnet;
 import studio.fantasyit.ether_craft.node.tabs.BaseEtherNodeTabWidgetProvider;
+
+import java.util.function.Supplier;
 
 public class MagnetFunctionScreen extends BaseEtherNodeTabWidgetProvider<FunctionMagnet> {
     private static final int CENTER_RANGE = 10;
@@ -32,13 +35,13 @@ public class MagnetFunctionScreen extends BaseEtherNodeTabWidgetProvider<Functio
     public void createWidget() {
         FilterGuiRegClient.widget(screen, () -> plugin.filter.whitelist, FunctionMagnet.FILTER_PREFIX);
 
-        int[] startValues = {
-                plugin.centerX + CENTER_RANGE,
-                plugin.centerY + CENTER_RANGE,
-                plugin.centerZ + CENTER_RANGE,
-                plugin.shapeX - 1,
-                plugin.shapeY - 1,
-                plugin.shapeZ - 1
+        Supplier[] startValues = {
+                () -> plugin.centerX + CENTER_RANGE,
+                () -> plugin.centerY + CENTER_RANGE,
+                () -> plugin.centerZ + CENTER_RANGE,
+                () -> plugin.shapeX - 1,
+                () -> plugin.shapeY - 1,
+                () -> plugin.shapeZ - 1
         };
 
         for (int i = 0; i < 6; i++) {
@@ -56,8 +59,8 @@ public class MagnetFunctionScreen extends BaseEtherNodeTabWidgetProvider<Functio
                                 FunctionMagnet.SYNC_VALUE, idx, actual));
                     }
             );
-            scrolls[i].setValue(Math.clamp(startValues[i], 0, MAX_VALUES[i]));
             screen.addRenderableWidget(scrolls[i]);
+            screen.registerMenuSyncer(new ScreenMenuSyncer<Integer>(startValues[i], scrolls[i]::setValue));
         }
     }
 
