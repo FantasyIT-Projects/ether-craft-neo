@@ -30,35 +30,7 @@ public abstract class BaseContainerMenu<T extends @NotNull BaseEtherContainerBlo
 
 
     @Override
-    public @NotNull ItemStack quickMoveStack(Player player, int index) {
-        ItemStack itemstack = ItemStack.EMPTY;
-        Slot slot = this.slots.get(index);
-        int slotCnt = inputSlots + outputSlots + internalSlots;
-        if (slot.hasItem()) {
-            ItemStack stack = slot.getItem();
-            itemstack = stack.copy();
-            if (index < slotCnt) {
-                if (!this.moveItemStackTo(stack, slotCnt, Inventory.INVENTORY_SIZE + slotCnt, true)) {
-                    return ItemStack.EMPTY;
-                }
-            } else if (!this.moveItemStackTo(stack, 0, inputSlots, false)) {
-                return ItemStack.EMPTY;
-            }
-
-            if (stack.isEmpty()) {
-                slot.set(ItemStack.EMPTY);
-            } else {
-                slot.setChanged();
-            }
-
-            if (stack.getCount() == itemstack.getCount()) {
-                return ItemStack.EMPTY;
-            }
-
-            slot.onTake(player, stack);
-        }
-        return itemstack;
-    }
+    abstract public @NotNull ItemStack quickMoveStack(Player player, int index);
 
     @Override
     public boolean stillValid(Player p_38874_) {

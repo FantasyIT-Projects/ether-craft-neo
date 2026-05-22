@@ -43,6 +43,7 @@ public class EtherAdaptNodeBlock extends BaseBlock {
     public EtherAdaptNodeBlock(Identifier identifier, int level) {
         super(
                 Properties.of()
+                        .destroyTime(2f)
                         .setId(ResourceKey.create(Registries.BLOCK, identifier))
         );
         this.registerDefaultState(

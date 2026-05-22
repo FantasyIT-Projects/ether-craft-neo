@@ -30,6 +30,7 @@ public class EtherStreamEmitterBlock extends BaseBlock {
     public EtherStreamEmitterBlock(Identifier identifier) {
         super(
                 Properties.of()
+                        .destroyTime(2f)
                         .setId(ResourceKey.create(Registries.BLOCK, identifier))
         );
         this.registerDefaultState(

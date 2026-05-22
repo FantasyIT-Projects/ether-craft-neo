@@ -31,10 +31,9 @@ import studio.fantasyit.ether_craft.node.plugins.base.AbstractNodePlugin;
 import studio.fantasyit.ether_craft.node.plugins.base.PluginMenuContext;
 import studio.fantasyit.ether_craft.register.ItemRegistry;
 
-import java.util.Optional;
-
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static studio.fantasyit.ether_craft.register.GuiRegistry.ETHER_ADAPT_NODE_CONTAINER;
 
@@ -77,9 +76,10 @@ public class EtherAdaptNodeContainerMenu extends BaseMenu<EtherAdaptNodeEntity> 
                         }
                     } else {
                         if (target instanceof OversizedEtherSlot) continue;
-                        if (target instanceof FilterSlot fs && isFilterActive() && !fs.hasItem())
-                            fs.set(stack.copyWithCount(1));
-                        else if (target.mayPlace(stack) && !skipNormalSlots && target.isActive())
+                        if (target instanceof FilterSlot fs && isFilterActive()) {
+                            if (!fs.hasItem() && !fs.handler.hasAnyMatching(s -> ItemStack.isSameItemSameComponents(s, stack)))
+                                fs.set(stack.copyWithCount(1));
+                        } else if (target.mayPlace(stack) && !skipNormalSlots && target.isActive())
                             this.moveItemStackTo(stack, i, i + 1, false);
                     }
                 }

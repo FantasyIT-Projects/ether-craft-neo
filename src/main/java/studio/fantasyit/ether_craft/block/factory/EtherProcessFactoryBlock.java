@@ -23,16 +23,20 @@ public class EtherProcessFactoryBlock extends BaseBlock {
     public static final IntegerProperty LEVEL = BlockStateProperties.LEVEL;
 
     public EtherProcessFactoryBlock(Identifier identifier) {
-        super(Properties.of().setId(ResourceKey.create(Registries.BLOCK, identifier)));
+        super(Properties.of()
+                .destroyTime(2f)
+                .setId(ResourceKey.create(Registries.BLOCK, identifier)));
         registerDefaultState(
                 stateDefinition.any()
                         .setValue(LEVEL, 1)
         );
     }
+
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(LEVEL);
     }
+
     @Override
     public @Nullable BlockEntity newBlockEntity(BlockPos blockPos, BlockState blockState) {
         return new EtherProcessFactoryEntity(blockPos, blockState);

@@ -8,10 +8,10 @@ import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector2i;
 import studio.fantasyit.ether_craft.block.base.ItemFilter;
-import studio.fantasyit.ether_craft.menu.base.IFilterSwitchable;
 import studio.fantasyit.ether_craft.block.factory.EtherProcessFactoryEntity;
 import studio.fantasyit.ether_craft.factory.FactoryLevelDef;
-import studio.fantasyit.ether_craft.menu.base.*;
+import studio.fantasyit.ether_craft.menu.base.BaseContainerMenu;
+import studio.fantasyit.ether_craft.menu.base.IFilterSwitchable;
 import studio.fantasyit.ether_craft.menu.base.ether.EtherSlot;
 import studio.fantasyit.ether_craft.menu.base.slot.BaseDataSlot;
 import studio.fantasyit.ether_craft.menu.base.slot.BaseSlot;
@@ -138,6 +138,8 @@ public class EtherProcessFactoryContainerMenu extends BaseContainerMenu<@NotNull
                 }
                 if (isFilterActive()) {
                     for (FilterSlot fs : filterSlots) {
+                        if (fs.handler.hasAnyMatching(s -> ItemStack.isSameItemSameComponents(s, stack)))
+                            continue;
                         if (stack.isEmpty()) break;
                         if (!fs.hasItem()) {
                             fs.set(stack.copyWithCount(1));
