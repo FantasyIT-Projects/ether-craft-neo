@@ -227,10 +227,6 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
             if (!filterStack.isEmpty() && !resource.is(filterStack.getItem()))
                 return false;
         }
-        for (AbstractNodePlugin plugin : getPlugins()) {
-            if (!plugin.inputFilter(resource))
-                return false;
-        }
         return normalHandler.isValid(index - 1, resource);
     }
 
@@ -250,10 +246,6 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
             if (earlyCosted >= amount)
                 return earlyCosted;
         }
-        for (AbstractNodePlugin plugin : getPlugins()) {
-            if (!plugin.inputFilter(resource))
-                return earlyCosted;
-        }
         return normalHandler.insert(index - 1, resource, amount - earlyCosted, transaction) + earlyCosted;
     }
 
@@ -267,10 +259,6 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
             return 0;
         if (index - 1 >= nodeProperty.slotUnlock)
             return 0;
-        for (AbstractNodePlugin plugin : getPlugins()) {
-            if (!plugin.outputFilter(resource))
-                return 0;
-        }
         return normalHandler.extract(index - 1, resource, amount, transaction);
     }
 

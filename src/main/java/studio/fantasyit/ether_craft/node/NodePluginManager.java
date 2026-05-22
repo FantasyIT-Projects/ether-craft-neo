@@ -16,19 +16,9 @@ import studio.fantasyit.ether_craft.node.plugins.base.AbstractNodePlugin;
 import studio.fantasyit.ether_craft.node.plugins.feature.FeatureContainerInteract;
 import studio.fantasyit.ether_craft.node.plugins.feature.FeatureDropperThrower;
 import studio.fantasyit.ether_craft.node.plugins.feature.FeatureEtherStreamEmitter;
-import studio.fantasyit.ether_craft.node.plugins.function.FunctionEtherConverter;
-import studio.fantasyit.ether_craft.node.plugins.function.FunctionFurnaceGenerator;
-import studio.fantasyit.ether_craft.node.plugins.function.FunctionMagnet;
-import studio.fantasyit.ether_craft.node.plugins.function.FunctionNodeProcess;
-import studio.fantasyit.ether_craft.node.plugins.function.FunctionEquipmentConsumeGenerator;
-import studio.fantasyit.ether_craft.node.plugins.function.FunctionEquipmentConsumeGenerator;
-import studio.fantasyit.ether_craft.node.plugins.function.FunctionStoneGenerator;
-import studio.fantasyit.ether_craft.node.plugins.upgrade.EtherFilterUpgrade;
-import studio.fantasyit.ether_craft.node.plugins.upgrade.EtherStreamBreakBlockUpgrade;
-import studio.fantasyit.ether_craft.node.plugins.upgrade.EtherStreamDamageUpgrade;
-import studio.fantasyit.ether_craft.node.plugins.upgrade.EtherStreamPreventDecayUpgrade;
-import studio.fantasyit.ether_craft.node.plugins.upgrade.EtherStreamStorageUpgrade;
-import studio.fantasyit.ether_craft.node.plugins.upgrade.StorageUpgrade;
+import studio.fantasyit.ether_craft.node.plugins.function.*;
+import studio.fantasyit.ether_craft.node.plugins.upgrade.*;
+import studio.fantasyit.ether_craft.register.ItemRegistry;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -79,7 +69,7 @@ public class NodePluginManager {
         ALL_PLUGINS.add(MAIN_PAGE_INFO);
         ALL_PLUGINS.add(new PluginInfo(PluginType.FUNCTION, FunctionFurnaceGenerator.ID, FunctionFurnaceGenerator::new, t -> t.is(Items.FURNACE), Items.FURNACE));
         ALL_PLUGINS.add(new PluginInfo(PluginType.FUNCTION, FunctionStoneGenerator.ID, FunctionStoneGenerator::new, t -> t.is(Items.STONECUTTER), Items.STONECUTTER));
-        ALL_PLUGINS.add(new PluginInfo(PluginType.FUNCTION, FunctionMagnet.ID, FunctionMagnet::new, t -> t.is(Items.IRON_BLOCK), Items.IRON_BLOCK));
+        ALL_PLUGINS.add(new PluginInfo(PluginType.FUNCTION, FunctionMagnet.ID, FunctionMagnet::new, t -> t.is(ItemRegistry.VACUUM_PIPE), ItemRegistry.VACUUM_PIPE.get()));
         ALL_PLUGINS.add(new PluginInfo(PluginType.FUNCTION, FunctionNodeProcess.ID, FunctionNodeProcess::new, t -> t.is(Items.CRAFTER), Items.CRAFTER));
         ALL_PLUGINS.add(new PluginInfo(PluginType.FUNCTION, FunctionEquipmentConsumeGenerator.ID, FunctionEquipmentConsumeGenerator::new, t -> t.is(Items.GRINDSTONE), Items.GRINDSTONE));
         ALL_PLUGINS.add(new PluginInfo(PluginType.FUNCTION, FunctionEtherConverter.ID, FunctionEtherConverter::new, t -> t.is(Items.DRAGON_EGG), Items.DRAGON_EGG));
@@ -92,6 +82,7 @@ public class NodePluginManager {
         ALL_PLUGINS.add(new PluginInfo(PluginType.UPGRADE, EtherStreamBreakBlockUpgrade.ID, EtherStreamBreakBlockUpgrade::new, t -> t.is(ItemTags.AXES) || t.is(ItemTags.PICKAXES) || t.is(ItemTags.SHOVELS) || t.is(ItemTags.HOES), Items.IRON_PICKAXE));
         ALL_PLUGINS.add(new PluginInfo(PluginType.UPGRADE, EtherStreamDamageUpgrade.ID, EtherStreamDamageUpgrade::new, stack -> stack.has(DataComponents.WEAPON), Items.IRON_SWORD));
         ALL_PLUGINS.add(new PluginInfo(PluginType.UPGRADE, EtherFilterUpgrade.ID, EtherFilterUpgrade::new, t -> t.is(Items.PAPER), Items.PAPER));
+        ALL_PLUGINS.add(new PluginInfo(PluginType.UPGRADE, EtherItemifyUpgrade.ID, EtherItemifyUpgrade::new, t -> t.is(ItemRegistry.INACTIVATED_ETHER), ItemRegistry.INACTIVATED_ETHER.get()));
     }
 
     public NodePluginManager() {

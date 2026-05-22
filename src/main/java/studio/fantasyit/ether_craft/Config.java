@@ -32,6 +32,9 @@ public class Config {
     private static final ModConfigSpec.IntValue NODE_CONTAINER_INTERACT_ETHER_PRE_ITEM = BUILDER
             .comment("Ether consumed per item transferred by ContainerInteract feature")
             .defineInRange("node.container_interact.ether_pre_item", 100, 1, Integer.MAX_VALUE);
+    private static final ModConfigSpec.IntValue DROPPER_THROWER_ETHER_PRE_ITEM = BUILDER
+            .comment("Ether consumed per item transferred by DropperThrower feature")
+            .defineInRange("dropper_thrower.ether_pre_item", 10, 1, Integer.MAX_VALUE);
     private static final ModConfigSpec.ConfigValue<List<? extends Integer>> NODE_LEVEL_SLOT_ARR = BUILDER
             .comment("Upgrade slots pre level")
             .defineList("node.up_slot", () -> List.of(2, 4, 6), () -> 0, t -> {
@@ -91,6 +94,7 @@ public class Config {
     public static List<Integer> nodeLevelSlotArr;
     public static int nodeMagnetConsumePreStack;
     public static int containerInteractEtherPreItem;
+    public static int dropperThrowerEtherPreItem;
     public static int breakBlockHardnessMultiplier;
     public static int breakBlockEfficiencyDivisor;
     public static int nodeProcessMaxProgress;
@@ -113,6 +117,7 @@ public class Config {
         nodeLevelSlotArr = NODE_LEVEL_SLOT_ARR.get().stream().map(t -> (Integer) t).toList();
         nodeMagnetConsumePreStack = NODE_MAGNET_CONSUME_PRE_STACK.get();
         containerInteractEtherPreItem = NODE_CONTAINER_INTERACT_ETHER_PRE_ITEM.get();
+        dropperThrowerEtherPreItem = DROPPER_THROWER_ETHER_PRE_ITEM.get();
         breakBlockHardnessMultiplier = BREAK_BLOCK_HARDNESS_MULTIPLIER.get();
         breakBlockEfficiencyDivisor = BREAK_BLOCK_EFFICIENCY_DIVISOR.get();
         nodeProcessMaxProgress = NODE_PROCESS_MAX_PROGRESS.get();

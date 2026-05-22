@@ -6,6 +6,7 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
+import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.block.node.EtherAdaptNodeEntity;
 import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
@@ -23,19 +24,23 @@ public class FeatureDropperThrower extends AbstractDirectionalFilterFeature {
     }
 
     private boolean process() {
-        if (direction == null) {
+
+        if (nodeEntity.getEther() < Config.dropperThrowerEtherPreItem)
             return false;
+        if (direction == null) {
+            return true;
         }
         if (nodeEntity.getLevel() == null) {
-            return false;
+            return true;
         }
         ItemStack itemStack;
         try (Transaction transaction = Transaction.openRoot()) {
             itemStack = nodeEntity.extractWithPredicate(filter::accepts, transaction, Integer.MAX_VALUE);
             transaction.commit();
         }
+        nodeEntity.extractEther(Config.dropperThrowerEtherPreItem);
         if (itemStack.isEmpty()) {
-            return false;
+            return true;
         }
         Direction dir = direction;
         Vec3 dirVec = dir.getUnitVec3();

@@ -1,9 +1,7 @@
 package studio.fantasyit.ether_craft.node.plugins.feature;
 
-import net.minecraft.core.Direction;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
-import net.neoforged.neoforge.transfer.item.ItemResource;
 import studio.fantasyit.ether_craft.block.base.ItemFilter;
 import studio.fantasyit.ether_craft.block.node.EtherAdaptNodeEntity;
 import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeContainerMenu;
@@ -49,12 +47,5 @@ public abstract class AbstractDirectionalFilterFeature extends AbstractDirection
         super.syncScreenData(message);
         FilterGuiRegCommon.sync(message, filter,FILTER_PREFIX);
     }
-    @Override
-    public boolean inputFilter(ItemResource resource) {
-        return filter.accepts(resource);
-    }
-    @Override
-    public boolean outputFilter(ItemResource resource) {
-        return !filter.accepts(resource);
-    }
+
 }

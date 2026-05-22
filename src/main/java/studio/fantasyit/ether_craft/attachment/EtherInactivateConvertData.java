@@ -20,8 +20,8 @@ public class EtherInactivateConvertData extends SavedData {
             EtherCraft.id("ether_inactivate_convert_data"),
             EtherInactivateConvertData::new,
             RecordCodecBuilder.create(instance -> instance.group(
-                    Codec.unboundedMap(UUIDUtil.CODEC, Codec.INT).fieldOf("convertCounter").forGetter(sd -> sd.convertCounter),
-                    Codec.unboundedMap(UUIDUtil.CODEC, Codec.INT).fieldOf("lastTick").forGetter(sd -> sd.lastTick)
+                    Codec.unboundedMap(UUIDUtil.STRING_CODEC, Codec.INT).fieldOf("convertCounter").forGetter(sd -> sd.convertCounter),
+                    Codec.unboundedMap(UUIDUtil.STRING_CODEC, Codec.INT).fieldOf("lastTick").forGetter(sd -> sd.lastTick)
             ).apply(instance, EtherInactivateConvertData::new))
     );
 

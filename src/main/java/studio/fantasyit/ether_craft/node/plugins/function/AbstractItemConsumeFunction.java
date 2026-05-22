@@ -113,13 +113,4 @@ public abstract class AbstractItemConsumeFunction extends AbstractNodePlugin {
         FilterGuiRegCommon.slots(menu, filter);
     }
 
-    @Override
-    public boolean inputFilter(ItemResource resource) {
-        return filter.accepts(resource);
-    }
-
-    @Override
-    public boolean outputFilter(ItemResource resource) {
-        return !filter.accepts(resource) || !accepts(resource);
-    }
 }

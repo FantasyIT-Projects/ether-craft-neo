@@ -43,14 +43,6 @@ public abstract class AbstractNodePlugin implements ISyncTargetMenu {
     public void loadAdditional(ValueInput input) {
     }
 
-    public boolean inputFilter(ItemResource resource) {
-        return true;
-    }
-
-    public boolean outputFilter(ItemResource resource) {
-        return true;
-    }
-
     public int earlyHandleInput(ItemResource resource, int amount, TransactionContext context) {
         return 0;
     }

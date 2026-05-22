@@ -78,8 +78,8 @@ public class RangeLimitPlaceContainer implements Container, ValueIOSerializable 
 
     @Override
     public void serialize(ValueOutput output) {
-        output.store("content", ItemStack.OPTIONAL_CODEC.listOf(), ContainerOps.containerToItemList(container));
         output.store("accessibleCount", Codec.INT, accessibleCount);
+        output.store("content", ItemStack.OPTIONAL_CODEC.listOf(), ContainerOps.containerToItemList(container));
     }
 
     @Override

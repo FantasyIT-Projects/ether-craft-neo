@@ -26,6 +26,7 @@ public class ItemFilter implements Container, ValueIOSerializable {
             items[i] = ItemStack.EMPTY;
         }
     }
+
     @Override
     public int getContainerSize() {
         return size;
@@ -93,23 +94,33 @@ public class ItemFilter implements Container, ValueIOSerializable {
     }
 
 
-
     public boolean accepts(ItemResource stack) {
-        return Arrays.stream(items).anyMatch(itemStack -> itemStack.isEmpty() || itemStack.is(stack.getItem()));
+        for (int i = 0; i < size; i++)
+            if (acceptsAt(stack, i))
+                return true;
+        if (!whitelist && Arrays.stream(items).allMatch(ItemStack::isEmpty))
+            return true;
+        return false;
     }
+
     public boolean acceptsAt(ItemResource stack, int index) {
-        return items[index].isEmpty() || items[index].is(stack.getItem());
+        if (items[index].isEmpty())
+            return false;
+        if (whitelist)
+            return items[index].is(stack.getItem());
+        else
+            return !items[index].is(stack.getItem());
     }
 
     @Override
     public void serialize(ValueOutput output) {
-        output.putBoolean("whitelist",whitelist);
+        output.putBoolean("whitelist", whitelist);
         output.store("filter", ItemStack.OPTIONAL_CODEC.listOf(), ContainerOps.containerToItemList(this));
     }
 
     @Override
     public void deserialize(ValueInput input) {
-        whitelist = input.getBooleanOr("whitelist",false);
+        whitelist = input.getBooleanOr("whitelist", false);
         input.read("filter", ItemStack.OPTIONAL_CODEC.listOf()).ifPresent(l -> ContainerOps.fillContainerByItemList(this, l));
     }
 }

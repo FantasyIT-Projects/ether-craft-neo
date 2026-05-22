@@ -26,7 +26,7 @@ public class TagGenBlock extends TagsProvider<Block> {
         getOrCreateRawBuilder(Tags.ETHER_STREAM_PASS_THROUGH)
                 .addElement(BuiltInRegistries.BLOCK.getKey(Blocks.GLASS))
                 .addElement(BuiltInRegistries.BLOCK.getKey(Blocks.GLASS_PANE))
-                .addElement(BlockRegistry.ETHER_BLOCK.getId());
+                .addElement(BlockRegistry.ETHER_GLASS.getId());
         getOrCreateRawBuilder(Tags.ETHER_MACHINE)
                 .addElement(BlockRegistry.ETHER_PROCESS_FACTORY.getKey().identifier())
                 .addElement(BlockRegistry.ETHER_STREAM_EMITTER.getKey().identifier())
