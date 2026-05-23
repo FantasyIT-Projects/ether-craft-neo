@@ -1,4 +1,4 @@
-package studio.fantasyit.ether_craft.particle.ether_stream;
+package studio.fantasyit.ether_craft.entity.render;
 
 import com.mojang.blaze3d.pipeline.BlendFunction;
 import com.mojang.blaze3d.pipeline.ColorTargetState;
@@ -22,8 +22,7 @@ public class EtherStreamRenderPipeline {
             .withDepthStencilState(new DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, false))
             .build();
 
-    public static final RenderPipeline ETHER_STREAM_ENTITY_PIPELINE = RenderPipeline.builder(
-                    new RenderPipeline.Snippet[]{RenderPipelines.MATRICES_FOG_SNIPPET})
+    public static final RenderPipeline ETHER_STREAM_ENTITY_PIPELINE = RenderPipeline.builder(RenderPipelines.MATRICES_FOG_SNIPPET)
             .withLocation(EtherCraft.id("pipeline/ether_stream_entity"))
             .withVertexShader("core/entity")
             .withFragmentShader("core/entity")
