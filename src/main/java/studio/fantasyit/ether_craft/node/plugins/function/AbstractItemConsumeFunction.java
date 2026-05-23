@@ -57,7 +57,7 @@ public abstract class AbstractItemConsumeFunction extends AbstractNodePlugin {
     abstract void onBurnTick();
 
     @Override
-    public void tick() {
+    public void tickWork() {
         ItemStack oItemStack = container.getItem(0);
         int remain = oItemStack.isEmpty() ? 64 : oItemStack.getMaxStackSize() - oItemStack.getCount();
         try (var transaction = Transaction.openRoot()) {

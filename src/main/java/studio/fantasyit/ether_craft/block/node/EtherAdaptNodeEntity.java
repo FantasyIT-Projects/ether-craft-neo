@@ -141,8 +141,12 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
 
     @Override
     public void tickServer() {
-        functionStorage.tick();
-        featureUpgradeStorage.tick();
+        functionStorage.tickInput();
+        featureUpgradeStorage.tickInput();
+        functionStorage.tickWork();
+        featureUpgradeStorage.tickWork();
+        functionStorage.tickOutput();
+        featureUpgradeStorage.tickOutput();
         ticket.tick(this);
         if (markUpdate) {
             markUpdate = false;

@@ -19,7 +19,7 @@ public class FeatureDropperThrower extends AbstractDirectionalFilterFeature {
     }
 
     @Override
-    public void tick() {
+    public void tickOutput() {
         queueWithCd(ID, 1, this::process);
     }
 

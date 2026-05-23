@@ -34,7 +34,13 @@ public abstract class AbstractNodePlugin implements ISyncTargetMenu {
     public void modifyNodeProperty(NodeProperty nodeProperty) {
     }
 
-    public void tick() {
+    public void tickInput() {
+    }
+
+    public void tickWork() {
+    }
+
+    public void tickOutput() {
     }
 
     public void saveAdditional(ValueOutput output) {

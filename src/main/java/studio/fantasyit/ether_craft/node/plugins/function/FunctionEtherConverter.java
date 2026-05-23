@@ -45,7 +45,7 @@ public class FunctionEtherConverter extends AbstractNodePlugin {
     }
 
     @Override
-    public void tick() {
+    public void tickWork() {
         if (remainWorkTicks > 0) {
             remainWorkTicks--;
             if (remainWorkTicks <= 0)

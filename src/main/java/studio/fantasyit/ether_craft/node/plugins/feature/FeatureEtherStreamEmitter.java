@@ -32,7 +32,7 @@ public class FeatureEtherStreamEmitter extends AbstractDirectionalFilterFeature 
     }
 
     @Override
-    public void tick() {
+    public void tickOutput() {
         queueWithCd(ID, 10, this::process);
     }
 

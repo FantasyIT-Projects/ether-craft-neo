@@ -58,7 +58,7 @@ public class FunctionMagnet extends AbstractNodePlugin {
     }
 
     @Override
-    public void tick() {
+    public void tickInput() {
         if (shapeX == 0 || shapeY == 0 || shapeZ == 0)
             return;
         if (shapeX + shapeY + shapeZ == 1 && centerX == 0 && centerY == 0 && centerZ == 0)

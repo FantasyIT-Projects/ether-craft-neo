@@ -97,11 +97,29 @@ public class EtherPluginUpgradeContainer extends SimpleContainer {
         setChanged();
     }
 
-    public void tick() {
+    public void tickInput() {
         for (int i = 0; i < plugin.length; i++) {
             AbstractNodePlugin AbstractNodePlugin = plugin[i];
             if (AbstractNodePlugin != null) {
-                AbstractNodePlugin.tick();
+                AbstractNodePlugin.tickInput();
+            }
+        }
+    }
+
+    public void tickWork() {
+        for (int i = 0; i < plugin.length; i++) {
+            AbstractNodePlugin AbstractNodePlugin = plugin[i];
+            if (AbstractNodePlugin != null) {
+                AbstractNodePlugin.tickWork();
+            }
+        }
+    }
+
+    public void tickOutput() {
+        for (int i = 0; i < plugin.length; i++) {
+            AbstractNodePlugin AbstractNodePlugin = plugin[i];
+            if (AbstractNodePlugin != null) {
+                AbstractNodePlugin.tickOutput();
             }
         }
     }

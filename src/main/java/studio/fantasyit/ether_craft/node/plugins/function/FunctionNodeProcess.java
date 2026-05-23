@@ -87,7 +87,7 @@ public class FunctionNodeProcess extends AbstractNodePlugin {
     }
 
     @Override
-    public void tick() {
+    public void tickWork() {
         if (nodeEntity.getLevel() == null || nodeEntity.getLevel().isClientSide())
             return;
         pullItems();

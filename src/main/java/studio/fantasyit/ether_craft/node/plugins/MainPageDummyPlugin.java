@@ -35,10 +35,7 @@ public class MainPageDummyPlugin extends AbstractNodePlugin {
 
     }
 
-    @Override
-    public void tick() {
-
-    }
+    
 
     @Override
     public void saveAdditional(ValueOutput output) {

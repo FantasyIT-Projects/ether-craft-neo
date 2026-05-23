@@ -28,8 +28,7 @@ public abstract class AbstractDirectionalFilterFeature extends AbstractDirection
         FilterGuiRegCommon.slots(menu, filter);
     }
 
-    @Override
-    public abstract void tick();
+    
 
     @Override
     public void saveAdditional(ValueOutput output) {
