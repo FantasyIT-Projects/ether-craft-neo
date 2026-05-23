@@ -138,7 +138,7 @@ public class EtherStreamEntity extends Projectile {
 
     @Override
     protected void onHit(HitResult hitResult) {
-        if (!this.level().isClientSide())
+        if (!this.level().isClientSide()) {
             if (hitResult.getType() == HitResult.Type.BLOCK) {
                 BlockHitResult blockHit = (BlockHitResult) hitResult;
                 BlockState blockState = this.level().getBlockState(blockHit.getBlockPos());
@@ -146,6 +146,15 @@ public class EtherStreamEntity extends Projectile {
                     return;
                 }
             }
+        } else {
+            if (hitResult.getType() == HitResult.Type.BLOCK) {
+                BlockHitResult blockhit = (BlockHitResult) hitResult;
+                BlockState blockState = level().getBlockState(blockhit.getBlockPos());
+                if (blockState.is(Tags.ETHER_STREAM_PASS_THROUGH)) {
+                    return;
+                }
+            }
+        }
         super.onHit(hitResult);
     }
 

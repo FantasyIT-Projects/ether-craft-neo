@@ -125,7 +125,8 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
                     syncedPluginData,
                     this.getBlockPos(),
                     this.level.dimension().identifier(),
-                    nodeProperty.maxEther
+                    nodeProperty.maxEther,
+                    nodeProperty.slotUnlock
             ));
     }
 
@@ -358,6 +359,7 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
             output.store("pd", SerializeUtil.PDMap.CODEC.listOf(), SerializeUtil.PDMap.fromMap(featureAttachedDirection));
             output.store("pv", SerializeUtil.PIMap.CODEC.listOf(), SerializeUtil.PIMap.fromMap(syncedPluginData));
             output.putInt("me", nodeProperty.maxEther);
+            output.putInt("su", nodeProperty.slotUnlock);
             output.putString("name", name);
             return output.buildResult();
         }
@@ -373,19 +375,22 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
                 .orElse(Map.of());
         InstalledPlugin funcPlugin = input.read("fp", InstalledPlugin.CODEC).orElse(null);
         int maxEther = input.read("me", Codec.INT).orElse(nodeProperty.maxEther);
+        int slotUnlock = input.read("su", Codec.INT).orElse(0);
         name = input.getStringOr("name", "");
         if (!name.isEmpty())
             setRenderName(Component.literal(name));
-        fromNetwork(pluginDirection, funcPlugin, pluginValue, maxEther);
+        fromNetwork(pluginDirection, funcPlugin, pluginValue, maxEther, slotUnlock);
     }
 
-    public void fromNetwork(Map<Direction, InstalledPlugin> pluginDirection, @Nullable InstalledPlugin functionPlugin, Map<InstalledPlugin, Map<Identifier, Integer>> pluginValue, int maxEther) {
+    public void fromNetwork(Map<Direction, InstalledPlugin> pluginDirection, @Nullable InstalledPlugin functionPlugin, Map<InstalledPlugin, Map<Identifier, Integer>> pluginValue, int maxEther, int slotUnlock) {
         featureAttachedDirection.clear();
         featureAttachedDirection.putAll(pluginDirection);
         this.functionPlugin = functionPlugin;
         this.syncedPluginData.clear();
         this.syncedPluginData.putAll(pluginValue);
         this.nodeProperty.maxEther = maxEther;
+        this.nodeProperty.slotUnlock = slotUnlock;
+        this.normalStorage.setAccessibleCount(slotUnlock);
     }
 
     public boolean allowInteract(ItemResource resource) {

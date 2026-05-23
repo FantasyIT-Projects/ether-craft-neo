@@ -25,7 +25,8 @@ public record SyncEtherAdaptNodeExtraS2C(
         Map<InstalledPlugin, Map<Identifier, Integer>> pluginValue,
         BlockPos pos,
         Identifier levelId,
-        int maxEther
+        int maxEther,
+        int slotUnlock
 ) implements CustomPacketPayload {
     public static final Type<@NotNull SyncEtherAdaptNodeExtraS2C> TYPE = new Type<>(
             Identifier.fromNamespaceAndPath(
@@ -48,6 +49,8 @@ public record SyncEtherAdaptNodeExtraS2C(
             SyncEtherAdaptNodeExtraS2C::levelId,
             ByteBufCodecs.INT,
             SyncEtherAdaptNodeExtraS2C::maxEther,
+            ByteBufCodecs.INT,
+            SyncEtherAdaptNodeExtraS2C::slotUnlock,
             SyncEtherAdaptNodeExtraS2C::new
     );
 
@@ -61,7 +64,7 @@ public record SyncEtherAdaptNodeExtraS2C(
             Level level = iPayloadContext.player().level();
             if (level.dimension().identifier().equals(levelId)) {
                 if (level.getBlockEntity(pos) instanceof EtherAdaptNodeEntity nodeEntity) {
-                    nodeEntity.fromNetwork(pluginDirection, functionPlugin.orElse(null), pluginValue, maxEther);
+                    nodeEntity.fromNetwork(pluginDirection, functionPlugin.orElse(null), pluginValue, maxEther, slotUnlock);
                 }
             }
         });

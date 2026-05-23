@@ -137,7 +137,8 @@ public class EtherAdaptNodeContainerMenu extends BaseMenu<EtherAdaptNodeEntity> 
                     entity.syncedPluginData,
                     entity.getBlockPos(),
                     entity.getLevel().dimension().identifier(),
-                    entity.nodeProperty.maxEther
+                    entity.nodeProperty.maxEther,
+                    entity.nodeProperty.slotUnlock
             ));
         }
     }
