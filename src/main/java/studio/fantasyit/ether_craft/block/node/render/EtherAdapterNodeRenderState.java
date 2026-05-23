@@ -1,17 +1,17 @@
 package studio.fantasyit.ether_craft.block.node.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.SheetedDecalTextureGenerator;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
-import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.client.resources.model.ModelBakery;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.world.level.CardinalLighting;
@@ -33,6 +33,8 @@ public class EtherAdapterNodeRenderState extends BlockEntityRenderState {
             EtherAdapterNodeAtlas.SIDE
     };
     int[] packedLightSides = new int[6];
+
+    public BlockState blockState;
 
     List<EtherAdapterNodeAtlas.AtlasUV> overlays = new ArrayList<>();
     List<Direction> overlayDirections = new ArrayList<>();
@@ -88,48 +90,8 @@ public class EtherAdapterNodeRenderState extends BlockEntityRenderState {
         }
 
         if (this.breakProgress != null) {
-            RenderType destroyRenderType = ModelBakery.DESTROY_TYPES.get(this.breakProgress.progress());
-            PoseStack.Pose cameraPose = this.breakProgress.cameraPose();
-
-            for (int i = 0; i < sides.length; i++) {
-                EtherAdapterNodeAtlas.AtlasUV atlasUV = sides[i];
-                int light = packedLightSides[i];
-                if (atlasUV != null) {
-                    Direction dir = Direction.values()[i];
-                    submitNodeCollector.submitCustomGeometry(
-                            poseStack,
-                            destroyRenderType,
-                            (pose, buffer) -> {
-                                VertexConsumer breakingBuffer = new SheetedDecalTextureGenerator(
-                                        buffer, cameraPose, 1.0F
-                                );
-                                renderFace(
-                                        dir, pose, breakingBuffer, light, overlay,
-                                        atlasUV.u0, atlasUV.v0, atlasUV.u1, atlasUV.v1
-                                );
-                            }
-                    );
-                }
-            }
-
-            for (int i = 0; i < overlays.size(); i++) {
-                EtherAdapterNodeAtlas.AtlasUV atlasUV = overlays.get(i);
-                Direction dir = overlayDirections.get(i);
-                int light = packedLightSides[dir.ordinal()];
-                submitNodeCollector.submitCustomGeometry(
-                        poseStack,
-                        destroyRenderType,
-                        (pose, buffer) -> {
-                            VertexConsumer breakingBuffer = new SheetedDecalTextureGenerator(
-                                    buffer, cameraPose, 1.0F
-                            );
-                            renderFace(
-                                    dir, pose, breakingBuffer, light, overlay,
-                                    atlasUV.u0, atlasUV.v0, atlasUV.u1, atlasUV.v1
-                            );
-                        }
-                );
-            }
+            BlockStateModel model = Minecraft.getInstance().getModelManager().getBlockStateModelSet().get(this.blockState);
+            submitNodeCollector.submitBreakingBlockModel(poseStack, model, this.blockState.getSeed(this.blockPos), this.breakProgress.progress());
         }
     }
 
