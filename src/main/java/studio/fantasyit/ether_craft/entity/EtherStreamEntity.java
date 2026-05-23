@@ -124,7 +124,9 @@ public class EtherStreamEntity extends Projectile {
 
 
     private int getConsumption() {
-        double value = Math.ceil(0.002 * ether);
+        double factor = Config.etherStreamConsumptionFactor;
+        factor += Config.etherStreamConsumptionByTimeFactor * this.tickCount;
+        double value = Math.ceil(factor * ether);
         for (IStreamCapability capability : capabilities) {
             value += capability.getConsumption();
         }

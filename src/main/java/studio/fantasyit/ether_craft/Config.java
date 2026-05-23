@@ -85,6 +85,14 @@ public class Config {
     private static final ModConfigSpec.IntValue STREAM_MAX_TICK = BUILDER
             .comment("Maximum existence time of an Ether Stream entity in ticks (default 1200 = 60 seconds)")
             .defineInRange("stream.max_tick", 1200, 1, Integer.MAX_VALUE);
+
+    public static final ModConfigSpec.DoubleValue ETHER_STREAM_CONSUMPTION_FACTOR = BUILDER
+            .comment("Ether consumption factor for Ether Streams")
+            .defineInRange("ether_stream.consumption_factor", 0.005, 0, 10);
+    public static final ModConfigSpec.DoubleValue ETHER_STREAM_CONSUMPTION_BY_TIME_FACTOR = BUILDER
+            .comment("Ether consumption factor for Ether Streams")
+            .defineInRange("ether_stream.consumption_factor_by_time", 0.00, 0, 10);
+
     static final ModConfigSpec SPEC = BUILDER.build();
 
     public static int etherConvert;
@@ -107,6 +115,8 @@ public class Config {
     public static int etherConverterCoefficient;
     public static int etherInactivateTick;
     public static int streamMaxTick;
+    public static double etherStreamConsumptionFactor;
+    public static double etherStreamConsumptionByTimeFactor;
 
     @SubscribeEvent
     static void onLoad(final ModConfigEvent event) {
@@ -130,5 +140,7 @@ public class Config {
         etherConverterCoefficient = ETHER_CONVERTER_COEFFICIENT.get();
         etherInactivateTick = ETHER_INACTIVATE_TICK.get();
         streamMaxTick = STREAM_MAX_TICK.get();
+        etherStreamConsumptionFactor = ETHER_STREAM_CONSUMPTION_FACTOR.get();
+        etherStreamConsumptionByTimeFactor = ETHER_STREAM_CONSUMPTION_BY_TIME_FACTOR.get();
     }
 }
