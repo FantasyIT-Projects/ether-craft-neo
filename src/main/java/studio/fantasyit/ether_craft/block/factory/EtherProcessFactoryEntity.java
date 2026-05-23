@@ -1,8 +1,14 @@
 package studio.fantasyit.ether_craft.block.factory;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.DynamicOps;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
@@ -12,7 +18,10 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TypedEntityData;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
@@ -35,8 +44,11 @@ import studio.fantasyit.ether_craft.register.ItemRegistry;
 import studio.fantasyit.ether_craft.register.Tags;
 import studio.fantasyit.ether_craft.util.EtherProcessorRecipeUtil;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 import static studio.fantasyit.ether_craft.register.BlockEntityRegistry.ETHER_PROCESS_FACTORY_ENTITY;
 
@@ -300,6 +312,56 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
     @Override
     public void setRenderName(@Nullable Component name) {
         toRenderName = name;
+    }
+
+    public static void appendTooltipLines(ItemStack stack, int level, Item.TooltipContext ctx, TooltipFlag flag, Consumer<Component> tooltipAdder) {
+        TypedEntityData<?> beData = stack.get(DataComponents.BLOCK_ENTITY_DATA);
+        if (beData == null) return;
+
+        CompoundTag tag = beData.copyTagWithoutId();
+        if (tag.isEmpty()) return;
+
+        tag.getString("name").ifPresent(name -> {
+            if (!name.isEmpty())
+                tooltipAdder.accept(Component.literal(name).withStyle(ChatFormatting.ITALIC, ChatFormatting.GRAY));
+        });
+
+        Tag contentTag = tag.get("content");
+        if (contentTag != null) {
+            DynamicOps<Tag> ops = ctx.registries().createSerializationContext(NbtOps.INSTANCE);
+            List<ItemStack> content = ItemStack.OPTIONAL_CODEC.listOf()
+                    .parse(ops, contentTag)
+                    .result()
+                    .orElse(List.of());
+
+            FactoryLevelDef def = FactoryLevelDef.getByLevel(level);
+            int rows = def.slotSize().y;
+            int cols = def.slotSize().x;
+            int internalCount = rows * cols;
+            int inputEnd = rows;
+            int outputStart = inputEnd + internalCount;
+            int outputEnd = outputStart + rows;
+
+            List<String> inputNames = new ArrayList<>();
+            for (int i = 0; i < Math.min(inputEnd, content.size()); i++) {
+                ItemStack item = content.get(i);
+                if (!item.isEmpty())
+                    inputNames.add(item.getHoverName().getString() + " x" + item.getCount());
+            }
+            if (!inputNames.isEmpty())
+                tooltipAdder.accept(Component.translatable("tooltip.ether_craft.factory.input",
+                        String.join(", ", inputNames)).withStyle(ChatFormatting.GOLD));
+
+            List<String> outputNames = new ArrayList<>();
+            for (int i = outputStart; i < Math.min(outputEnd, content.size()); i++) {
+                ItemStack item = content.get(i);
+                if (!item.isEmpty())
+                    outputNames.add(item.getHoverName().getString() + " x" + item.getCount());
+            }
+            if (!outputNames.isEmpty())
+                tooltipAdder.accept(Component.translatable("tooltip.ether_craft.factory.output",
+                        String.join(", ", outputNames)).withStyle(ChatFormatting.GOLD));
+        }
     }
 
     private boolean consumeAndPlaceOutput(int row) {

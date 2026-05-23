@@ -2,10 +2,15 @@ package studio.fantasyit.ether_craft.block.node;
 
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.DynamicOps;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -16,7 +21,10 @@ import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TypedEntityData;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.TagValueOutput;
@@ -48,6 +56,7 @@ import studio.fantasyit.ether_craft.register.ItemRegistry;
 import studio.fantasyit.ether_craft.util.SerializeUtil;
 
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import static studio.fantasyit.ether_craft.register.BlockEntityRegistry.ETHER_NODE_ENTITY;
@@ -466,6 +475,57 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
     @Override
     public void setRenderName(@Nullable Component name) {
         toRenderName = name;
+    }
+
+    public static void appendTooltipLines(ItemStack stack, int level, Item.TooltipContext ctx, TooltipFlag flag, Consumer<Component> tooltipAdder) {
+        TypedEntityData<?> beData = stack.get(DataComponents.BLOCK_ENTITY_DATA);
+        if (beData == null) return;
+
+        CompoundTag tag = beData.copyTagWithoutId();
+        if (tag.isEmpty()) return;
+
+        tag.getString("name").ifPresent(name -> {
+            if (!name.isEmpty())
+                tooltipAdder.accept(Component.literal(name).withStyle(ChatFormatting.ITALIC, ChatFormatting.GRAY));
+        });
+
+        DynamicOps<Tag> ops = ctx.registries().createSerializationContext(NbtOps.INSTANCE);
+
+        tag.getCompound("functionStorage").ifPresent(funcTag -> {
+            Tag itemsTag = funcTag.get("items");
+            if (itemsTag != null) {
+                List<ItemStack> items = ItemStack.OPTIONAL_CODEC.listOf()
+                        .parse(ops, itemsTag)
+                        .result()
+                        .orElse(List.of());
+                for (ItemStack item : items) {
+                    if (!item.isEmpty()) {
+                        tooltipAdder.accept(Component.translatable("tooltip.ether_craft.adapt_node.plugin",
+                                item.getHoverName().getString()).withStyle(ChatFormatting.BLUE));
+                        break;
+                    }
+                }
+            }
+        });
+
+        tag.getCompound("featureUpgradeStorage").ifPresent(featureTag -> {
+            Tag itemsTag = featureTag.get("items");
+            if (itemsTag != null) {
+                List<ItemStack> items = ItemStack.OPTIONAL_CODEC.listOf()
+                        .parse(ops, itemsTag)
+                        .result()
+                        .orElse(List.of());
+                List<String> names = new ArrayList<>();
+                for (ItemStack item : items) {
+                    if (!item.isEmpty())
+                        names.add(item.getHoverName().getString());
+                }
+                if (!names.isEmpty()) {
+                    tooltipAdder.accept(Component.translatable("tooltip.ether_craft.adapt_node.upgrades",
+                            String.join(", ", names)).withStyle(ChatFormatting.BLUE));
+                }
+            }
+        });
     }
 
 }

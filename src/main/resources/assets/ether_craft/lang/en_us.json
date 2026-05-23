@@ -88,6 +88,11 @@
   "tooltip.ether_craft.welding_chip": "Welding Chip",
   "tooltip.ether_craft.energizing_chip": "Energizing Chip",
 
+  "tooltip.ether_craft.adapt_node.plugin": "Plugin: %s",
+  "tooltip.ether_craft.adapt_node.upgrades": "Upgrades: %s",
+  "tooltip.ether_craft.factory.input": "Input: %s",
+  "tooltip.ether_craft.factory.output": "Output: %s",
+
   "jei.ether_craft.ether_process": "Ether Process",
   "jei.ether_craft.node_plugin_info": "Node Plugin Info",
   "jei.ether_craft.node_process": "Node Process",
