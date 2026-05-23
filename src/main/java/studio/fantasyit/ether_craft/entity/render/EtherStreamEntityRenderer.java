@@ -1,7 +1,11 @@
 package studio.fantasyit.ether_craft.entity.render;
 
+import com.mojang.blaze3d.vertex.ByteBufferBuilder;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
@@ -10,6 +14,9 @@ import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.phys.Vec3;
+import org.joml.Matrix4f;
+import org.joml.Quaternionf;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.entity.EtherStreamEntity;
 import studio.fantasyit.ether_craft.stream.EtherStreamLabelCapability;
@@ -23,6 +30,8 @@ public class EtherStreamEntityRenderer extends EntityRenderer<EtherStreamEntity,
                     .sortOnUpload()
                     .createRenderSetup()
     );
+
+    private static final float LABEL_SCALE = 0.010416667F;
 
     public EtherStreamEntityRenderer(EntityRendererProvider.Context context) {
         super(context);
@@ -84,7 +93,67 @@ public class EtherStreamEntityRenderer extends EntityRenderer<EtherStreamEntity,
 
             poseStack.popPose();
         }
+        renderLabel(state, poseStack, camera);
         super.submit(state, poseStack, collector, camera);
+    }
+
+    private void renderLabel(EtherStreamEntityRenderState state, PoseStack poseStack, CameraRenderState camera) {
+        if (state.label == null || state.startPos == null) return;
+        Vec3 motion = state.motion;
+        if (motion.lengthSqr() < 0.0001) return;
+
+        Font font = Minecraft.getInstance().font;
+        String fullText = state.label.getString();
+        int fullTextWidth = font.width(fullText);
+        if (fullTextWidth == 0) return;
+
+        // Compute visible portion based on distance from start position
+        double worldDist = state.startPos.distanceTo(new Vec3(state.x, state.y, state.z));
+        float fontUnitsAvail = (float) (worldDist / LABEL_SCALE);
+        int visibleWidth = Math.round(fontUnitsAvail);
+        if (visibleWidth <= 0) return;
+
+        // Get the rightmost portion of text that fits within the available pixel width
+        String visibleText;
+        boolean needsClipping;
+        if (visibleWidth >= fullTextWidth) {
+            visibleText = fullText;
+            needsClipping = false;
+        } else {
+            visibleText = font.plainSubstrByWidth(fullText, visibleWidth, true);
+            needsClipping = true;
+        }
+        if (visibleText.isEmpty()) return;
+
+        int visibleTextWidth = font.width(visibleText);
+
+        // Set up PoseStack: orient to orthogonal-of-motion plane
+        poseStack.pushPose();
+
+        Vec3 dir = motion.normalize();
+        Vec3 up = new Vec3(0.0, 1.0, 0.0);
+        Vec3 normal;
+        if (Math.abs(dir.dot(up)) > 0.999) {
+            normal = dir.cross(new Vec3(1.0, 0.0, 0.0)).normalize();
+        } else {
+            normal = dir.cross(up).normalize();
+        }
+        Quaternionf rotation = new Quaternionf().rotateTo(
+                new org.joml.Vector3f(0, 0, 1),
+                new org.joml.Vector3f((float) normal.x, (float) normal.y, (float) normal.z));
+        poseStack.mulPose(rotation);
+        poseStack.scale(LABEL_SCALE, -LABEL_SCALE, LABEL_SCALE);
+
+        // Right edge of text aligns with entity origin, text extends leftward
+        float textX = needsClipping ? -visibleTextWidth : -fullTextWidth;
+
+        Matrix4f poseMatrix = poseStack.last().pose();
+        MultiBufferSource.BufferSource buf = MultiBufferSource.immediate(new ByteBufferBuilder(256));
+        font.drawInBatch(visibleText, textX, 0, state.labelColor, false, poseMatrix,
+                buf, Font.DisplayMode.SEE_THROUGH, 0, 0xF000F0);
+        buf.endBatch();
+
+        poseStack.popPose();
     }
 
     private static void vertex(VertexConsumer buffer, PoseStack.Pose pose, float x, float y, int a, float u, float v, int light) {

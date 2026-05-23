@@ -36,9 +36,21 @@ public class EtherStreamRenderPipeline {
             .withDepthStencilState(new DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, false))
             .build();
 
+    public static final RenderPipeline LABEL_QUAD_PIPELINE = RenderPipeline.builder(RenderPipelines.MATRICES_PROJECTION_SNIPPET)
+            .withLocation(EtherCraft.id("pipeline/label_quad"))
+            .withVertexShader("core/position_tex")
+            .withFragmentShader("core/position_tex")
+            .withSampler("Sampler0")
+            .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
+            .withDepthStencilState(new DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, false))
+            .withVertexFormat(DefaultVertexFormat.POSITION_TEX, VertexFormat.Mode.QUADS)
+            .withCull(false)
+            .build();
+
     @SubscribeEvent
     public static void register(RegisterRenderPipelinesEvent event) {
         event.registerPipeline(ETHER_RENDER_PIPELINE);
         event.registerPipeline(ETHER_STREAM_ENTITY_PIPELINE);
+        event.registerPipeline(LABEL_QUAD_PIPELINE);
     }
 }
