@@ -12,6 +12,7 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.Identifier;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.entity.EtherStreamEntity;
+import studio.fantasyit.ether_craft.stream.EtherStreamLabelCapability;
 
 public class EtherStreamEntityRenderer extends EntityRenderer<EtherStreamEntity, EtherStreamEntityRenderState> {
     private static final Identifier TEXTURE = EtherCraft.id("textures/particle/ether_stream.png");
@@ -43,6 +44,16 @@ public class EtherStreamEntityRenderer extends EntityRenderer<EtherStreamEntity,
             state.tailZ[i] = entity.tailZ[idx];
             state.tailSize[i] = entity.tailSize[idx];
         }
+        // --- Label extraction ---
+        entity.getCapability(EtherStreamLabelCapability.ID).ifPresent(cap -> {
+            if (cap instanceof EtherStreamLabelCapability labelCap) {
+                state.label = labelCap.getLabel();
+                state.startPos = labelCap.getStartPos();
+                state.labelColor = labelCap.getColor();
+            }
+        });
+        state.motion = entity.getDeltaMovement();
+        // --- End label extraction ---
     }
 
     @Override
