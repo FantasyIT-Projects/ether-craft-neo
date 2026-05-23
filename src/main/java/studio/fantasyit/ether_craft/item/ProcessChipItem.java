@@ -54,6 +54,11 @@ public class ProcessChipItem extends Item {
         builder.accept(Component.translatable("tooltip.ether_craft.ether_process_chip.ether_decay", r.etherDecay()));
         builder.accept(Component.translatable("tooltip.ether_craft.ether_process_chip.ether_require", r.etherRequire()));
         builder.accept(Component.translatable("tooltip.ether_craft.ether_process_chip.ether_consume", r.etherConsume()));
+        if (r.maxDurability() > 0) {
+            Integer stored = itemStack.get(DataComponentRegistry.DURABILITY);
+            int current = stored != null ? stored : r.maxDurability();
+            builder.accept(Component.translatable("tooltip.ether_craft.ether_process_chip.durability", current, r.maxDurability()));
+        }
     }
 
     @Override

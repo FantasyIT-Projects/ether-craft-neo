@@ -40,6 +40,7 @@ import studio.fantasyit.ether_craft.menu.factory.EtherProcessFactoryContainerMen
 import studio.fantasyit.ether_craft.network.s2c.SyncBlockNameS2C;
 import studio.fantasyit.ether_craft.recipe.factory.EtherFactoryRecipeInput;
 import studio.fantasyit.ether_craft.recipe.factory.EtherProcessFactoryRecipe;
+import studio.fantasyit.ether_craft.register.DataComponentRegistry;
 import studio.fantasyit.ether_craft.register.ItemRegistry;
 import studio.fantasyit.ether_craft.register.Tags;
 import studio.fantasyit.ether_craft.util.EtherProcessorRecipeUtil;
@@ -47,6 +48,7 @@ import studio.fantasyit.ether_craft.util.EtherProcessorRecipeUtil;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -116,7 +118,7 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
             for (int j = 0; j < COLS; j++) {
                 ItemStack itemStack = internalContainer.getItem(i * ROWS + j);
                 @Nullable EtherProcessWorkingChip originalChip = slotChips[i][j];
-                if (originalChip != null && ItemStack.isSameItemSameComponents(itemStack, originalChip.item) && !itemStack.isEmpty())
+                if (originalChip != null && !itemStack.isEmpty() && isSameChip(itemStack, originalChip.item))
                     continue;
                 if (itemStack.isEmpty() && originalChip == null)
                     continue;
@@ -218,9 +220,33 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
         }
     }
 
+    private void tickChipBehaviors() {
+        for (int i = 0; i < ROWS; i++) {
+            for (int j = 0; j < COLS; j++) {
+                EtherProcessWorkingChip chip = slotChips[i][j];
+                if (chip == null || chip.behavior == null)
+                    continue;
+                chip.behavior.onTick(chip, this);
+                if (chip.destroyed) {
+                    internalContainer.setItem(i * ROWS + j, ItemStack.EMPTY);
+                    internalContainer.setChanged();
+                    slotChips[i][j] = null;
+                    setChanged();
+                }
+            }
+        }
+    }
+
+    private static boolean isSameChip(ItemStack a, ItemStack b) {
+        if (a.getItem() != b.getItem())
+            return false;
+        return Objects.equals(a.get(DataComponentRegistry.CHIP_ID), b.get(DataComponentRegistry.CHIP_ID));
+    }
+
     @Override
     public void tickServer() {
         updateChips();
+        tickChipBehaviors();
         boolean changed = false;
         for (int i = 0; i < this.processingRecipes.length; i++) {
             if (this.processingRecipes[i] != null) {

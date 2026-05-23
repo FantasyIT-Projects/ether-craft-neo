@@ -19,6 +19,9 @@ public class DataComponentRegistry {
     public static final DeferredHolder<DataComponentType<?>, @NotNull DataComponentType<Integer>> CONVERSION_COUNTER = DATA_COMPONENT.register("ether_process_chip_level",
             () -> DataComponentType.<Integer>builder().persistent(Codec.INT).networkSynchronized(ByteBufCodecs.INT).build()
     );
+    public static final DeferredHolder<DataComponentType<?>, @NotNull DataComponentType<Integer>> DURABILITY = DATA_COMPONENT.register("ether_process_chip_durability",
+            () -> DataComponentType.<Integer>builder().persistent(Codec.INT).networkSynchronized(ByteBufCodecs.INT).build()
+    );
 
     public static void register(IEventBus modbus) {
         DATA_COMPONENT.register(modbus);

@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.Nullable;
 import studio.fantasyit.ether_craft.register.DataComponentRegistry;
 
 public class EtherProcessWorkingChip {
@@ -14,7 +15,8 @@ public class EtherProcessWorkingChip {
             Codec.LONG.fieldOf("maxEther").forGetter(t -> t.maxEther),
             Codec.INT.fieldOf("etherDecay").forGetter(t -> t.etherDecay),
             Codec.LONG.fieldOf("etherRequire").forGetter(t -> t.etherRequire),
-            Codec.LONG.fieldOf("etherConsume").forGetter(t -> t.etherConsume)
+            Codec.LONG.fieldOf("etherConsume").forGetter(t -> t.etherConsume),
+            Codec.INT.optionalFieldOf("durability", 0).forGetter(t -> t.durability)
     ).apply(i, EtherProcessWorkingChip::new));
 
     public ItemStack item;
@@ -32,9 +34,12 @@ public class EtherProcessWorkingChip {
     protected int head;
 
     public boolean destroyed = false;
+    public int durability;
+    public int maxDurability;
+    public @Nullable IProcessChipBehavior behavior;
 
     private EtherProcessWorkingChip() {
-        this(ItemStack.EMPTY, 0, 0, 1, 0, 0);
+        this(ItemStack.EMPTY, 0, 0, 1, 0, 0, 0);
     }
 
     public EtherProcessWorkingChip(ItemStack item) {
@@ -52,12 +57,17 @@ public class EtherProcessWorkingChip {
             this.etherDecay = 1;
             this.etherRequire = 0;
             this.etherConsume = 0;
+            this.maxDurability = 0;
         } else {
             this.maxEther = r.maxEther();
             this.etherDecay = r.etherDecay();
             this.etherRequire = r.etherRequire();
             this.etherConsume = r.etherConsume();
+            this.maxDurability = r.maxDurability();
+            if (r.behavior().isPresent())
+                this.behavior = EtherProcessChipManager.getBehavior(r.behavior().get());
         }
+        this.durability = resolveDurability(item, this.maxDurability);
         init();
         this.addEther(beforeEther);
     }
@@ -71,15 +81,27 @@ public class EtherProcessWorkingChip {
      * @param etherConsume 加工以太消耗
      */
     public EtherProcessWorkingChip(ItemStack item, long ether, long maxEther, int etherDecay, long etherRequire, long etherConsume) {
+        this(item, ether, maxEther, etherDecay, etherRequire, etherConsume, 0);
+    }
+
+    public EtherProcessWorkingChip(ItemStack item, long ether, long maxEther, int etherDecay, long etherRequire, long etherConsume, int durability) {
         this.item = item;
         this.ether = ether;
         this.maxEther = maxEther;
         this.etherDecay = etherDecay;
         this.etherRequire = etherRequire;
         this.etherConsume = etherConsume;
+        this.durability = durability;
+        this.maxDurability = 0;
         init();
     }
 
+    private static int resolveDurability(ItemStack item, int maxDurability) {
+        if (maxDurability <= 0) return 0;
+        Integer stored = item.get(DataComponentRegistry.DURABILITY);
+        if (stored != null) return stored;
+        return maxDurability;
+    }
 
     protected void init() {
         decayCircle = new long[etherDecay];
@@ -91,7 +113,17 @@ public class EtherProcessWorkingChip {
     }
 
     /**
-     * 物品Tick
+     * 扣除耐久度，同时回写 ItemStack 组件
+     */
+    public void damage(int amount) {
+        if (maxDurability <= 0) return;
+        durability = Math.max(0, durability - amount);
+        item.set(DataComponentRegistry.DURABILITY, durability);
+        if (durability <= 0) destory();
+    }
+
+    /**
+     * 物品Tick (decay)
      */
     public void tick() {
         if (decayCircle[head] > 0) {
@@ -107,7 +139,7 @@ public class EtherProcessWorkingChip {
      * @return boolean 可否工作
      */
     public boolean canWork() {
-        return !destroyed && ether >= etherRequire;
+        return !destroyed && ether >= etherRequire && (maxDurability <= 0 || durability > 0);
     }
 
     /**
@@ -158,6 +190,6 @@ public class EtherProcessWorkingChip {
     }
 
     public boolean canConsume() {
-        return !destroyed && ether >= etherConsume;
+        return !destroyed && ether >= etherConsume && (maxDurability <= 0 || durability > 0);
     }
 }
