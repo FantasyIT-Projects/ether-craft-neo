@@ -1,7 +1,6 @@
 package studio.fantasyit.ether_craft.register;
 
 import net.minecraft.client.renderer.entity.EntityRenderers;
-import net.minecraft.client.renderer.entity.NoopRenderer;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.EntityType;
@@ -14,6 +13,7 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.entity.EtherStreamEntity;
+import studio.fantasyit.ether_craft.entity.render.EtherStreamEntityRenderer;
 
 @EventBusSubscriber(modid = EtherCraft.MODID)
 public class EntityRegistry {
@@ -36,6 +36,6 @@ public class EntityRegistry {
 
     @SubscribeEvent
     public static void registerModel(FMLClientSetupEvent event) {
-        EntityRenderers.register(ETHER_STREAM_ENTITY.get(), NoopRenderer::new);
+        EntityRenderers.register(ETHER_STREAM_ENTITY.get(), EtherStreamEntityRenderer::new);
     }
 }

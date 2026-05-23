@@ -23,7 +23,6 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.block.base.EtherContainer;
-import studio.fantasyit.ether_craft.particle.ether_stream.EtherStreamData;
 import studio.fantasyit.ether_craft.register.EntityRegistry;
 import studio.fantasyit.ether_craft.register.Tags;
 import studio.fantasyit.ether_craft.stream.IStreamCapability;
@@ -36,8 +35,13 @@ public class EtherStreamEntity extends Projectile {
     static final EntityDataAccessor<Integer> ETHER_COUNT = SynchedEntityData.defineId(EtherStreamEntity.class, EntityDataSerializers.INT);
     private int ether;
     private int lowerConsumeFactor = 0;
-    public double[] renderTail = new double[30];
-    public int renderTailIndex = 0;
+    public static final int MAX_TAIL = 6;
+    public final double[] tailX = new double[MAX_TAIL];
+    public final double[] tailY = new double[MAX_TAIL];
+    public final double[] tailZ = new double[MAX_TAIL];
+    public final float[] tailSize = new float[MAX_TAIL];
+    public int tailHead = -1;
+    public int tailCount;
     private List<IStreamCapability> capabilities = new ArrayList<>();
 
     public static EtherStreamEntity create(Level level, int ether, Vec3 position, Vec3 motion) {
@@ -89,9 +93,12 @@ public class EtherStreamEntity extends Projectile {
         super.tick();
         if (this.level().isClientSide()) {
             this.ether = this.entityData.get(ETHER_COUNT);
-            renderTail[(renderTailIndex++) % renderTail.length] = this.getX();
-            renderTail[(renderTailIndex++) % renderTail.length] = this.getY();
-            renderTail[(renderTailIndex++) % renderTail.length] = this.getZ();
+            tailHead = (tailHead + 1) % MAX_TAIL;
+            if (tailCount < MAX_TAIL) tailCount++;
+            tailX[tailHead] = this.getX();
+            tailY[tailHead] = this.getY();
+            tailZ[tailHead] = this.getZ();
+            tailSize[tailHead] = getSize();
         } else {
             if (this.tickCount >= Config.streamMaxTick) {
                 this.dropAndDiscard();
@@ -113,9 +120,6 @@ public class EtherStreamEntity extends Projectile {
         if (hitresult.getType() != HitResult.Type.MISS)
             this.onHit(hitresult);
         this.setPos(this.getX() + vec3.x, this.getY() + vec3.y, this.getZ() + vec3.z);
-        if (this.level().isClientSide()) {
-            this.level().addParticle(new EtherStreamData(0xffffff, this.getSize()), true, true, this.getX(), this.getY(), this.getZ(), 0.0, 0.0, 0.0);
-        }
     }
 
 
