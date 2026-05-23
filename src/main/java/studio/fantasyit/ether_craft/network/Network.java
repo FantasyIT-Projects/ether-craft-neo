@@ -8,6 +8,7 @@ import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import studio.fantasyit.ether_craft.network.s2c.SyncBlockEtherValueS2C;
 import studio.fantasyit.ether_craft.network.s2c.SyncBlockNameS2C;
 import studio.fantasyit.ether_craft.network.s2c.SyncEtherAdaptNodeExtraS2C;
+import studio.fantasyit.ether_craft.network.s2c.SyncChipInfoS2C;
 import studio.fantasyit.ether_craft.network.s2c.SyncExtraRecipesS2C;
 
 import static studio.fantasyit.ether_craft.network.NetworkClient.clientMsg;
@@ -33,6 +34,11 @@ public class Network {
                 SyncExtraRecipesS2C.TYPE,
                 SyncExtraRecipesS2C.CODEC,
                 SyncExtraRecipesS2C::handle
+        );
+        event.playToClient(
+                SyncChipInfoS2C.TYPE,
+                SyncChipInfoS2C.CODEC,
+                SyncChipInfoS2C::handle
         );
     }
 
