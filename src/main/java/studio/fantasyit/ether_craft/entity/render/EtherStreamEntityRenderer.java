@@ -73,37 +73,38 @@ public class EtherStreamEntityRenderer extends EntityRenderer<EtherStreamEntity,
     @Override
     public void submit(EtherStreamEntityRenderState state, PoseStack poseStack,
                        SubmitNodeCollector collector, CameraRenderState camera) {
-        for (int i = 0; i < state.tailCount; i++) {
-            poseStack.pushPose();
-            float dx = (float) (state.tailX[i] - state.x);
-            float dy = (float) (state.tailY[i] - state.y);
-            float dz = (float) (state.tailZ[i] - state.z);
-            poseStack.translate(dx, dy, dz);
-            poseStack.mulPose(camera.orientation);
+        if (!state.dying)
+            for (int i = 0; i < state.tailCount; i++) {
+                poseStack.pushPose();
+                float dx = (float) (state.tailX[i] - state.x);
+                float dy = (float) (state.tailY[i] - state.y);
+                float dz = (float) (state.tailZ[i] - state.z);
+                poseStack.translate(dx, dy, dz);
+                poseStack.mulPose(camera.orientation);
 
-            int age = i;
-            float alpha = 1f - (float) age / 6.1f;
-            float size = state.tailSize[i] / (float) Math.pow(1.5, age);
-            poseStack.scale(size, size, 1f);
+                int age = i;
+                float alpha = 1f - (float) age / 6.1f;
+                float size = state.tailSize[i] / (float) Math.pow(1.5, age);
+                poseStack.scale(size, size, 1f);
 
-            int a = (int) (alpha * 255);
-            int light = 0xF000F0;
+                int a = (int) (alpha * 255);
+                int light = 0xF000F0;
 
-            collector.submitCustomGeometry(poseStack, RENDER_TYPE, (pose, buffer) -> {
-                vertex(buffer, pose, -0.5f, -0.5f, a, 1, 1, light);
-                vertex(buffer, pose, 0.5f, -0.5f, a, 0, 1, light);
-                vertex(buffer, pose, 0.5f, 0.5f, a, 0, 0, light);
-                vertex(buffer, pose, -0.5f, 0.5f, a, 1, 0, light);
-            });
+                collector.submitCustomGeometry(poseStack, RENDER_TYPE, (pose, buffer) -> {
+                    vertex(buffer, pose, -0.5f, -0.5f, a, 1, 1, light);
+                    vertex(buffer, pose, 0.5f, -0.5f, a, 0, 1, light);
+                    vertex(buffer, pose, 0.5f, 0.5f, a, 0, 0, light);
+                    vertex(buffer, pose, -0.5f, 0.5f, a, 1, 0, light);
+                });
 
-            poseStack.popPose();
-        }
+                poseStack.popPose();
+            }
         renderLabel(state, poseStack, collector, camera);
         super.submit(state, poseStack, collector, camera);
     }
 
     private void renderLabel(EtherStreamEntityRenderState state, PoseStack poseStack,
-                              SubmitNodeCollector collector, CameraRenderState camera) {
+                             SubmitNodeCollector collector, CameraRenderState camera) {
         if (state.label == null) return;
         Vec3 motion = state.motion;
         if (motion.lengthSqr() < 0.0001) return;
@@ -168,7 +169,7 @@ public class EtherStreamEntityRenderer extends EntityRenderer<EtherStreamEntity,
             poseStack.scale(LABEL_SCALE, -LABEL_SCALE, LABEL_SCALE);
 
             collector.submitText(poseStack, textX, 0, text, false,
-                    Font.DisplayMode.SEE_THROUGH, 0xF000F0, state.labelColor, 0, 0);
+                    Font.DisplayMode.NORMAL, 0xF000F0, state.labelColor, 0, 0);
 
             poseStack.popPose();
         }
