@@ -52,6 +52,7 @@ public class EtherStreamEntity extends Projectile {
     public final float[] tailSize = new float[MAX_TAIL];
     public int tailHead = -1;
     public int tailCount;
+    public boolean ticked = false;
     private List<IStreamCapability> capabilities = new ArrayList<>();
 
     public static EtherStreamEntity create(Level level, int ether, Vec3 position, Vec3 motion) {
@@ -80,6 +81,13 @@ public class EtherStreamEntity extends Projectile {
         builder.define(LABEL_COLOR, 0xFFFFFFFF);
     }
 
+    public void firstTick() {
+        this.ticked = true;
+        for (IStreamCapability capability : capabilities) {
+            capability.firstTick(this);
+        }
+    }
+
     public void setLowerConsumeFactor(int factor) {
         lowerConsumeFactor = factor;
     }
@@ -91,14 +99,6 @@ public class EtherStreamEntity extends Projectile {
 
     public void addCapability(IStreamCapability capability) {
         capabilities.add(capability);
-        if (capability instanceof EtherStreamLabelCapability cap) {
-            entityData.set(LABEL_DATA, java.util.Optional.ofNullable(cap.getLabel()));
-            Vec3 sp = cap.getStartPos();
-            entityData.set(LABEL_START_POS, sp != null
-                    ? new Vector3f((float) sp.x, (float) sp.y, (float) sp.z)
-                    : new Vector3f());
-            entityData.set(LABEL_COLOR, cap.getColor());
-        }
     }
 
     public Optional<IStreamCapability> getCapability(Identifier id) {
@@ -121,6 +121,8 @@ public class EtherStreamEntity extends Projectile {
             tailZ[tailHead] = this.getZ();
             tailSize[tailHead] = getSize();
         } else {
+            if (!ticked)
+                firstTick();
             if (this.tickCount >= Config.streamMaxTick) {
                 this.dropAndDiscard();
                 return;

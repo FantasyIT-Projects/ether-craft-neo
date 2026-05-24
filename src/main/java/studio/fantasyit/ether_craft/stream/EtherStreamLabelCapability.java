@@ -12,8 +12,11 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3f;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.entity.EtherStreamEntity;
+
+import static studio.fantasyit.ether_craft.entity.EtherStreamEntity.*;
 
 public class EtherStreamLabelCapability implements IStreamCapability {
     public static final Identifier ID = EtherCraft.id("label");
@@ -103,5 +106,16 @@ public class EtherStreamLabelCapability implements IStreamCapability {
             this.startPos = null;
         }
         this.color = input.getIntOr("color", 0xFFFFFFFF);
+    }
+
+    @Override
+    public void firstTick(EtherStreamEntity etherStreamEntity) {
+        setStartPos(etherStreamEntity.position());
+        etherStreamEntity.getEntityData().set(LABEL_DATA, java.util.Optional.ofNullable(getLabel()));
+        Vec3 sp = getStartPos();
+        etherStreamEntity.getEntityData().set(LABEL_START_POS, sp != null
+                ? new Vector3f((float) sp.x, (float) sp.y, (float) sp.z)
+                : new Vector3f());
+        etherStreamEntity.getEntityData().set(LABEL_COLOR, getColor());
     }
 }
