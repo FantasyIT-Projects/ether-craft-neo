@@ -63,6 +63,8 @@ public class EtherStreamEntityRenderer extends EntityRenderer<EtherStreamEntity,
         state.dying = entity.getEntityData().get(EtherStreamEntity.DYING);
         if (state.dying) {
             state.deathTick = entity.clientDeathTick;
+            Vector3fc dp = entity.getEntityData().get(EtherStreamEntity.DEATH_POS);
+            state.deathPos = new Vec3(dp.x(), dp.y(), dp.z());
         }
         state.speed = (float) state.motion.length();
         // --- End label extraction ---
@@ -154,6 +156,10 @@ public class EtherStreamEntityRenderer extends EntityRenderer<EtherStreamEntity,
         // Render on both faces so the label is visible from either side
         for (Vec3 faceNormal : new Vec3[]{normal, normal.scale(-1)}) {
             poseStack.pushPose();
+
+            if (state.dying && state.deathPos != null) {
+                poseStack.translate(state.deathPos.x - state.x, state.deathPos.y - state.y, state.deathPos.z - state.z);
+            }
 
             Quaternionf rotation = new Quaternionf().rotateTo(
                     new org.joml.Vector3f(0, 0, 1),

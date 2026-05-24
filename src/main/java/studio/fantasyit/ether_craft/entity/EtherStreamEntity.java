@@ -45,6 +45,8 @@ public class EtherStreamEntity extends Projectile {
             SynchedEntityData.defineId(EtherStreamEntity.class, EntityDataSerializers.INT);
     public static final EntityDataAccessor<Boolean> DYING =
             SynchedEntityData.defineId(EtherStreamEntity.class, EntityDataSerializers.BOOLEAN);
+    public static final EntityDataAccessor<Vector3fc> DEATH_POS =
+            SynchedEntityData.defineId(EtherStreamEntity.class, EntityDataSerializers.VECTOR3);
     private int ether;
     private int lowerConsumeFactor = 0;
     public static final int MAX_TAIL = 6;
@@ -85,6 +87,7 @@ public class EtherStreamEntity extends Projectile {
         builder.define(LABEL_START_POS, new Vector3f());
         builder.define(LABEL_COLOR, 0xFFFFFFFF);
         builder.define(DYING, false);
+        builder.define(DEATH_POS, new Vector3f());
     }
 
     public void firstTick() {
@@ -260,6 +263,7 @@ public class EtherStreamEntity extends Projectile {
             capability.onDestroy(this);
         }
         deathTickStart = this.tickCount;
+        entityData.set(DEATH_POS, new Vector3f((float) this.getX(), (float) this.getY(), (float) this.getZ()));
         entityData.set(DYING, true);
     }
 
