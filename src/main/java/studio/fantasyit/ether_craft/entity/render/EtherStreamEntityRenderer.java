@@ -148,10 +148,12 @@ public class EtherStreamEntityRenderer extends EntityRenderer<EtherStreamEntity,
         float textX = needsClipping ? -visibleTextWidth : -fullTextWidth;
 
         Matrix4f poseMatrix = poseStack.last().pose();
-        MultiBufferSource.BufferSource buf = MultiBufferSource.immediate(new ByteBufferBuilder(256));
-        font.drawInBatch(visibleText, textX, 0, state.labelColor, false, poseMatrix,
-                buf, Font.DisplayMode.SEE_THROUGH, 0, 0xF000F0);
-        buf.endBatch();
+        try (ByteBufferBuilder builder = new ByteBufferBuilder(256)) {
+            MultiBufferSource.BufferSource buf = MultiBufferSource.immediate(builder);
+            font.drawInBatch(visibleText, textX, 0, state.labelColor, false, poseMatrix,
+                    buf, Font.DisplayMode.SEE_THROUGH, 0, 0xF000F0);
+            buf.endBatch();
+        }
 
         poseStack.popPose();
     }
