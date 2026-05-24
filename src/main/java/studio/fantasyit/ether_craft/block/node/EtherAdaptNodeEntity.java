@@ -296,6 +296,60 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
         return ItemStack.EMPTY;
     }
 
+    public ItemStack extractExactWithPredicate(Predicate<ItemResource> predicate, TransactionContext transaction, int exactAmount) {
+        ItemResource matchedResource = null;
+        long totalAvailable = 0;
+
+        if (nodeProperty.itemifyEther) {
+            ItemResource re = ItemResource.of(ItemRegistry.ETHER);
+            if (predicate.test(re)) {
+                totalAvailable += etherStorage.getAmountAsLong(0);
+                matchedResource = re;
+            }
+        }
+
+        for (int i = 0; i < normalHandler.size(); i++) {
+            ItemResource resource = normalHandler.getResource(i);
+            if (resource.isEmpty())
+                continue;
+            if (!predicate.test(resource))
+                continue;
+            if (matchedResource == null)
+                matchedResource = resource;
+            totalAvailable += normalHandler.getAmountAsLong(i);
+        }
+
+        if (matchedResource == null || totalAvailable < exactAmount)
+            return ItemStack.EMPTY;
+
+        int remaining = exactAmount;
+
+        if (nodeProperty.itemifyEther) {
+            ItemResource re = ItemResource.of(ItemRegistry.ETHER);
+            if (predicate.test(re) && remaining > 0) {
+                int toExtract = (int) Math.min(remaining, etherStorage.getAmountAsLong(0));
+                if (toExtract > 0)
+                    remaining -= etherStorage.extract(re, toExtract, transaction);
+            }
+        }
+
+        for (int i = 0; i < normalHandler.size() && remaining > 0; i++) {
+            ItemResource resource = normalHandler.getResource(i);
+            if (resource.isEmpty())
+                continue;
+            if (!predicate.test(resource))
+                continue;
+            int toExtract = (int) Math.min(remaining, normalHandler.getAmountAsLong(i));
+            if (toExtract > 0)
+                remaining -= normalHandler.extract(i, resource, toExtract, transaction);
+        }
+
+        if (remaining > 0)
+            return ItemStack.EMPTY;
+
+        return matchedResource.toStack(exactAmount);
+    }
+
     public List<Pair<NodePluginManager.PluginInfo, InstalledPlugin>> getTabProvider() {
         List<Pair<NodePluginManager.PluginInfo, InstalledPlugin>> list = new ArrayList<>();
         list.add(new Pair<>(NodePluginManager.MAIN_PAGE_INFO, NodePluginManager.MAIN_PAGE));

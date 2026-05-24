@@ -12,6 +12,7 @@
   "ether_craft.gui.node.container_interact.insert": "Insert",
   "ether_craft.gui.name_placeholder": "Set name...",
   "ether_craft.gui.node.emitter.min_ether": "Min: %d",
+  "ether_craft.gui.node.dropper_thrower.throw_count": "Throw: %d",
   "ether_craft.gui.node.filter.using_black_list": "Using Blacklist",
   "ether_craft.gui.node.filter.using_white_list": "Using Whitelist",
   "ether_craft.gui.node.filter_mode": "Filter Mode",
