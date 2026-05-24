@@ -3,33 +3,63 @@
   "input": [
     {
       "id": "I0",
-      "item": "#c:ingots/iron",
-      "next": "P8"
-    },
-    {
-      "id": "I1",
-      "item": "ether_craft:ether_crystal",
+      "item": "c:coal",
       "next": "P9"
     },
     {
+      "id": "I1",
+      "item": "c:raw_materials/iron：：2",
+      "next": "P11"
+    },
+    {
       "id": "I2",
-      "item": "ether_craft:ether_ingot",
-      "next": "P12"
+      "item": "c:coal",
+      "next": "P15"
     }
   ],
   "process": [
     {
+      "id": "P15",
+      "item": [
+        {
+          "chip": "ether_craft:stamping_chip"
+        }
+      ],
+      "next": "P14"
+    },
+    {
+      "id": "P14",
+      "item": [
+        {
+          "chip": "ether_craft:cutting_chip"
+        }
+      ],
+      "next": "P13"
+    },
+    {
+      "id": "P13",
+      "item": [
+        {
+          "chip": "ether_craft:high_heating_chip"
+        }
+      ],
+      "next": "P12"
+    },
+    {
       "id": "P12",
       "item": [
         {
-          "chip": "ether_craft:heating_chip"
+          "chip": "ether_craft:high_heating_chip"
         }
       ],
-      "next": "P11"
+      "next": "P2"
     },
     {
       "id": "P11",
       "item": [
+        {
+          "chip": "ether_craft:stamping_chip"
+        },
         {
           "chip": "ether_craft:high_heating_chip"
         }
@@ -40,25 +70,25 @@
       "id": "P10",
       "item": [
         {
-          "chip": "ether_craft:energizing_chip"
+          "chip": "ether_craft:high_heating_chip"
         }
       ],
-      "next": "P2"
+      "next": "P5"
     },
     {
       "id": "P9",
       "item": [
         {
-          "chip": "ether_craft:high_heating_chip"
+          "chip": "ether_craft:stamping_chip"
         }
       ],
-      "next": "P7"
+      "next": "P8"
     },
     {
       "id": "P8",
       "item": [
         {
-          "chip": "ether_craft:high_heating_chip"
+          "chip": "ether_craft:cutting_chip"
         }
       ],
       "next": "P7"
@@ -76,7 +106,7 @@
       "id": "P6",
       "item": [
         {
-          "chip": "ether_craft:energizing_chip"
+          "chip": "ether_craft:high_heating_chip"
         }
       ],
       "next": "P5"
@@ -85,7 +115,10 @@
       "id": "P5",
       "item": [
         {
-          "chip": "ether_craft:energizing_chip"
+          "chip": "ether_craft:high_heating_chip"
+        },
+        {
+          "chip": "ether_craft:converging_chip"
         }
       ],
       "next": "P4"
@@ -94,7 +127,10 @@
       "id": "P4",
       "item": [
         {
-          "chip": "ether_craft:energizing_chip"
+          "chip": "ether_craft:stamping_chip"
+        },
+        {
+          "chip": "ether_craft:high_heating_chip"
         }
       ],
       "next": "P3"
@@ -103,7 +139,7 @@
       "id": "P3",
       "item": [
         {
-          "chip": "ether_craft:energizing_chip"
+          "chip": "ether_craft:high_heating_chip"
         }
       ],
       "next": "P2"
@@ -112,7 +148,10 @@
       "id": "P2",
       "item": [
         {
-          "chip": "ether_craft:stamping_chip"
+          "chip": "ether_craft:converging_chip"
+        },
+        {
+          "chip": "ether_craft:high_heating_chip"
         }
       ],
       "next": "P1"
@@ -143,7 +182,8 @@
     "id": "O",
     "item": [
       {
-        "id": "minecraft:iron_ingot::2"
+        "id": "minecraft:iron_ingot",
+        "count": 3
       }
     ]
   }

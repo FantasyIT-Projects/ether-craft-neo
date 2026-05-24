@@ -72,7 +72,8 @@
     "id": "O",
     "item": [
       {
-        "id": "minecraft:iron_ingot::4"
+        "id": "minecraft:iron_ingot",
+        "count": 4
       }
     ]
   }
