@@ -21,6 +21,7 @@ public class CollectionUtil {
         for (int i = 0; i < index.length; i++) {
             if (flg[i]) continue;
             flg[i] = true;
+            index[depth] = i;
             permutationDfs(consumer, depth + 1, index, flg);
             flg[i] = false;
         }

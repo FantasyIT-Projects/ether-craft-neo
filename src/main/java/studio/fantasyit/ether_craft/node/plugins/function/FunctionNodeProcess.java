@@ -15,6 +15,7 @@ import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.block.base.ItemFilter;
 import studio.fantasyit.ether_craft.block.node.EtherAdaptNodeEntity;
+import studio.fantasyit.ether_craft.item.ProcessChipItem;
 import studio.fantasyit.ether_craft.menu.base.IFilterSwitchable;
 import studio.fantasyit.ether_craft.menu.base.slot.BaseDataSlot;
 import studio.fantasyit.ether_craft.menu.base.slot.BaseSlot;
@@ -148,8 +149,6 @@ public class FunctionNodeProcess extends AbstractNodePlugin {
             }
         } else {
             for (int i = 0; i < inputSlots.getContainerSize(); i++) {
-                if (!inputSlots.getItem(i).isEmpty())
-                    continue;
                 try (Transaction tx = Transaction.openRoot()) {
                     int finalI = i;
                     ItemStack pulled = nodeEntity.extractWithPredicate(
@@ -170,7 +169,18 @@ public class FunctionNodeProcess extends AbstractNodePlugin {
             for (int i = 0; i < inputSlots.getContainerSize(); i++) {
                 inputList.add(inputSlots.getItem(i));
             }
-            if (targetRecipe.matchesSubset(inputList) && nodeEntity.getEther() >= targetRecipe.etherCost) {
+            int extraCost = 1;
+            if (targetRecipe.matchesSubset(inputList)) {
+                for (int i = 0; i < inputSlots.getContainerSize(); i++) {
+                    int finalI = i;
+                    if (targetRecipe.ingredients.stream().noneMatch(e -> e.ingredient().test(inputSlots.getItem(finalI)))
+                            && !ProcessChipItem.isSeparator(inputSlots.getItem(i))
+                    ) {
+                        extraCost *= 10;
+                    }
+                }
+            }
+            if (targetRecipe.matchesSubset(inputList) && nodeEntity.getEther() >= (long) targetRecipe.etherCost * extraCost) {
                 progressing++;
                 if (progressing >= Config.nodeProcessMaxProgress) {
                     nodeEntity.extractEther(targetRecipe.etherCost);
@@ -276,6 +286,7 @@ public class FunctionNodeProcess extends AbstractNodePlugin {
         public void setFilterActive(boolean active) {
             this.filterActive = active;
         }
+
         @Override
         public boolean isFilterActive() {
             return filterActive;

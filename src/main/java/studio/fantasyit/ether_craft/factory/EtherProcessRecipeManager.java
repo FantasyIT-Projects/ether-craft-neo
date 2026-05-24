@@ -54,9 +54,7 @@ public class EtherProcessRecipeManager {
         for (ExtraRecipeProvider provider : extraRecipeProviders) {
             extraRecipes.addAll(provider.generate(manager));
         }
-        //TODO sync
     }
-    //TODO from network
 
     public static Optional<EtherProcessFactoryRecipe> getRecipe(Level level, RecipeManager manager, EtherFactoryRecipeInput input) {
         Optional<RecipeHolder<EtherProcessFactoryRecipe>> o = manager.getRecipeFor(RecipeTypeRegistry.ETHER_PROCESS_FACTORY_RECIPE.get(), input, level);

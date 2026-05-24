@@ -264,8 +264,8 @@ public class EtherProcessorRecipeUtil {
                         AtomicBoolean allCompat = new AtomicBoolean(false);
                         CollectionUtil.fullPermutationIndex(edge.value, (indexes) -> {
                             boolean currentCompat = true;
-                            for (int i : indexes) {
-                                ItemStack itemStack = edge.value.get(i);
+                            for (int i = 0; i < indexes.length; i++) {
+                                ItemStack itemStack = edge.value.get(indexes[i]);
                                 if (!recipeEdge.value.get(i).toIngredient().test(itemStack)) {
                                     currentCompat = false;
                                 }

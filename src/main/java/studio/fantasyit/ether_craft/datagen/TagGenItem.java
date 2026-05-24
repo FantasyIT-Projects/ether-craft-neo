@@ -15,6 +15,7 @@ import java.util.concurrent.CompletableFuture;
 
 import static studio.fantasyit.ether_craft.register.Tags.CONSUMABLE_EQUIPMENTS;
 import static studio.fantasyit.ether_craft.register.Tags.PROCESS_CHIP;
+import static studio.fantasyit.ether_craft.register.Tags.VINES;
 
 public class TagGenItem extends TagsProvider<Item> {
 
@@ -104,5 +105,10 @@ public class TagGenItem extends TagsProvider<Item> {
         equip.addElement(BuiltInRegistries.ITEM.getKey(Items.ELYTRA));
         equip.addElement(BuiltInRegistries.ITEM.getKey(Items.MACE));
         equip.addElement(BuiltInRegistries.ITEM.getKey(Items.BRUSH));
+
+        getOrCreateRawBuilder(VINES)
+                .addElement(BuiltInRegistries.ITEM.getKey(Items.VINE))
+                .addElement(BuiltInRegistries.ITEM.getKey(Items.TWISTING_VINES))
+                .addElement(BuiltInRegistries.ITEM.getKey(Items.WEEPING_VINES));
     }
 }
