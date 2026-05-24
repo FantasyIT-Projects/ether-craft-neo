@@ -19,11 +19,13 @@ public class ServerRecipeSyncEvent {
         event.sendRecipes(RecipeTypeRegistry.NODE_PROCESS_RECIPE.get());
         RecipeManager recipeManager = event.getPlayerList().getServer().getRecipeManager();
         EtherProcessRecipeManager.onReload(recipeManager);
-        PacketDistributor.sendToAllPlayers(
-                new SyncExtraRecipesS2C(EtherProcessRecipeManager.extraRecipes)
-        );
-        PacketDistributor.sendToAllPlayers(
-                new SyncChipInfoS2C(EtherProcessChipManager.chipInfo)
-        );
+        event.getRelevantPlayers().forEach(player -> {
+            PacketDistributor.sendToPlayer(player,
+                    new SyncExtraRecipesS2C(EtherProcessRecipeManager.extraRecipes)
+            );
+            PacketDistributor.sendToPlayer(player,
+                    new SyncChipInfoS2C(EtherProcessChipManager.chipInfo)
+            );
+        });
     }
 }

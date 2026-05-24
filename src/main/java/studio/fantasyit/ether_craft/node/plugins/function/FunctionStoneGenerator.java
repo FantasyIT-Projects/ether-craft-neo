@@ -43,7 +43,7 @@ public class FunctionStoneGenerator extends AbstractItemConsumeFunction {
         this.remainBurnTicks = stoneGeneratorRatio.burnTicks();
         ept = stoneGeneratorRatio.etherPerTick();
 
-        if (itemStack.is(Items.COBBLED_DEEPSLATE))
+        if (itemStack.is(Items.COBBLED_DEEPSLATE) || itemStack.is(Items.BASALT))
             nodeEntity.setSyncedPluginData(installedId, WORKING_MATERIAL, WorkingMaterial.DEEPSLATE.ordinal());
         else
             nodeEntity.setSyncedPluginData(installedId, WORKING_MATERIAL, WorkingMaterial.STONE.ordinal());
