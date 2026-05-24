@@ -3,7 +3,6 @@ package studio.fantasyit.ether_craft.node.tabs.feature;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
-import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.menu.base.widget.ScrollableWidget;
 import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeAsset;
 import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeScreen;
@@ -28,13 +27,13 @@ public class EtherStreamEmitterScreen extends DirectionalFilterScreen {
         screen.registerMenuSyncer(new ScreenMenuSyncer<>(() -> context.scrollMin, v -> {
             if (minEtherScroll != null && context.scrollMax > context.scrollMin) {
                 minEtherScroll.setMaxValue(context.scrollMax - context.scrollMin);
-                minEtherScroll.setValue(v - context.scrollMin);
+                minEtherScroll.setValue(context.plugin.minEther - context.scrollMin);
             }
         }));
         screen.registerMenuSyncer(new ScreenMenuSyncer<>(() -> context.scrollMin, v -> {
             if (minEtherScroll != null && context.scrollMax > context.scrollMin) {
                 minEtherScroll.setMaxValue(context.scrollMax - context.scrollMin);
-                minEtherScroll.setValue(v - context.scrollMin);
+                minEtherScroll.setValue(context.plugin.minEther - context.scrollMin);
             }
         }));
     }
