@@ -23,7 +23,6 @@ import java.util.List;
 public class FunctionMagnet extends AbstractNodePlugin {
     public static final Identifier ID = EtherCraft.id("magnet");
     public static final Identifier SYNC_VALUE = EtherCraft.id("magnet_function_feature/sync");
-    public static final String FILTER_PREFIX = "magnet_function_feature/";
     public int centerX = 0, centerY = 0, centerZ = 0;
     public int shapeX = 0, shapeY = 0, shapeZ = 0;
     public ItemFilter filter;
@@ -100,7 +99,7 @@ public class FunctionMagnet extends AbstractNodePlugin {
 
     @Override
     public void syncScreenData(SyncScreenDataC2S message) {
-        FilterGuiRegCommon.sync(message, filter, FILTER_PREFIX);
+        FilterGuiRegCommon.sync(message, filter);
         if (message.id().equals(SYNC_VALUE)) {
             switch (message.index()) {
                 case 0 -> centerX = message.data();

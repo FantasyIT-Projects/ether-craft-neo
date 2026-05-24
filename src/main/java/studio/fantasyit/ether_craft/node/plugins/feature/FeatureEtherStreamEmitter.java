@@ -93,7 +93,7 @@ public class FeatureEtherStreamEmitter extends AbstractDirectionalFilterFeature 
     @Override
     public void syncScreenData(SyncScreenDataC2S message) {
         super.syncScreenData(message);
-        if (message.id().equals(SYNC_MIN_ETHER) && message.index() == installedId.id()) {
+        if (message.id().equals(SYNC_MIN_ETHER)) {
             minEther = Math.clamp(message.data(), Config.emitterMinEtherMin, Config.emitterMinEtherMax);
             nodeEntity.setSyncedPluginData(installedId, SYNC_MIN_ETHER, minEther);
             nodeEntity.pluginUpdate();

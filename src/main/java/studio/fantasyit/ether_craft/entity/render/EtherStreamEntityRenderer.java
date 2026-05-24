@@ -154,18 +154,21 @@ public class EtherStreamEntityRenderer extends EntityRenderer<EtherStreamEntity,
         FormattedCharSequence text = FormattedCharSequence.forward(visibleText, net.minecraft.network.chat.Style.EMPTY);
         float textX = -visibleTextWidth;
 
-        // Render on both faces so the label is visible from either side
-        for (Vec3 faceNormal : new Vec3[]{normal, normal.scale(-1)}) {
+        Quaternionf baseRot = new Quaternionf().rotateTo(
+                new org.joml.Vector3f(0, 0, 1),
+                new org.joml.Vector3f((float) normal.x, (float) normal.y, (float) normal.z));
+
+        for (int side = 0; side < 2; side++) {
             poseStack.pushPose();
 
             if (state.dying && state.deathPos != null) {
                 poseStack.translate(state.deathPos.x - state.x, state.deathPos.y - state.y, state.deathPos.z - state.z);
             }
 
-            Quaternionf rotation = new Quaternionf().rotateTo(
-                    new org.joml.Vector3f(0, 0, 1),
-                    new org.joml.Vector3f((float) faceNormal.x, (float) faceNormal.y, (float) faceNormal.z));
-            poseStack.mulPose(rotation);
+            poseStack.mulPose(baseRot);
+            if (side == 1) {
+                poseStack.mulPose(new Quaternionf().rotateX((float) Math.PI));
+            }
             poseStack.scale(LABEL_SCALE, -LABEL_SCALE, LABEL_SCALE);
 
             collector.submitText(poseStack, textX, 0, text, false,

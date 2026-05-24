@@ -141,7 +141,7 @@ public class FeatureContainerInteract extends AbstractDirectionalFilterFeature {
     @Override
     public void syncScreenData(SyncScreenDataC2S message) {
         super.syncScreenData(message);
-        if (message.id().equals(SYNC_EXTRACT_MODE) && message.index() == installedId.id()) {
+        if (message.id().equals(SYNC_EXTRACT_MODE)) {
             extractMode = message.data() == 1;
             nodeEntity.setSyncedPluginData(installedId, WORKING_MODE, extractMode ? 1 : 0);
             nodeEntity.pluginUpdate();

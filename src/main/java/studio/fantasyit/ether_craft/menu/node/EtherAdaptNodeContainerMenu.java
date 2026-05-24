@@ -194,11 +194,16 @@ public class EtherAdaptNodeContainerMenu extends BaseMenu<EtherAdaptNodeEntity> 
 
     @Override
     public void syncScreenData(SyncScreenDataC2S message) {
-        for (int i = 0; i < entity.functionStorage.getContainerSize(); i++)
-            if (entity.functionStorage.hasPlugin(i)) entity.functionStorage.getPlugin(i).syncScreenData(message);
-        for (int i = 0; i < entity.featureUpgradeStorage.getContainerSize(); i++)
-            if (entity.featureUpgradeStorage.hasPlugin(i))
-                entity.featureUpgradeStorage.getPlugin(i).syncScreenData(message);
+        InstalledPlugin target = message.plugin();
+        AbstractNodePlugin plugin;
+        if (target.type() == NodePluginManager.PluginType.FUNCTION) {
+            plugin = entity.functionStorage.getPlugin(target.id());
+        } else {
+            plugin = entity.featureUpgradeStorage.getPlugin(target.id());
+        }
+        if (plugin != null) {
+            plugin.syncScreenData(message);
+        }
     }
 
     @Override

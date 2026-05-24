@@ -35,8 +35,9 @@ public class ContainerInteractScreen extends DirectionalFilterScreen {
                 Component.translatable("ether_craft.gui.node.container_interact.extract"),
                 (down) -> {
                     ClientPacketDistributor.sendToServer(new SyncScreenDataC2S(
+                            plugin.installedId,
                             FeatureContainerInteract.SYNC_EXTRACT_MODE,
-                            plugin.installedId.id(),
+                            0,
                             down ? 0 : 1
                     ));
                     return true;

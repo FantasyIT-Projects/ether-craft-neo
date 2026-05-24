@@ -74,8 +74,9 @@ public class DirectionalFilterScreen extends BaseEtherNodeTabWidgetProvider<Abst
                         if (!b) return trySelectBtn(direction);
                         plugin.direction = null;
                         ClientPacketDistributor.sendToServer(new SyncScreenDataC2S(
+                                plugin.installedId,
                                 AbstractDirectionalFeature.SYNC_DIRECTION,
-                                plugin.installedId.id(),
+                                0,
                                 -1
                         ));
                         return true;
@@ -85,7 +86,7 @@ public class DirectionalFilterScreen extends BaseEtherNodeTabWidgetProvider<Abst
             directionButton.put(direction, button);
             this.screen.addRenderableWidget(button);
         }
-        FilterGuiRegClient.widget(screen, () -> plugin.filter.whitelist, AbstractDirectionalFilterFeature.FILTER_PREFIX);
+        FilterGuiRegClient.widget(screen, () -> plugin.filter.whitelist, plugin.installedId);
     }
 
     @Override
@@ -115,8 +116,9 @@ public class DirectionalFilterScreen extends BaseEtherNodeTabWidgetProvider<Abst
         }
         plugin.direction = direction;
         ClientPacketDistributor.sendToServer(new SyncScreenDataC2S(
+                plugin.installedId,
                 AbstractDirectionalFeature.SYNC_DIRECTION,
-                plugin.installedId.id(),
+                0,
                 direction.ordinal()
         ));
         return true;

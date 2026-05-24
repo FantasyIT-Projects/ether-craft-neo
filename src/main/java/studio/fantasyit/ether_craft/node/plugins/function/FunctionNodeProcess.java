@@ -34,7 +34,6 @@ import java.util.List;
 
 public class FunctionNodeProcess extends AbstractNodePlugin {
     public static final Identifier ID = EtherCraft.id("node_process");
-    public static final String FILTER_PREFIX = "node_process/";
     private boolean filterActive = false;
 
     public ItemFilter targetItemFilter;
@@ -83,7 +82,7 @@ public class FunctionNodeProcess extends AbstractNodePlugin {
     @Override
     public void syncScreenData(SyncScreenDataC2S message) {
         super.syncScreenData(message);
-        FilterGuiRegCommon.sync(message, inputItemFilter, FILTER_PREFIX);
+        FilterGuiRegCommon.sync(message, inputItemFilter);
     }
 
     @Override

@@ -24,7 +24,6 @@ import studio.fantasyit.ether_craft.util.ContainerOps;
 
 public abstract class AbstractItemConsumeFunction extends AbstractNodePlugin {
     public static final Identifier WORKING_MATERIAL = EtherCraft.id("generator/material");
-    public static final String FILTER_PREFIX = "item_consume/";
     public ItemFilter filter = new ItemFilter(21, nodeEntity::setChanged);
     SimpleContainer container = new SimpleContainer(1);
     int remainBurnTicks = 0;
@@ -87,7 +86,7 @@ public abstract class AbstractItemConsumeFunction extends AbstractNodePlugin {
     @Override
     public void syncScreenData(SyncScreenDataC2S message) {
         super.syncScreenData(message);
-        FilterGuiRegCommon.sync(message, filter, FILTER_PREFIX);
+        FilterGuiRegCommon.sync(message, filter);
     }
 
     @Override

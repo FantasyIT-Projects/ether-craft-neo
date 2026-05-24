@@ -33,7 +33,7 @@ public class MagnetFunctionScreen extends BaseEtherNodeTabWidgetProvider<Functio
 
     @Override
     public void createWidget() {
-        FilterGuiRegClient.widget(screen, () -> plugin.filter.whitelist, FunctionMagnet.FILTER_PREFIX);
+        FilterGuiRegClient.widget(screen, () -> plugin.filter.whitelist, plugin.installedId);
 
         Supplier[] startValues = {
                 () -> plugin.centerX + CENTER_RANGE,
@@ -56,7 +56,7 @@ public class MagnetFunctionScreen extends BaseEtherNodeTabWidgetProvider<Functio
                     v -> {
                         int actual = idx < 3 ? v - CENTER_RANGE : v + 1;
                         ClientPacketDistributor.sendToServer(new SyncScreenDataC2S(
-                                FunctionMagnet.SYNC_VALUE, idx, actual));
+                                plugin.installedId, FunctionMagnet.SYNC_VALUE, idx, actual));
                     }
             );
             screen.addRenderableWidget(scrolls[i]);

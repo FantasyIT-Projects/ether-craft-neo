@@ -33,7 +33,7 @@ public abstract class AbstractDirectionalFeature extends AbstractNodePlugin {
 
     @Override
     public void syncScreenData(SyncScreenDataC2S message) {
-        if (message.id().equals(SYNC_DIRECTION) && message.index() == installedId.id()) {
+        if (message.id().equals(SYNC_DIRECTION)) {
             if (message.data() == -1)
                 direction = null;
             else

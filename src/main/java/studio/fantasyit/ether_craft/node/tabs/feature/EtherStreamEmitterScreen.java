@@ -39,8 +39,9 @@ public class EtherStreamEmitterScreen extends DirectionalFilterScreen {
                 EtherAdaptNodeAsset.SCROLL_BLOCK_HOVER,
                 v -> {
                     ClientPacketDistributor.sendToServer(new SyncScreenDataC2S(
+                            plugin.installedId,
                             FeatureEtherStreamEmitter.SYNC_MIN_ETHER,
-                            plugin.installedId.id(),
+                            0,
                             v
                     ));
                 }
