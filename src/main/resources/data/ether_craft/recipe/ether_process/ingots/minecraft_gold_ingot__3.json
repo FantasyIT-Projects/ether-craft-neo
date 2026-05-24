@@ -1,0 +1,190 @@
+{
+  "type": "ether_craft:ether_process",
+  "input": [
+    {
+      "id": "I0",
+      "item": "c:coal",
+      "next": "P9"
+    },
+    {
+      "id": "I1",
+      "item": "c:raw_materials/gold：：2",
+      "next": "P11"
+    },
+    {
+      "id": "I2",
+      "item": "c:coal",
+      "next": "P15"
+    }
+  ],
+  "process": [
+    {
+      "id": "P15",
+      "item": [
+        {
+          "chip": "ether_craft:stamping_chip"
+        }
+      ],
+      "next": "P14"
+    },
+    {
+      "id": "P14",
+      "item": [
+        {
+          "chip": "ether_craft:cutting_chip"
+        }
+      ],
+      "next": "P13"
+    },
+    {
+      "id": "P13",
+      "item": [
+        {
+          "chip": "ether_craft:high_heating_chip"
+        }
+      ],
+      "next": "P12"
+    },
+    {
+      "id": "P12",
+      "item": [
+        {
+          "chip": "ether_craft:high_heating_chip"
+        }
+      ],
+      "next": "P2"
+    },
+    {
+      "id": "P11",
+      "item": [
+        {
+          "chip": "ether_craft:stamping_chip"
+        },
+        {
+          "chip": "ether_craft:high_heating_chip"
+        }
+      ],
+      "next": "P10"
+    },
+    {
+      "id": "P10",
+      "item": [
+        {
+          "chip": "ether_craft:high_heating_chip"
+        }
+      ],
+      "next": "P5"
+    },
+    {
+      "id": "P9",
+      "item": [
+        {
+          "chip": "ether_craft:stamping_chip"
+        }
+      ],
+      "next": "P8"
+    },
+    {
+      "id": "P8",
+      "item": [
+        {
+          "chip": "ether_craft:cutting_chip"
+        }
+      ],
+      "next": "P7"
+    },
+    {
+      "id": "P7",
+      "item": [
+        {
+          "chip": "ether_craft:high_heating_chip"
+        }
+      ],
+      "next": "P6"
+    },
+    {
+      "id": "P6",
+      "item": [
+        {
+          "chip": "ether_craft:high_heating_chip"
+        }
+      ],
+      "next": "P5"
+    },
+    {
+      "id": "P5",
+      "item": [
+        {
+          "chip": "ether_craft:high_heating_chip"
+        },
+        {
+          "chip": "ether_craft:converging_chip"
+        }
+      ],
+      "next": "P4"
+    },
+    {
+      "id": "P4",
+      "item": [
+        {
+          "chip": "ether_craft:stamping_chip"
+        },
+        {
+          "chip": "ether_craft:high_heating_chip"
+        }
+      ],
+      "next": "P3"
+    },
+    {
+      "id": "P3",
+      "item": [
+        {
+          "chip": "ether_craft:high_heating_chip"
+        }
+      ],
+      "next": "P2"
+    },
+    {
+      "id": "P2",
+      "item": [
+        {
+          "chip": "ether_craft:converging_chip"
+        },
+        {
+          "chip": "ether_craft:high_heating_chip"
+        }
+      ],
+      "next": "P1"
+    },
+    {
+      "id": "P1",
+      "item": [
+        {
+          "chip": "ether_craft:molding_chip"
+        }
+      ],
+      "next": "P0"
+    },
+    {
+      "id": "P0",
+      "item": [
+        {
+          "chip": "ether_craft:cutting_chip"
+        },
+        {
+          "chip": "ether_craft:converging_chip"
+        }
+      ],
+      "next": "O"
+    }
+  ],
+  "output": {
+    "id": "O",
+    "item": [
+      {
+        "id": "minecraft:gold_ingot",
+        "count": 3
+      }
+    ]
+  }
+}

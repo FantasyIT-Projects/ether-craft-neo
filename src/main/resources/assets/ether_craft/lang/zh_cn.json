@@ -66,7 +66,7 @@
   "menu.ether_craft.node.magnet.sz": "rZ",
   "menu.ether_craft.node.magnet.value": "%d",
   "tooltip.ether_craft.ai_supercomputing_chip": "超算芯片",
-  "tooltip.ether_craft.anima_infusing_chip": "注能芯片",
+  "tooltip.ether_craft.anima_infusing_chip": "唤生芯片",
   "tooltip.ether_craft.antimatter_producing_chip": "反物质生成芯片",
   "tooltip.ether_craft.carving_chip": "雕刻芯片",
   "tooltip.ether_craft.converging_chip": "汇流芯片",
