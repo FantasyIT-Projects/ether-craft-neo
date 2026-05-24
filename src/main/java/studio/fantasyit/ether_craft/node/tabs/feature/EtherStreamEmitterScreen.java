@@ -15,24 +15,39 @@ import studio.fantasyit.ether_craft.node.plugins.feature.FeatureEtherStreamEmitt
 
 public class EtherStreamEmitterScreen extends DirectionalFilterScreen {
     private ScrollableWidget minEtherScroll;
+    private final FeatureEtherStreamEmitter.MenuContext context;
 
-    public EtherStreamEmitterScreen(PluginMenuContext<AbstractDirectionalFilterFeature> context, EtherAdaptNodeScreen screen) {
-        super(context, screen);
-        screen.registerMenuSyncer(new ScreenMenuSyncer<>(() -> ((FeatureEtherStreamEmitter) context.plugin).minEther, v -> {
+    public EtherStreamEmitterScreen(PluginMenuContext<AbstractDirectionalFilterFeature> _context, EtherAdaptNodeScreen screen) {
+        super(_context, screen);
+        //noinspection rawtypes
+        this.context = (FeatureEtherStreamEmitter.MenuContext) (PluginMenuContext) _context;
+        screen.registerMenuSyncer(new ScreenMenuSyncer<>(() -> context.plugin.minEther, v -> {
             if (minEtherScroll != null)
-                minEtherScroll.setValue(v);
+                minEtherScroll.setValue(v - context.scrollMin);
+        }));
+        screen.registerMenuSyncer(new ScreenMenuSyncer<>(() -> context.scrollMin, v -> {
+            if (minEtherScroll != null && context.scrollMax > context.scrollMin) {
+                minEtherScroll.setMaxValue(context.scrollMax - context.scrollMin);
+                minEtherScroll.setValue(v - context.scrollMin);
+            }
+        }));
+        screen.registerMenuSyncer(new ScreenMenuSyncer<>(() -> context.scrollMin, v -> {
+            if (minEtherScroll != null && context.scrollMax > context.scrollMin) {
+                minEtherScroll.setMaxValue(context.scrollMax - context.scrollMin);
+                minEtherScroll.setValue(v - context.scrollMin);
+            }
         }));
     }
+
 
     @Override
     public void createWidget() {
         super.createWidget();
         FeatureEtherStreamEmitter plugin = (FeatureEtherStreamEmitter) this.plugin;
 
-        int maxValue = Math.toIntExact(Math.min(Config.emitterMinEtherMax, screen.getMenu().entity.getMaxEther()));
         minEtherScroll = new ScrollableWidget(
                 lx(90), ly(12),
-                maxValue,
+                0,
                 EtherAdaptNodeAsset.SCROLL_BACK,
                 EtherAdaptNodeAsset.SCROLL_BLOCK,
                 EtherAdaptNodeAsset.SCROLL_BLOCK_HOVER,
@@ -55,11 +70,8 @@ public class EtherStreamEmitterScreen extends DirectionalFilterScreen {
         super.extractWidgetRenderState(graphics, mouseX, mouseY, a);
         if (minEtherScroll != null) {
             graphics.centeredText(screen.getMinecraft().font,
-                    Component.translatable("ether_craft.gui.node.emitter.min_ether"),
+                    Component.translatable("ether_craft.gui.node.emitter.min_ether", minEtherScroll.getValue() + context.scrollMin),
                     lx(90) + 5, ly(12) + EtherAdaptNodeAsset.SCROLL_BACK.h + 2, 0xFFFFFFFF);
-            graphics.centeredText(screen.getMinecraft().font,
-                    Component.translatable("ether_craft.gui.node.emitter.min_ether.value", minEtherScroll.getValue()),
-                    lx(90) + 5, ly(12) + EtherAdaptNodeAsset.SCROLL_BACK.h + 10, 0xFFFFFFFF);
         }
     }
 }

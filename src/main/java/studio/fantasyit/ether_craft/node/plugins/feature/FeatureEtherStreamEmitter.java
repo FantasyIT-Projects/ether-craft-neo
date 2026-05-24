@@ -14,14 +14,28 @@ import studio.fantasyit.ether_craft.entity.EtherStreamEntity;
 import studio.fantasyit.ether_craft.menu.base.slot.BaseDataSlot;
 import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeContainerMenu;
 import studio.fantasyit.ether_craft.network.c2s.SyncScreenDataC2S;
+import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
 import studio.fantasyit.ether_craft.node.plugins.base.AbstractNodePlugin;
 import studio.fantasyit.ether_craft.node.plugins.base.IEtherStreamCapabilityProviderPlugin;
-import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
+import studio.fantasyit.ether_craft.node.plugins.base.PluginMenuContext;
 import studio.fantasyit.ether_craft.stream.EtherStreamStorageCapability;
 
 import java.util.Optional;
 
 public class FeatureEtherStreamEmitter extends AbstractDirectionalFilterFeature {
+    public static class MenuContext extends PluginMenuContext<FeatureEtherStreamEmitter> {
+        public MenuContext(EtherAdaptNodeContainerMenu menu, FeatureEtherStreamEmitter plugin) {
+            super(menu, plugin);
+            menu.addDataSlot(new BaseDataSlot(() -> scrollMin, t -> scrollMin = t));
+            menu.addDataSlot(new BaseDataSlot(() -> scrollMax, t -> scrollMax = t));
+            scrollMin = Config.emitterMinEtherMin;
+            scrollMax = Math.toIntExact(Math.min(Config.emitterMinEtherMax, menu.entity.getMaxEther()));
+        }
+
+        public int scrollMin;
+        public int scrollMax;
+    }
+
     public static final Identifier ID = EtherCraft.id("ether_stream_emitter");
     public static final Identifier SYNC_MIN_ETHER = EtherCraft.id("emitter/min_ether");
 
@@ -98,6 +112,11 @@ public class FeatureEtherStreamEmitter extends AbstractDirectionalFilterFeature 
             nodeEntity.setSyncedPluginData(installedId, SYNC_MIN_ETHER, minEther);
             nodeEntity.pluginUpdate();
         }
+    }
+
+    @Override
+    public PluginMenuContext<?> makeContext(EtherAdaptNodeContainerMenu etherAdaptNodeContainerMenu) {
+        return new MenuContext(etherAdaptNodeContainerMenu, this);
     }
 
     @Override

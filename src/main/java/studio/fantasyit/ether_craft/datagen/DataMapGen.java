@@ -20,6 +20,6 @@ public class DataMapGen extends DataMapProvider {
         this.builder(StoneGeneratorRatio.STONE_GENERATOR_RATIO)
                 .replace(true)
                 .add(Items.COBBLESTONE.builtInRegistryHolder(), new StoneGeneratorRatio(100, 25), false)
-                .add(Items.BASALT.builtInRegistryHolder(), new StoneGeneratorRatio(200, 25), false);
+                .add(Items.BASALT.builtInRegistryHolder(), new StoneGeneratorRatio(100, 50), false);
     }
 }

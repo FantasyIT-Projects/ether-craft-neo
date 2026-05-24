@@ -11,7 +11,7 @@ import studio.fantasyit.ether_craft.menu.base.ImageAsset;
 import java.util.function.Consumer;
 
 public class ScrollableWidget extends AbstractWidget {
-    private final int maxValue;
+    private int maxValue;
     private final ImageAsset background;
     private final ImageAsset block;
     private final ImageAsset blockHover;
@@ -26,7 +26,7 @@ public class ScrollableWidget extends AbstractWidget {
         this.background = background;
         this.block = block;
         this.blockHover = blockHover;
-        this.maxValue = maxValue;
+        this.maxValue = Math.max(1, maxValue);
         this.value = 0;
         this.isDragging = false;
         this.onValueChange = onValueChange;
@@ -35,6 +35,12 @@ public class ScrollableWidget extends AbstractWidget {
     public void setValue(int value) {
         if (isDragging) return;
         this.value = Math.clamp(value, 0, maxValue);
+    }
+
+    public void setMaxValue(int maxValue) {
+        if (maxValue <= 0)
+            maxValue = 1;
+        this.maxValue = maxValue;
     }
 
     public int getValue() {

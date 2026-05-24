@@ -3,19 +3,25 @@
   "input": [
     {
       "id": "I0",
-      "item": "#c:ingots/gold",
-      "next": "P1"
+      "item": "minecraft:ice",
+      "next": "P2"
     }
   ],
   "process": [
     {
+      "id": "P2",
+      "item": [
+        {
+          "chip": "ether_craft:converging_chip"
+        }
+      ],
+      "next": "P1"
+    },
+    {
       "id": "P1",
       "item": [
         {
-          "chip": "ether_craft:cutting_chip"
-        },
-        {
-          "chip": "ether_craft:cutting_chip"
+          "chip": "ether_craft:converging_chip"
         }
       ],
       "next": "P0"
@@ -24,10 +30,7 @@
       "id": "P0",
       "item": [
         {
-          "chip": "ether_craft:cutting_chip"
-        },
-        {
-          "chip": "ether_craft:cutting_chip"
+          "chip": "ether_craft:converging_chip"
         }
       ],
       "next": "O"
@@ -37,7 +40,7 @@
     "id": "O",
     "item": [
       {
-        "id": "ether_craft:gold_screw"
+        "id": "minecraft:packed_ice"
       }
     ]
   }
