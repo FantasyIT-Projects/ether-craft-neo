@@ -1,11 +1,9 @@
 package studio.fantasyit.ether_craft.entity.render;
 
-import com.mojang.blaze3d.vertex.ByteBufferBuilder;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
@@ -14,12 +12,12 @@ import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.phys.Vec3;
-import org.joml.Matrix4f;
 import org.joml.Quaternionf;
+import org.joml.Vector3fc;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.entity.EtherStreamEntity;
-import org.joml.Vector3fc;
 
 public class EtherStreamEntityRenderer extends EntityRenderer<EtherStreamEntity, EtherStreamEntityRenderState> {
     private static final Identifier TEXTURE = EtherCraft.id("textures/particle/ether_stream.png");
@@ -93,11 +91,12 @@ public class EtherStreamEntityRenderer extends EntityRenderer<EtherStreamEntity,
 
             poseStack.popPose();
         }
-        renderLabel(state, poseStack, camera);
+        renderLabel(state, poseStack, collector, camera);
         super.submit(state, poseStack, collector, camera);
     }
 
-    private void renderLabel(EtherStreamEntityRenderState state, PoseStack poseStack, CameraRenderState camera) {
+    private void renderLabel(EtherStreamEntityRenderState state, PoseStack poseStack,
+                              SubmitNodeCollector collector, CameraRenderState camera) {
         if (state.label == null || state.startPos == null) return;
         Vec3 motion = state.motion;
         if (motion.lengthSqr() < 0.0001) return;
@@ -127,9 +126,7 @@ public class EtherStreamEntityRenderer extends EntityRenderer<EtherStreamEntity,
 
         int visibleTextWidth = font.width(visibleText);
 
-        // Set up PoseStack: orient to orthogonal-of-motion plane
-        poseStack.pushPose();
-
+        // Compute normal once
         Vec3 dir = motion.normalize();
         Vec3 up = new Vec3(0.0, 1.0, 0.0);
         Vec3 normal;
@@ -138,24 +135,25 @@ public class EtherStreamEntityRenderer extends EntityRenderer<EtherStreamEntity,
         } else {
             normal = dir.cross(up).normalize();
         }
-        Quaternionf rotation = new Quaternionf().rotateTo(
-                new org.joml.Vector3f(0, 0, 1),
-                new org.joml.Vector3f((float) normal.x, (float) normal.y, (float) normal.z));
-        poseStack.mulPose(rotation);
-        poseStack.scale(LABEL_SCALE, -LABEL_SCALE, LABEL_SCALE);
 
-        // Right edge of text aligns with entity origin, text extends leftward
+        FormattedCharSequence text = FormattedCharSequence.forward(visibleText, net.minecraft.network.chat.Style.EMPTY);
         float textX = needsClipping ? -visibleTextWidth : -fullTextWidth;
 
-        Matrix4f poseMatrix = poseStack.last().pose();
-        try (ByteBufferBuilder builder = new ByteBufferBuilder(256)) {
-            MultiBufferSource.BufferSource buf = MultiBufferSource.immediate(builder);
-            font.drawInBatch(visibleText, textX, 0, state.labelColor, false, poseMatrix,
-                    buf, Font.DisplayMode.SEE_THROUGH, 0, 0xF000F0);
-            buf.endBatch();
-        }
+        // Render on both faces so the label is visible from either side
+        for (Vec3 faceNormal : new Vec3[]{normal, normal.scale(-1)}) {
+            poseStack.pushPose();
 
-        poseStack.popPose();
+            Quaternionf rotation = new Quaternionf().rotateTo(
+                    new org.joml.Vector3f(0, 0, 1),
+                    new org.joml.Vector3f((float) faceNormal.x, (float) faceNormal.y, (float) faceNormal.z));
+            poseStack.mulPose(rotation);
+            poseStack.scale(LABEL_SCALE, -LABEL_SCALE, LABEL_SCALE);
+
+            collector.submitText(poseStack, textX, 0, text, false,
+                    Font.DisplayMode.SEE_THROUGH, 0xF000F0, state.labelColor, 0, 0);
+
+            poseStack.popPose();
+        }
     }
 
     private static void vertex(VertexConsumer buffer, PoseStack.Pose pose, float x, float y, int a, float u, float v, int light) {
