@@ -1,6 +1,7 @@
 package studio.fantasyit.ether_craft.entity;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -21,10 +22,13 @@ import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
+import org.joml.Vector3f;
+import org.joml.Vector3fc;
 import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.block.base.EtherContainer;
 import studio.fantasyit.ether_craft.register.EntityRegistry;
 import studio.fantasyit.ether_craft.register.Tags;
+import studio.fantasyit.ether_craft.stream.EtherStreamLabelCapability;
 import studio.fantasyit.ether_craft.stream.IStreamCapability;
 
 import java.util.ArrayList;
@@ -33,6 +37,12 @@ import java.util.Optional;
 
 public class EtherStreamEntity extends Projectile {
     static final EntityDataAccessor<Integer> ETHER_COUNT = SynchedEntityData.defineId(EtherStreamEntity.class, EntityDataSerializers.INT);
+    public static final EntityDataAccessor<java.util.Optional<Component>> LABEL_DATA =
+            SynchedEntityData.defineId(EtherStreamEntity.class, EntityDataSerializers.OPTIONAL_COMPONENT);
+    public static final EntityDataAccessor<Vector3fc> LABEL_START_POS =
+            SynchedEntityData.defineId(EtherStreamEntity.class, EntityDataSerializers.VECTOR3);
+    public static final EntityDataAccessor<Integer> LABEL_COLOR =
+            SynchedEntityData.defineId(EtherStreamEntity.class, EntityDataSerializers.INT);
     private int ether;
     private int lowerConsumeFactor = 0;
     public static final int MAX_TAIL = 6;
@@ -65,6 +75,9 @@ public class EtherStreamEntity extends Projectile {
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         builder.define(ETHER_COUNT, ether);
+        builder.define(LABEL_DATA, java.util.Optional.empty());
+        builder.define(LABEL_START_POS, new Vector3f());
+        builder.define(LABEL_COLOR, 0xFFFFFFFF);
     }
 
     public void setLowerConsumeFactor(int factor) {
@@ -78,6 +91,14 @@ public class EtherStreamEntity extends Projectile {
 
     public void addCapability(IStreamCapability capability) {
         capabilities.add(capability);
+        if (capability instanceof EtherStreamLabelCapability cap) {
+            entityData.set(LABEL_DATA, java.util.Optional.ofNullable(cap.getLabel()));
+            Vec3 sp = cap.getStartPos();
+            entityData.set(LABEL_START_POS, sp != null
+                    ? new Vector3f((float) sp.x, (float) sp.y, (float) sp.z)
+                    : new Vector3f());
+            entityData.set(LABEL_COLOR, cap.getColor());
+        }
     }
 
     public Optional<IStreamCapability> getCapability(Identifier id) {

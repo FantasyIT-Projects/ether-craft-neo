@@ -19,7 +19,7 @@ import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.entity.EtherStreamEntity;
-import studio.fantasyit.ether_craft.stream.EtherStreamLabelCapability;
+import org.joml.Vector3fc;
 
 public class EtherStreamEntityRenderer extends EntityRenderer<EtherStreamEntity, EtherStreamEntityRenderState> {
     private static final Identifier TEXTURE = EtherCraft.id("textures/particle/ether_stream.png");
@@ -54,13 +54,13 @@ public class EtherStreamEntityRenderer extends EntityRenderer<EtherStreamEntity,
             state.tailSize[i] = entity.tailSize[idx];
         }
         // --- Label extraction ---
-        entity.getCapability(EtherStreamLabelCapability.ID).ifPresent(cap -> {
-            if (cap instanceof EtherStreamLabelCapability labelCap) {
-                state.label = labelCap.getLabel();
-                state.startPos = labelCap.getStartPos();
-                state.labelColor = labelCap.getColor();
-            }
-        });
+        java.util.Optional<net.minecraft.network.chat.Component> labelData = entity.getEntityData().get(EtherStreamEntity.LABEL_DATA);
+        labelData.ifPresent(label -> state.label = label);
+        if (labelData.isPresent()) {
+            Vector3fc sp = entity.getEntityData().get(EtherStreamEntity.LABEL_START_POS);
+            state.startPos = new Vec3(sp.x(), sp.y(), sp.z());
+        }
+        state.labelColor = entity.getEntityData().get(EtherStreamEntity.LABEL_COLOR);
         state.motion = entity.getDeltaMovement();
         // --- End label extraction ---
     }
