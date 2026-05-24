@@ -43,6 +43,8 @@ public class EtherStreamEntity extends Projectile {
             SynchedEntityData.defineId(EtherStreamEntity.class, EntityDataSerializers.VECTOR3);
     public static final EntityDataAccessor<Integer> LABEL_COLOR =
             SynchedEntityData.defineId(EtherStreamEntity.class, EntityDataSerializers.INT);
+    public static final EntityDataAccessor<Boolean> DYING =
+            SynchedEntityData.defineId(EtherStreamEntity.class, EntityDataSerializers.BOOLEAN);
     private int ether;
     private int lowerConsumeFactor = 0;
     public static final int MAX_TAIL = 6;
@@ -53,6 +55,9 @@ public class EtherStreamEntity extends Projectile {
     public int tailHead = -1;
     public int tailCount;
     public boolean ticked = false;
+    public int clientDeathTick;
+    private int deathTickStart;
+    private static final int MAX_DEATH_TICKS = 60;
     private List<IStreamCapability> capabilities = new ArrayList<>();
 
     public static EtherStreamEntity create(Level level, int ether, Vec3 position, Vec3 motion) {
@@ -79,6 +84,7 @@ public class EtherStreamEntity extends Projectile {
         builder.define(LABEL_DATA, java.util.Optional.empty());
         builder.define(LABEL_START_POS, new Vector3f());
         builder.define(LABEL_COLOR, 0xFFFFFFFF);
+        builder.define(DYING, false);
     }
 
     public void firstTick() {
@@ -114,6 +120,9 @@ public class EtherStreamEntity extends Projectile {
         super.tick();
         if (this.level().isClientSide()) {
             this.ether = this.entityData.get(ETHER_COUNT);
+            if (entityData.get(DYING)) {
+                clientDeathTick++;
+            }
             tailHead = (tailHead + 1) % MAX_TAIL;
             if (tailCount < MAX_TAIL) tailCount++;
             tailX[tailHead] = this.getX();
@@ -123,6 +132,14 @@ public class EtherStreamEntity extends Projectile {
         } else {
             if (!ticked)
                 firstTick();
+            if (entityData.get(DYING)) {
+                Vec3 vec3 = this.getDeltaMovement();
+                this.setPos(this.getX() + vec3.x, this.getY() + vec3.y, this.getZ() + vec3.z);
+                if (this.tickCount - deathTickStart > MAX_DEATH_TICKS) {
+                    this.discard();
+                }
+                return;
+            }
             if (this.tickCount >= Config.streamMaxTick) {
                 this.dropAndDiscard();
                 return;
@@ -238,10 +255,12 @@ public class EtherStreamEntity extends Projectile {
     }
 
     public void dropAndDiscard() {
+        if (entityData.get(DYING)) return;
         for (IStreamCapability capability : capabilities) {
             capability.onDestroy(this);
         }
-        this.discard();
+        deathTickStart = this.tickCount;
+        entityData.set(DYING, true);
     }
 
     @Override

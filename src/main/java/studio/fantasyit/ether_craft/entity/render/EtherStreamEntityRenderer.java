@@ -60,6 +60,11 @@ public class EtherStreamEntityRenderer extends EntityRenderer<EtherStreamEntity,
         }
         state.labelColor = entity.getEntityData().get(EtherStreamEntity.LABEL_COLOR);
         state.motion = entity.getDeltaMovement();
+        state.dying = entity.getEntityData().get(EtherStreamEntity.DYING);
+        if (state.dying) {
+            state.deathTick = entity.clientDeathTick;
+        }
+        state.speed = (float) state.motion.length();
         // --- End label extraction ---
     }
 
@@ -97,7 +102,7 @@ public class EtherStreamEntityRenderer extends EntityRenderer<EtherStreamEntity,
 
     private void renderLabel(EtherStreamEntityRenderState state, PoseStack poseStack,
                               SubmitNodeCollector collector, CameraRenderState camera) {
-        if (state.label == null || state.startPos == null) return;
+        if (state.label == null) return;
         Vec3 motion = state.motion;
         if (motion.lengthSqr() < 0.0001) return;
 
@@ -106,25 +111,32 @@ public class EtherStreamEntityRenderer extends EntityRenderer<EtherStreamEntity,
         int fullTextWidth = font.width(fullText);
         if (fullTextWidth == 0) return;
 
-        // Compute visible portion based on distance from start position
-        double worldDist = state.startPos.distanceTo(new Vec3(state.x, state.y, state.z));
-        float fontUnitsAvail = (float) (worldDist / LABEL_SCALE);
-        int visibleWidth = Math.round(fontUnitsAvail);
-        if (visibleWidth <= 0) return;
-
-        // Get the rightmost portion of text that fits within the available pixel width
         String visibleText;
-        boolean needsClipping;
-        if (visibleWidth >= fullTextWidth) {
-            visibleText = fullText;
-            needsClipping = false;
-        } else {
-            visibleText = font.plainSubstrByWidth(fullText, visibleWidth, true);
-            needsClipping = true;
-        }
-        if (visibleText.isEmpty()) return;
+        int visibleTextWidth;
 
-        int visibleTextWidth = font.width(visibleText);
+        if (state.dying) {
+            // Death: consume characters from the right as text continues moving
+            int consumedRight = Math.round(state.deathTick * state.speed / LABEL_SCALE);
+            int remainingWidth = fullTextWidth - consumedRight;
+            if (remainingWidth <= 0) return;
+            visibleText = font.plainSubstrByWidth(fullText, remainingWidth, false);
+            if (visibleText.isEmpty()) return;
+            visibleTextWidth = font.width(visibleText);
+        } else {
+            // Alive: clip from the left at start position
+            if (state.startPos == null) return;
+            double worldDist = state.startPos.distanceTo(new Vec3(state.x, state.y, state.z));
+            float fontUnitsAvail = (float) (worldDist / LABEL_SCALE);
+            int visibleWidth = Math.round(fontUnitsAvail);
+            if (visibleWidth <= 0) return;
+            if (visibleWidth >= fullTextWidth) {
+                visibleText = fullText;
+            } else {
+                visibleText = font.plainSubstrByWidth(fullText, visibleWidth, true);
+            }
+            if (visibleText.isEmpty()) return;
+            visibleTextWidth = font.width(visibleText);
+        }
 
         // Compute normal once
         Vec3 dir = motion.normalize();
@@ -137,7 +149,7 @@ public class EtherStreamEntityRenderer extends EntityRenderer<EtherStreamEntity,
         }
 
         FormattedCharSequence text = FormattedCharSequence.forward(visibleText, net.minecraft.network.chat.Style.EMPTY);
-        float textX = needsClipping ? -visibleTextWidth : -fullTextWidth;
+        float textX = -visibleTextWidth;
 
         // Render on both faces so the label is visible from either side
         for (Vec3 faceNormal : new Vec3[]{normal, normal.scale(-1)}) {

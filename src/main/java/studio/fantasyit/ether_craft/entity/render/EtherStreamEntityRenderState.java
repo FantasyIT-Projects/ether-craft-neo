@@ -19,6 +19,9 @@ public class EtherStreamEntityRenderState extends EntityRenderState {
     public Vec3 startPos;
     public Vec3 motion = Vec3.ZERO;
     public int labelColor = 0xFFFFFFFF;
+    public boolean dying;
+    public int deathTick;
+    public float speed;
 
     public EtherStreamEntityRenderState() {
         tailX = new double[EtherStreamEntity.MAX_TAIL];
