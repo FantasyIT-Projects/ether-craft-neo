@@ -40,7 +40,7 @@ public class FunctionEquipmentConsumeGenerator extends AbstractItemConsumeFuncti
             if (entry.getKey().is(EnchantmentTags.CURSE)) continue;
             enchantBonus += 1 << (entry.getIntValue() - 1);
         }
-        etherToGenerate = (base + enchantBonus) * Config.equipmentEtherCoefficient;
+        etherToGenerate = (base + enchantBonus) * Config.nodeEquipmentGeneratorCoefficient;
 
         nodeEntity.setSyncedPluginData(installedId, WORKING_MATERIAL, WorkingMaterial.ANY.ordinal());
         return ItemStack.EMPTY;

@@ -25,7 +25,7 @@ public class FeatureDropperThrower extends AbstractDirectionalFilterFeature {
 
     private boolean process() {
 
-        if (nodeEntity.getEther() < Config.dropperThrowerEtherPreItem)
+        if (nodeEntity.getEther() < Config.nodeDropperThrowerEtherPerItem)
             return false;
         if (direction == null) {
             return true;
@@ -38,7 +38,7 @@ public class FeatureDropperThrower extends AbstractDirectionalFilterFeature {
             itemStack = nodeEntity.extractWithPredicate(filter::accepts, transaction, Integer.MAX_VALUE);
             transaction.commit();
         }
-        nodeEntity.extractEther(Config.dropperThrowerEtherPreItem);
+        nodeEntity.extractEther(Config.nodeDropperThrowerEtherPerItem);
         if (itemStack.isEmpty()) {
             return true;
         }

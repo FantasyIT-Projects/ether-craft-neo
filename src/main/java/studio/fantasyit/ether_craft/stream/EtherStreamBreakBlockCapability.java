@@ -68,7 +68,7 @@ public class EtherStreamBreakBlockCapability implements IStreamCapability {
 
         float hardness = blockState.getDestroySpeed(level, pos);
         //TODO 附魔
-        int cost = Math.max(1, (int) (hardness * Config.breakBlockHardnessMultiplier)  + Config.breakBlockConstantCost);
+        int cost = Math.max(1, (int) (hardness * Config.etherStreamBreakBlockHardnessMultiplier)  + Config.etherStreamBreakBlockConstantCost);
 
         BlockEntity blockEntity = level.getBlockEntity(pos);
         List<ItemStack> drops = Block.getDrops(blockState, level, pos, blockEntity, null, bestTool);

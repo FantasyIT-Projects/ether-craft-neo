@@ -28,8 +28,8 @@ public class FeatureEtherStreamEmitter extends AbstractDirectionalFilterFeature 
             super(menu, plugin);
             menu.addDataSlot(new BaseDataSlot(() -> scrollMin, t -> scrollMin = t));
             menu.addDataSlot(new BaseDataSlot(() -> scrollMax, t -> scrollMax = t));
-            scrollMin = Config.emitterMinEtherMin;
-            scrollMax = Math.toIntExact(Math.min(Config.emitterMinEtherMax, menu.entity.getMaxEther()));
+            scrollMin = Config.nodeEmitterMinEtherMin;
+            scrollMax = Math.toIntExact(Math.min(Config.nodeEmitterMinEtherMax, menu.entity.getMaxEther()));
         }
 
         public int scrollMin;
@@ -108,7 +108,7 @@ public class FeatureEtherStreamEmitter extends AbstractDirectionalFilterFeature 
     public void syncScreenData(SyncScreenDataC2S message) {
         super.syncScreenData(message);
         if (message.id().equals(SYNC_MIN_ETHER)) {
-            minEther = Math.clamp(message.data(), Config.emitterMinEtherMin, Config.emitterMinEtherMax);
+            minEther = Math.clamp(message.data(), Config.nodeEmitterMinEtherMin, Config.nodeEmitterMinEtherMax);
             nodeEntity.setSyncedPluginData(installedId, SYNC_MIN_ETHER, minEther);
             nodeEntity.pluginUpdate();
         }

@@ -143,7 +143,7 @@ public class EtherStreamEntity extends Projectile {
                 }
                 return;
             }
-            if (this.tickCount >= Config.streamMaxTick) {
+            if (this.tickCount >= Config.etherStreamMaxTick) {
                 this.dropAndDiscard();
                 return;
             }

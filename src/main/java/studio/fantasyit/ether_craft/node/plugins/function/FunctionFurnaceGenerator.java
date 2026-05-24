@@ -21,7 +21,7 @@ public class FunctionFurnaceGenerator extends AbstractItemConsumeFunction {
     @Override
     boolean accepts(ItemResource stack) {
         int burnTime = stack.toStack().getBurnTime(null, nodeEntity.getLevel().fuelValues());
-        return burnTime >= Config.nodeFurnaceBurntimeFactor;
+        return burnTime >= Config.nodeFurnaceBurnTimeFactor;
     }
 
     @Override
@@ -34,7 +34,7 @@ public class FunctionFurnaceGenerator extends AbstractItemConsumeFunction {
             }
         }
         ItemStack remainStack = itemStack.copyWithCount(itemStack.getCount() - 1);
-        this.remainBurnTicks = itemStack.getBurnTime(null, nodeEntity.getLevel().fuelValues()) / Config.nodeFurnaceBurntimeFactor;
+        this.remainBurnTicks = itemStack.getBurnTime(null, nodeEntity.getLevel().fuelValues()) / Config.nodeFurnaceBurnTimeFactor;
 
         if (itemStack.is(ItemTags.LOGS) || itemStack.is(ItemTags.PLANKS))
             nodeEntity.setSyncedPluginData(installedId, WORKING_MATERIAL, WorkingMaterial.WOOD.ordinal());
@@ -50,7 +50,7 @@ public class FunctionFurnaceGenerator extends AbstractItemConsumeFunction {
 
     @Override
     void onBurnTick() {
-        nodeEntity.receiveEther(Config.nodeFurnaceEtherPreTick);
+        nodeEntity.receiveEther(Config.nodeFurnaceEtherPerTick);
     }
 
     @Override

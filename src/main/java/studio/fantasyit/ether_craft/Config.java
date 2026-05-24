@@ -7,37 +7,29 @@ import net.neoforged.neoforge.common.ModConfigSpec;
 
 import java.util.List;
 
-// An example config class. This is not required, but it's a good idea to have one to keep your config organized.
-// Demonstrates how to use Neo's config APIs
 @EventBusSubscriber(modid = EtherCraft.MODID)
 public class Config {
     private static final ModConfigSpec.Builder BUILDER = new ModConfigSpec.Builder();
+
+    // ===== ether — Core ether mechanics =====
 
     private static final ModConfigSpec.IntValue ETHER_CONVERT = BUILDER
             .comment("How many ether value to gain from one ether item")
             .defineInRange("ether.convert", 100, 1, Integer.MAX_VALUE);
 
-    private static final ModConfigSpec.IntValue NODE_DEF_MAX_ETHER = BUILDER
-            .comment("Max ether value of Ether Adapt Node by default")
-            .defineInRange("node.def.max", 6400, 1, Integer.MAX_VALUE);
-    private static final ModConfigSpec.IntValue NODE_FURNACE_BURNTIME_FACTOR = BUILDER
-            .comment("...")
-            .defineInRange("node.furnace.factor", 1, 1, 100);
-    private static final ModConfigSpec.IntValue NODE_FURNACE_ETHER_PRE_TICK = BUILDER
-            .comment("...")
-            .defineInRange("node.furnace.ether_pre_tick", 25, 1, Integer.MAX_VALUE);
-    private static final ModConfigSpec.IntValue NODE_MAGNET_CONSUME_PRE_STACK = BUILDER
-            .comment("Ether the magnet function will consume when picking up one stack")
-            .defineInRange("node.magnet.consume_pre_stack", 100, 1, Integer.MAX_VALUE);
-    private static final ModConfigSpec.IntValue NODE_CONTAINER_INTERACT_ETHER_PRE_ITEM = BUILDER
-            .comment("Ether consumed per item transferred by ContainerInteract feature")
-            .defineInRange("node.container_interact.ether_pre_item", 100, 1, Integer.MAX_VALUE);
-    private static final ModConfigSpec.IntValue DROPPER_THROWER_ETHER_PRE_ITEM = BUILDER
-            .comment("Ether consumed per item transferred by DropperThrower feature")
-            .defineInRange("dropper_thrower.ether_pre_item", 10, 1, Integer.MAX_VALUE);
-    private static final ModConfigSpec.ConfigValue<List<? extends Integer>> NODE_LEVEL_SLOT_ARR = BUILDER
-            .comment("Upgrade slots pre level")
-            .defineList("node.up_slot", () -> List.of(2, 4, 6), () -> 0, t -> {
+    private static final ModConfigSpec.IntValue ETHER_INACTIVATE_CONVERT_TICK = BUILDER
+            .comment("Ticks an ether item entity must wait before auto-converting to inactivated ether")
+            .defineInRange("ether.inactivate_convert_tick", 100, 1, Integer.MAX_VALUE);
+
+    // ===== node — Ether Adapt Node =====
+
+    private static final ModConfigSpec.IntValue NODE_DEFAULT_MAX_ETHER = BUILDER
+            .comment("Default max ether value of Ether Adapt Node")
+            .defineInRange("node.default_max_ether", 6400, 1, Integer.MAX_VALUE);
+
+    private static final ModConfigSpec.ConfigValue<List<? extends Integer>> NODE_UPGRADE_SLOTS = BUILDER
+            .comment("Number of upgrade slots per level")
+            .defineList("node.upgrade_slots", () -> List.of(2, 4, 6), () -> 0, t -> {
                 try {
                     if (t instanceof Integer) return true;
                     Integer.parseInt(t.toString());
@@ -46,101 +38,149 @@ public class Config {
                     return false;
                 }
             });
+
+    // -- node.furnace --
+
+    private static final ModConfigSpec.IntValue NODE_FURNACE_BURN_TIME_FACTOR = BUILDER
+            .comment("Divisor applied to item burn time (higher = faster fuel consumption)")
+            .defineInRange("node.furnace.burn_time_factor", 1, 1, 100);
+
+    private static final ModConfigSpec.IntValue NODE_FURNACE_ETHER_PER_TICK = BUILDER
+            .comment("Ether generated per tick while furnace is actively burning fuel")
+            .defineInRange("node.furnace.ether_per_tick", 25, 1, Integer.MAX_VALUE);
+
+    // -- node.magnet --
+
+    private static final ModConfigSpec.IntValue NODE_MAGNET_ETHER_PER_STACK = BUILDER
+            .comment("Ether consumed by magnet function when picking up one stack of items")
+            .defineInRange("node.magnet.ether_per_stack", 100, 1, Integer.MAX_VALUE);
+
+    // -- node.container_interact --
+
+    private static final ModConfigSpec.IntValue NODE_CONTAINER_INTERACT_ETHER_PER_ITEM = BUILDER
+            .comment("Ether consumed per item transferred by ContainerInteract feature")
+            .defineInRange("node.container_interact.ether_per_item", 10, 1, Integer.MAX_VALUE);
+
+    // -- node.dropper_thrower --
+
+    private static final ModConfigSpec.IntValue NODE_DROPPER_THROWER_ETHER_PER_ITEM = BUILDER
+            .comment("Ether consumed per item thrown by DropperThrower feature")
+            .defineInRange("node.dropper_thrower.ether_per_item", 10, 1, Integer.MAX_VALUE);
+
+    // -- node.process --
+
     private static final ModConfigSpec.IntValue NODE_PROCESS_MAX_PROGRESS = BUILDER
             .comment("Max progress ticks for Node Process function to complete one recipe")
             .defineInRange("node.process.max_progress", 100, 1, Integer.MAX_VALUE);
-    private static final ModConfigSpec.IntValue BREAK_BLOCK_HARDNESS_MULTIPLIER = BUILDER
-            .comment("Multiplier for block hardness in ether consumption per block break")
-            .defineInRange("break_block.hardness_multiplier", 20, 1, Integer.MAX_VALUE);
-    private static final ModConfigSpec.IntValue BREAK_BLOCK_EFFICIENCY_DIVISOR = BUILDER
-            .comment("How much ether to reduce per level of Efficiency enchantment")
-            .defineInRange("break_block.efficiency_divisor", 3, 0, Integer.MAX_VALUE);
-    private static final ModConfigSpec.IntValue DAMAGE_ETHER_MULTIPLIER = BUILDER
-            .comment("Ether consumed per point of damage dealt")
-            .defineInRange("damage.ether_multiplier", 5, 1, Integer.MAX_VALUE);
-    private static final ModConfigSpec.IntValue BREAK_BLOCK_CONSTANT_COST = BUILDER
-            .comment("Constant ether cost added per block break on top of the formula")
-            .defineInRange("break_block.constant_cost", 0, 0, Integer.MAX_VALUE);
-    private static final ModConfigSpec.IntValue EMITTER_MIN_ETHER_MIN = BUILDER
-            .comment("Minimum value for the emitter minimum ether slider")
-            .defineInRange("emitter.min_ether.min", 0, 0, Integer.MAX_VALUE);
-    private static final ModConfigSpec.IntValue EMITTER_MIN_ETHER_MAX = BUILDER
-            .comment("Maximum value for the emitter minimum ether slider")
-            .defineInRange("emitter.min_ether.max", 100000, 0, Integer.MAX_VALUE);
-    private static final ModConfigSpec.IntValue DAMAGE_CONSTANT_COST = BUILDER
-            .comment("Constant ether cost added per damage instance on top of the formula")
-            .defineInRange("damage.constant_cost", 0, 0, Integer.MAX_VALUE);
-    private static final ModConfigSpec.IntValue EQUIPMENT_ETHER_COEFFICIENT = BUILDER
-            .comment("Coefficient for ether generation from equipment consumption")
-            .defineInRange("equipment_generator.ether_coefficient", 10, 1, 10000);
-    private static final ModConfigSpec.IntValue ETHER_CONVERTER_COEFFICIENT = BUILDER
-            .comment("Ether generated per item by the Ether Converter function plugin")
-            .defineInRange("ether_converter.coefficient", 100, 1, Integer.MAX_VALUE);
-    private static final ModConfigSpec.IntValue ETHER_INACTIVATE_TICK = BUILDER
-            .comment("Tick to wait before inactivating an ether inactivate convert")
-            .defineInRange("ether_inactivate_convert.tick", 60, 1, Integer.MAX_VALUE);
-    private static final ModConfigSpec.IntValue ETHER_CONVERTER_INACTIVATE_TICK = BUILDER
-            .comment("Tick to wait before inactivating an ether inactivate convert")
-            .defineInRange("ether_inactivate_convert.tick", 60, 1, Integer.MAX_VALUE);
-    private static final ModConfigSpec.IntValue STREAM_MAX_TICK = BUILDER
-            .comment("Maximum existence time of an Ether Stream entity in ticks (default 1200 = 60 seconds)")
-            .defineInRange("stream.max_tick", 1200, 1, Integer.MAX_VALUE);
 
-    public static final ModConfigSpec.DoubleValue ETHER_STREAM_CONSUMPTION_FACTOR = BUILDER
-            .comment("Ether consumption factor for Ether Streams")
+    // -- node.ether_converter --
+
+    private static final ModConfigSpec.IntValue NODE_ETHER_CONVERTER_COEFFICIENT = BUILDER
+            .comment("Ether generated per item consumed by the Ether Converter function plugin")
+            .defineInRange("node.ether_converter.coefficient", 100, 1, Integer.MAX_VALUE);
+
+    // -- node.equipment_generator --
+
+    private static final ModConfigSpec.IntValue NODE_EQUIPMENT_GENERATOR_COEFFICIENT = BUILDER
+            .comment("Coefficient for ether generation from equipment consumption in Equipment Generator plugin")
+            .defineInRange("node.equipment_generator.coefficient", 10, 1, 10000);
+
+    // -- node.emitter --
+
+    private static final ModConfigSpec.IntValue NODE_EMITTER_MIN_ETHER_MIN = BUILDER
+            .comment("Minimum bound for the emitter minimum ether slider")
+            .defineInRange("node.emitter.min_ether.min", 0, 0, Integer.MAX_VALUE);
+
+    private static final ModConfigSpec.IntValue NODE_EMITTER_MIN_ETHER_MAX = BUILDER
+            .comment("Maximum bound for the emitter minimum ether slider")
+            .defineInRange("node.emitter.min_ether.max", 100000, 0, Integer.MAX_VALUE);
+
+    // ===== ether_stream — Ether Stream entity =====
+
+    private static final ModConfigSpec.IntValue ETHER_STREAM_MAX_TICK = BUILDER
+            .comment("Maximum lifetime of an Ether Stream entity in ticks (20 ticks = 1 second)")
+            .defineInRange("ether_stream.max_tick", 1200, 1, Integer.MAX_VALUE);
+
+    private static final ModConfigSpec.DoubleValue ETHER_STREAM_CONSUMPTION_FACTOR = BUILDER
+            .comment("Base ether consumption per tick as a fraction of total ether stored in the stream")
             .defineInRange("ether_stream.consumption_factor", 0.005, 0, 10);
-    public static final ModConfigSpec.DoubleValue ETHER_STREAM_CONSUMPTION_BY_TIME_FACTOR = BUILDER
-            .comment("Ether consumption factor for Ether Streams")
-            .defineInRange("ether_stream.consumption_factor_by_time", 0.00, 0, 10);
+
+    private static final ModConfigSpec.DoubleValue ETHER_STREAM_CONSUMPTION_BY_TIME_FACTOR = BUILDER
+            .comment("Additional ether consumption factor added per tick of the stream's lifetime (accumulates over time)")
+            .defineInRange("ether_stream.consumption_factor_by_time", 0.0001, 0, 10);
+
+    // -- ether_stream.break_block --
+
+    private static final ModConfigSpec.IntValue ETHER_STREAM_BREAK_BLOCK_HARDNESS_MULTIPLIER = BUILDER
+            .comment("Multiplier for block hardness in ether cost calculation per block break")
+            .defineInRange("ether_stream.break_block.hardness_multiplier", 20, 1, Integer.MAX_VALUE);
+
+    private static final ModConfigSpec.IntValue ETHER_STREAM_BREAK_BLOCK_EFFICIENCY_DIVISOR = BUILDER
+            .comment("Ether cost reduction per level of Efficiency enchantment when breaking blocks")
+            .defineInRange("ether_stream.break_block.efficiency_divisor", 3, 0, Integer.MAX_VALUE);
+
+    private static final ModConfigSpec.IntValue ETHER_STREAM_BREAK_BLOCK_CONSTANT_COST = BUILDER
+            .comment("Flat ether cost added to every block break on top of the hardness-based formula")
+            .defineInRange("ether_stream.break_block.constant_cost", 0, 0, Integer.MAX_VALUE);
+
+    // -- ether_stream.damage --
+
+    private static final ModConfigSpec.IntValue ETHER_STREAM_DAMAGE_ETHER_MULTIPLIER = BUILDER
+            .comment("Ether consumed per point of damage dealt by Ether Stream")
+            .defineInRange("ether_stream.damage.ether_multiplier", 5, 1, Integer.MAX_VALUE);
+
+    private static final ModConfigSpec.IntValue ETHER_STREAM_DAMAGE_CONSTANT_COST = BUILDER
+            .comment("Flat ether cost added to every damage instance on top of the damage-based formula")
+            .defineInRange("ether_stream.damage.constant_cost", 0, 0, Integer.MAX_VALUE);
 
     static final ModConfigSpec SPEC = BUILDER.build();
 
     public static int etherConvert;
-    public static int nodeDefMaxEther;
-    public static int nodeFurnaceBurntimeFactor;
-    public static int nodeFurnaceEtherPreTick;
-    public static List<Integer> nodeLevelSlotArr;
-    public static int nodeMagnetConsumePreStack;
-    public static int containerInteractEtherPreItem;
-    public static int dropperThrowerEtherPreItem;
-    public static int breakBlockHardnessMultiplier;
-    public static int breakBlockEfficiencyDivisor;
+    public static int etherInactivateConvertTick;
+    public static int nodeDefaultMaxEther;
+    public static List<Integer> nodeUpgradeSlots;
+    public static int nodeFurnaceBurnTimeFactor;
+    public static int nodeFurnaceEtherPerTick;
+    public static int nodeMagnetEtherPerStack;
+    public static int nodeContainerInteractEtherPerItem;
+    public static int nodeDropperThrowerEtherPerItem;
     public static int nodeProcessMaxProgress;
-    public static int damageEtherMultiplier;
-    public static int emitterMinEtherMin;
-    public static int emitterMinEtherMax;
-    public static int breakBlockConstantCost;
-    public static int damageConstantCost;
-    public static int equipmentEtherCoefficient;
-    public static int etherConverterCoefficient;
-    public static int etherInactivateTick;
-    public static int streamMaxTick;
+    public static int nodeEtherConverterCoefficient;
+    public static int nodeEquipmentGeneratorCoefficient;
+    public static int nodeEmitterMinEtherMin;
+    public static int nodeEmitterMinEtherMax;
+    public static int etherStreamMaxTick;
     public static double etherStreamConsumptionFactor;
     public static double etherStreamConsumptionByTimeFactor;
+    public static int etherStreamBreakBlockHardnessMultiplier;
+    public static int etherStreamBreakBlockEfficiencyDivisor;
+    public static int etherStreamBreakBlockConstantCost;
+    public static int etherStreamDamageEtherMultiplier;
+    public static int etherStreamDamageConstantCost;
 
     @SubscribeEvent
     static void onLoad(final ModConfigEvent event) {
         etherConvert = ETHER_CONVERT.get();
-        nodeDefMaxEther = NODE_DEF_MAX_ETHER.get();
-        nodeFurnaceBurntimeFactor = NODE_FURNACE_BURNTIME_FACTOR.get();
-        nodeFurnaceEtherPreTick = NODE_FURNACE_ETHER_PRE_TICK.get();
-        nodeLevelSlotArr = NODE_LEVEL_SLOT_ARR.get().stream().map(t -> (Integer) t).toList();
-        nodeMagnetConsumePreStack = NODE_MAGNET_CONSUME_PRE_STACK.get();
-        containerInteractEtherPreItem = NODE_CONTAINER_INTERACT_ETHER_PRE_ITEM.get();
-        dropperThrowerEtherPreItem = DROPPER_THROWER_ETHER_PRE_ITEM.get();
-        breakBlockHardnessMultiplier = BREAK_BLOCK_HARDNESS_MULTIPLIER.get();
-        breakBlockEfficiencyDivisor = BREAK_BLOCK_EFFICIENCY_DIVISOR.get();
+        etherInactivateConvertTick = ETHER_INACTIVATE_CONVERT_TICK.get();
+        nodeDefaultMaxEther = NODE_DEFAULT_MAX_ETHER.get();
+        nodeUpgradeSlots = NODE_UPGRADE_SLOTS.get().stream().map(t -> (Integer) t).toList();
+        nodeFurnaceBurnTimeFactor = NODE_FURNACE_BURN_TIME_FACTOR.get();
+        nodeFurnaceEtherPerTick = NODE_FURNACE_ETHER_PER_TICK.get();
+        nodeMagnetEtherPerStack = NODE_MAGNET_ETHER_PER_STACK.get();
+        nodeContainerInteractEtherPerItem = NODE_CONTAINER_INTERACT_ETHER_PER_ITEM.get();
+        nodeDropperThrowerEtherPerItem = NODE_DROPPER_THROWER_ETHER_PER_ITEM.get();
         nodeProcessMaxProgress = NODE_PROCESS_MAX_PROGRESS.get();
-        emitterMinEtherMin = EMITTER_MIN_ETHER_MIN.get();
-        emitterMinEtherMax = EMITTER_MIN_ETHER_MAX.get();
-        damageEtherMultiplier = DAMAGE_ETHER_MULTIPLIER.get();
-        breakBlockConstantCost = BREAK_BLOCK_CONSTANT_COST.get();
-        damageConstantCost = DAMAGE_CONSTANT_COST.get();
-        equipmentEtherCoefficient = EQUIPMENT_ETHER_COEFFICIENT.get();
-        etherConverterCoefficient = ETHER_CONVERTER_COEFFICIENT.get();
-        etherInactivateTick = ETHER_INACTIVATE_TICK.get();
-        streamMaxTick = STREAM_MAX_TICK.get();
+        nodeEtherConverterCoefficient = NODE_ETHER_CONVERTER_COEFFICIENT.get();
+        nodeEquipmentGeneratorCoefficient = NODE_EQUIPMENT_GENERATOR_COEFFICIENT.get();
+        nodeEmitterMinEtherMin = NODE_EMITTER_MIN_ETHER_MIN.get();
+        nodeEmitterMinEtherMax = NODE_EMITTER_MIN_ETHER_MAX.get();
+        etherStreamMaxTick = ETHER_STREAM_MAX_TICK.get();
         etherStreamConsumptionFactor = ETHER_STREAM_CONSUMPTION_FACTOR.get();
         etherStreamConsumptionByTimeFactor = ETHER_STREAM_CONSUMPTION_BY_TIME_FACTOR.get();
+        etherStreamBreakBlockHardnessMultiplier = ETHER_STREAM_BREAK_BLOCK_HARDNESS_MULTIPLIER.get();
+        etherStreamBreakBlockEfficiencyDivisor = ETHER_STREAM_BREAK_BLOCK_EFFICIENCY_DIVISOR.get();
+        etherStreamBreakBlockConstantCost = ETHER_STREAM_BREAK_BLOCK_CONSTANT_COST.get();
+        etherStreamDamageEtherMultiplier = ETHER_STREAM_DAMAGE_ETHER_MULTIPLIER.get();
+        etherStreamDamageConstantCost = ETHER_STREAM_DAMAGE_CONSTANT_COST.get();
     }
 }

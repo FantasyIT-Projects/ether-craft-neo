@@ -65,7 +65,7 @@ public class FunctionMagnet extends AbstractNodePlugin {
         if (nodeEntity.getLevel() != null) {
             List<ItemEntity> ie = nodeEntity.getLevel().getEntitiesOfClass(ItemEntity.class, new AABB(nodeEntity.getBlockPos()).move(centerX, centerY, centerZ).inflate(shapeX, shapeY, shapeZ));
             for (ItemEntity itemEntity : ie) {
-                if (nodeEntity.getEther() < Config.nodeMagnetConsumePreStack)
+                if (nodeEntity.getEther() < Config.nodeMagnetEtherPerStack)
                     break;
                 ItemResource res = ItemResource.of(itemEntity.getItem());
                 if (filter.accepts(res)) {
@@ -76,7 +76,7 @@ public class FunctionMagnet extends AbstractNodePlugin {
                             itemEntity.getItem().shrink(insert);
                             if (itemEntity.getItem().isEmpty())
                                 itemEntity.discard();
-                            nodeEntity.extractEther(Config.nodeMagnetConsumePreStack);
+                            nodeEntity.extractEther(Config.nodeMagnetEtherPerStack);
                             t.commit();
                         }
                     }

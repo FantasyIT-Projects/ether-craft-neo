@@ -31,7 +31,7 @@ public class FunctionEtherConverter extends AbstractNodePlugin {
     public int earlyHandleInput(ItemResource resource, int amount, TransactionContext context) {
         if (amount <= 0)
             return 0;
-        long etherToAdd = (long) amount * Config.etherConverterCoefficient;
+        long etherToAdd = (long) amount * Config.nodeEtherConverterCoefficient;
         nodeEntity.receiveEther(etherToAdd);
         remainWorkTicks = 40;
         nodeEntity.setSyncedPluginData(installedId, STATE, 1);

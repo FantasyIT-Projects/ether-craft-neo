@@ -56,7 +56,7 @@ public class EtherStreamDamageCapability implements IStreamCapability {
         if (weapon == null) return false;
 
         int damage = weapon.itemDamagePerAttack();
-        int cost = Math.max(1, damage * Config.damageEtherMultiplier + Config.damageConstantCost);
+        int cost = Math.max(1, damage * Config.etherStreamDamageEtherMultiplier + Config.etherStreamDamageConstantCost);
 
         streamEntity.consumeEther(cost);
 

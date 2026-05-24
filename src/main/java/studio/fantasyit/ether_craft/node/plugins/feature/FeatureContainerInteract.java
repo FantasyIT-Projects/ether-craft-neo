@@ -46,7 +46,7 @@ public class FeatureContainerInteract extends AbstractDirectionalFilterFeature {
     }
 
     private boolean process() {
-        if (nodeEntity.getEther() < Config.containerInteractEtherPreItem)
+        if (nodeEntity.getEther() < Config.nodeContainerInteractEtherPerItem)
             return false;
         if (direction == null) {
             return true;
@@ -74,7 +74,7 @@ public class FeatureContainerInteract extends AbstractDirectionalFilterFeature {
     }
 
     private void tryTransfer(ResourceHandler<ItemResource> fromHandler, ResourceHandler<ItemResource> targetHandler, EtherContainer etherSource) {
-        long costPerItem = Config.containerInteractEtherPreItem;
+        long costPerItem = Config.nodeContainerInteractEtherPerItem;
         if (etherSource.getEther() < costPerItem)
             return;
         try (Transaction transaction = Transaction.openRoot()) {
@@ -111,7 +111,7 @@ public class FeatureContainerInteract extends AbstractDirectionalFilterFeature {
     }
 
     private int maxToTransfer(ItemResource itemResource, int fromIdx, ResourceHandler<ItemResource> from, ResourceHandler<ItemResource> to, EtherContainer etherSource, @Nullable TransactionContext parent) {
-        int maxToExtract = Math.toIntExact(etherSource.getEther() / Config.containerInteractEtherPreItem);
+        int maxToExtract = Math.toIntExact(etherSource.getEther() / Config.nodeContainerInteractEtherPerItem);
         try (Transaction t1 = Transaction.open(parent)) {
             int t = from.extract(fromIdx, itemResource, maxToExtract, t1);
             if (t < maxToExtract)

@@ -15,7 +15,7 @@ public class NodeProperty {
     }
 
     public void reset(){
-        this.maxEther = Config.nodeDefMaxEther;
+        this.maxEther = Config.nodeDefaultMaxEther;
         this.slotUnlock = 0;
         this.streamPreventDecay = 0;
         this.enableFilter = false;
