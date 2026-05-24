@@ -1,6 +1,9 @@
 package studio.fantasyit.ether_craft.integration.jei;
 
-import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.util.context.ContextMap;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.display.DisplayContentsFactory;
+import net.neoforged.neoforge.common.crafting.SizedIngredient;
 import studio.fantasyit.ether_craft.recipe.factory.EtherProcessRecipeJson;
 
 import java.util.*;
@@ -14,10 +17,10 @@ public class TreeLayout {
     static final int HEIGHT = 90;
     static final int MIN_SPACING = 26;
 
-    record Entry(String id, int x, int y, Ingredient ingredient) {
+    record Entry(String id, int x, int y, SizedIngredient ingredient) {
     }
 
-    record ChipEntry(String parentId, int x, int y, Ingredient ingredient) {
+    record ChipEntry(String parentId, int x, int y, SizedIngredient ingredient) {
     }
 
     record Edge(int fromX, int fromY, int toX, int toY) {
@@ -113,13 +116,13 @@ public class TreeLayout {
         layout.canvasHeight = HEIGHT;
 
         for (var in : json.input()) {
-            layout.inputs.add(new Entry(in.id(), nodeX.get(in.id()), nodeY.get(in.id()), in.item().ingredient()));
+            layout.inputs.add(new Entry(in.id(), nodeX.get(in.id()), nodeY.get(in.id()), in.item()));
         }
         for (var proc : json.process()) {
             int cx = nodeX.get(proc.id());
             int cy = nodeY.get(proc.id());
             for (var sized : proc.item()) {
-                layout.chips.add(new ChipEntry(proc.id(), cx, cy, sized.ingredient()));
+                layout.chips.add(new ChipEntry(proc.id(), cx, cy, sized));
                 cy += SLOT_SIZE + CHIP_GAP;
             }
         }
@@ -154,6 +157,13 @@ public class TreeLayout {
         }
 
         return layout;
+    }
+
+    public static List<ItemStack> resolveSizedIngredient(SizedIngredient sized, ContextMap context) {
+        return sized.ingredient().display()
+                .resolve(context, (DisplayContentsFactory.ForStacks<ItemStack>)
+                        stack -> stack.copyWithCount(sized.count()))
+                .toList();
     }
 
     private static int nodeMidY(boolean isInput, int h) {

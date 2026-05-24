@@ -17,7 +17,9 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.context.ContextMap;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.display.SlotDisplayContext;
 import net.neoforged.neoforge.common.crafting.SizedIngredient;
 import org.jetbrains.annotations.Nullable;
 import studio.fantasyit.ether_craft.recipe.node.NodeProcessRecipe;
@@ -75,6 +77,10 @@ public class NodeProcessCategory implements IRecipeCategory<NodeProcessRecipe> {
 
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, NodeProcessRecipe recipe, IFocusGroup focuses) {
+        var level = Minecraft.getInstance().level;
+        if (level == null) return;
+        ContextMap ctx = SlotDisplayContext.fromLevel(level);
+
         List<SizedIngredient> ingredients = recipe.ingredients;
         int count = Math.min(ingredients.size(), 9);
 
@@ -89,7 +95,7 @@ public class NodeProcessCategory implements IRecipeCategory<NodeProcessRecipe> {
 
             if (i < count) {
                 SizedIngredient sized = ingredients.get(i);
-                slot.add(sized.ingredient());
+                slot.addItemStacks(TreeLayout.resolveSizedIngredient(sized, ctx));
             }
         }
 

@@ -15,10 +15,13 @@ import mezz.jei.api.recipe.IRecipeManager;
 import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import mezz.jei.api.recipe.types.IRecipeType;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.context.ContextMap;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.display.SlotDisplayContext;
 import org.jetbrains.annotations.Nullable;
 import studio.fantasyit.ether_craft.recipe.factory.EtherProcessFactoryRecipe;
 import studio.fantasyit.ether_craft.register.ItemRegistry;
@@ -70,16 +73,20 @@ public class EtherProcessCategory implements IRecipeCategory<EtherProcessFactory
 
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, EtherProcessFactoryRecipe recipe, IFocusGroup focuses) {
+        var level = Minecraft.getInstance().level;
+        if (level == null) return;
+        ContextMap ctx = SlotDisplayContext.fromLevel(level);
+
         TreeLayout layout = TreeLayout.compute(recipe.json);
 
         for (TreeLayout.Entry e : layout.inputs) {
             builder.addInputSlot(e.x(), e.y())
-                    .add(e.ingredient())
+                    .addItemStacks(TreeLayout.resolveSizedIngredient(e.ingredient(), ctx))
                     .setStandardSlotBackground();
         }
         for (TreeLayout.ChipEntry e : layout.chips) {
             builder.addSlot(RecipeIngredientRole.CRAFTING_STATION, e.x(), e.y())
-                    .add(e.ingredient())
+                    .addItemStacks(TreeLayout.resolveSizedIngredient(e.ingredient(), ctx))
                     .setStandardSlotBackground();
         }
         int outX = layout.outputX;
