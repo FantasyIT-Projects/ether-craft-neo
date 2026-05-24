@@ -84,7 +84,7 @@ public class EtherAdapterNodeAtlas {
         }
     }
 
-    private static final GridSplitter MAIN_MACHINE_ATLAS = new GridSplitter(16, 160, 176, EtherCraft.id("textures/block/ether_adapt_node_atlas.png"));
+    private static final GridSplitter MAIN_MACHINE_ATLAS = new GridSplitter(16, 160, 160, EtherCraft.id("textures/block/ether_adapt_node_atlas.png"));
     public static final AtlasUV BOTTOM = MAIN_MACHINE_ATLAS.next();
     public static final AtlasUV TOP = MAIN_MACHINE_ATLAS.next();
     public static final AtlasUV SIDE = MAIN_MACHINE_ATLAS.next();
@@ -96,17 +96,19 @@ public class EtherAdapterNodeAtlas {
     public static final AtlasUV FUNCTION_BURNER_EMPTY = MAIN_MACHINE_ATLAS.next();
     public static final AtlasUV FUNCTION_BURNER_WORKING = MAIN_MACHINE_ATLAS.next();
     public static final AtlasUV FUNCTION_BURNER_FULL = MAIN_MACHINE_ATLAS.next();
+    public static final AtlasUV FUNCTION_UNKNOWN_1 = MAIN_MACHINE_ATLAS.next();
+    public static final AtlasUV FUNCTION_STONE_EMPTY = MAIN_MACHINE_ATLAS.next();
+    public static final AtlasUV FUNCTION_STONE_WORKING = MAIN_MACHINE_ATLAS.next();
 
     public static final AtlasUV FEATURE_MAGNET_SIDE = MAIN_MACHINE_ATLAS.nextRow().next();
     public static final AtlasUV FEATURE_DROPPER_SIDE = MAIN_MACHINE_ATLAS.next();
     public static final AtlasUV FEATURE_CONTAINER_INT_SIDE = MAIN_MACHINE_ATLAS.next();
+    public static final AtlasUV FEATURE_STREAM_EMITTER_TOP = MAIN_MACHINE_ATLAS.skip(2).next();
 
     public static final AtlasUV FEATURE_MAGNET_BOTTOM = MAIN_MACHINE_ATLAS.nextRow().next();
     public static final AtlasUV FEATURE_DROPPER_BOTTOM = MAIN_MACHINE_ATLAS.next();
     public static final AtlasUV FEATURE_CONTAINER_INT_BOTTOM = MAIN_MACHINE_ATLAS.next();
-
-    public static final AtlasUV FEATURE_STREAM_EMITTER_TOP = MAIN_MACHINE_ATLAS.skip(1).next();
-    public static final AtlasUV FEATURE_STREAM_EMITTER_BOTTOM = MAIN_MACHINE_ATLAS.next();
+    public static final AtlasUV FEATURE_STREAM_EMITTER_BOTTOM = MAIN_MACHINE_ATLAS.skip(2).next();
 
 
     public static final AtlasUV FEATURE_MAGNET_TOP = MAIN_MACHINE_ATLAS.nextRow().next();
@@ -135,7 +137,9 @@ public class EtherAdapterNodeAtlas {
     public static final AtlasUV OVERLAY_FUNCTION_BURNER_LAVA_2 = MAIN_MACHINE_ATLAS.next();
     public static final AtlasUV OVERLAY_FUNCTION_BURNER_LAVA_3 = MAIN_MACHINE_ATLAS.next();
 
-    public static final AtlasUV OVERLAY_FUNCTION_BURNER_FILL_0 = MAIN_MACHINE_ATLAS.nextRow().nextRow().next();
+    public static final AtlasUV OVERLAY_FUNCTION_BURNER_FILL_10 = MAIN_MACHINE_ATLAS.nextRow().skip(9).next();
+
+    public static final AtlasUV OVERLAY_FUNCTION_BURNER_FILL_0 = MAIN_MACHINE_ATLAS.nextRow().next();
     public static final AtlasUV OVERLAY_FUNCTION_BURNER_FILL_1 = MAIN_MACHINE_ATLAS.next();
     public static final AtlasUV OVERLAY_FUNCTION_BURNER_FILL_2 = MAIN_MACHINE_ATLAS.next();
     public static final AtlasUV OVERLAY_FUNCTION_BURNER_FILL_3 = MAIN_MACHINE_ATLAS.next();
@@ -180,6 +184,7 @@ public class EtherAdapterNodeAtlas {
             OVERLAY_FUNCTION_BURNER_FILL_6,
             OVERLAY_FUNCTION_BURNER_FILL_7,
             OVERLAY_FUNCTION_BURNER_FILL_8,
-            OVERLAY_FUNCTION_BURNER_FILL_9
+            OVERLAY_FUNCTION_BURNER_FILL_9,
+            OVERLAY_FUNCTION_BURNER_FILL_10
     );
 }

@@ -11,13 +11,7 @@ import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
 import studio.fantasyit.ether_craft.node.plugins.feature.FeatureContainerInteract;
 import studio.fantasyit.ether_craft.node.plugins.feature.FeatureDropperThrower;
 import studio.fantasyit.ether_craft.node.plugins.feature.FeatureEtherStreamEmitter;
-import studio.fantasyit.ether_craft.node.plugins.function.AbstractItemConsumeFunction;
-import studio.fantasyit.ether_craft.node.plugins.function.FunctionEquipmentConsumeGenerator;
-import studio.fantasyit.ether_craft.node.plugins.function.FunctionEtherConverter;
-import studio.fantasyit.ether_craft.node.plugins.function.FunctionFurnaceGenerator;
-import studio.fantasyit.ether_craft.node.plugins.function.FunctionMagnet;
-import studio.fantasyit.ether_craft.node.plugins.function.FunctionEquipmentConsumeGenerator;
-import studio.fantasyit.ether_craft.node.plugins.function.FunctionStoneGenerator;
+import studio.fantasyit.ether_craft.node.plugins.function.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -52,8 +46,9 @@ public class PluginRenderManager {
 
             long maxEther = nodeEntity.getMaxEther();
             if (maxEther != 0)
-                state.addOverlay(face, EtherAdapterNodeAtlas.OVERLAY_FUNCTION_BURNER_FILL.get((int) Math.min((nodeEntity.getEther() * 10 / maxEther), 9)));
-            state.addOverlay(face, EtherAdapterNodeAtlas.OVERLAY_FUNCTION_BURNER_FILL.get(9));
+                state.addOverlay(face, EtherAdapterNodeAtlas.OVERLAY_FUNCTION_BURNER_FILL.get((int) Math.min((nodeEntity.getEther() * 10 / maxEther), 10)));
+            else
+                state.addOverlay(face, EtherAdapterNodeAtlas.OVERLAY_FUNCTION_BURNER_FILL.get(10));
         };
         register(FunctionFurnaceGenerator.ID, generatorLayer);
         register(FunctionStoneGenerator.ID, generatorLayer);

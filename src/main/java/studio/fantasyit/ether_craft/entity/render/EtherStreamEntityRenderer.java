@@ -144,33 +144,40 @@ public class EtherStreamEntityRenderer extends EntityRenderer<EtherStreamEntity,
         // Compute normal once
         Vec3 dir = motion.normalize();
         Vec3 up = new Vec3(0.0, 1.0, 0.0);
+        boolean vertical = Math.abs(dir.dot(up)) > 0.999;
         Vec3 normal;
-        if (Math.abs(dir.dot(up)) > 0.999) {
+        if (vertical) {
             normal = dir.cross(new Vec3(1.0, 0.0, 0.0)).normalize();
         } else {
             normal = dir.cross(up).normalize();
         }
 
         FormattedCharSequence text = FormattedCharSequence.forward(visibleText, net.minecraft.network.chat.Style.EMPTY);
-        float textX = -visibleTextWidth;
 
-        Quaternionf baseRot = new Quaternionf().rotateTo(
-                new org.joml.Vector3f(0, 0, 1),
-                new org.joml.Vector3f((float) normal.x, (float) normal.y, (float) normal.z));
-
-        for (int side = 0; side < 2; side++) {
+        // Render on both faces so the label is visible from either side
+        // For normal face: right-align (text extends left from entity), for -normal face: left-align
+        for (Vec3 faceNormal : new Vec3[]{normal, normal.scale(-1)}) {
             poseStack.pushPose();
 
             if (state.dying && state.deathPos != null) {
                 poseStack.translate(state.deathPos.x - state.x, state.deathPos.y - state.y, state.deathPos.z - state.z);
             }
 
-            poseStack.mulPose(baseRot);
-            if (side == 1) {
-                poseStack.mulPose(new Quaternionf().rotateX((float) Math.PI));
+            Quaternionf rotation = new Quaternionf().rotateTo(
+                    new org.joml.Vector3f(0, 0, 1),
+                    new org.joml.Vector3f((float) faceNormal.x, (float) faceNormal.y, (float) faceNormal.z));
+            poseStack.mulPose(rotation);
+            if (vertical) {
+                poseStack.mulPose(new Quaternionf().rotateZ((float) Math.toRadians(faceNormal == normal ? -90 : 90)));
             }
             poseStack.scale(LABEL_SCALE, -LABEL_SCALE, LABEL_SCALE);
 
+            float textX;
+            if (vertical) {
+                textX = faceNormal == normal ? 0 : -visibleTextWidth;
+            } else {
+                textX = faceNormal == normal ? -visibleTextWidth : 0;
+            }
             collector.submitText(poseStack, textX, 0, text, false,
                     Font.DisplayMode.NORMAL, 0xF000F0, state.labelColor, 0, 0);
 
