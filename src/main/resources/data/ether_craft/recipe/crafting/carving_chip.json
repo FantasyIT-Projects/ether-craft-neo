@@ -16,7 +16,7 @@
     "count": 1,
     "id": "ether_craft:process_chip",
     "components": {
-      "minecraft:item_model": "ether_craft:molding_chip",
+      "minecraft:item_model": "ether_craft:carving_chip",
       "ether_craft:ether_process_chip_id": "ether_craft:carving_chip"
     }
   }

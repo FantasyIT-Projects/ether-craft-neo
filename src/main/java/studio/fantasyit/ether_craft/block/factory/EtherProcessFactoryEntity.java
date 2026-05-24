@@ -1,9 +1,11 @@
 package studio.fantasyit.ether_craft.block.factory;
 
+import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DynamicOps;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
@@ -12,6 +14,7 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
@@ -23,6 +26,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.TypedEntityData;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.TagValueOutput;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.network.PacketDistributor;
@@ -473,5 +477,56 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
             return false;
         String path = id.getPath();
         return path.startsWith("ether_adapt_node") || path.startsWith("ether_process_factory");
+    }
+
+    @Override
+    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
+        try (ProblemReporter.ScopedCollector reporter = new ProblemReporter.ScopedCollector(this.problemPath(), LogUtils.getLogger())) {
+            TagValueOutput output = TagValueOutput.createWithContext(reporter, registries);
+            List<ItemStack> results = new ArrayList<>();
+            for (int i = 0; i < ROWS; i++)
+                results.add(possibleResults.getItem(i));
+            output.store("results", ItemStack.OPTIONAL_CODEC.listOf(), results);
+            output.store("progress", Codec.INT.listOf(), Arrays.stream(processingProgress).boxed().toList());
+            List<Integer> flattenedPath = new ArrayList<>();
+            for (int i = 0; i < ROWS; i++)
+                for (int j = 0; j < COLS; j++)
+                    flattenedPath.add(pathBelongings[i][j]);
+            output.store("pathBelongings", Codec.INT.listOf(), flattenedPath);
+            List<Integer> flattenedEther = new ArrayList<>();
+            for (int i = 0; i < ROWS; i++)
+                for (int j = 0; j < COLS; j++)
+                    flattenedEther.add(currentEther[i][j]);
+            output.store("currentEther", Codec.INT.listOf(), flattenedEther);
+            output.putInt("pressureBonus", pressureBonus);
+            output.putInt("leak", leak);
+            output.putString("name", name);
+            return output.buildResult();
+        }
+    }
+
+    @Override
+    public void handleUpdateTag(ValueInput input) {
+        input.read("results", ItemStack.OPTIONAL_CODEC.listOf()).ifPresent(l -> {
+            for (int i = 0; i < Math.min(l.size(), ROWS); i++)
+                possibleResults.setItem(i, l.get(i));
+        });
+        input.read("progress", Codec.INT.listOf()).ifPresent(l -> {
+            for (int i = 0; i < Math.min(l.size(), processingProgress.length); i++)
+                processingProgress[i] = l.get(i);
+        });
+        input.read("pathBelongings", Codec.INT.listOf()).ifPresent(l -> {
+            for (int i = 0; i < Math.min(l.size(), ROWS * COLS); i++)
+                pathBelongings[i / COLS][i % COLS] = l.get(i);
+        });
+        input.read("currentEther", Codec.INT.listOf()).ifPresent(l -> {
+            for (int i = 0; i < Math.min(l.size(), ROWS * COLS); i++)
+                currentEther[i / COLS][i % COLS] = l.get(i);
+        });
+        pressureBonus = input.read("pressureBonus", Codec.INT).orElse(pressureBonus);
+        leak = input.read("leak", Codec.INT).orElse(leak);
+        name = input.getStringOr("name", "");
+        if (!name.isEmpty())
+            setRenderName(Component.literal(name));
     }
 }
