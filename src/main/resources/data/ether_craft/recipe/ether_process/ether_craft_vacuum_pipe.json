@@ -41,10 +41,10 @@
       "id": "P6",
       "item": [
         {
-          "chip": "ether_craft:converging_chip"
+          "chip": "ether_craft:carving_chip"
         },
         {
-          "chip": "ether_craft:carving_chip"
+          "chip": "ether_craft:converging_chip"
         }
       ],
       "next": "P5"
