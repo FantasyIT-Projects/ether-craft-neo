@@ -268,6 +268,18 @@ public class EtherProcessFactoryScreen extends AbstractContainerScreen<@NotNull 
     }
 
     @Override
+    public boolean mouseDragged(MouseButtonEvent event, double dx, double dy) {
+        if (menu.getCarried().is(ItemRegistry.WRENCH) && menu.quickPlaceChipSlotId != -1 && this.isQuickCrafting) {
+            Slot slot = this.getHoveredSlot();
+            if (slot != null && menu.internalSlotMapping.containsKey(slot.index) && !this.quickCraftSlots.contains(slot)) {
+                this.quickCraftSlots.add(slot);
+            }
+            return true;
+        }
+        return super.mouseDragged(event, dx, dy);
+    }
+
+    @Override
     public boolean mouseScrolled(double x, double y, double scrollX, double scrollY) {
         if (menu.getCarried().is(ItemRegistry.WRENCH)) {
             ClientPacketDistributor.sendToServer(new FactoryMenuSwitchItemC2S(scrollY > 0));
