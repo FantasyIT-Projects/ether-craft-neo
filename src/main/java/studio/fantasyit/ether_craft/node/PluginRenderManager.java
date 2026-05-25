@@ -60,6 +60,18 @@ public class PluginRenderManager {
                 state.addOverlay(face, EtherAdapterNodeAtlas.OVERLAY_FUNCTION_ETHER_CONVERTER_WORKING.get(dTick));
             }
         });
+        register(FunctionEquipmentConsumeGenerator.ID, (face, dTick, nodeEntity, state, installedPlugin) -> {
+//            state.setSideAtlas(face, EtherAdapterNodeAtlas.FUNCTION_GRIND_EMPTY);
+//            int workState = nodeEntity.getSyncedPluginData(installedPlugin, FunctionEquipmentConsumeGenerator.STATE);
+//            if (workState == 1) {
+            state.setSideAtlas(face, EtherAdapterNodeAtlas.FUNCTION_GRIND_WORKING);
+//            }
+            long maxEther = nodeEntity.getMaxEther();
+            if (maxEther != 0)
+                state.addOverlay(face, EtherAdapterNodeAtlas.OVERLAY_FUNCTION_BURNER_FILL.get((int) Math.min((nodeEntity.getEther() * 10 / maxEther), 10)));
+            else
+                state.addOverlay(face, EtherAdapterNodeAtlas.OVERLAY_FUNCTION_BURNER_FILL.get(10));
+        });
         register(FeatureContainerInteract.ID, (face, dTick, nodeEntity, state, installedPlugin) ->
                 state.setSideAtlas(face, switch (face) {
                     case UP -> EtherAdapterNodeAtlas.FEATURE_CONTAINER_INT_TOP;

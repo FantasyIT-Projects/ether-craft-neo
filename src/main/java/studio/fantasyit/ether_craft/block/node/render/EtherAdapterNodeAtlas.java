@@ -97,8 +97,8 @@ public class EtherAdapterNodeAtlas {
     public static final AtlasUV FUNCTION_BURNER_WORKING = MAIN_MACHINE_ATLAS.next();
     public static final AtlasUV FUNCTION_BURNER_FULL = MAIN_MACHINE_ATLAS.next();
     public static final AtlasUV FUNCTION_UNKNOWN_1 = MAIN_MACHINE_ATLAS.next();
-    public static final AtlasUV FUNCTION_STONE_EMPTY = MAIN_MACHINE_ATLAS.next();
-    public static final AtlasUV FUNCTION_STONE_WORKING = MAIN_MACHINE_ATLAS.next();
+    public static final AtlasUV FUNCTION_GRIND_EMPTY = MAIN_MACHINE_ATLAS.next();
+    public static final AtlasUV FUNCTION_GRIND_WORKING = MAIN_MACHINE_ATLAS.next();
 
     public static final AtlasUV FEATURE_MAGNET_SIDE = MAIN_MACHINE_ATLAS.nextRow().next();
     public static final AtlasUV FEATURE_DROPPER_SIDE = MAIN_MACHINE_ATLAS.next();

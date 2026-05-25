@@ -22,8 +22,10 @@ import studio.fantasyit.ether_craft.factory.FactoryLevelDef;
 import studio.fantasyit.ether_craft.menu.base.slot.BaseSlot;
 import studio.fantasyit.ether_craft.menu.base.widget.IASwitchButton;
 import studio.fantasyit.ether_craft.menu.base.widget.NamePencilButton;
+import studio.fantasyit.ether_craft.network.c2s.FactoryMenuSwitchItemC2S;
 import studio.fantasyit.ether_craft.network.c2s.SetBlockNameC2S;
 import studio.fantasyit.ether_craft.network.c2s.SyncFilterActiveC2S;
+import studio.fantasyit.ether_craft.register.ItemRegistry;
 import studio.fantasyit.ether_craft.util.UIUtil;
 
 import java.util.List;
@@ -137,7 +139,7 @@ public class EtherProcessFactoryScreen extends AbstractContainerScreen<@NotNull 
 
         int internalX = f.posInternal().x;
         int internalY = f.posInternal().y;
-        if (!menu.isFilterActive())
+        if (!menu.isFilterActive()) {
             for (int i = 0; i < be.ROWS; i++) {
                 for (int j = 0; j < be.COLS; j++) {
                     ItemStack chipItem = be.internalContainer.getItem(i * be.COLS + j);
@@ -161,6 +163,13 @@ public class EtherProcessFactoryScreen extends AbstractContainerScreen<@NotNull 
                     );
                 }
             }
+        }
+
+        if (menu.quickPlaceChipSlotId >= 0 && menu.getCarried().is(ItemRegistry.WRENCH)) {
+            ItemStack itemStack = menu.playerInventory.getItem(menu.quickPlaceChipSlotId);
+            graphics.item(itemStack, mouseX - 18, mouseY - 15);
+            graphics.setTooltipForNextFrame(font, itemStack, mouseX, mouseY);
+        }
     }
 
     @Override
@@ -256,5 +265,14 @@ public class EtherProcessFactoryScreen extends AbstractContainerScreen<@NotNull 
         this.isFiltering = usingFilter;
         menu.filterSlots.forEach(t -> t.setActive(usingFilter));
         menu.internalAndOutputSlots.forEach(t -> t.setActive(!usingFilter));
+    }
+
+    @Override
+    public boolean mouseScrolled(double x, double y, double scrollX, double scrollY) {
+        if (menu.getCarried().is(ItemRegistry.WRENCH)) {
+            ClientPacketDistributor.sendToServer(new FactoryMenuSwitchItemC2S(scrollY > 0));
+            return true;
+        }
+        return super.mouseScrolled(x, y, scrollX, scrollY);
     }
 }

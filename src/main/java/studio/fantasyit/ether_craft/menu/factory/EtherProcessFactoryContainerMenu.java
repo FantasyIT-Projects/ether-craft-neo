@@ -1,8 +1,10 @@
 package studio.fantasyit.ether_craft.menu.factory;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -20,15 +22,12 @@ import studio.fantasyit.ether_craft.menu.base.slot.ResultSlot;
 import studio.fantasyit.ether_craft.menu.factory.slot.FactoryInputSlot;
 import studio.fantasyit.ether_craft.menu.factory.slot.InvisibleSlot;
 import studio.fantasyit.ether_craft.menu.factory.slot.SingleStackSlot;
+import studio.fantasyit.ether_craft.register.DataComponentRegistry;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static studio.fantasyit.ether_craft.register.GuiRegistry.ETHER_PROCESS_FACTORY_CONTAINER;
-import static studio.fantasyit.ether_craft.register.ItemRegistry.ETHER;
-import static studio.fantasyit.ether_craft.register.ItemRegistry.ETHER_CREATIVE;
+import static studio.fantasyit.ether_craft.register.ItemRegistry.*;
 
 public class EtherProcessFactoryContainerMenu extends BaseContainerMenu<@NotNull EtherProcessFactoryEntity> implements IFilterSwitchable {
     public Map<Integer, Vector2i> internalSlotMapping;
@@ -38,6 +37,11 @@ public class EtherProcessFactoryContainerMenu extends BaseContainerMenu<@NotNull
     public Slot etherSlot;
     public int machineSlotEnd;
     private boolean filterActive = false;
+
+    public int quickPlaceChipSlotId = -1;
+    public Set<Identifier> selectedChips = new HashSet<>();
+    public Inventory playerInventory;
+    public int playerSlotStart;
 
     public EtherProcessFactoryContainerMenu(int windowId, Player player, BlockPos pos) {
         super(windowId, player, pos, ETHER_PROCESS_FACTORY_CONTAINER.get());
@@ -106,10 +110,14 @@ public class EtherProcessFactoryContainerMenu extends BaseContainerMenu<@NotNull
             );
         }
         machineSlotEnd = this.slots.size();
+
+        addDataSlot(new BaseDataSlot(() -> quickPlaceChipSlotId, (v) -> quickPlaceChipSlotId = v));
     }
 
     @Override
     protected void addPlayerSlots(Inventory playerInventory) {
+        playerSlotStart = slots.size();
+        this.playerInventory = playerInventory;
         FactoryLevelDef factoryDef = entity.getLevelDef();
         int invBaseX = factoryDef.posPlayer().x + 8;
         int invBaseY = factoryDef.posPlayer().y + 8;
@@ -171,5 +179,83 @@ public class EtherProcessFactoryContainerMenu extends BaseContainerMenu<@NotNull
     @Override
     public void setFilterActive(boolean active) {
         this.filterActive = active;
+    }
+
+    /// /// 扳手快速放置
+
+    public void onSwitchItem(boolean reverse) {
+        if (quickPlaceChipSlotId == -1 && reverse) {
+            selectedChips.clear();
+            int lastMatch = -1;
+            for (int i = 0; i < playerInventory.getContainerSize(); i++) {
+                Identifier id = playerInventory.getItem(i).get(DataComponentRegistry.CHIP_ID);
+                if (id != null) {
+                    lastMatch = i;
+                    selectedChips.add(id);
+                }
+            }
+            quickPlaceChipSlotId = lastMatch;
+        } else {
+            int dir = reverse ? -1 : 1;
+            if (quickPlaceChipSlotId == -1)
+                quickPlaceChipSlotId = 0;
+            boolean found = false;
+            for (int i = quickPlaceChipSlotId + dir; i >= 0 && i < playerInventory.getContainerSize(); i += dir) {
+                Identifier id = playerInventory.getItem(i).get(DataComponentRegistry.CHIP_ID);
+                if (id != null && (reverse || !selectedChips.contains(id))) {
+                    quickPlaceChipSlotId = i;
+                    if (reverse)
+                        selectedChips.remove(id);
+                    else
+                        selectedChips.add(id);
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                quickPlaceChipSlotId = -1;
+                selectedChips.clear();
+            }
+        }
+    }
+
+    @Override
+    public void clicked(int slotIndex, int buttonNum, ContainerInput containerInput, Player player) {
+        if (getCarried().is(WRENCH) && internalSlotMapping.containsKey(slotIndex) && containerInput == ContainerInput.CLONE) {
+            Slot clickedSlot = getSlot(slotIndex);
+            if (clickedSlot.hasItem() && clickedSlot.getItem().get(DataComponentRegistry.CHIP_ID) != null) {
+                Identifier targetId = clickedSlot.getItem().get(DataComponentRegistry.CHIP_ID);
+                if (playerInventory.hasAnyMatching(s -> Objects.equals(s.get(DataComponentRegistry.CHIP_ID), targetId))) {
+                    selectedChips.clear();
+                    quickPlaceChipSlotId = -1;
+                    for (int i = 0; i < playerInventory.getContainerSize(); i++) {
+                        Identifier id = playerInventory.getItem(i).get(DataComponentRegistry.CHIP_ID);
+                        if (id != null) {
+                            selectedChips.add(id);
+                            if (Objects.equals(id, targetId)) {
+                                quickPlaceChipSlotId = i;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        } else if (getCarried().is(WRENCH) && quickPlaceChipSlotId != -1 && internalSlotMapping.containsKey(slotIndex) && containerInput != ContainerInput.QUICK_MOVE) {
+            ItemStack toPlace = playerInventory.getItem(quickPlaceChipSlotId);
+            Slot clickedSlot = getSlot(slotIndex);
+            boolean available = true;
+            if (!toPlace.isEmpty() && toPlace.get(DataComponentRegistry.CHIP_ID) != null) {
+                if (clickedSlot.hasItem()) {
+                    // 有物品，先将物品插入背包
+                    available = moveItemStackTo(clickedSlot.getItem(), playerSlotStart, playerSlotStart + 36, false);
+                }
+            }
+            if (available) {
+                moveItemStackTo(toPlace, clickedSlot.index, clickedSlot.index + 1, false);
+                if (playerInventory.getItem(quickPlaceChipSlotId).isEmpty())
+                    onSwitchItem(false);
+            }
+        } else
+            super.clicked(slotIndex, buttonNum, containerInput, player);
     }
 }

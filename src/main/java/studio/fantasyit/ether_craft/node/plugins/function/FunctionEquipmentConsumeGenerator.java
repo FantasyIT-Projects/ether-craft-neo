@@ -20,6 +20,7 @@ import studio.fantasyit.ether_craft.register.Tags;
 
 public class FunctionEquipmentConsumeGenerator extends AbstractItemConsumeFunction {
     public static Identifier ID = EtherCraft.id("generator/equipment");
+    public static final Identifier STATE = EtherCraft.id("generator/ether_converter_state");
 
     int etherToGenerate = 0;
 
@@ -41,7 +42,7 @@ public class FunctionEquipmentConsumeGenerator extends AbstractItemConsumeFuncti
             enchantBonus += 1 << (entry.getIntValue() - 1);
         }
         etherToGenerate = (base + enchantBonus) * Config.nodeEquipmentGeneratorCoefficient;
-
+        remainBurnTicks = 1;
         nodeEntity.setSyncedPluginData(installedId, WORKING_MATERIAL, WorkingMaterial.ANY.ordinal());
         return ItemStack.EMPTY;
     }
@@ -57,6 +58,8 @@ public class FunctionEquipmentConsumeGenerator extends AbstractItemConsumeFuncti
         super.tickWork();
         if (remainBurnTicks == 0 && nodeEntity.getSyncedPluginData(installedId, WORKING_MATERIAL) != WorkingMaterial.IDLE.ordinal())
             nodeEntity.setSyncedPluginData(installedId, WORKING_MATERIAL, WorkingMaterial.IDLE.ordinal());
+
+        nodeEntity.setSyncedPluginData(installedId, STATE, remainBurnTicks > 0 ? 1 : 0);
     }
 
     @Override

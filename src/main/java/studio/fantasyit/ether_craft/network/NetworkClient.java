@@ -37,6 +37,11 @@ public class NetworkClient {
                 SetBlockNameC2S.CODEC,
                 wrapWithPlayer(SetBlockNameC2SHandler::handle)
         );
+        event.playToServer(
+                FactoryMenuSwitchItemC2S.TYPE,
+                FactoryMenuSwitchItemC2S.CODEC,
+                wrapWithPlayer(FactoryMenuSwitchItemC2SHandler::handle)
+        );
     }
 
     private static <T extends CustomPacketPayload> IPayloadHandler<@NotNull T> wrapWithPlayer(BiConsumer<T, Player> t) {
