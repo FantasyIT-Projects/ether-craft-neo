@@ -49,11 +49,7 @@ import studio.fantasyit.ether_craft.register.ItemRegistry;
 import studio.fantasyit.ether_craft.register.Tags;
 import studio.fantasyit.ether_craft.util.EtherProcessorRecipeUtil;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Consumer;
 
 import static studio.fantasyit.ether_craft.register.BlockEntityRegistry.ETHER_PROCESS_FACTORY_ENTITY;
@@ -65,10 +61,16 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
     public int[] processingProgress;
     public ItemFilter[] filters;
     public SimpleContainer possibleResults;
+    // 配方数据
     public EtherProcessFactoryRecipe[] processingRecipes;
     public EtherFactoryRecipeInput[] processingInputs;
     public @Nullable EtherProcessWorkingChip[][] slotChips;
+    //渲染用数据
     public int[][] pathBelongings;
+    public int[][] pathDepth;
+    public int[][] pathDirection;
+    public int[] pathMaxDepth;
+    //机制数据
     public int[][] currentEther;
     public int pressureBonus = 1;
     public int leak = 0;
@@ -97,6 +99,9 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
         processingInputs = new EtherFactoryRecipeInput[ROWS];
         slotChips = new EtherProcessWorkingChip[ROWS][COLS];
         pathBelongings = new int[ROWS][COLS];
+        pathDepth = new int[ROWS][COLS];
+        pathDirection = new int[ROWS][COLS];
+        pathMaxDepth = new int[ROWS];
         currentEther = new int[ROWS][COLS];
     }
 
@@ -214,12 +219,19 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
         }
 
         for (int i = 0; i < ROWS; i++)
+            pathMaxDepth[i] = 0;
+        for (int i = 0; i < ROWS; i++)
             for (int j = 0; j < COLS; j++)
                 pathBelongings[i][j] = -1;
         for (int i = 0; i < ROWS; i++) {
             if (processingInputs[i] != null) {
                 int finalI = i;
-                processingInputs[i].workingPath.forEach(v -> pathBelongings[v.y][v.x] = finalI);
+                pathMaxDepth[i] = processingInputs[i].maxDepth;
+                processingInputs[i].workingPath.forEach(v -> {
+                    pathBelongings[v.pos().x][v.pos().y] = finalI;
+                    pathDirection[v.pos().x][v.pos().y] = v.next();
+                    pathDepth[v.pos().x][v.pos().y] = processingInputs[finalI].maxDepth - v.depth();
+                });
             }
         }
     }
@@ -408,13 +420,16 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
             results[j] = recipe.getResultItem(j, source);
         }
 
-        if (!tryPlaceOutputs(row, results))
-            return false;
-
         int[] matchingRecipes = EtherProcessorRecipeUtil.getToCostCountByInputAndIngredient(
                 input.inputs,
                 recipe.input
         );
+        if (Arrays.stream(matchingRecipes).anyMatch(t -> t == -1))
+            return false;
+
+        if (!tryPlaceOutputs(row, results))
+            return false;
+
         for (int j = 0; j < input.inputIds.size(); j++) {
             int cNum = recipe.input.get(matchingRecipes[j]).count();
             inputContainer.getItem(input.inputIds.get(j)).shrink(cNum);

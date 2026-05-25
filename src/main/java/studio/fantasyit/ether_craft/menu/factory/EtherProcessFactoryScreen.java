@@ -16,6 +16,7 @@ import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector2i;
 import org.lwjgl.glfw.GLFW;
+import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.block.factory.EtherProcessFactoryEntity;
 import studio.fantasyit.ether_craft.factory.EtherProcessChipManager;
 import studio.fantasyit.ether_craft.factory.FactoryLevelDef;
@@ -25,6 +26,7 @@ import studio.fantasyit.ether_craft.menu.base.widget.NamePencilButton;
 import studio.fantasyit.ether_craft.network.c2s.FactoryMenuSwitchItemC2S;
 import studio.fantasyit.ether_craft.network.c2s.SetBlockNameC2S;
 import studio.fantasyit.ether_craft.network.c2s.SyncFilterActiveC2S;
+import studio.fantasyit.ether_craft.recipe.factory.PathNode;
 import studio.fantasyit.ether_craft.register.ItemRegistry;
 import studio.fantasyit.ether_craft.util.UIUtil;
 
@@ -136,6 +138,7 @@ public class EtherProcessFactoryScreen extends AbstractContainerScreen<@NotNull 
         graphics.text(font, Component.translatable("menu.ether_craft.factory.debug.ether", be.getEther()), getLeftPos() + 5, getTopPos() + 200, 0xffffffff);
         graphics.text(font, Component.translatable("menu.ether_craft.factory.debug.speed", be.pressureBonus), getLeftPos() + 5, getTopPos() + 220, 0xffffffff);
         graphics.text(font, Component.translatable("menu.ether_craft.factory.debug.leak", be.leak), getLeftPos() + 5, getTopPos() + 240, 0xffffffff);
+        //TODO 将信息写入Tooltip
 
         int internalX = f.posInternal().x;
         int internalY = f.posInternal().y;
@@ -193,17 +196,19 @@ public class EtherProcessFactoryScreen extends AbstractContainerScreen<@NotNull 
             for (int i = 0; i < be.processingInputs.length; i++) {
                 int progress = be.processingProgress[i];
                 if (progress == 0) continue;
-                int progressRealWidth = (int) (1.0 * progress / EtherProcessFactoryEntity.MAX_PROGRESS * 18 * be.COLS);
                 for (int j = 0; j < be.COLS; j++) {
                     for (int k = 0; k < be.ROWS; k++) {
                         if (be.pathBelongings[k][j] != i) continue;
-                        int fillWid = Math.min(Math.max(0, progressRealWidth - j * 18), 18);
-                        graphics.fill(
-                                getLeftPos() + internalX + j * 18,
-                                getTopPos() + internalY + k * 18,
-                                getLeftPos() + internalX + j * 18 + fillWid,
-                                getTopPos() + internalY + k * 18 + 18,
-                                0x80c5e1a5
+                        int currentDepth = be.pathDepth[k][j];
+                        int maxDepth = be.pathMaxDepth[i];
+                        float localProgress = (((float) progress / Config.nodeProcessMaxProgress - ((float) currentDepth / (maxDepth + 1))) * (maxDepth + 1));
+
+                        fillProgressSlot(graphics, internalX, internalY, k * 18, j * 18,
+                                localProgress,
+                                PathNode.isDirect(PathNode.Direction.UP, be.pathDirection[k][j]),
+                                PathNode.isDirect(PathNode.Direction.DOWN, be.pathDirection[k][j]),
+                                PathNode.isDirect(PathNode.Direction.LEFT, be.pathDirection[k][j]),
+                                PathNode.isDirect(PathNode.Direction.RIGHT, be.pathDirection[k][j])
                         );
                     }
                 }
@@ -241,6 +246,62 @@ public class EtherProcessFactoryScreen extends AbstractContainerScreen<@NotNull 
                 ARROW.blit(graphics, getLeftPos() + f.posFilterMark().x, getTopPos() + f.posFilterMark().y + i * 18);
             }
         }
+    }
+
+    private void fillProgressSlot(GuiGraphicsExtractor graphics, int internalX, int internalY, int ox, int oy, float localProgress, boolean up, boolean down, boolean left, boolean right) {
+        if (localProgress <= 0) return;
+        if (localProgress > 1) localProgress = 1;
+        int offsetX = getLeftPos() + internalX + ox;
+        int offsetY = getTopPos() + internalY + oy;
+
+        /*
+         * 九宫格渲染，我们使用十六个点来控制渲染
+         *
+         * 0-1-2-x
+         * | | | |
+         * x- - -3
+         * | | | |
+         * x- - -4
+         * | | | |
+         * x-x-x-x
+         */
+        int p1 = 0;
+        int p2 = 18;
+        int p3 = 0;
+        int p4 = 18;
+        int vMax = 18;
+        int hMax = 18;
+
+        if (up && down)
+            vMax = 9;
+        if (left && right)
+            hMax = 9;
+
+        if (left) {
+            p1 += (int) (hMax * localProgress);
+        }
+        if (right) {
+            p2 -= (int) (hMax * localProgress);
+        }
+        if (up) {
+            p3 += (int) (vMax * localProgress);
+        }
+        if (down) {
+            p4 -= (int) (vMax * localProgress);
+        }
+// 填充上排三个格子（左、中、右）
+        graphics.fill(offsetX, offsetY, offsetX + p1, offsetY + p3, 0x80c5e1a5); // 上左
+        graphics.fill(offsetX + p1, offsetY, offsetX + p2, offsetY + p3, 0x80c5e1a5); // 上中
+        graphics.fill(offsetX + p2, offsetY, offsetX + 18, offsetY + p3, 0x80c5e1a5); // 上右
+
+// 填充中排左右两个格子（跳过中心）
+        graphics.fill(offsetX, offsetY + p3, offsetX + p1, offsetY + p4, 0x80c5e1a5); // 中左
+        graphics.fill(offsetX + p2, offsetY + p3, offsetX + 18, offsetY + p4, 0x80c5e1a5); // 中右
+
+// 填充下排三个格子（左、中、右）
+        graphics.fill(offsetX, offsetY + p4, offsetX + p1, offsetY + 18, 0x80c5e1a5); // 下左
+        graphics.fill(offsetX + p1, offsetY + p4, offsetX + p2, offsetY + 18, 0x80c5e1a5); // 下中
+        graphics.fill(offsetX + p2, offsetY + p4, offsetX + 18, offsetY + 18, 0x80c5e1a5); // 下右
     }
 
     @Override

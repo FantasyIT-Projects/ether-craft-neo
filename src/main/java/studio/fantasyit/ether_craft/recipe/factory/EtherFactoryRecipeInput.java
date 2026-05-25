@@ -3,7 +3,6 @@ package studio.fantasyit.ether_craft.recipe.factory;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeInput;
 import org.jetbrains.annotations.NotNull;
-import org.joml.Vector2i;
 import studio.fantasyit.ether_craft.base.TreeLike;
 import studio.fantasyit.ether_craft.factory.EtherProcessWorkingChip;
 
@@ -24,7 +23,8 @@ public class EtherFactoryRecipeInput implements RecipeInput {
     //相关的组件
     public Set<EtherProcessWorkingChip> relevantChips;
     //通路
-    public Set<Vector2i> workingPath;
+    public Set<PathNode> workingPath;
+    public int maxDepth;
 
     public EtherFactoryRecipeInput(List<ItemStack> inputs,
                                    TreeLike<List<Integer>, List<ItemStack>> process,
@@ -32,7 +32,7 @@ public class EtherFactoryRecipeInput implements RecipeInput {
                                    List<Integer> inputTreeIds,
                                    Integer outputId,
                                    Set<EtherProcessWorkingChip> relevantChips,
-                                   Set<Vector2i> workingPath
+                                   Set<PathNode> workingPath
     ) {
         this.inputs = inputs;
         this.process = process;
@@ -41,6 +41,7 @@ public class EtherFactoryRecipeInput implements RecipeInput {
         this.outputId = outputId;
         this.relevantChips = relevantChips;
         this.workingPath = workingPath;
+        this.maxDepth = workingPath.stream().mapToInt(PathNode::depth).max().orElse(0);
     }
 
     @Override

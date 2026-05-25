@@ -14,6 +14,7 @@ import studio.fantasyit.ether_craft.factory.EtherProcessWorkingChip;
 import studio.fantasyit.ether_craft.item.ProcessChipItem;
 import studio.fantasyit.ether_craft.recipe.DelayedIngredient;
 import studio.fantasyit.ether_craft.recipe.factory.EtherFactoryRecipeInput;
+import studio.fantasyit.ether_craft.recipe.factory.PathNode;
 import studio.fantasyit.ether_craft.register.ItemRegistry;
 
 import java.util.*;
@@ -87,8 +88,8 @@ public class EtherProcessorRecipeUtil {
                 tree.addNode(1, new ArrayList<>());
                 tree.addEdge(0, 1, List.of(new ItemStack(ItemRegistry.DIRECT_INPUT_ITEM_CHIP.get())));
                 Set<EtherProcessWorkingChip> relevantComponents = new HashSet<>();
-                Set<Vector2i> path = new HashSet<>();
-                scanForTrees(chipSlots, markMatrix, tree, inputIds, relevantComponents, path, processInputTrees, cols - 1, i, -1, -1, i + 1, 1);
+                Set<PathNode> path = new HashSet<>();
+                scanForTrees(chipSlots, markMatrix, tree, inputIds, relevantComponents, path, processInputTrees, cols - 1, i, -1, -1, i + 1, 1, 0);
 
                 if (tree.getNodes().size() > 1) {
                     List<ItemStack> inputStacks = new ArrayList<>();
@@ -181,14 +182,15 @@ public class EtherProcessorRecipeUtil {
                                      TreeLike<List<Integer>, List<ItemStack>> tree,
                                      List<Integer> inputIds,
                                      Set<EtherProcessWorkingChip> relevantComponents,
-                                     Set<Vector2i> path,
+                                     Set<PathNode> path,
                                      List<Integer> processInputTrees,
                                      int x,
                                      int y,
                                      int fromX,
                                      int fromY,
                                      int markId,
-                                     int parentId) {
+                                     int parentId,
+                                     int depth) {
         if (x == -1) {
             inputIds.add(y);
             int id = tree.getMaxId() + 1;
@@ -197,7 +199,6 @@ public class EtherProcessorRecipeUtil {
             processInputTrees.add(id);
             return;
         }
-        path.add(new Vector2i(x, y));
         //check chips around;
         List<ItemStack> chips = new ArrayList<>();
         for (int i = 0; i < 4; i++) {
@@ -223,6 +224,7 @@ public class EtherProcessorRecipeUtil {
             parentId = nxParentId;
         }
 
+        Set<Vector2i> nexPositions = new HashSet<>();
 
         for (int i = 0; i < 4; i++) {
             int x2 = x + DIRECTIONS[i][0];
@@ -232,10 +234,14 @@ public class EtherProcessorRecipeUtil {
             }
             if (x2 >= -1 && x2 < markMatrix[0].length && y2 >= 0 && y2 < markMatrix.length) {
                 if (x2 == -1 || markMatrix[y2][x2] == markId) {
-                    scanForTrees(scanMatrix, markMatrix, tree, inputIds, relevantComponents, path, processInputTrees, x2, y2, x, y, markId, parentId);
+                    nexPositions.add(new Vector2i(x2, y2));
+                    scanForTrees(scanMatrix, markMatrix, tree, inputIds, relevantComponents, path, processInputTrees, x2, y2, x, y, markId, parentId, depth + 1);
                 }
             }
         }
+
+
+        path.add(new PathNode(x, y, depth, nexPositions));
     }
 
     public static boolean isRecipeCompatible(TreeLike<Integer, List<DelayedIngredient>> recipeProcess, List<SizedIngredient> recipeInputs, EtherFactoryRecipeInput input) {

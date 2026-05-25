@@ -85,10 +85,13 @@ public class EtherProcessFactoryContainerMenu extends BaseContainerMenu<@NotNull
             addDataSlot(new BaseDataSlot(() -> entity.processingProgress[finalI], (v) -> entity.processingProgress[finalI] = v));
         }
         for (int i = 0; i < this.entity.ROWS; i++) {
+            int finalI = i;
+            addDataSlot(new BaseDataSlot(() -> entity.pathMaxDepth[finalI], (v) -> entity.pathMaxDepth[finalI] = v));
             for (int j = 0; j < this.entity.COLS; j++) {
-                int finalI = i;
                 int finalJ = j;
                 addDataSlot(new BaseDataSlot(() -> entity.pathBelongings[finalI][finalJ], (v) -> entity.pathBelongings[finalI][finalJ] = v));
+                addDataSlot(new BaseDataSlot(() -> entity.pathDepth[finalI][finalJ], (v) -> entity.pathDepth[finalI][finalJ] = v));
+                addDataSlot(new BaseDataSlot(() -> entity.pathDirection[finalI][finalJ], (v) -> entity.pathDirection[finalI][finalJ] = v));
                 addDataSlot(new BaseDataSlot(() -> entity.currentEther[finalI][finalJ], (v) -> entity.currentEther[finalI][finalJ] = v));
             }
         }
