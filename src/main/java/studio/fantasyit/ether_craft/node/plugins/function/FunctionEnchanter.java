@@ -21,12 +21,14 @@ import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
 import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.EtherCraft;
+import studio.fantasyit.ether_craft.block.base.ItemFilter;
 import studio.fantasyit.ether_craft.block.node.EtherAdaptNodeEntity;
 import studio.fantasyit.ether_craft.menu.base.slot.BaseDataSlot;
 import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeContainerMenu;
 import studio.fantasyit.ether_craft.menu.node.slot.OversizedEtherSlot;
 import studio.fantasyit.ether_craft.network.c2s.SyncScreenDataC2S;
 import studio.fantasyit.ether_craft.node.NodeProperty;
+import studio.fantasyit.ether_craft.node.filter.FilterGuiRegCommon;
 import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
 import studio.fantasyit.ether_craft.node.plugins.base.AbstractNodePlugin;
 
@@ -40,7 +42,7 @@ public class FunctionEnchanter extends AbstractNodePlugin {
     public int progress = 0;
 
     public final SimpleContainer processSlot = new SimpleContainer(1);
-
+    public ItemFilter filter = new ItemFilter(21, nodeEntity::setChanged);
 
     public FunctionEnchanter(EtherAdaptNodeEntity nodeEntity, InstalledPlugin installedId) {
         super(nodeEntity, installedId);
@@ -58,11 +60,13 @@ public class FunctionEnchanter extends AbstractNodePlugin {
         menu.addSlotDraw(new Slot(processSlot, 0, 28, 44));
         menu.addDataSlot(new BaseDataSlot(() -> selectedLevel, (i) -> selectedLevel = i));
         menu.addDataSlot(new BaseDataSlot(() -> progress, (i) -> progress = i));
+        FilterGuiRegCommon.slots(menu, filter);
     }
 
     @Override
     public void syncScreenData(SyncScreenDataC2S message) {
         super.syncScreenData(message);
+        FilterGuiRegCommon.sync(message, filter);
         if (message.id().equals(SYNC_LEVEL)) {
             int level = message.data();
             if (level == -1) {
@@ -106,7 +110,7 @@ public class FunctionEnchanter extends AbstractNodePlugin {
         if (processSlot.getItem(0).isEmpty()) {
             try (Transaction tx = Transaction.openRoot()) {
                 ItemStack extracted = nodeEntity.extractExactWithPredicate(
-                        this::isEnchantableAndUnenchanted, tx, 1
+                        r -> isEnchantableAndUnenchanted(r) && filter.accepts(r), tx, 1
                 );
                 if (!extracted.isEmpty()) {
                     tx.commit();
@@ -203,6 +207,7 @@ public class FunctionEnchanter extends AbstractNodePlugin {
         output.putInt("selectedLevel", selectedLevel);
         output.putInt("progress", progress);
         output.store("processSlot", ItemStack.OPTIONAL_CODEC, processSlot.getItem(0));
+        filter.serialize(output);
     }
 
     @Override
@@ -210,5 +215,6 @@ public class FunctionEnchanter extends AbstractNodePlugin {
         selectedLevel = input.read("selectedLevel", Codec.INT).orElse(0);
         progress = input.read("progress", Codec.INT).orElse(0);
         processSlot.setItem(0, input.read("processSlot", ItemStack.OPTIONAL_CODEC).orElse(ItemStack.EMPTY));
+        filter.deserialize(input);
     }
 }

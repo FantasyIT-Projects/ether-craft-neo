@@ -10,6 +10,7 @@ import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeAsset;
 import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeScreen;
 import studio.fantasyit.ether_craft.menu.node.ScreenMenuSyncer;
 import studio.fantasyit.ether_craft.network.c2s.SyncScreenDataC2S;
+import studio.fantasyit.ether_craft.node.filter.FilterGuiRegClient;
 import studio.fantasyit.ether_craft.node.plugins.base.PluginMenuContext;
 import studio.fantasyit.ether_craft.node.plugins.function.FunctionEnchanter;
 import studio.fantasyit.ether_craft.node.tabs.BaseEtherNodeTabWidgetProvider;
@@ -62,6 +63,7 @@ public class EnchanterScreen extends BaseEtherNodeTabWidgetProvider<FunctionEnch
         }
         screen.registerMenuSyncer(new ScreenMenuSyncer<>(() -> plugin.selectedLevel, _ -> updateButtonStates()));
         updateButtonStates();
+        FilterGuiRegClient.widget(screen, () -> plugin.filter.whitelist, plugin.installedId);
     }
 
     private void updateButtonStates() {
