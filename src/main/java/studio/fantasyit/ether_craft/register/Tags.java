@@ -13,4 +13,5 @@ public class Tags {
     public static final TagKey<Block> ETHER_WRENCHABLE =TagKey.create(Registries.BLOCK,EtherCraft.id("ether_wrenchable"));
     public static final TagKey<Item> CONSUMABLE_EQUIPMENTS =TagKey.create(Registries.ITEM,EtherCraft.id("consumable_equipments"));
     public static final TagKey<Item> VINES =TagKey.create(Registries.ITEM,EtherCraft.id("vines"));
+    public static final TagKey<Block> CROP_ACCELERATABLE =TagKey.create(Registries.BLOCK,EtherCraft.id("crop_acceleratable"));
 }

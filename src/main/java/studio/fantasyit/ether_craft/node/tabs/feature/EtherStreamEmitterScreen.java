@@ -1,6 +1,7 @@
 package studio.fantasyit.ether_craft.node.tabs.feature;
 
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.network.chat.Component;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import studio.fantasyit.ether_craft.menu.base.widget.ScrollableWidget;
@@ -11,6 +12,8 @@ import studio.fantasyit.ether_craft.network.c2s.SyncScreenDataC2S;
 import studio.fantasyit.ether_craft.node.plugins.base.PluginMenuContext;
 import studio.fantasyit.ether_craft.node.plugins.feature.AbstractDirectionalFilterFeature;
 import studio.fantasyit.ether_craft.node.plugins.feature.FeatureEtherStreamEmitter;
+
+import java.util.List;
 
 public class EtherStreamEmitterScreen extends DirectionalFilterScreen {
     private ScrollableWidget minEtherScroll;
@@ -62,6 +65,11 @@ public class EtherStreamEmitterScreen extends DirectionalFilterScreen {
         );
         minEtherScroll.setValue(plugin.minEther);
         screen.addRenderableWidget(minEtherScroll);
+        collectTooltipArea(
+                new Rect2i(lx(90), ly(12),
+                        EtherAdaptNodeAsset.SCROLL_BLOCK.w, EtherAdaptNodeAsset.SCROLL_BACK.h),
+                () -> List.of(Component.translatable("menu.ether_craft.scroll_tooltip"))
+        );
     }
 
     @Override

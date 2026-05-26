@@ -1,6 +1,7 @@
 package studio.fantasyit.ether_craft.node.tabs.function;
 
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.network.chat.Component;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import studio.fantasyit.ether_craft.menu.base.widget.ScrollableWidget;
@@ -13,6 +14,7 @@ import studio.fantasyit.ether_craft.node.plugins.base.PluginMenuContext;
 import studio.fantasyit.ether_craft.node.plugins.function.FunctionMagnet;
 import studio.fantasyit.ether_craft.node.tabs.BaseEtherNodeTabWidgetProvider;
 
+import java.util.List;
 import java.util.function.Supplier;
 
 public class MagnetFunctionScreen extends BaseEtherNodeTabWidgetProvider<FunctionMagnet> {
@@ -61,6 +63,11 @@ public class MagnetFunctionScreen extends BaseEtherNodeTabWidgetProvider<Functio
             );
             screen.addRenderableWidget(scrolls[i]);
             screen.registerMenuSyncer(new ScreenMenuSyncer<Integer>(startValues[i], scrolls[i]::setValue));
+            collectTooltipArea(
+                    new Rect2i(lx(SCROLL_POS[i][0]), ly(SCROLL_POS[i][1]),
+                            EtherAdaptNodeAsset.SCROLL_BLOCK.w, EtherAdaptNodeAsset.SCROLL_BACK.h),
+                    () -> List.of(Component.translatable("menu.ether_craft.scroll_tooltip"))
+            );
         }
     }
 

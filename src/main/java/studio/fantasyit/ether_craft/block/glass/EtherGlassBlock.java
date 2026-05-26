@@ -20,6 +20,8 @@ public class EtherGlassBlock extends TransparentBlock {
                 .sound(SoundType.GLASS)
                 .noOcclusion()
                 .isViewBlocking((state, level, pos) -> false)
+                .isRedstoneConductor((state, level, pos) -> false)
+                .isSuffocating((state, level, pos) -> false)
                 .setId(ResourceKey.create(Registries.BLOCK, identifier)));
     }
 

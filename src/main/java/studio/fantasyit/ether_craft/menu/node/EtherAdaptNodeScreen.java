@@ -102,7 +102,8 @@ public class EtherAdaptNodeScreen extends AbstractContainerScreen<@NotNull Ether
         pluginId.clear();
         int x = getLeftPos() + 3;
         for (Pair<NodePluginManager.PluginInfo, InstalledPlugin> pair : tabList) {
-            //TODO
+            if(!EtherAdaptNodeUpgradeTabManager.instance.has(pair.getA().id()))
+                continue;
             TabWidget tab = new TabWidget(x, getTopPos() - 21, Component.literal("PLUGIN TODO"), pair.getA().icon().asItem().getDefaultInstance(), menu.installedPlugin.equals(pair.getB()), this.makeTabSwitchEvent(pair.getB()));
             tabs.add(tab);
             addRenderableWidget(tab);

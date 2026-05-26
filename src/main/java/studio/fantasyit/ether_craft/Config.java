@@ -85,6 +85,16 @@ public class Config {
             .comment("Coefficient for ether generation from equipment consumption in Equipment Generator plugin")
             .defineInRange("node.equipment_generator.coefficient", 10, 1, 10000);
 
+    // -- node.growth_accelerator --
+
+    private static final ModConfigSpec.IntValue NODE_GROWTH_ACCELERATOR_ETHER_COST = BUILDER
+            .comment("Ether consumed per crop block accelerated by GrowthAccelerator function plugin")
+            .defineInRange("node.growth_accelerator.ether_cost", 100, 1, Integer.MAX_VALUE);
+
+    private static final ModConfigSpec.IntValue NODE_GROWTH_ACCELERATOR_RANGE = BUILDER
+            .comment("Manhattan distance range for GrowthAccelerator to scan for eligible crop blocks")
+            .defineInRange("node.growth_accelerator.range", 1, 1, 16);
+
     // -- node.emitter --
 
     private static final ModConfigSpec.IntValue NODE_EMITTER_MIN_ETHER_MIN = BUILDER
@@ -147,6 +157,8 @@ public class Config {
     public static int nodeProcessMaxProgress;
     public static int nodeEtherConverterCoefficient;
     public static int nodeEquipmentGeneratorCoefficient;
+    public static int nodeGrowthAcceleratorEtherCost;
+    public static int nodeGrowthAcceleratorRange;
     public static int nodeEmitterMinEtherMin;
     public static int nodeEmitterMinEtherMax;
     public static int etherStreamMaxTick;
@@ -172,6 +184,8 @@ public class Config {
         nodeProcessMaxProgress = NODE_PROCESS_MAX_PROGRESS.get();
         nodeEtherConverterCoefficient = NODE_ETHER_CONVERTER_COEFFICIENT.get();
         nodeEquipmentGeneratorCoefficient = NODE_EQUIPMENT_GENERATOR_COEFFICIENT.get();
+        nodeGrowthAcceleratorEtherCost = NODE_GROWTH_ACCELERATOR_ETHER_COST.get();
+        nodeGrowthAcceleratorRange = NODE_GROWTH_ACCELERATOR_RANGE.get();
         nodeEmitterMinEtherMin = NODE_EMITTER_MIN_ETHER_MIN.get();
         nodeEmitterMinEtherMax = NODE_EMITTER_MIN_ETHER_MAX.get();
         etherStreamMaxTick = ETHER_STREAM_MAX_TICK.get();

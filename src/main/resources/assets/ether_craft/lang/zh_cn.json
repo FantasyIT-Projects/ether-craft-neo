@@ -47,6 +47,7 @@
   "item.ether_craft.vacuum_pipe": "真空管",
   "itemGroup.ether_craft": "以太工艺",
   "menu.ether_craft.ether_bar_tooltip": "以太: %d",
+  "menu.ether_craft.scroll_tooltip": "滚动调节，按住Ctrl/Shift可加速调节",
   "menu.ether_craft.factory.debug.ether": "以太: %d",
   "menu.ether_craft.factory.debug.leak": "泄漏: %d",
   "menu.ether_craft.factory.debug.speed": "速度: %d",

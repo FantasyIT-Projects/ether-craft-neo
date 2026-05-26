@@ -49,6 +49,7 @@
   "item.ether_craft.vacuum_pipe": "Vacuum Pipe",
   "itemGroup.ether_craft": "Ether Craft",
   "menu.ether_craft.ether_bar_tooltip": "Ether: %d",
+  "menu.ether_craft.scroll_tooltip": "Scroll to adjust, hold Ctrl/Shift to adjust faster",
   "menu.ether_craft.factory.debug.ether": "Ether: %d",
   "menu.ether_craft.factory.debug.leak": "Leak: %d",
   "menu.ether_craft.factory.debug.speed": "Spd: %d",

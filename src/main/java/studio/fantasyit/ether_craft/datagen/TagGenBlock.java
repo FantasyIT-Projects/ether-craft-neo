@@ -8,6 +8,7 @@ import net.minecraft.data.tags.TagsProvider;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.BonemealableBlock;
 import org.jetbrains.annotations.NotNull;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.register.BlockRegistry;
@@ -47,6 +48,25 @@ public class TagGenBlock extends TagsProvider<Block> {
                 .addElement(BlockRegistry.ETHER_ORE.getKey().identifier())
                 .addElement(BlockRegistry.DEEPSLATE_ETHER_ORE.getKey().identifier())
                 .addElement(BlockRegistry.NETHER_ETHER_ORE.getKey().identifier());
+
+        var cropBuilder = getOrCreateRawBuilder(Tags.CROP_ACCELERATABLE);
+        BuiltInRegistries.BLOCK.forEach(block -> {
+            if (block instanceof BonemealableBlock) {
+                cropBuilder.addElement(BuiltInRegistries.BLOCK.getKey(block));
+            }
+        });
+        cropBuilder.addElement(BuiltInRegistries.BLOCK.getKey(Blocks.SUGAR_CANE));
+        cropBuilder.addElement(BuiltInRegistries.BLOCK.getKey(Blocks.CACTUS));
+        cropBuilder.addElement(BuiltInRegistries.BLOCK.getKey(Blocks.BAMBOO));
+        cropBuilder.addElement(BuiltInRegistries.BLOCK.getKey(Blocks.BAMBOO_SAPLING));
+        cropBuilder.addElement(BuiltInRegistries.BLOCK.getKey(Blocks.TWISTING_VINES));
+        cropBuilder.addElement(BuiltInRegistries.BLOCK.getKey(Blocks.TWISTING_VINES_PLANT));
+        cropBuilder.addElement(BuiltInRegistries.BLOCK.getKey(Blocks.WEEPING_VINES));
+        cropBuilder.addElement(BuiltInRegistries.BLOCK.getKey(Blocks.WEEPING_VINES_PLANT));
+        cropBuilder.addElement(BuiltInRegistries.BLOCK.getKey(Blocks.KELP));
+        cropBuilder.addElement(BuiltInRegistries.BLOCK.getKey(Blocks.KELP_PLANT));
+        cropBuilder.addElement(BuiltInRegistries.BLOCK.getKey(Blocks.CHORUS_FLOWER));
+        cropBuilder.addElement(BuiltInRegistries.BLOCK.getKey(Blocks.BUDDING_AMETHYST));
 
         getOrCreateRawBuilder(BlockTags.NEEDS_IRON_TOOL)
                 .addElement(BlockRegistry.ETHER_BLOCK.getKey().identifier())

@@ -57,4 +57,8 @@ public class EtherAdaptNodeUpgradeTabManager {
     public <T extends AbstractNodePlugin> BaseEtherNodeTabWidgetProvider<T> getWidget(Identifier identifier, PluginMenuContext<T> node, EtherAdaptNodeScreen menu) {
         return (BaseEtherNodeTabWidgetProvider<T>) widgets.get(identifier).apply(node, menu);
     }
+
+    public boolean has(Identifier id) {
+        return widgets.containsKey(id);
+    }
 }
