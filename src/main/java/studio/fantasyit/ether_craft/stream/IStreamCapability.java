@@ -25,4 +25,8 @@ public interface IStreamCapability extends ValueIOSerializable {
     default void firstTick(EtherStreamEntity etherStreamEntity) {
 
     }
+
+    default boolean shouldPassThrough(BlockState blockState) {
+        return false;
+    }
 }

@@ -3,7 +3,7 @@
   "input": [
     {
       "id": "I0",
-      "item": "#c:coal",
+      "item": "#minecraft:coals",
       "next": "P3"
     },
     {

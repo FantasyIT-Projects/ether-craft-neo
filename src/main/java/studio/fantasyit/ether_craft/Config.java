@@ -143,6 +143,12 @@ public class Config {
             .comment("Flat ether cost added to every damage instance on top of the damage-based formula")
             .defineInRange("ether_stream.damage.constant_cost", 0, 0, Integer.MAX_VALUE);
 
+    // -- ether_stream.growth_accelerator --
+
+    private static final ModConfigSpec.IntValue ETHER_STREAM_GROWTH_ACCELERATOR_ETHER_COST = BUILDER
+            .comment("Ether consumed per crop block accelerated by Ether Stream Growth Accelerator capability")
+            .defineInRange("ether_stream.growth_accelerator.ether_cost", 100, 1, Integer.MAX_VALUE);
+
     static final ModConfigSpec SPEC = BUILDER.build();
 
     public static int etherConvert;
@@ -169,6 +175,7 @@ public class Config {
     public static int etherStreamBreakBlockConstantCost;
     public static int etherStreamDamageEtherMultiplier;
     public static int etherStreamDamageConstantCost;
+    public static int etherStreamGrowthAcceleratorEtherCost;
 
     @SubscribeEvent
     static void onLoad(final ModConfigEvent event) {
@@ -196,5 +203,6 @@ public class Config {
         etherStreamBreakBlockConstantCost = ETHER_STREAM_BREAK_BLOCK_CONSTANT_COST.get();
         etherStreamDamageEtherMultiplier = ETHER_STREAM_DAMAGE_ETHER_MULTIPLIER.get();
         etherStreamDamageConstantCost = ETHER_STREAM_DAMAGE_CONSTANT_COST.get();
+        etherStreamGrowthAcceleratorEtherCost = ETHER_STREAM_GROWTH_ACCELERATOR_ETHER_COST.get();
     }
 }

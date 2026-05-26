@@ -86,6 +86,7 @@ public class NodePluginManager {
         ALL_PLUGINS.add(new PluginInfo(PluginType.UPGRADE, EtherFilterUpgrade.ID, EtherFilterUpgrade::new, t -> t.is(Items.PAPER), Items.PAPER));
         ALL_PLUGINS.add(new PluginInfo(PluginType.UPGRADE, EtherItemifyUpgrade.ID, EtherItemifyUpgrade::new, t -> t.is(ItemRegistry.INACTIVATED_ETHER), ItemRegistry.INACTIVATED_ETHER.get()));
         ALL_PLUGINS.add(new PluginInfo(PluginType.UPGRADE, EtherStreamTextUpgrade.ID, EtherStreamTextUpgrade::new, t -> t.is(Items.WRITTEN_BOOK), Items.WRITTEN_BOOK));
+        ALL_PLUGINS.add(new PluginInfo(PluginType.UPGRADE, EtherStreamGrowthAcceleratorUpgrade.ID, EtherStreamGrowthAcceleratorUpgrade::new, t -> t.is(Items.BONE_MEAL), Items.BONE_MEAL));
     }
 
     public NodePluginManager() {

@@ -3,17 +3,20 @@
   "input": [
     {
       "id": "I0",
-      "item": "c:coal",
+      "item": "#minecraft:coals",
       "next": "P9"
     },
     {
       "id": "I1",
-      "item": "c:raw_materials/gold：：2",
+      "item": {
+        "ingredient": "#c:raw_materials/gold",
+        "count": 2
+      },
       "next": "P11"
     },
     {
       "id": "I2",
-      "item": "c:coal",
+      "item": "#minecraft:coals",
       "next": "P15"
     }
   ],

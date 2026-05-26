@@ -101,6 +101,10 @@ public class EtherStreamEntity extends Projectile {
         lowerConsumeFactor = factor;
     }
 
+    public int getEther() {
+        return ether;
+    }
+
     public void consumeEther(int amount) {
         this.ether -= (int) Math.ceil(amount / getLowerFactory());
         this.entityData.set(ETHER_COUNT, ether);
@@ -194,6 +198,11 @@ public class EtherStreamEntity extends Projectile {
                 if (blockState.is(Tags.ETHER_STREAM_PASS_THROUGH)) {
                     return;
                 }
+                for (IStreamCapability cap : capabilities) {
+                    if (cap.shouldPassThrough(blockState)) {
+                        return;
+                    }
+                }
             }
         } else {
             if (hitResult.getType() == HitResult.Type.BLOCK) {
@@ -201,6 +210,11 @@ public class EtherStreamEntity extends Projectile {
                 BlockState blockState = level().getBlockState(blockhit.getBlockPos());
                 if (blockState.is(Tags.ETHER_STREAM_PASS_THROUGH)) {
                     return;
+                }
+                for (IStreamCapability cap : capabilities) {
+                    if (cap.shouldPassThrough(blockState)) {
+                        return;
+                    }
                 }
             }
         }
