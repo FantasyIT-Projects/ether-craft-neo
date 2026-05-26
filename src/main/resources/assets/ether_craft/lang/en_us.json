@@ -18,6 +18,8 @@
   "ether_craft.gui.node.filter.using_white_list": "Using Whitelist",
   "ether_craft.gui.node.filter_mode": "Filter Mode",
   "ether_craft.gui.node.function_node_process.show_input_filter": "Show Input Filter",
+  "ether_craft.gui.node.enchanter.level": "Enchant Level",
+  "ether_craft.gui.node.enchanter.level_cost": "Ether: %d",
   "ether_craft_tab_main": "Ether Craft",
   "message.ether_craft.plugin_installed": "Plugin installed",
   "message.ether_craft.plugin_slots_full": "No empty plugin slot available",

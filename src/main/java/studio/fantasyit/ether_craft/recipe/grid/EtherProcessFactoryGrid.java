@@ -5,9 +5,12 @@ import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.Level;
 import studio.fantasyit.ether_craft.item.ProcessChipItem;
+import studio.fantasyit.ether_craft.register.DataComponentRegistry;
 import studio.fantasyit.ether_craft.register.Tags;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.List;
 
 public class EtherProcessFactoryGrid implements Recipe<EtherProcessFactoryGridInput> {
     public record Rect(int x, int y, int width, int height) {
@@ -41,17 +44,24 @@ public class EtherProcessFactoryGrid implements Recipe<EtherProcessFactoryGridIn
     @Override
     public ItemStack assemble(EtherProcessFactoryGridInput etherProcessFactoryGridInput) {
         ItemStack itemStack = etherProcessFactoryGridInput.target().copyWithCount(1);
-        ItemStack[][] grid = new ItemStack[etherProcessFactoryGridInput.h()][etherProcessFactoryGridInput.w()];
+        List<List<ItemStack>> grid = new ArrayList<>();
+        for (int i = 0; i < etherProcessFactoryGridInput.h(); i++) {
+            grid.add(new ArrayList<>());
+            for (int j = 0; j < etherProcessFactoryGridInput.w(); j++) {
+                grid.get(i).add(ItemStack.EMPTY);
+            }
+        }
         Rect rect = getRect();
         for (int i = 0; i < etherProcessFactoryGridInput.w(); i++) {
             for (int j = 0; j < etherProcessFactoryGridInput.h(); j++) {
                 if (i < rect.width && j < rect.height)
-                    grid[j][i] = fullGrid[j][i].create();
+                    grid.get(j).set(i, fullGrid[j][i].create());
                 else
-                    grid[j][i] = ProcessChipItem.getStackFor(ProcessChipItem.SEPARATOR);
+                    grid.get(j).set(i, ProcessChipItem.getStackFor(ProcessChipItem.SEPARATOR));
             }
         }
-
+        itemStack.set(DataComponentRegistry.GRID, grid);
+        return itemStack;
     }
 
     @Override

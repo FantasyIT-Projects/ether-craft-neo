@@ -17,15 +17,18 @@ public class IASwitchButton extends AbstractWidget {
     private final ImageAsset mainHover;
     private final ImageAsset downNormal;
     private final ImageAsset downHover;
-    private final @Nullable ImageAsset icon;
+
+    private @Nullable ImageAsset icon;
 
     private final Component mainMessage;
     private final Component downMessage;
-    private final Function<Boolean,Boolean> onClick;
+    private final Function<Boolean, Boolean> onClick;
     private boolean down;
     private boolean hidden = false;
+    int iconOffsetX = 0;
+    int iconOffsetY = 0;
 
-    public IASwitchButton(int x, int y, ImageAsset mainNormal, ImageAsset mainHover, ImageAsset downNormal, ImageAsset downHover, @Nullable ImageAsset icon, Component mainMessage, Component downMessage, Function<Boolean,Boolean> onClick) {
+    public IASwitchButton(int x, int y, ImageAsset mainNormal, ImageAsset mainHover, ImageAsset downNormal, ImageAsset downHover, @Nullable ImageAsset icon, Component mainMessage, Component downMessage, Function<Boolean, Boolean> onClick) {
         super(x, y, mainNormal.w, mainNormal.h, mainMessage);
         this.setTooltip(Tooltip.create(downMessage));
         this.mainNormal = mainNormal;
@@ -37,11 +40,15 @@ public class IASwitchButton extends AbstractWidget {
         this.mainMessage = mainMessage;
         this.downMessage = downMessage;
         this.onClick = onClick;
+        if (icon != null) {
+            iconOffsetX = (this.getWidth() - icon.w) / 2;
+            iconOffsetY = (this.getHeight() - icon.h) / 2;
+        }
     }
 
     @Override
     protected void extractWidgetRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
-        if(this.hidden)
+        if (this.hidden)
             return;
         if (this.down) {
             if (this.isHoveredOrFocused()) {
@@ -57,7 +64,7 @@ public class IASwitchButton extends AbstractWidget {
             }
         }
         if (icon != null) {
-            icon.blit(graphics, this.getX(), this.getY());
+            icon.blit(graphics, this.getX() + iconOffsetX, this.getY() + iconOffsetY);
         }
     }
 
@@ -68,9 +75,9 @@ public class IASwitchButton extends AbstractWidget {
 
     @Override
     public void onClick(MouseButtonEvent event, boolean doubleClick) {
-        if(this.hidden)
+        if (this.hidden)
             return;
-        if(this.onClick.apply(this.down)){
+        if (this.onClick.apply(this.down)) {
             this.setDown(!this.down);
             this.playDownSound(Minecraft.getInstance().getSoundManager());
         }
@@ -89,7 +96,16 @@ public class IASwitchButton extends AbstractWidget {
     public void setHidden(boolean hidden) {
         this.hidden = hidden;
     }
+
     public boolean isHidden() {
         return hidden;
+    }
+
+    public void setIcon(@Nullable ImageAsset icon) {
+        this.icon = icon;
+        if (icon != null) {
+            iconOffsetX = (this.getWidth() - icon.w) / 2;
+            iconOffsetY = (this.getHeight() - icon.h) / 2;
+        }
     }
 }

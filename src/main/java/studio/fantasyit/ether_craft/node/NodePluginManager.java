@@ -74,6 +74,7 @@ public class NodePluginManager {
         ALL_PLUGINS.add(new PluginInfo(PluginType.FUNCTION, FunctionEquipmentConsumeGenerator.ID, FunctionEquipmentConsumeGenerator::new, t -> t.is(Items.GRINDSTONE), Items.GRINDSTONE));
         ALL_PLUGINS.add(new PluginInfo(PluginType.FUNCTION, FunctionEtherConverter.ID, FunctionEtherConverter::new, t -> t.is(Items.DRAGON_EGG), Items.DRAGON_EGG));
         ALL_PLUGINS.add(new PluginInfo(PluginType.FUNCTION, FunctionGrowthAccelerator.ID, FunctionGrowthAccelerator::new, t -> t.is(Items.BONE_MEAL), Items.BONE_MEAL));
+        ALL_PLUGINS.add(new PluginInfo(PluginType.FUNCTION, FunctionEnchanter.ID, FunctionEnchanter::new, t -> t.is(Items.ENCHANTING_TABLE), Items.ENCHANTING_TABLE));
         ALL_PLUGINS.add(new PluginInfo(PluginType.FEATURE, FeatureEtherStreamEmitter.ID, FeatureEtherStreamEmitter::new, t -> t.is(Items.DISPENSER), Items.DISPENSER));
         ALL_PLUGINS.add(new PluginInfo(PluginType.FEATURE, FeatureDropperThrower.ID, FeatureDropperThrower::new, t -> t.is(Items.DROPPER), Items.DROPPER));
         ALL_PLUGINS.add(new PluginInfo(PluginType.FEATURE, FeatureContainerInteract.ID, FeatureContainerInteract::new, t -> t.is(Items.HOPPER), Items.HOPPER));

@@ -44,6 +44,14 @@ public class EtherAdaptNodeAsset {
     public static final ImageAsset SLOT_RESULT_INDICATOR_HOVER = ImageAsset.from4Point(BACKGROUND, 230, 54, 247, 71);
     public static final ImageAsset FILTER_PANEL = ImageAsset.from4Point(BACKGROUND, 224, 0, 249, 35);
     public static final ImageAsset FILTER_ICON = ImageAsset.from4Point(BACKGROUND, 233, 23, 240, 31);
+    public static final ImageAsset ENCHANT_BTN_NORMAL = ImageAsset.from4Point(BACKGROUND, 212, 105, 227, 120);
+    public static final ImageAsset ENCHANT_BTN_DOWN = ImageAsset.gridOffset(ENCHANT_BTN_NORMAL, 0, 1);
+    public static final ImageAsset ENCHANT_BTN_HOVER = ImageAsset.gridOffset(ENCHANT_BTN_NORMAL, 0, 2);
 
-
+    public static final ImageAsset ENCHANT_ICON_LV1 = ImageAsset.from4Point(BACKGROUND, 229, 108, 240, 116);
+    public static final ImageAsset ENCHANT_ICON_LV2 = ImageAsset.from4Point(BACKGROUND, 229, 123, 240, 133);
+    public static final ImageAsset ENCHANT_ICON_LV3 = ImageAsset.from4Point(BACKGROUND, 229, 139, 240, 149);
+    public static final ImageAsset ENCHANT_ICON_LV1_DISABLED = ImageAsset.from4Point(BACKGROUND, 242, 108, 253, 116);
+    public static final ImageAsset ENCHANT_ICON_LV2_DISABLED = ImageAsset.from4Point(BACKGROUND, 242, 123, 253, 133);
+    public static final ImageAsset ENCHANT_ICON_LV3_DISABLED = ImageAsset.from4Point(BACKGROUND, 242, 139, 253, 149);
 }

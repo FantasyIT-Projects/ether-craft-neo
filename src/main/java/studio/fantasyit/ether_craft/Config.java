@@ -105,6 +105,24 @@ public class Config {
             .comment("Maximum bound for the emitter minimum ether slider")
             .defineInRange("node.emitter.min_ether.max", 100000, 0, Integer.MAX_VALUE);
 
+    // -- node.enchanter --
+
+    private static final ModConfigSpec.ConfigValue<List<? extends Integer>> NODE_ENCHANTER_ETHER_COSTS = BUILDER
+            .comment("Ether cost for Enchanter plugin levels 1, 2, and 3")
+            .defineList("node.enchanter.ether_costs", () -> List.of(1000, 3000, 9000), () -> 0, t -> {
+                try {
+                    if (t instanceof Integer) return true;
+                    Integer.parseInt(t.toString());
+                    return true;
+                } catch (NumberFormatException e) {
+                    return false;
+                }
+            });
+
+    private static final ModConfigSpec.IntValue NODE_ENCHANTER_MAX_PROGRESS = BUILDER
+            .comment("Max progress ticks for Enchanter plugin to complete enchanting (20 ticks = 1 second)")
+            .defineInRange("node.enchanter.max_progress", 100, 1, Integer.MAX_VALUE);
+
     // ===== ether_stream — Ether Stream entity =====
 
     private static final ModConfigSpec.IntValue ETHER_STREAM_MAX_TICK = BUILDER
@@ -176,6 +194,8 @@ public class Config {
     public static int etherStreamDamageEtherMultiplier;
     public static int etherStreamDamageConstantCost;
     public static int etherStreamGrowthAcceleratorEtherCost;
+    public static List<Integer> nodeEnchanterEtherCosts;
+    public static int nodeEnchanterMaxProgress;
 
     @SubscribeEvent
     static void onLoad(final ModConfigEvent event) {
@@ -204,5 +224,7 @@ public class Config {
         etherStreamDamageEtherMultiplier = ETHER_STREAM_DAMAGE_ETHER_MULTIPLIER.get();
         etherStreamDamageConstantCost = ETHER_STREAM_DAMAGE_CONSTANT_COST.get();
         etherStreamGrowthAcceleratorEtherCost = ETHER_STREAM_GROWTH_ACCELERATOR_ETHER_COST.get();
+        nodeEnchanterEtherCosts = NODE_ENCHANTER_ETHER_COSTS.get().stream().map(t -> (Integer) t).toList();
+        nodeEnchanterMaxProgress = NODE_ENCHANTER_MAX_PROGRESS.get();
     }
 }

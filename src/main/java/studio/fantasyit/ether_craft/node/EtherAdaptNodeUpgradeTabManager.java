@@ -17,8 +17,10 @@ import studio.fantasyit.ether_craft.node.tabs.MainPageProvider;
 import studio.fantasyit.ether_craft.node.tabs.feature.ContainerInteractScreen;
 import studio.fantasyit.ether_craft.node.tabs.feature.DropperThrowerScreen;
 import studio.fantasyit.ether_craft.node.tabs.feature.EtherStreamEmitterScreen;
+import studio.fantasyit.ether_craft.node.plugins.function.FunctionEnchanter;
 import studio.fantasyit.ether_craft.node.plugins.function.FunctionEquipmentConsumeGenerator;
 import studio.fantasyit.ether_craft.node.plugins.function.FunctionEtherConverter;
+import studio.fantasyit.ether_craft.node.tabs.function.EnchanterScreen;
 import studio.fantasyit.ether_craft.node.tabs.function.EquipmentConsumeScreen;
 import studio.fantasyit.ether_craft.node.tabs.function.EtherConverterScreen;
 import studio.fantasyit.ether_craft.node.tabs.function.FunctionNodeProcessScreen;
@@ -41,6 +43,7 @@ public class EtherAdaptNodeUpgradeTabManager {
         register(FunctionNodeProcess.ID, wrap(FunctionNodeProcessScreen::new));
         register(FunctionEquipmentConsumeGenerator.ID, wrap(EquipmentConsumeScreen::new));
         register(FunctionEtherConverter.ID, wrap(EtherConverterScreen::new));
+        register(FunctionEnchanter.ID, wrap(EnchanterScreen::new));
         register(FeatureEtherStreamEmitter.ID, wrap(EtherStreamEmitterScreen::new));
         register(FeatureDropperThrower.ID, wrap(DropperThrowerScreen::new));
         register(FeatureContainerInteract.ID, wrap(ContainerInteractScreen::new));

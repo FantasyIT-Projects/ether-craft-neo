@@ -17,6 +17,8 @@
   "ether_craft.gui.node.filter.using_white_list": "使用白名单",
   "ether_craft.gui.node.filter_mode": "过滤器模式",
   "ether_craft.gui.node.function_node_process.show_input_filter": "显示输入过滤器",
+  "ether_craft.gui.node.enchanter.level": "附魔等级",
+  "ether_craft.gui.node.enchanter.level_cost": "以太: %d",
   "ether_craft_tab_main": "以太工艺",
   "message.ether_craft.plugin_installed": "已安装插件",
   "message.ether_craft.plugin_slots_full": "没有可用的插件槽位",

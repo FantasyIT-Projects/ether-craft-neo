@@ -107,9 +107,9 @@ public class ItemFilter implements Container, ValueIOSerializable {
         if (items[index].isEmpty())
             return false;
         if (whitelist)
-            return items[index].is(stack.getItem());
+            return ItemStack.isSameItemSameComponents(stack.toStack(), items[index]);
         else
-            return !items[index].is(stack.getItem());
+            return !ItemStack.isSameItemSameComponents(stack.toStack(), items[index]);
     }
 
     @Override
