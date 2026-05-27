@@ -15,7 +15,7 @@ public class ViewGridScreen extends Screen {
     final int totalWidth;
     final int totalHeight;
 
-    protected ViewGridScreen(Component title, List<List<ItemStack>> grid) {
+    public ViewGridScreen(Component title, List<List<ItemStack>> grid) {
         super(title);
         gridHeight = grid.size();
         gridWidth = grid.isEmpty() ? 0 : grid.get(0).size();

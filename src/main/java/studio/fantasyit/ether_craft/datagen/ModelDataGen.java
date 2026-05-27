@@ -66,6 +66,9 @@ public class ModelDataGen extends ModelProvider {
         itemModels.generateFlatItem(ItemRegistry.INACTIVATED_ETHER.get(), ITEM_SIMPLE);
         itemModels.generateFlatItem(ItemRegistry.VACUUM_PIPE.get(), ITEM_SIMPLE);
         itemModels.generateFlatItem(ItemRegistry.ETHER_INGOT.get(), ITEM_SIMPLE);
+        itemModels.generateFlatItem(ItemRegistry.ANSWER_GRID_5X5.get(), ITEM_SIMPLE);
+        itemModels.generateFlatItem(ItemRegistry.ANSWER_GRID_7X7.get(), ITEM_SIMPLE);
+        itemModels.generateFlatItem(ItemRegistry.ANSWER_GRID_9X9.get(), ITEM_SIMPLE);
         rm.listResources("ether_process_chip", t -> t.getPath().endsWith(".json")).forEach((_id, resource) -> {
             String path = _id.getPath();
             Identifier id = Identifier.fromNamespaceAndPath(

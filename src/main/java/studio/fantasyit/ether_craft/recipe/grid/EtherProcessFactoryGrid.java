@@ -1,11 +1,20 @@
 package studio.fantasyit.ether_craft.recipe.grid;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.NotNull;
 import studio.fantasyit.ether_craft.item.ProcessChipItem;
 import studio.fantasyit.ether_craft.register.DataComponentRegistry;
+import studio.fantasyit.ether_craft.register.RecipeSerializerRegistry;
+import studio.fantasyit.ether_craft.register.RecipeTypeRegistry;
 import studio.fantasyit.ether_craft.register.Tags;
 
 import javax.annotation.Nullable;
@@ -17,12 +26,42 @@ public class EtherProcessFactoryGrid implements Recipe<EtherProcessFactoryGridIn
 
     }
 
+    public static final MapCodec<EtherProcessFactoryGrid> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
+            ItemStackTemplate.CODEC.fieldOf("target").forGetter(g -> g.target),
+            Codec.list(Codec.list(ItemStackTemplate.CODEC, 1, Integer.MAX_VALUE), 1, Integer.MAX_VALUE)
+                    .fieldOf("grid").forGetter(EtherProcessFactoryGrid::getGridAsList)
+    ).apply(inst, EtherProcessFactoryGrid::new));
+
+    public static final StreamCodec<RegistryFriendlyByteBuf, EtherProcessFactoryGrid> STREAM_CODEC = StreamCodec.composite(
+            ItemStackTemplate.STREAM_CODEC, g -> g.target,
+            grid2DStreamCodec(), EtherProcessFactoryGrid::getGridAsList,
+            EtherProcessFactoryGrid::new
+    );
+
+    private static StreamCodec<RegistryFriendlyByteBuf, List<List<ItemStackTemplate>>> grid2DStreamCodec() {
+        StreamCodec<RegistryFriendlyByteBuf, List<ItemStackTemplate>> rowCodec =
+                ByteBufCodecs.collection(ArrayList::new, ItemStackTemplate.STREAM_CODEC);
+        return ByteBufCodecs.collection(ArrayList::new, rowCodec);
+    }
+
     ItemStackTemplate target;
     ItemStackTemplate[][] fullGrid;
     final int fullWidth;
     final int fullHeight;
     @Nullable
     Rect _rect;
+
+    public EtherProcessFactoryGrid(ItemStackTemplate target, List<List<ItemStackTemplate>> fullGrid) {
+        this.target = target;
+        this.fullHeight = fullGrid.size();
+        this.fullWidth = fullGrid.isEmpty() ? 0 : fullGrid.get(0).size();
+        this.fullGrid = new ItemStackTemplate[fullHeight][fullWidth];
+        for (int i = 0; i < fullHeight; i++) {
+            for (int j = 0; j < fullWidth; j++) {
+                this.fullGrid[i][j] = fullGrid.get(i).get(j);
+            }
+        }
+    }
 
     public EtherProcessFactoryGrid(ItemStackTemplate target, ItemStackTemplate[][] fullGrid) {
         this.target = target;
@@ -70,28 +109,28 @@ public class EtherProcessFactoryGrid implements Recipe<EtherProcessFactoryGridIn
     }
 
     @Override
-    public String group() {
+    public @NotNull String group() {
         return "";
     }
 
     @Override
-    public RecipeSerializer<? extends Recipe<EtherProcessFactoryGridInput>> getSerializer() {
-        return null;
+    public @NotNull RecipeSerializer<? extends Recipe<EtherProcessFactoryGridInput>> getSerializer() {
+        return RecipeSerializerRegistry.ETHER_PROCESS_FACTORY_GRID_SERIALIZER.get();
     }
 
     @Override
     public RecipeType<? extends Recipe<EtherProcessFactoryGridInput>> getType() {
-        return null;
+        return RecipeTypeRegistry.ETHER_PROCESS_FACTORY_GRID.get();
     }
 
     @Override
-    public PlacementInfo placementInfo() {
-        return null;
+    public @NotNull PlacementInfo placementInfo() {
+        return PlacementInfo.NOT_PLACEABLE;
     }
 
     @Override
-    public RecipeBookCategory recipeBookCategory() {
-        return null;
+    public @NotNull RecipeBookCategory recipeBookCategory() {
+        return RecipeBookCategories.CRAFTING_MISC;
     }
 
     public Rect getRect() {
@@ -121,5 +160,17 @@ public class EtherProcessFactoryGrid implements Recipe<EtherProcessFactoryGridIn
             }
         }
         return new Rect(minX, minY, maxX - minX + 1, maxY - minY + 1);
+    }
+
+    public List<List<ItemStackTemplate>> getGridAsList() {
+        List<List<ItemStackTemplate>> result = new ArrayList<>(fullHeight);
+        for (int i = 0; i < fullHeight; i++) {
+            List<ItemStackTemplate> row = new ArrayList<>(fullWidth);
+            for (int j = 0; j < fullWidth; j++) {
+                row.add(fullGrid[i][j]);
+            }
+            result.add(row);
+        }
+        return result;
     }
 }

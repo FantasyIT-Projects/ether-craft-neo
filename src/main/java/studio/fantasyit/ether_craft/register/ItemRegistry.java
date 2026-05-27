@@ -13,6 +13,7 @@ import org.jetbrains.annotations.NotNull;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.item.EtherAdaptNodeBlockItem;
 import studio.fantasyit.ether_craft.item.EtherProcessFactoryBlockItem;
+import studio.fantasyit.ether_craft.item.EtherProcessRecipeAnswerItem;
 import studio.fantasyit.ether_craft.item.ProcessChipItem;
 
 public class ItemRegistry {
@@ -49,6 +50,13 @@ public class ItemRegistry {
     public static final DeferredHolder<Item, @NotNull Item> DEEPSLATE_ETHER_ORE_ITEM = block(BlockRegistry.DEEPSLATE_ETHER_ORE);
     public static final DeferredHolder<Item, @NotNull Item> NETHER_ETHER_ORE_ITEM = block(BlockRegistry.NETHER_ETHER_ORE);
     public static final DeferredHolder<Item, @NotNull Item> ETHER_GLASS_ITEM = block(BlockRegistry.ETHER_GLASS);
+
+    public static final DeferredHolder<Item, @NotNull Item> ANSWER_GRID_5X5 = ITEMS.register("ether_process_recipe_answer_5x5",
+            EtherProcessRecipeAnswerItem.getConstructorWithShape(5, 5));
+    public static final DeferredHolder<Item, @NotNull Item> ANSWER_GRID_7X7 = ITEMS.register("ether_process_recipe_answer_7x7",
+            EtherProcessRecipeAnswerItem.getConstructorWithShape(7, 7));
+    public static final DeferredHolder<Item, @NotNull Item> ANSWER_GRID_9X9 = ITEMS.register("ether_process_recipe_answer_9x9",
+            EtherProcessRecipeAnswerItem.getConstructorWithShape(9, 9));
 
     public static void register(IEventBus modbus) {
         ITEMS.register(modbus);
