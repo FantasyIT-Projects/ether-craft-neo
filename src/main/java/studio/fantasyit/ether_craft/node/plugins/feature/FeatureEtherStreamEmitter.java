@@ -54,7 +54,7 @@ public class FeatureEtherStreamEmitter extends AbstractDirectionalFilterFeature 
         if (direction != null && nodeEntity.getEther() > minEther) {
             long sendWith = Math.min(Integer.MAX_VALUE, nodeEntity.getEther());
             nodeEntity.extractEther(sendWith);
-            Vec3 dir = direction.getUnitVec3();
+            Vec3 dir = direction.getUnitVec3().multiply(0.55f, 0.55f, 0.55f);
             EtherStreamEntity entity = EtherStreamEntity.create(
                     nodeEntity.getLevel(),
                     (int) sendWith,

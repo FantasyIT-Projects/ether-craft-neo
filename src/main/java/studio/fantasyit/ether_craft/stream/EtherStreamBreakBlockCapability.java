@@ -4,11 +4,14 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.CropBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
@@ -72,7 +75,20 @@ public class EtherStreamBreakBlockCapability implements IStreamCapability {
 
         BlockEntity blockEntity = level.getBlockEntity(pos);
         List<ItemStack> drops = Block.getDrops(blockState, level, pos, blockEntity, null, bestTool);
-        level.removeBlock(pos, false);
+
+        if (isHoe(bestTool)) {
+            ItemStack seedItem = findReplantSeed(drops, blockState);
+            if (!seedItem.isEmpty()) {
+                seedItem.shrink(1);
+                level.setBlock(pos, createReplantedState(blockState), 3);
+            } else {
+                level.removeBlock(pos, false);
+            }
+        } else {
+            level.removeBlock(pos, false);
+        }
+
+        drops.removeIf(ItemStack::isEmpty);
 
         streamEntity.consumeEther(cost);
 
@@ -95,6 +111,33 @@ public class EtherStreamBreakBlockCapability implements IStreamCapability {
             }
         }
         return true;
+    }
+
+    private static boolean isHoe(ItemStack tool) {
+        return tool.is(ItemTags.HOES);
+    }
+
+    private static ItemStack findReplantSeed(List<ItemStack> drops, BlockState targetBlockState) {
+        Block targetBlock = targetBlockState.getBlock();
+        for (ItemStack drop : drops) {
+            if (!drop.isEmpty() && drop.getItem() instanceof BlockItem blockItem && blockItem.getBlock() == targetBlock) {
+                return drop;
+            }
+        }
+        return ItemStack.EMPTY;
+    }
+
+    private static BlockState createReplantedState(BlockState originalState) {
+        Block block = originalState.getBlock();
+        if (block instanceof CropBlock cropBlock) {
+            return cropBlock.getStateForAge(0);
+        }
+        for (var prop : originalState.getProperties()) {
+            if ("age".equals(prop.getName()) && prop instanceof net.minecraft.world.level.block.state.properties.IntegerProperty intProp) {
+                return originalState.setValue(intProp, 0);
+            }
+        }
+        return originalState;
     }
 
     private ItemStack findBestTool(ServerLevel level, BlockPos pos, BlockState state) {

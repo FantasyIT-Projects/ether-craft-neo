@@ -43,7 +43,7 @@ public class EtherStreamEmitterEntity extends BaseEtherContainerBlockEntity impl
         if (this.getEther() > 1000) {
             if (level != null) {
                 @NotNull Direction targetDirection = this.getBlockState().getValue(EtherAdaptNodeBlock.FACING);
-                Vec3 dir = targetDirection.getUnitVec3();
+                Vec3 dir = targetDirection.getUnitVec3().multiply(0.55f, 0.55f, 0.55f);
                 EtherStreamEntity entity = EtherStreamEntity.create(
                         this.level,
                         (int) this.getEther(),
