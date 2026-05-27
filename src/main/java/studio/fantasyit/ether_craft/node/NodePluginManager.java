@@ -75,14 +75,14 @@ public class NodePluginManager {
         ALL_PLUGINS.add(new PluginInfo(PluginType.FUNCTION, FunctionEtherConverter.ID, FunctionEtherConverter::new, t -> t.is(Items.DRAGON_EGG), Items.DRAGON_EGG));
         ALL_PLUGINS.add(new PluginInfo(PluginType.FUNCTION, FunctionGrowthAccelerator.ID, FunctionGrowthAccelerator::new, t -> t.is(Items.BONE_MEAL), Items.BONE_MEAL));
         ALL_PLUGINS.add(new PluginInfo(PluginType.FUNCTION, FunctionEnchanter.ID, FunctionEnchanter::new, t -> t.is(Items.ENCHANTING_TABLE), Items.ENCHANTING_TABLE));
-        ALL_PLUGINS.add(new PluginInfo(PluginType.FUNCTION, FunctionCreativeEther.ID, FunctionCreativeEther::new, t -> t.is(ItemRegistry.ETHER_CREATIVE), ItemRegistry.ETHER_CREATIVE.get()));
+        ALL_PLUGINS.add(new PluginInfo(PluginType.FUNCTION, FunctionCreativeEther.ID_FUNC, FunctionCreativeEther::new, t -> t.is(ItemRegistry.ETHER_CREATIVE), ItemRegistry.ETHER_CREATIVE.get()));
         ALL_PLUGINS.add(new PluginInfo(PluginType.FEATURE, FeatureEtherStreamEmitter.ID, FeatureEtherStreamEmitter::new, t -> t.is(Items.DISPENSER), Items.DISPENSER));
         ALL_PLUGINS.add(new PluginInfo(PluginType.FEATURE, FeatureDropperThrower.ID, FeatureDropperThrower::new, t -> t.is(Items.DROPPER), Items.DROPPER));
         ALL_PLUGINS.add(new PluginInfo(PluginType.FEATURE, FeatureContainerInteract.ID, FeatureContainerInteract::new, t -> t.is(Items.HOPPER), Items.HOPPER));
         ALL_PLUGINS.add(new PluginInfo(PluginType.UPGRADE, FunctionCreativeEther.ID, FunctionCreativeEther::new, t -> t.is(ItemRegistry.ETHER_CREATIVE), ItemRegistry.ETHER_CREATIVE.get()));
         ALL_PLUGINS.add(new PluginInfo(PluginType.UPGRADE, StorageUpgrade.ID, StorageUpgrade::new, t -> t.is(Items.CHEST), Items.CHEST));
         ALL_PLUGINS.add(new PluginInfo(PluginType.UPGRADE, EtherStreamStorageUpgrade.ID, (a, b) -> new EtherStreamStorageUpgrade(a, b, 1), t -> t.is(ItemTags.CHEST_BOATS), Items.OAK_CHEST_BOAT));
-        ALL_PLUGINS.add(new PluginInfo(PluginType.UPGRADE, EtherStreamStorageUpgrade.ID, (a, b) -> new EtherStreamStorageUpgrade(a, b, 4), t -> t.is(Items.CHEST_MINECART), Items.CHEST_MINECART));
+        ALL_PLUGINS.add(new PluginInfo(PluginType.UPGRADE, EtherStreamStorageUpgrade.ID_1, (a, b) -> new EtherStreamStorageUpgrade(a, b, 4), t -> t.is(Items.CHEST_MINECART), Items.CHEST_MINECART));
         ALL_PLUGINS.add(new PluginInfo(PluginType.UPGRADE, EtherStreamPreventDecayUpgrade.ID, EtherStreamPreventDecayUpgrade::new, t -> t.is(Items.REPEATER), Items.REPEATER));
         ALL_PLUGINS.add(new PluginInfo(PluginType.UPGRADE, EtherStreamBreakBlockUpgrade.ID, EtherStreamBreakBlockUpgrade::new, t -> t.is(ItemTags.AXES) || t.is(ItemTags.PICKAXES) || t.is(ItemTags.SHOVELS) || t.is(ItemTags.HOES), Items.IRON_PICKAXE));
         ALL_PLUGINS.add(new PluginInfo(PluginType.UPGRADE, EtherStreamDamageUpgrade.ID, EtherStreamDamageUpgrade::new, stack -> stack.has(DataComponents.WEAPON), Items.IRON_SWORD));

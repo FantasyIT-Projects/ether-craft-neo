@@ -13,6 +13,7 @@ import java.util.Optional;
 
 public class EtherStreamStorageUpgrade extends AbstractNodePlugin implements IEtherStreamCapabilityProviderPlugin {
     public static final Identifier ID = EtherCraft.id("ether_stream_storage_upgrade");
+    public static final Identifier ID_1 = EtherCraft.id("ether_stream_storage_upgrade_1");
     int streamIncrease;
 
     public EtherStreamStorageUpgrade(EtherAdaptNodeEntity nodeEntity, InstalledPlugin installedId, int streamIncrease) {

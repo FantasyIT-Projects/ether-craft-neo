@@ -28,7 +28,6 @@ import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.block.base.EtherContainer;
 import studio.fantasyit.ether_craft.register.EntityRegistry;
 import studio.fantasyit.ether_craft.register.Tags;
-import studio.fantasyit.ether_craft.stream.EtherStreamLabelCapability;
 import studio.fantasyit.ether_craft.stream.IStreamCapability;
 
 import java.util.ArrayList;
@@ -199,7 +198,7 @@ public class EtherStreamEntity extends Projectile {
                     return;
                 }
                 for (IStreamCapability cap : capabilities) {
-                    if (cap.shouldPassThrough(blockState)) {
+                    if (cap.shouldPassThrough(blockState, (ServerLevel) level(), blockHit.getBlockPos())) {
                         return;
                     }
                 }
@@ -210,11 +209,6 @@ public class EtherStreamEntity extends Projectile {
                 BlockState blockState = level().getBlockState(blockhit.getBlockPos());
                 if (blockState.is(Tags.ETHER_STREAM_PASS_THROUGH)) {
                     return;
-                }
-                for (IStreamCapability cap : capabilities) {
-                    if (cap.shouldPassThrough(blockState)) {
-                        return;
-                    }
                 }
             }
         }

@@ -1,5 +1,6 @@
 package studio.fantasyit.ether_craft.stream;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
@@ -26,7 +27,7 @@ public interface IStreamCapability extends ValueIOSerializable {
 
     }
 
-    default boolean shouldPassThrough(BlockState blockState) {
+    default boolean shouldPassThrough(BlockState blockState, ServerLevel level, BlockPos blockPos) {
         return false;
     }
 }

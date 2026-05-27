@@ -1,7 +1,6 @@
 package studio.fantasyit.ether_craft.stream;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.ItemTags;
@@ -9,9 +8,9 @@ import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.CropBlock;
+import net.minecraft.world.level.block.SweetBerryBushBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
@@ -52,6 +51,19 @@ public class EtherStreamBreakBlockCapability implements IStreamCapability {
 
     @Override
     public void tick(EtherStreamEntity streamEntity) {
+        if (streamEntity.level() instanceof ServerLevel level) {
+            BlockState blockState = level.getBlockState(streamEntity.blockPosition());
+            if (blockState.isAir()) return;
+            if (hasAgeProperty(blockState) || isBerry(blockState)) {
+                BlockHitResult bh = new BlockHitResult(
+                        streamEntity.position(),
+                        streamEntity.getMotionDirection().getOpposite(),
+                        streamEntity.blockPosition(),
+                        true
+                );
+                this.hitBlock(level, streamEntity, bh, blockState);
+            }
+        }
     }
 
     @Override
@@ -71,12 +83,12 @@ public class EtherStreamBreakBlockCapability implements IStreamCapability {
 
         float hardness = blockState.getDestroySpeed(level, pos);
         //TODO 附魔
-        int cost = Math.max(1, (int) (hardness * Config.etherStreamBreakBlockHardnessMultiplier)  + Config.etherStreamBreakBlockConstantCost);
+        int cost = Math.max(1, (int) (hardness * Config.etherStreamBreakBlockHardnessMultiplier) + Config.etherStreamBreakBlockConstantCost);
 
         BlockEntity blockEntity = level.getBlockEntity(pos);
         List<ItemStack> drops = Block.getDrops(blockState, level, pos, blockEntity, null, bestTool);
 
-        if (isHoe(bestTool)) {
+        if (isHoe(bestTool) && hasAgeProperty(blockState)) {
             ItemStack seedItem = findReplantSeed(drops, blockState);
             if (!seedItem.isEmpty()) {
                 seedItem.shrink(1);
@@ -84,6 +96,9 @@ public class EtherStreamBreakBlockCapability implements IStreamCapability {
             } else {
                 level.removeBlock(pos, false);
             }
+        } else if (isHoe(bestTool) && isBerry(blockState)) {
+            BlockState blockState1 = blockState.setValue(SweetBerryBushBlock.AGE, 0);
+            level.setBlockAndUpdate(pos, blockState1);
         } else {
             level.removeBlock(pos, false);
         }
@@ -93,7 +108,8 @@ public class EtherStreamBreakBlockCapability implements IStreamCapability {
         streamEntity.consumeEther(cost);
 
         Optional<IStreamCapability> optStorage = streamEntity.getCapability(EtherStreamStorageCapability.ID);
-        if (optStorage.isPresent() && optStorage.get() instanceof EtherStreamStorageCapability storage) {
+        if (optStorage.isPresent() && optStorage.get() instanceof
+                EtherStreamStorageCapability storage) {
             SimpleContainer dropContainer = new SimpleContainer(drops.size());
             for (int i = 0; i < drops.size(); i++) {
                 dropContainer.setItem(i, drops.get(i));
@@ -117,6 +133,16 @@ public class EtherStreamBreakBlockCapability implements IStreamCapability {
         return tool.is(ItemTags.HOES);
     }
 
+    private static boolean hasAgeProperty(BlockState state) {
+        if (!(state.getBlock() instanceof CropBlock cb)) return false;
+        if (cb.getAge(state) != cb.getMaxAge()) return false;
+        return true;
+    }
+
+    private static boolean isBerry(BlockState state) {
+        return state.getBlock() instanceof SweetBerryBushBlock sb && state.hasProperty(SweetBerryBushBlock.AGE) && state.getValue(SweetBerryBushBlock.AGE) == SweetBerryBushBlock.MAX_AGE;
+    }
+
     private static ItemStack findReplantSeed(List<ItemStack> drops, BlockState targetBlockState) {
         Block targetBlock = targetBlockState.getBlock();
         for (ItemStack drop : drops) {
@@ -132,15 +158,17 @@ public class EtherStreamBreakBlockCapability implements IStreamCapability {
         if (block instanceof CropBlock cropBlock) {
             return cropBlock.getStateForAge(0);
         }
-        for (var prop : originalState.getProperties()) {
-            if ("age".equals(prop.getName()) && prop instanceof net.minecraft.world.level.block.state.properties.IntegerProperty intProp) {
-                return originalState.setValue(intProp, 0);
-            }
-        }
         return originalState;
     }
 
     private ItemStack findBestTool(ServerLevel level, BlockPos pos, BlockState state) {
+        if (hasAgeProperty(state) || isBerry(state)) {
+            for (ItemStack tool : tools) {
+                if (!tool.isEmpty() && isHoe(tool)) {
+                    return tool;
+                }
+            }
+        }
         ItemStack best = ItemStack.EMPTY;
         float bestSpeed = 0;
         for (ItemStack tool : tools) {

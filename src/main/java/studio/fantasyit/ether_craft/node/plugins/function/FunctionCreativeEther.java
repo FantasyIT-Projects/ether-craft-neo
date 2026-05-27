@@ -8,6 +8,7 @@ import studio.fantasyit.ether_craft.node.plugins.base.AbstractNodePlugin;
 
 public class FunctionCreativeEther extends AbstractNodePlugin {
     public static final Identifier ID = EtherCraft.id("generator/creative");
+    public static final Identifier ID_FUNC = EtherCraft.id("generator/creative_f");
 
     public FunctionCreativeEther(EtherAdaptNodeEntity nodeEntity, InstalledPlugin installedId) {
         super(nodeEntity, installedId);

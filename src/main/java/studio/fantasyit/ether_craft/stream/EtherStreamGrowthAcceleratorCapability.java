@@ -66,8 +66,8 @@ public class EtherStreamGrowthAcceleratorCapability implements IStreamCapability
     }
 
     @Override
-    public boolean shouldPassThrough(BlockState blockState) {
-        return blockState.is(Tags.CROP_ACCELERATABLE);
+    public boolean shouldPassThrough(BlockState blockState, ServerLevel level, BlockPos blockPos) {
+        return blockState.is(Tags.CROP_ACCELERATABLE) && blockState.isCollisionShapeFullBlock(level, blockPos);
     }
 
     @Override
