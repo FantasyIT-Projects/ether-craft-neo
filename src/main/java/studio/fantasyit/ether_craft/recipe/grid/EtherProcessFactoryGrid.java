@@ -94,7 +94,7 @@ public class EtherProcessFactoryGrid implements Recipe<EtherProcessFactoryGridIn
         for (int i = 0; i < etherProcessFactoryGridInput.w(); i++) {
             for (int j = 0; j < etherProcessFactoryGridInput.h(); j++) {
                 if (i < rect.width && j < rect.height)
-                    grid.get(j).set(i, fullGrid[j][i].create());
+                    grid.get(j).set(i, fullGrid[j + rect.y][i + rect.x].create());
                 else
                     grid.get(j).set(i, ProcessChipItem.getStackFor(ProcessChipItem.SEPARATOR));
             }
@@ -148,6 +148,8 @@ public class EtherProcessFactoryGrid implements Recipe<EtherProcessFactoryGridIn
             for (int j = 0; j < fullHeight; j++) {
                 ItemStack stack = fullGrid[j][i].create();
                 if (stack.isEmpty() || !stack.is(Tags.PROCESS_CHIP))
+                    continue;
+                if (stack.has(DataComponentRegistry.CHIP_ID) && stack.get(DataComponentRegistry.CHIP_ID).equals(ProcessChipItem.SEPARATOR))
                     continue;
                 if (i < minX)
                     minX = i;

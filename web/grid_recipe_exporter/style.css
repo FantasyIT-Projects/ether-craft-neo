@@ -1,0 +1,296 @@
+/* style.css — Grid Recipe Exporter */
+
+:root {
+    --bg: #1a1a2e;
+    --surface: #16213e;
+    --surface2: #0f3460;
+    --accent: #e94560;
+    --text: #e0e0e0;
+    --text2: #a0a0a0;
+    --border: #2a2a4a;
+    --path: #2ecc71;
+    --path-bg: rgba(46, 204, 113, 0.15);
+    --danger: #e63946;
+    --warn: #f4a261;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+}
+
+#app {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 24px 20px;
+}
+
+h1 {
+    font-size: 1.3em;
+    margin-bottom: 4px;
+    color: var(--accent);
+}
+
+.subtitle {
+    font-size: 0.78em;
+    color: var(--text2);
+    margin-bottom: 18px;
+}
+
+.subtitle code {
+    background: var(--surface2);
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 0.95em;
+}
+
+h3 {
+    font-size: 0.9em;
+    margin-bottom: 8px;
+    color: var(--text2);
+}
+
+/* ---- Directory Section ---- */
+
+.dir-section {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 18px;
+    padding: 14px;
+    background: var(--surface);
+    border-radius: 6px;
+}
+
+.dir-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.btn-dir {
+    padding: 8px 18px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--text);
+    font-size: 0.82em;
+    cursor: pointer;
+    transition: all .15s;
+    white-space: nowrap;
+}
+.btn-dir:hover {
+    background: var(--accent);
+    border-color: var(--accent);
+}
+
+.dir-path {
+    font-size: 0.78em;
+    color: var(--text2);
+    word-break: break-all;
+    font-family: 'Consolas', 'Courier New', monospace;
+}
+.dir-path.set {
+    color: var(--path);
+}
+
+/* ---- File List ---- */
+
+.file-list-section {
+    margin-bottom: 14px;
+    padding: 12px;
+    background: var(--surface);
+    border-radius: 6px;
+}
+
+.file-list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.select-all {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.78em;
+    color: var(--text2);
+    cursor: pointer;
+    user-select: none;
+}
+.select-all input[type="checkbox"] {
+    accent-color: var(--path);
+    width: 15px;
+    height: 15px;
+    cursor: pointer;
+}
+
+.file-count {
+    font-size: 0.75em;
+    color: var(--text2);
+}
+
+.file-list {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    max-height: 320px;
+    overflow-y: auto;
+}
+
+.file-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    background: var(--bg);
+    border-radius: 4px;
+    font-size: 0.8em;
+    transition: background .15s;
+    cursor: default;
+}
+.file-item:hover {
+    background: var(--surface2);
+}
+.file-item input[type="checkbox"] {
+    accent-color: var(--path);
+    width: 14px;
+    height: 14px;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+.file-item .fname {
+    flex: 1;
+    font-family: 'Consolas', 'Courier New', monospace;
+    color: var(--text);
+    word-break: break-all;
+}
+.file-item .fname.result-error {
+    color: var(--danger);
+}
+.file-item .fname.result-ok {
+    color: var(--path);
+}
+
+.no-files {
+    font-size: 0.78em;
+    color: var(--text2);
+    padding: 8px;
+}
+
+/* ---- Actions ---- */
+
+.actions {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 14px;
+}
+
+.btn-process {
+    padding: 10px 28px;
+    background: var(--path);
+    color: #000;
+    border: none;
+    border-radius: 4px;
+    font-size: 0.88em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all .15s;
+}
+.btn-process:hover:not(:disabled) {
+    opacity: 0.9;
+    transform: translateY(-1px);
+}
+.btn-process:disabled {
+    background: var(--surface2);
+    color: var(--text2);
+    cursor: not-allowed;
+}
+
+.progress-text {
+    font-size: 0.8em;
+    color: var(--text2);
+}
+
+/* ---- Results ---- */
+
+.results-section {
+    padding: 12px;
+    background: var(--surface);
+    border-radius: 6px;
+}
+
+.results-list {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.result-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 0.78em;
+    background: var(--bg);
+}
+.result-item.ok {
+    border-left: 3px solid var(--path);
+}
+.result-item.err {
+    border-left: 3px solid var(--danger);
+}
+.result-item .rname {
+    flex: 1;
+    font-family: 'Consolas', 'Courier New', monospace;
+}
+.result-item .rmsg {
+    color: var(--text2);
+    font-size: 0.9em;
+}
+
+.result-summary {
+    margin-bottom: 8px;
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-size: 0.82em;
+}
+.result-summary.success {
+    background: var(--path-bg);
+    color: var(--path);
+}
+.result-summary.partial {
+    background: rgba(244, 162, 97, 0.15);
+    color: var(--warn);
+}
+.result-summary.failure {
+    background: rgba(230, 57, 70, 0.15);
+    color: var(--danger);
+}
+
+/* ---- Scrollbar ---- */
+
+.file-list::-webkit-scrollbar,
+.results-list::-webkit-scrollbar {
+    width: 6px;
+}
+.file-list::-webkit-scrollbar-track,
+.results-list::-webkit-scrollbar-track {
+    background: var(--bg);
+    border-radius: 3px;
+}
+.file-list::-webkit-scrollbar-thumb,
+.results-list::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 3px;
+}

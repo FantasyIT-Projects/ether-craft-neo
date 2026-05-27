@@ -226,6 +226,25 @@ public class EtherProcessFactoryContainerMenu extends BaseContainerMenu<@NotNull
 
     @Override
     public void clicked(int slotIndex, int buttonNum, ContainerInput containerInput, Player player) {
+        if (containerInput == ContainerInput.PICKUP_ALL && internalSlotMapping.containsKey(slotIndex)) {
+            return;
+        }
+        if (!getCarried().is(WRENCH) && internalSlotMapping.containsKey(slotIndex)
+                && containerInput == ContainerInput.PICKUP && !getCarried().isEmpty()) {
+            Slot slot = getSlot(slotIndex);
+            if (slot.hasItem()) {
+                ItemStack slotItem = slot.getItem().copy();
+                boolean moved = moveItemStackTo(slotItem, playerSlotStart, playerSlotStart + 36, false);
+                if (moved) {
+                    slot.set(slotItem.isEmpty() ? ItemStack.EMPTY : slotItem);
+                }
+                if (slot.getItem().isEmpty()) {
+                    int amount = buttonNum == 0 ? getCarried().getCount() : 1;
+                    setCarried(slot.safeInsert(getCarried(), amount));
+                    return;
+                }
+            }
+        }
         if (getCarried().is(WRENCH) && containerInput == ContainerInput.QUICK_CRAFT) {
             int header = AbstractContainerMenu.getQuickcraftHeader(buttonNum);
             if (header == AbstractContainerMenu.QUICKCRAFT_HEADER_START) {

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Grid Recipe Exporter — Ether Craft</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="app">
+    <h1>Grid Recipe Exporter</h1>
+    <p class="subtitle">Convert exported 9x9 grid layout files into <code>ether_process_factory_grid</code> recipe JSON files.</p>
+
+    <div class="dir-section">
+        <div class="dir-row">
+            <button class="btn-dir" id="btn-source-dir">Select Source Directory</button>
+            <span class="dir-path" id="source-path">No directory selected</span>
+        </div>
+        <div class="dir-row">
+            <button class="btn-dir" id="btn-target-dir">Select Target Directory</button>
+            <span class="dir-path" id="target-path">No directory selected</span>
+        </div>
+    </div>
+
+    <div class="file-list-section" id="file-list-section" style="display:none;">
+        <h3>Source Files</h3>
+        <div class="file-list-header">
+            <label class="select-all"><input type="checkbox" id="select-all" checked> Select All</label>
+            <span class="file-count" id="file-count"></span>
+        </div>
+        <div class="file-list" id="file-list"></div>
+    </div>
+
+    <div class="actions">
+        <button class="btn-process" id="btn-process" disabled>Export All Grid Recipes</button>
+        <span class="progress-text" id="progress-text"></span>
+    </div>
+
+    <div class="results-section" id="results-section" style="display:none;">
+        <h3>Results</h3>
+        <div class="results-list" id="results-list"></div>
+    </div>
+</div>
+
+<script src="exporter.js"></script>
+</body>
+</html>
