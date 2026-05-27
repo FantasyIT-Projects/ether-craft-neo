@@ -17,6 +17,8 @@ import studio.fantasyit.ether_craft.register.Tags;
 public class EtherStreamGrowthAcceleratorCapability implements IStreamCapability {
     public static final Identifier ID = EtherCraft.id("growth_accelerator_stream");
 
+    private BlockPos lastCatalyzedPos = null;
+
     @Override
     public Identifier getId() {
         return ID;
@@ -33,6 +35,9 @@ public class EtherStreamGrowthAcceleratorCapability implements IStreamCapability
             return;
 
         BlockPos pos = streamEntity.blockPosition();
+        if (pos.equals(lastCatalyzedPos))
+            return;
+
         BlockState state = level.getBlockState(pos);
         if (!state.is(Tags.CROP_ACCELERATABLE))
             return;
@@ -43,6 +48,7 @@ public class EtherStreamGrowthAcceleratorCapability implements IStreamCapability
 
         streamEntity.consumeEther(cost);
         state.randomTick(level, pos, level.getRandom());
+        lastCatalyzedPos = pos;
     }
 
     @Override
@@ -66,9 +72,13 @@ public class EtherStreamGrowthAcceleratorCapability implements IStreamCapability
 
     @Override
     public void serialize(ValueOutput output) {
+        if (lastCatalyzedPos != null) {
+            output.store("lastCatalyzedPos", BlockPos.CODEC, lastCatalyzedPos);
+        }
     }
 
     @Override
     public void deserialize(ValueInput input) {
+        lastCatalyzedPos = input.read("lastCatalyzedPos", BlockPos.CODEC).orElse(null);
     }
 }
