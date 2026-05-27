@@ -121,5 +121,9 @@
   "jei.ether_craft.plugin.ether_craft.ether_stream_prevent_decay_upgrade": "Prevents ether stream decay over distance.",
   "jei.ether_craft.plugin.ether_craft.block_breaker_upgrade": "Allows ether streams to break blocks on contact.",
   "jei.ether_craft.plugin.ether_craft.damage_upgrade": "Allows ether streams to damage entities on contact.",
-  "jei.ether_craft.plugin.ether_craft.ether_filter_upgrade": "Adds item filtering capabilities to ether streams."
+  "jei.ether_craft.plugin.ether_craft.ether_filter_upgrade": "Adds item filtering capabilities to ether streams.",
+  "ether_craft.gui.answer.select_for_next": "Click to view more information",
+  "ether_craft.gui.answer.inputs": "Input:",
+  "ether_craft.gui.answer.outputs": "Output",
+  "ether_craft.gui.answer.no_recipe": "Recipe Not Sync..."
 }

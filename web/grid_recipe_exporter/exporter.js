@@ -164,46 +164,41 @@ const Exporter = {
         const cols = grid[0].length;
         const outputItemId = data.outputItemId || 'minecraft:air';
 
-        // Find bounding rect of all chip cells (same algorithm as EtherProcessFactoryGrid.findRect)
-        let minX = cols, minY = rows, maxX = -1, maxY = -1;
+        const entries = [];
         for (let y = 0; y < rows; y++) {
             for (let x = 0; x < cols; x++) {
                 const cell = grid[y][x];
                 if (cell && cell.type === 'chip' && cell.chipId) {
-                    if (x < minX) minX = x;
-                    if (x > maxX) maxX = x;
-                    if (y < minY) minY = y;
-                    if (y > maxY) maxY = y;
+                    entries.push({ x, y, item: this.makeChipTemplate(cell.chipId) });
+                } else if (cell && cell.type === 'block') {
+                    entries.push({ x, y, item: this.makeChipTemplate('ether_craft:separator_chip') });
                 }
             }
         }
 
-        if (maxX < 0) {
-            throw new Error('No chip cells found in grid');
-        }
-
-        const rectWidth = maxX - minX + 1;
-        const rectHeight = maxY - minY + 1;
-
-        // Extract chip cells within the rect as ItemStackTemplates
-        const recipeGrid = [];
-        for (let y = minY; y <= maxY; y++) {
-            const row = [];
-            for (let x = minX; x <= maxX; x++) {
-                const cell = grid[y][x];
-                if (cell && cell.type === 'chip' && cell.chipId) {
-                    row.push(this.makeChipTemplate(cell.chipId));
+        const inputs = [];
+        const inputItems = data.inputItems || [];
+        for (let row = 0; row < inputItems.length; row++) {
+            const raw = inputItems[row];
+            if (!raw) continue;
+            const parsed = this.tryParseJson(raw);
+            if (parsed) {
+                inputs.push(parsed);
+            } else {
+                const m = raw.match(/^(.+?)::(\d+)$/);
+                if (m) {
+                    inputs.push({ ingredient: m[1], count: parseInt(m[2], 10) });
                 } else {
-                    throw new Error('Non-chip cell found inside chip bounding rect at (' + x + ',' + y + ')');
+                    inputs.push({ ingredient: raw, count: 1 });
                 }
             }
-            recipeGrid.push(row);
         }
 
         return {
             type: 'ether_craft:ether_process_factory_grid',
             target: this.makeItemTemplate(outputItemId),
-            grid: recipeGrid,
+            entries: entries,
+            inputs: inputs,
         };
     },
 
@@ -214,24 +209,36 @@ const Exporter = {
         return { id: raw, count: 1 };
     },
 
+    tryParseJson(raw) {
+        if (!raw || typeof raw !== 'string') return null;
+        const trimmed = raw.trim();
+        if ((trimmed.startsWith('{') || trimmed.startsWith('[')) &&
+            (trimmed.endsWith('}') || trimmed.endsWith(']'))) {
+            try { return JSON.parse(trimmed); } catch (_) {}
+        }
+        return null;
+    },
+
     makeItemTemplate(raw) {
+        const parsed = this.tryParseJson(raw);
+        if (parsed) {
+            if (Array.isArray(parsed)) return parsed.length > 0 ? parsed[0] : { id: 'minecraft:air' };
+            return parsed;
+        }
         const p = this.parseItemWithCount(raw);
         return { id: p.id, count: p.count };
     },
 
     makeChipTemplate(raw) {
         const p = this.parseItemWithCount(raw);
-        const result = {
+        return {
             id: 'ether_craft:process_chip',
             count: p.count,
             components: {
                 'ether_craft:ether_process_chip_id': p.id,
+                'minecraft:item_model': p.id,
             }
         };
-        if (p.id !== 'ether_craft:separator_chip') {
-            result.components['minecraft:item_model'] = p.id;
-        }
-        return result;
     },
 
     async writeToTarget(filename, recipeJson) {

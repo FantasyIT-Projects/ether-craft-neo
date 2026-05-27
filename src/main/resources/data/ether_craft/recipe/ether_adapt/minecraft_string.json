@@ -1,6 +1,11 @@
 {
   "type": "ether_craft:node_process",
-  "ingredients": ["#ether_craft:vines","#ether_craft:vines"],
+  "ingredients": [
+    {
+      "ingredient": "#ether_craft:vines",
+      "count": 2
+    }
+  ],
   "result": "minecraft:string",
-  "etherCost": 100
+  "etherCost": 500
 }

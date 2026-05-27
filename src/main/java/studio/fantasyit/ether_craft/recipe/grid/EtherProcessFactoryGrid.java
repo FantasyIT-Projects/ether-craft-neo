@@ -12,64 +12,87 @@ import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 import studio.fantasyit.ether_craft.item.ProcessChipItem;
+import studio.fantasyit.ether_craft.recipe.DelayedIngredient;
+import studio.fantasyit.ether_craft.recipe.IngredientSerializer;
 import studio.fantasyit.ether_craft.register.DataComponentRegistry;
 import studio.fantasyit.ether_craft.register.RecipeSerializerRegistry;
 import studio.fantasyit.ether_craft.register.RecipeTypeRegistry;
 import studio.fantasyit.ether_craft.register.Tags;
+import net.neoforged.neoforge.common.crafting.SizedIngredient;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
 public class EtherProcessFactoryGrid implements Recipe<EtherProcessFactoryGridInput> {
-    public record Rect(int x, int y, int width, int height) {
+    public ItemStack getTarget() {
+        return target.create();
+    }
 
+    public record Rect(int x, int y, int width, int height) {
+    }
+
+    public record GridEntry(int x, int y, ItemStackTemplate item) {
+        public static final Codec<GridEntry> CODEC = RecordCodecBuilder.create(inst -> inst.group(
+                Codec.INT.fieldOf("x").forGetter(GridEntry::x),
+                Codec.INT.fieldOf("y").forGetter(GridEntry::y),
+                ItemStackTemplate.CODEC.fieldOf("item").forGetter(GridEntry::item)
+        ).apply(inst, GridEntry::new));
+
+        public static final StreamCodec<RegistryFriendlyByteBuf, GridEntry> STREAM_CODEC = StreamCodec.composite(
+                ByteBufCodecs.VAR_INT, GridEntry::x,
+                ByteBufCodecs.VAR_INT, GridEntry::y,
+                ItemStackTemplate.STREAM_CODEC, GridEntry::item,
+                GridEntry::new
+        );
     }
 
     public static final MapCodec<EtherProcessFactoryGrid> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
             ItemStackTemplate.CODEC.fieldOf("target").forGetter(g -> g.target),
-            Codec.list(Codec.list(ItemStackTemplate.CODEC, 1, Integer.MAX_VALUE), 1, Integer.MAX_VALUE)
-                    .fieldOf("grid").forGetter(EtherProcessFactoryGrid::getGridAsList)
+            Codec.list(GridEntry.CODEC).fieldOf("entries").forGetter(EtherProcessFactoryGrid::getEntries),
+            Codec.list(IngredientSerializer.CHIP_INGREDIENT_CODEC).optionalFieldOf("inputs", List.of()).forGetter(g -> g.inputs)
     ).apply(inst, EtherProcessFactoryGrid::new));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, EtherProcessFactoryGrid> STREAM_CODEC = StreamCodec.composite(
             ItemStackTemplate.STREAM_CODEC, g -> g.target,
-            grid2DStreamCodec(), EtherProcessFactoryGrid::getGridAsList,
+            entriesStreamCodec(), EtherProcessFactoryGrid::getEntries,
+            inputsStreamCodec(), EtherProcessFactoryGrid::getInputs,
             EtherProcessFactoryGrid::new
     );
 
-    private static StreamCodec<RegistryFriendlyByteBuf, List<List<ItemStackTemplate>>> grid2DStreamCodec() {
-        StreamCodec<RegistryFriendlyByteBuf, List<ItemStackTemplate>> rowCodec =
-                ByteBufCodecs.collection(ArrayList::new, ItemStackTemplate.STREAM_CODEC);
-        return ByteBufCodecs.collection(ArrayList::new, rowCodec);
+    private static StreamCodec<RegistryFriendlyByteBuf, List<GridEntry>> entriesStreamCodec() {
+        return ByteBufCodecs.collection(ArrayList::new, GridEntry.STREAM_CODEC);
+    }
+
+    private static StreamCodec<RegistryFriendlyByteBuf, DelayedIngredient> delayedIngredientStreamCodec() {
+        return SizedIngredient.STREAM_CODEC.map(
+                DelayedIngredient::of,
+                DelayedIngredient::toIngredient
+        );
+    }
+
+    private static StreamCodec<RegistryFriendlyByteBuf, List<DelayedIngredient>> inputsStreamCodec() {
+        return ByteBufCodecs.collection(ArrayList::new, delayedIngredientStreamCodec());
     }
 
     ItemStackTemplate target;
-    ItemStackTemplate[][] fullGrid;
-    final int fullWidth;
-    final int fullHeight;
+    List<GridEntry> entries;
+    List<DelayedIngredient> inputs;
     @Nullable
     Rect _rect;
 
-    public EtherProcessFactoryGrid(ItemStackTemplate target, List<List<ItemStackTemplate>> fullGrid) {
+    public EtherProcessFactoryGrid(ItemStackTemplate target, List<GridEntry> entries, List<DelayedIngredient> inputs) {
         this.target = target;
-        this.fullHeight = fullGrid.size();
-        this.fullWidth = fullGrid.isEmpty() ? 0 : fullGrid.get(0).size();
-        this.fullGrid = new ItemStackTemplate[fullHeight][fullWidth];
-        for (int i = 0; i < fullHeight; i++) {
-            for (int j = 0; j < fullWidth; j++) {
-                this.fullGrid[i][j] = fullGrid.get(i).get(j);
-            }
-        }
+        this.entries = entries;
+        this.inputs = inputs;
     }
 
-    public EtherProcessFactoryGrid(ItemStackTemplate target, ItemStackTemplate[][] fullGrid) {
-        this.target = target;
-        this.fullGrid = fullGrid;
-        if (fullGrid.length == 0)
-            throw new IllegalArgumentException("fullGrid cannot be empty");
-        this.fullWidth = fullGrid[0].length;
-        this.fullHeight = fullGrid.length;
+    public List<GridEntry> getEntries() {
+        return entries;
+    }
+
+    public List<DelayedIngredient> getInputs() {
+        return inputs;
     }
 
     @Override
@@ -91,12 +114,11 @@ public class EtherProcessFactoryGrid implements Recipe<EtherProcessFactoryGridIn
             }
         }
         Rect rect = getRect();
-        for (int i = 0; i < etherProcessFactoryGridInput.w(); i++) {
-            for (int j = 0; j < etherProcessFactoryGridInput.h(); j++) {
-                if (i < rect.width && j < rect.height)
-                    grid.get(j).set(i, fullGrid[j + rect.y][i + rect.x].create());
-                else
-                    grid.get(j).set(i, ProcessChipItem.getStackFor(ProcessChipItem.SEPARATOR));
+        for (GridEntry entry : entries) {
+            int x = entry.x - rect.x;
+            int y = entry.y - rect.y;
+            if (x >= 0 && x < etherProcessFactoryGridInput.w() && y >= 0 && y < etherProcessFactoryGridInput.h()) {
+                grid.get(y).set(x, entry.item.create());
             }
         }
         itemStack.set(DataComponentRegistry.GRID, grid);
@@ -139,40 +161,72 @@ public class EtherProcessFactoryGrid implements Recipe<EtherProcessFactoryGridIn
         return _rect;
     }
 
+    private static int[][] DIRECTIONS = {
+            {0, 1},
+            {0, -1},
+            {1, 0},
+            {-1, 0}
+    };
+
     private Rect findRect() {
-        int minX = fullWidth;
-        int minY = fullHeight;
-        int maxX = 0;
-        int maxY = 0;
-        for (int i = 0; i < fullWidth; i++) {
-            for (int j = 0; j < fullHeight; j++) {
-                ItemStack stack = fullGrid[j][i].create();
-                if (stack.isEmpty() || !stack.is(Tags.PROCESS_CHIP))
+        int minX = Integer.MAX_VALUE;
+        int minY = Integer.MAX_VALUE;
+        int maxX = Integer.MIN_VALUE;
+        int maxY = Integer.MIN_VALUE;
+        boolean found = false;
+        boolean[][] isChip = new boolean[16][16];
+        boolean[][] hasItem = new boolean[16][16];
+        for (GridEntry entry : entries) {
+            ItemStack stack = entry.item.create();
+            if (stack.isEmpty() || !stack.is(Tags.PROCESS_CHIP))
+                continue;
+            hasItem[entry.y][entry.x] = true;
+            if (stack.has(DataComponentRegistry.CHIP_ID) && stack.get(DataComponentRegistry.CHIP_ID).equals(ProcessChipItem.SEPARATOR))
+                continue;
+            found = true;
+            isChip[entry.y][entry.x] = true;
+        }
+        if (!found) return new Rect(0, 0, 0, 0);
+        boolean[][] affected = new boolean[16][16];
+
+        for (int i = 0; i < 16; i++) {
+            for (int j = 0; j < 16; j++) {
+                if (isChip[i][j]) {
+                    for (int[] direction : DIRECTIONS) {
+                        int x = i + direction[0];
+                        int y = j + direction[1];
+                        int xx = x + direction[0];
+                        int yy = y + direction[1];
+                        if (xx >= 0 && xx < 16 && yy >= 0 && yy < 16 && hasItem[xx][yy] && !hasItem[x][y]) {
+                            affected[x][y] = true;
+                        }
+                    }
+                }
+            }
+        }
+        for (int i = 0; i < 16; i++) {
+            for (int j = 0; j < 16; j++) {
+                if (!hasItem[i][j])
                     continue;
-                if (stack.has(DataComponentRegistry.CHIP_ID) && stack.get(DataComponentRegistry.CHIP_ID).equals(ProcessChipItem.SEPARATOR))
-                    continue;
-                if (i < minX)
-                    minX = i;
-                if (i > maxX)
-                    maxX = i;
-                if (j < minY)
-                    minY = j;
-                if (j > maxY)
-                    maxY = j;
+                if (!isChip[i][j]) {
+                    boolean anyAffected = false;
+                    for (int[] direction : DIRECTIONS) {
+                        int x = i + direction[0];
+                        int y = j + direction[1];
+                        if (x >= 0 && x < 16 && y >= 0 && y < 16 && affected[x][y]) {
+                            anyAffected = true;
+                            break;
+                        }
+                    }
+                    if (!anyAffected)
+                        continue;
+                }
+                if (j < minX) minX = j;
+                if (j > maxX) maxX = j;
+                if (i < minY) minY = i;
+                if (i > maxY) maxY = i;
             }
         }
         return new Rect(minX, minY, maxX - minX + 1, maxY - minY + 1);
-    }
-
-    public List<List<ItemStackTemplate>> getGridAsList() {
-        List<List<ItemStackTemplate>> result = new ArrayList<>(fullHeight);
-        for (int i = 0; i < fullHeight; i++) {
-            List<ItemStackTemplate> row = new ArrayList<>(fullWidth);
-            for (int j = 0; j < fullWidth; j++) {
-                row.add(fullGrid[i][j]);
-            }
-            result.add(row);
-        }
-        return result;
     }
 }

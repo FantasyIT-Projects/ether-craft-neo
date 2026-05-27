@@ -2,6 +2,7 @@ package studio.fantasyit.ether_craft.menu.grid.answer;
 
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
@@ -11,9 +12,10 @@ import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.DataSlot;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.network.PacketDistributor;
 import studio.fantasyit.ether_craft.item.EtherProcessRecipeAnswerItem;
+import studio.fantasyit.ether_craft.network.s2c.SyncFetchAnswerS2C;
 import studio.fantasyit.ether_craft.recipe.grid.EtherProcessFactoryGrid;
-import studio.fantasyit.ether_craft.recipe.grid.EtherProcessFactoryGridInput;
 import studio.fantasyit.ether_craft.register.GuiRegistry;
 
 import java.util.List;
@@ -29,7 +31,12 @@ public class AnswerFetchMenu extends AbstractContainerMenu {
     public final Player player;
     public final InteractionHand hand;
     public final SimpleContainer displayContainer;
-    public final List<ItemStack> assembledResults;
+    public final List<ItemStack> targets;
+    private final List<EtherProcessFactoryGrid> grids;
+    public EtherProcessFactoryGrid selectedGrid = null;
+    private final SimpleContainer resultContainer;
+    ItemStack held;
+    Slot resultSlot = null;
 
     public int currentPage;
     public int totalPages;
@@ -39,13 +46,13 @@ public class AnswerFetchMenu extends AbstractContainerMenu {
         this.player = player;
         this.hand = hand;
         this.displayContainer = new SimpleContainer(SLOTS_PER_PAGE);
+        this.resultContainer = new SimpleContainer(1);
 
-        ItemStack held = player.getItemInHand(hand);
+        held = player.getItemInHand(hand);
         EtherProcessRecipeAnswerItem answerItem = (EtherProcessRecipeAnswerItem) held.getItem();
-        EtherProcessFactoryGridInput input = answerItem.getInput(held);
-        List<EtherProcessFactoryGrid> grids = answerItem.getCompatibleGrids(held, (ServerLevel) player.level());
-        this.assembledResults = grids.stream().map(g -> g.assemble(input)).toList();
-        this.totalPages = Math.max(1, (assembledResults.size() + SLOTS_PER_PAGE - 1) / SLOTS_PER_PAGE);
+        this.grids = answerItem.getCompatibleGrids(held, (ServerLevel) player.level());
+        this.targets = grids.stream().map(EtherProcessFactoryGrid::getTarget).toList();
+        this.totalPages = Math.max(1, (targets.size() + SLOTS_PER_PAGE - 1) / SLOTS_PER_PAGE);
 
         addDisplaySlots();
         refreshPage();
@@ -57,8 +64,10 @@ public class AnswerFetchMenu extends AbstractContainerMenu {
         this.player = inv.player;
         this.hand = data.readEnum(InteractionHand.class);
         this.displayContainer = new SimpleContainer(SLOTS_PER_PAGE);
-        this.assembledResults = List.of();
+        this.resultContainer = new SimpleContainer(1);
+        this.targets = List.of();
         this.totalPages = 0;
+        this.grids = List.of();
 
         addDisplaySlots();
         addDataSlots();
@@ -72,6 +81,8 @@ public class AnswerFetchMenu extends AbstractContainerMenu {
                         DISPLAY_X + col * 18, DISPLAY_Y + row * 18));
             }
         }
+        resultSlot = new ReadOnlySlot(resultContainer, 0, DISPLAY_X, DISPLAY_Y + GRID_ROWS * 18 + 10);
+        addSlot(resultSlot);
     }
 
     private void addDataSlots() {
@@ -103,7 +114,7 @@ public class AnswerFetchMenu extends AbstractContainerMenu {
         int start = currentPage * SLOTS_PER_PAGE;
         for (int i = 0; i < SLOTS_PER_PAGE; i++) {
             int idx = start + i;
-            displayContainer.setItem(i, idx < assembledResults.size() ? assembledResults.get(idx) : ItemStack.EMPTY);
+            displayContainer.setItem(i, idx < targets.size() ? targets.get(idx) : ItemStack.EMPTY);
         }
     }
 
@@ -126,13 +137,20 @@ public class AnswerFetchMenu extends AbstractContainerMenu {
     public void clicked(int slotIndex, int button, ContainerInput containerInput, Player player) {
         if (slotIndex >= 0 && slotIndex < SLOTS_PER_PAGE) {
             Slot slot = slots.get(slotIndex);
-            if (slot instanceof ReadOnlySlot && slot.container == displayContainer) {
+            if (player.level().isClientSide()) {
+                resultContainer.setItem(0, ItemStack.EMPTY);
+            } else {
                 int resultIndex = currentPage * SLOTS_PER_PAGE + slot.getContainerSlot();
-                if (resultIndex < assembledResults.size()) {
-                    player.setItemInHand(hand, assembledResults.get(resultIndex).copy());
-                    player.closeContainer();
-                    return;
-                }
+                resultContainer.setItem(0, targets.get(resultIndex));
+                selectedGrid = grids.get(resultIndex);
+                PacketDistributor.sendToPlayer((ServerPlayer) player, new SyncFetchAnswerS2C(selectedGrid));
+            }
+        }
+        if (slotIndex == resultSlot.index && selectedGrid != null) {
+            if (held != null && held.getItem() instanceof EtherProcessRecipeAnswerItem ai) {
+                player.setItemInHand(hand, selectedGrid.assemble(ai.getInput(held)));
+                player.closeContainer();
+                return;
             }
         }
         super.clicked(slotIndex, button, containerInput, player);
