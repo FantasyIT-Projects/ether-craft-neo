@@ -57,10 +57,10 @@ public class FunctionNodeProcessScreen extends BaseEtherNodeTabWidgetProvider<Fu
         FilterGuiRegClient.widget(screen,()-> plugin.inputItemFilter.whitelist, plugin.installedId);
         IASwitchButton filterBtn = new IASwitchButton(
                 lx(15), ly(96),
-                EtherAdaptNodeAsset.BTN_BLANK,
-                EtherAdaptNodeAsset.BTN_BLANK_HOVER,
                 EtherAdaptNodeAsset.BTN_BLANK_DOWN,
                 EtherAdaptNodeAsset.BTN_BLANK_DOWN_HOVER,
+                EtherAdaptNodeAsset.BTN_BLANK,
+                EtherAdaptNodeAsset.BTN_BLANK_HOVER,
                 null,
                 Component.translatable("ether_craft.gui.node.function_node_process.show_input_filter"),
                 Component.translatable("ether_craft.gui.node.function_node_process.show_input_filter"),
