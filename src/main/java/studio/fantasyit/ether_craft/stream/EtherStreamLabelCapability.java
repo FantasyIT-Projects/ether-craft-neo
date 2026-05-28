@@ -18,6 +18,7 @@ import studio.fantasyit.ether_craft.EtherCraft;
 
 import static studio.fantasyit.ether_craft.entity.stream.EtherStreamEntity.*;
 
+@SuppressWarnings("deprecation")
 public class EtherStreamLabelCapability implements IStreamCapability {
     public static final Identifier ID = EtherCraft.id("label");
 

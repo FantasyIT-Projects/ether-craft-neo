@@ -30,6 +30,7 @@ public class ChainedEmitterEntityHitCache {
         curDist.clear();
     }
 
+    @SuppressWarnings("deprecation")
     private @Nullable List<Entity> getAllEntitiesRect(Entity source, PosDir posDir) {
         if (cache.containsKey(posDir)) return cache.get(posDir);
         float dist = (float) source.position().distanceTo(posDir.pos.getCenter());

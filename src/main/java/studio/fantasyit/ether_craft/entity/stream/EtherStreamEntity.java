@@ -37,6 +37,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@SuppressWarnings("deprecation")
+@Deprecated(forRemoval = true)
 public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
     static final EntityDataAccessor<Integer> ETHER_COUNT = SynchedEntityData.defineId(EtherStreamEntity.class, EntityDataSerializers.INT);
     public static final EntityDataAccessor<java.util.Optional<Component>> LABEL_DATA =

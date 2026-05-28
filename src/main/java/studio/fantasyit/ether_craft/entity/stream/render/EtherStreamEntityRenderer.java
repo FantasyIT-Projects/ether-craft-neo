@@ -19,6 +19,8 @@ import org.joml.Vector3fc;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.entity.stream.EtherStreamEntity;
 
+@SuppressWarnings("deprecation")
+@Deprecated(forRemoval = true)
 public class EtherStreamEntityRenderer extends EntityRenderer<EtherStreamEntity, EtherStreamEntityRenderState> {
     private static final Identifier TEXTURE = EtherCraft.id("textures/particle/ether_stream.png");
     private static final RenderType RENDER_TYPE = RenderType.create(

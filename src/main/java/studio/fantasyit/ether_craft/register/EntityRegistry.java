@@ -15,11 +15,13 @@ import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.entity.stream.EtherStreamEntity;
 import studio.fantasyit.ether_craft.entity.stream.render.EtherStreamEntityRenderer;
 
+@SuppressWarnings("deprecation")
 @EventBusSubscriber(modid = EtherCraft.MODID)
 public class EntityRegistry {
 
     public static final DeferredRegister<EntityType<?>> ENTITY_TYPE_REGISTER =
             DeferredRegister.create(Registries.ENTITY_TYPE, EtherCraft.MODID);
+    @Deprecated(forRemoval = true)
     public static final DeferredHolder<EntityType<?>, @org.jetbrains.annotations.NotNull EntityType<EtherStreamEntity>> ETHER_STREAM_ENTITY = ENTITY_TYPE_REGISTER.register(
             "ether_stream",
             (l) -> EntityType.Builder.of((EntityType.EntityFactory<EtherStreamEntity>) EtherStreamEntity::new, MobCategory.MISC)
@@ -34,6 +36,7 @@ public class EntityRegistry {
         ENTITY_TYPE_REGISTER.register(eventBus);
     }
 
+    @SuppressWarnings("deprecation")
     @SubscribeEvent
     public static void registerModel(FMLClientSetupEvent event) {
         EntityRenderers.register(ETHER_STREAM_ENTITY.get(), EtherStreamEntityRenderer::new);
