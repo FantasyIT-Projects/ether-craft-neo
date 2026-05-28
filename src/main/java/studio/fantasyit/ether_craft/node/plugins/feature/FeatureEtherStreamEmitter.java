@@ -58,8 +58,7 @@ public class FeatureEtherStreamEmitter extends AbstractDirectionalFilterFeature 
             nodeEntity.extractEther(sendWith);
             Vec3 dir = direction.getUnitVec3().multiply(0.55f, 0.55f, 0.55f);
             PosDir posDir = new PosDir(nodeEntity.getBlockPos(), direction);
-            net.minecraft.server.level.ServerLevel serverLevel = (net.minecraft.server.level.ServerLevel) nodeEntity.getLevel();
-            if (serverLevel == null) return false;
+            if (!(nodeEntity.getLevel() instanceof net.minecraft.server.level.ServerLevel serverLevel)) return false;
 
             VESHM veshm = VESHM.get(serverLevel);
             IEtherStreamLike stream = veshm.createStream(
