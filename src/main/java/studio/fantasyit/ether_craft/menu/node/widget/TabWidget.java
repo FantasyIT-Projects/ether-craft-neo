@@ -20,11 +20,10 @@ public class TabWidget extends AbstractWidget {
     private static final ImageAsset TAB_INACTIVATED = ImageAsset.from4Point(BACKGROUND, 200, 0, 223, 20);
     private final Runnable onPress;
 
-    public TabWidget(int x, int y, Component message, ItemStack icon, boolean isActivate, Runnable onPress) {
-        super(x, y, TAB_ACTIVATED.w, TAB_ACTIVATED.h, message);
+    public TabWidget(int x, int y, ItemStack icon, boolean isActivate, Runnable onPress) {
+        super(x, y, TAB_ACTIVATED.w, TAB_ACTIVATED.h, Component.empty());
         this.icon = icon;
         this.isActivate = isActivate;
-        this.setTooltip(Tooltip.create(message));
         this.onPress = onPress;
     }
 

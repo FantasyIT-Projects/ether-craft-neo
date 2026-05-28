@@ -14,8 +14,8 @@ import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import org.jetbrains.annotations.NotNull;
 import oshi.util.tuples.Pair;
 import studio.fantasyit.ether_craft.block.node.EtherAdaptNodeEntity;
-import studio.fantasyit.ether_craft.menu.node.widget.TabWidget;
 import studio.fantasyit.ether_craft.menu.base.widget.NamePencilButton;
+import studio.fantasyit.ether_craft.menu.node.widget.TabWidget;
 import studio.fantasyit.ether_craft.network.c2s.TriggerSwitchTabC2S;
 import studio.fantasyit.ether_craft.node.EtherAdaptNodeUpgradeTabManager;
 import studio.fantasyit.ether_craft.node.NodePluginManager;
@@ -24,7 +24,6 @@ import studio.fantasyit.ether_craft.node.tabs.BaseEtherNodeTabWidgetProvider;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
 
 import static studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeAsset.UI_BASE;
 
@@ -102,9 +101,9 @@ public class EtherAdaptNodeScreen extends AbstractContainerScreen<@NotNull Ether
         pluginId.clear();
         int x = getLeftPos() + 3;
         for (Pair<NodePluginManager.PluginInfo, InstalledPlugin> pair : tabList) {
-            if(!EtherAdaptNodeUpgradeTabManager.instance.has(pair.getA().id()))
+            if (!EtherAdaptNodeUpgradeTabManager.instance.has(pair.getA().id()))
                 continue;
-            TabWidget tab = new TabWidget(x, getTopPos() - 21, Component.literal("PLUGIN TODO"), pair.getA().icon().asItem().getDefaultInstance(), menu.installedPlugin.equals(pair.getB()), this.makeTabSwitchEvent(pair.getB()));
+            TabWidget tab = new TabWidget(x, getTopPos() - 21, pair.getA().icon().asItem().getDefaultInstance(), menu.installedPlugin.equals(pair.getB()), this.makeTabSwitchEvent(pair.getB()));
             tabs.add(tab);
             addRenderableWidget(tab);
             x += tab.getWidth();
@@ -156,8 +155,8 @@ public class EtherAdaptNodeScreen extends AbstractContainerScreen<@NotNull Ether
 
     @Override
     public boolean mouseScrolled(double x, double y, double scrollX, double scrollY) {
-        for(var child : children())
-            if(child.mouseScrolled(x, y, scrollX, scrollY))
+        for (var child : children())
+            if (child.mouseScrolled(x, y, scrollX, scrollY))
                 return true;
         return super.mouseScrolled(x, y, scrollX, scrollY);
     }

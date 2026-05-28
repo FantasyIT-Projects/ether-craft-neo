@@ -170,7 +170,7 @@ public class FunctionEnchanter extends AbstractNodePlugin {
     private ItemStack makeResultAndCost(ItemStack itemStack) {
         ServerLevel level = (ServerLevel) nodeEntity.getLevel();
         RandomSource random = level.getRandom();
-        int qualityCost = EnchantmentHelper.getEnchantmentCost(random, selectedLevel - 1, 15, itemStack);
+        int qualityCost = EnchantmentHelper.getEnchantmentCost(random, selectedLevel, 15, itemStack);
 
         if (qualityCost <= 0) {
             return itemStack;
@@ -197,7 +197,7 @@ public class FunctionEnchanter extends AbstractNodePlugin {
         for (EnchantmentInstance ench : enchants) {
             result.enchant(ench.enchantment(), ench.level());
         }
-        nodeEntity.extractEther(Config.nodeEnchanterEtherCosts.get(selectedLevel - 1));
+        nodeEntity.extractEther(Config.nodeEnchanterEtherCosts.get(selectedLevel));
         return result;
     }
 

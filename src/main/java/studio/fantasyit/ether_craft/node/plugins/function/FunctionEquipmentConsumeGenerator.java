@@ -3,18 +3,18 @@ package studio.fantasyit.ether_craft.node.plugins.function;
 import com.mojang.serialization.Codec;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import net.minecraft.core.Holder;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.Identifier;
 import net.minecraft.tags.EnchantmentTags;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.block.node.EtherAdaptNodeEntity;
-import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeContainerMenu;
-import studio.fantasyit.ether_craft.menu.node.slot.OversizedEtherSlot;
 import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
 import studio.fantasyit.ether_craft.register.Tags;
 
@@ -30,14 +30,14 @@ public class FunctionEquipmentConsumeGenerator extends AbstractItemConsumeFuncti
 
     @Override
     boolean accepts(ItemResource stack) {
-        return stack.toStack().is(Tags.CONSUMABLE_EQUIPMENTS);
+        return stack.toStack().is(Tags.CONSUMABLE_EQUIPMENTS) || stack.toStack().has(DataComponents.STORED_ENCHANTMENTS);
     }
 
     @Override
     ItemStack onConsumeItem(ItemStack itemStack) {
         int base = 1;
         int enchantBonus = 0;
-        for (Object2IntMap.Entry<Holder<Enchantment>> entry : itemStack.getEnchantments().entrySet()) {
+        for (Object2IntMap.Entry<Holder<Enchantment>> entry : EnchantmentHelper.getEnchantmentsForCrafting(itemStack).entrySet()) {
             if (entry.getKey().is(EnchantmentTags.CURSE)) continue;
             enchantBonus += 1 << (entry.getIntValue() - 1);
         }
@@ -60,12 +60,6 @@ public class FunctionEquipmentConsumeGenerator extends AbstractItemConsumeFuncti
             nodeEntity.setSyncedPluginData(installedId, WORKING_MATERIAL, WorkingMaterial.IDLE.ordinal());
 
         nodeEntity.setSyncedPluginData(installedId, STATE, remainBurnTicks > 0 ? 1 : 0);
-    }
-
-    @Override
-    public void registerSlots(EtherAdaptNodeContainerMenu menu) {
-        menu.addSlotDraw(new OversizedEtherSlot(nodeEntity.etherStorage, 0, 28, 20));
-        menu.addSlotDraw(new net.minecraft.world.inventory.Slot(container, 0, 28, 44));
     }
 
     @Override

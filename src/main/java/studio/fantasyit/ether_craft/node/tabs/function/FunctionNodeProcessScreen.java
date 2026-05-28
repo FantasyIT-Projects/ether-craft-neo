@@ -1,5 +1,7 @@
 package studio.fantasyit.ether_craft.node.tabs.function;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
@@ -45,6 +47,16 @@ public class FunctionNodeProcessScreen extends BaseEtherNodeTabWidgetProvider<Fu
                     screen.getMenu().entity.getMaxEther(),
                     lx(27), ly(39), EtherAdaptNodeAsset.ETHER_BAR_CTR.w - 2, 2, graphics
             );
+        Font font = Minecraft.getInstance().font;
+        int x = lx(93) + 4;
+        graphics.text(font, Component.translatable("ether_craft.gui.node.function_node_process.line_1",
+                plugin.progressing, Config.nodeProcessMaxProgress), x, ly(19), 0xFFFFFFFF);
+        graphics.text(font, Component.translatable("ether_craft.gui.node.function_node_process.line_2",
+                screen.getMenu().entity.getEther(), screen.getMenu().entity.getMaxEther()), x, ly(30), 0xFFFFFFFF);
+        ItemStack targetItem = plugin.targetItemFilter.getItem(0);
+        if (!targetItem.isEmpty()) {
+            graphics.text(font, Component.translatable("ether_craft.gui.node.function_node_process.line_3", targetItem.getHoverName()), x, ly(41), 0xFFFFFFFF);
+        }
     }
 
     @Override

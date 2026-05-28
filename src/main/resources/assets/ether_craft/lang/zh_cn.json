@@ -132,5 +132,26 @@
   "ether_craft.gui.answer.outputs": "输出:",
   "ether_craft.gui.answer.no_recipe": "配方未同步...",
   "gui.ether_craft.view_grid": "查看网格",
-  "gui.ether_craft.answer_fetch": "方案浏览"
+  "gui.ether_craft.answer_fetch": "方案浏览",
+
+  "ether_craft.gui.node.item_consume.line_1": "剩余燃烧: %ds",
+  "ether_craft.gui.node.item_consume.line_idle": "空闲",
+  "ether_craft.gui.node.item_consume.line_2": "以太: %d/%d",
+  "ether_craft.gui.node.item_consume.line_3": "燃料: %s",
+  "ether_craft.gui.node.function_node_process.line_1": "进度: %d/%d",
+  "ether_craft.gui.node.function_node_process.line_2": "以太: %d/%d",
+  "ether_craft.gui.node.function_node_process.line_3": "目标: %s",
+  "ether_craft.gui.node.ether_converter.line_1": "转化中",
+  "ether_craft.gui.node.ether_converter.line_idle": "空闲",
+  "ether_craft.gui.node.ether_converter.line_2": "转化率: 1:%d",
+  "ether_craft.gui.node.ether_converter.line_3": "以太: %d/%d",
+  "ether_craft.gui.node.equipment_consume.line_1": "消耗: %s",
+  "ether_craft.gui.node.equipment_consume.line_idle": "空闲",
+  "ether_craft.gui.node.equipment_consume.line_2": "剩余: %ds",
+  "ether_craft.gui.node.equipment_consume.line_3": "以太: %d/%d",
+  "ether_craft.gui.node.enchanter.line_1": "Lv%d (%d E)",
+  "ether_craft.gui.node.enchanter.line_1_idle": "未选择",
+  "ether_craft.gui.node.enchanter.line_2": "进度: %d/%d",
+  "ether_craft.gui.node.enchanter.line_idle": "空闲",
+  "ether_craft.gui.node.enchanter.line_3": "以太: %d/%d"
 }

@@ -1,5 +1,7 @@
 package studio.fantasyit.ether_craft.node.tabs.function;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
@@ -49,8 +51,8 @@ public class EnchanterScreen extends BaseEtherNodeTabWidgetProvider<FunctionEnch
                     EtherAdaptNodeAsset.ENCHANT_BTN_DOWN,
                     EtherAdaptNodeAsset.ENCHANT_BTN_DOWN,
                     null,
-                    Component.translatable("ether_craft.gui.node.enchanter.level_cost", level, Config.nodeEnchanterEtherCosts.get(i)),
-                    Component.translatable("ether_craft.gui.node.enchanter.level_cost", level, Config.nodeEnchanterEtherCosts.get(i)),
+                    Component.translatable("ether_craft.gui.node.enchanter.level_cost", Config.nodeEnchanterEtherCosts.get(i)),
+                    Component.translatable("ether_craft.gui.node.enchanter.level_cost", Config.nodeEnchanterEtherCosts.get(i)),
                     down -> {
                         if (!levelButtonsEnabled[level])
                             return false;
@@ -91,6 +93,22 @@ public class EnchanterScreen extends BaseEtherNodeTabWidgetProvider<FunctionEnch
                     screen.getMenu().entity.getMaxEther(),
                     lx(27), ly(39), EtherAdaptNodeAsset.ETHER_BAR_CTR.w - 2, 2, graphics
             );
+        Font font = Minecraft.getInstance().font;
+        int x = lx(93) + 4;
+        if (plugin.selectedLevel >= 0) {
+            graphics.text(font, Component.translatable("ether_craft.gui.node.enchanter.line_1",
+                    plugin.selectedLevel + 1, Config.nodeEnchanterEtherCosts.get(plugin.selectedLevel)), x, ly(19), 0xFFFFFFFF);
+        } else {
+            graphics.text(font, Component.translatable("ether_craft.gui.node.enchanter.line_1_idle"), x, ly(19), 0xFFFFFFFF);
+        }
+        if (plugin.progress > 0 && plugin.selectedLevel >= 0) {
+            graphics.text(font, Component.translatable("ether_craft.gui.node.enchanter.line_2",
+                    plugin.progress, Config.nodeEnchanterMaxProgress), x, ly(30), 0xFFFFFFFF);
+        } else {
+            graphics.text(font, Component.translatable("ether_craft.gui.node.enchanter.line_idle"), x, ly(30), 0xFFFFFFFF);
+        }
+        graphics.text(font, Component.translatable("ether_craft.gui.node.enchanter.line_3",
+                screen.getMenu().entity.getEther(), screen.getMenu().entity.getMaxEther()), x, ly(41), 0xFFFFFFFF);
     }
 
     @Override

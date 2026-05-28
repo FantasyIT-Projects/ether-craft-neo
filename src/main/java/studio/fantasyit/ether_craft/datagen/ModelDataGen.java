@@ -17,7 +17,9 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.neoforged.neoforge.client.model.generators.blockstate.CustomBlockStateModelBuilder;
+import net.neoforged.neoforge.client.model.generators.template.ExtendedModelTemplateBuilder;
 import studio.fantasyit.ether_craft.EtherCraft;
+import studio.fantasyit.ether_craft.block.factory.EtherProcessFactoryBlock;
 import studio.fantasyit.ether_craft.block.glass.render.EtherGlassUnbakedModel;
 import studio.fantasyit.ether_craft.register.BlockRegistry;
 import studio.fantasyit.ether_craft.register.ItemRegistry;
@@ -66,6 +68,7 @@ public class ModelDataGen extends ModelProvider {
         itemModels.generateFlatItem(ItemRegistry.INACTIVATED_ETHER.get(), ITEM_SIMPLE);
         itemModels.generateFlatItem(ItemRegistry.VACUUM_PIPE.get(), ITEM_SIMPLE);
         itemModels.generateFlatItem(ItemRegistry.ETHER_INGOT.get(), ITEM_SIMPLE);
+        itemModels.generateFlatItem(ItemRegistry.CHEESE.get(), ITEM_SIMPLE);
         itemModels.generateFlatItem(ItemRegistry.ANSWER_GRID_5X5.get(), ITEM_SIMPLE);
         itemModels.generateFlatItem(ItemRegistry.ANSWER_GRID_7X7.get(), ITEM_SIMPLE);
         itemModels.generateFlatItem(ItemRegistry.ANSWER_GRID_9X9.get(), ITEM_SIMPLE);
@@ -79,9 +82,62 @@ public class ModelDataGen extends ModelProvider {
             itemModels.itemModelOutput.register(id, new ClientItem(ItemModelUtils.plainModel(identifier), new ClientItem.Properties(false, false, 1)));
         });
 
-        //加工中心
-        blockModels.createTrivialBlock(
-                BlockRegistry.ETHER_PROCESS_FACTORY.get(), BLOCK_FACES_PROVIDER);
+        //加工中心 - level-based models
+        var processFactory = BlockRegistry.ETHER_PROCESS_FACTORY.get();
+        Identifier[] levelModelIds = new Identifier[5];
+
+        for (int level = 1; level <= 4; level++) {
+            int rowV = (level - 1) * 4;
+            TextureSlot texSlot = TextureSlot.create("tex", TextureSlot.TEXTURE);
+
+            ExtendedModelTemplateBuilder builder = ExtendedModelTemplateBuilder.builder()
+                    .parent(Identifier.withDefaultNamespace("block/cube"))
+                    .requiredTextureSlot(texSlot)
+                    .requiredTextureSlot(TextureSlot.PARTICLE)
+                    .element(elem -> elem
+                            .from(0, 0, 0).to(16, 16, 16)
+                            .face(Direction.UP, face -> face.texture(texSlot)
+                                    .uvs(0, rowV, 4, rowV + 4).cullface(Direction.UP))
+                            .face(Direction.DOWN, face -> face.texture(texSlot)
+                                    .uvs(8, rowV, 12, rowV + 4).cullface(Direction.DOWN))
+                            .face(Direction.NORTH, face -> face.texture(texSlot)
+                                    .uvs(4, rowV, 8, rowV + 4).cullface(Direction.NORTH))
+                            .face(Direction.SOUTH, face -> face.texture(texSlot)
+                                    .uvs(4, rowV, 8, rowV + 4).cullface(Direction.SOUTH))
+                            .face(Direction.WEST, face -> face.texture(texSlot)
+                                    .uvs(4, rowV, 8, rowV + 4).cullface(Direction.WEST))
+                            .face(Direction.EAST, face -> face.texture(texSlot)
+                                    .uvs(4, rowV, 8, rowV + 4).cullface(Direction.EAST)));
+
+            String suffix = "_lv_" + level;
+            TextureMapping texMapping = new TextureMapping()
+                    .put(texSlot, TextureMapping.getBlockTexture(processFactory))
+                    .put(TextureSlot.PARTICLE, TextureMapping.getBlockTexture(processFactory));
+            levelModelIds[level] = builder.build().createWithSuffix(
+                    processFactory, suffix, texMapping, blockModels.modelOutput);
+        }
+
+        blockModels.blockStateOutput.accept(
+                MultiVariantGenerator.dispatch(processFactory)
+                        .with(PropertyDispatch.initial(EtherProcessFactoryBlock.LEVEL)
+                                .generate(level -> {
+                                    int clamped = Math.min(Math.max(level, 1), 4);
+                                    return BlockModelGenerators.variant(
+                                            new Variant(levelModelIds[clamped]));
+                                })));
+
+        itemModels.itemModelOutput.accept(
+                ItemRegistry.ETHER_PROCESS_FACTORY_ITEM_LV_1.get(),
+                ItemModelUtils.plainModel(levelModelIds[1]));
+        itemModels.itemModelOutput.accept(
+                ItemRegistry.ETHER_PROCESS_FACTORY_ITEM_LV_2.get(),
+                ItemModelUtils.plainModel(levelModelIds[2]));
+        itemModels.itemModelOutput.accept(
+                ItemRegistry.ETHER_PROCESS_FACTORY_ITEM_LV_3.get(),
+                ItemModelUtils.plainModel(levelModelIds[3]));
+        itemModels.itemModelOutput.accept(
+                ItemRegistry.ETHER_PROCESS_FACTORY_ITEM_LV_4.get(),
+                ItemModelUtils.plainModel(levelModelIds[4]));
 
 
         //发射器

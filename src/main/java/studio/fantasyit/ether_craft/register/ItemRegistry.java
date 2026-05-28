@@ -3,8 +3,12 @@ package studio.fantasyit.ether_craft.register;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.component.Consumable;
+import net.minecraft.world.item.component.Consumables;
+import net.minecraft.world.item.consume_effects.ClearAllStatusEffectsConsumeEffect;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;
@@ -37,6 +41,13 @@ public class ItemRegistry {
     public static final DeferredHolder<Item, @NotNull Item> INACTIVATED_ETHER = ITEMS.register("inactivated_ether", i -> new Item(new Item.Properties().stacksTo(64).setId(ResourceKey.create(Registries.ITEM, i))));
     public static final DeferredHolder<Item, @NotNull Item> VACUUM_PIPE = ITEMS.register("vacuum_pipe", i -> new Item(new Item.Properties().stacksTo(64).setId(ResourceKey.create(Registries.ITEM, i))));
     public static final DeferredHolder<Item, @NotNull Item> ETHER_INGOT = ITEMS.register("ether_ingot", i -> new Item(new Item.Properties().stacksTo(64).setId(ResourceKey.create(Registries.ITEM, i))));
+    private static final Consumable CHEESE_CONSUMABLE = Consumables.defaultFood()
+            .onConsume(ClearAllStatusEffectsConsumeEffect.INSTANCE)
+            .build();
+    public static final DeferredHolder<Item, @NotNull Item> CHEESE = ITEMS.register("cheese", i -> new Item(new Item.Properties()
+            .stacksTo(64)
+            .food(new FoodProperties.Builder().nutrition(2).saturationModifier(1f).alwaysEdible().build(), CHEESE_CONSUMABLE)
+            .setId(ResourceKey.create(Registries.ITEM, i))));
     public static final DeferredHolder<Item, @NotNull Item> ETHER_STREAM_EMITTER_ITEM = block(BlockRegistry.ETHER_STREAM_EMITTER);
     public static final DeferredHolder<Item, @NotNull Item> ETHER_PROCESS_FACTORY_ITEM_LV_1 = ITEMS.register("ether_process_factory_lv_1", EtherProcessFactoryBlockItem.withLevel(1));
     public static final DeferredHolder<Item, @NotNull Item> ETHER_PROCESS_FACTORY_ITEM_LV_2 = ITEMS.register("ether_process_factory_lv_2", EtherProcessFactoryBlockItem.withLevel(2));

@@ -1,6 +1,10 @@
 package studio.fantasyit.ether_craft.node.tabs.function;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.network.chat.Component;
+import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeAsset;
 import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeScreen;
 import studio.fantasyit.ether_craft.node.plugins.base.PluginMenuContext;
@@ -25,5 +29,16 @@ public class EtherConverterScreen extends BaseEtherNodeTabWidgetProvider<Functio
                     screen.getMenu().entity.getMaxEther(),
                     lx(27), ly(39), EtherAdaptNodeAsset.ETHER_BAR_CTR.w - 2, 2, graphics
             );
+        Font font = Minecraft.getInstance().font;
+        int x = lx(93) + 4;
+        int state = screen.getMenu().entity.getSyncedPluginData(plugin.installedId, FunctionEtherConverter.STATE);
+        if (state == 1) {
+            graphics.text(font, Component.translatable("ether_craft.gui.node.ether_converter.line_1"), x, ly(19), 0xFFFFFFFF);
+        } else {
+            graphics.text(font, Component.translatable("ether_craft.gui.node.ether_converter.line_idle"), x, ly(19), 0xFFFFFFFF);
+        }
+        graphics.text(font, Component.translatable("ether_craft.gui.node.ether_converter.line_2", Config.nodeEtherConverterCoefficient), x, ly(30), 0xFFFFFFFF);
+        graphics.text(font, Component.translatable("ether_craft.gui.node.ether_converter.line_3",
+                screen.getMenu().entity.getEther(), screen.getMenu().entity.getMaxEther()), x, ly(41), 0xFFFFFFFF);
     }
 }

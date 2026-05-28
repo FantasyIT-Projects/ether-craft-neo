@@ -25,8 +25,8 @@ import studio.fantasyit.ether_craft.util.ContainerOps;
 public abstract class AbstractItemConsumeFunction extends AbstractNodePlugin {
     public static final Identifier WORKING_MATERIAL = EtherCraft.id("generator/material");
     public ItemFilter filter = new ItemFilter(21, nodeEntity::setChanged);
-    SimpleContainer container = new SimpleContainer(1);
-    int remainBurnTicks = 0;
+    public SimpleContainer container = new SimpleContainer(1);
+    public int remainBurnTicks = 0;
 
     public enum WorkingMaterial {
         IDLE,
