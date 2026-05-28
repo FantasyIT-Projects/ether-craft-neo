@@ -41,6 +41,16 @@ public class Network {
                 SyncFetchAnswerS2C.CODEC,
                 SyncFetchAnswerS2C::handle
         );
+        event.playToClient(
+                EtherStreamCreateS2C.TYPE,
+                EtherStreamCreateS2C.CODEC,
+                EtherStreamCreateS2C::handle
+        );
+        event.playToClient(
+                EtherStreamUpdateS2C.TYPE,
+                EtherStreamUpdateS2C.CODEC,
+                EtherStreamUpdateS2C::handle
+        );
     }
 
 
