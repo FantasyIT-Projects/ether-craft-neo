@@ -12,8 +12,8 @@ import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import studio.fantasyit.ether_craft.EtherCraft;
-import studio.fantasyit.ether_craft.entity.EtherStreamEntity;
-import studio.fantasyit.ether_craft.entity.render.EtherStreamEntityRenderer;
+import studio.fantasyit.ether_craft.entity.stream.EtherStreamEntity;
+import studio.fantasyit.ether_craft.entity.stream.render.EtherStreamEntityRenderer;
 
 @EventBusSubscriber(modid = EtherCraft.MODID)
 public class EntityRegistry {

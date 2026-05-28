@@ -1,4 +1,4 @@
-package studio.fantasyit.ether_craft.entity;
+package studio.fantasyit.ether_craft.entity.stream;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -30,13 +30,14 @@ import studio.fantasyit.ether_craft.block.base.EtherContainer;
 import studio.fantasyit.ether_craft.register.AttachmentDataRegistry;
 import studio.fantasyit.ether_craft.register.EntityRegistry;
 import studio.fantasyit.ether_craft.register.Tags;
+import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
 import studio.fantasyit.ether_craft.stream.IStreamCapability;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class EtherStreamEntity extends Projectile {
+public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
     static final EntityDataAccessor<Integer> ETHER_COUNT = SynchedEntityData.defineId(EtherStreamEntity.class, EntityDataSerializers.INT);
     public static final EntityDataAccessor<java.util.Optional<Component>> LABEL_DATA =
             SynchedEntityData.defineId(EtherStreamEntity.class, EntityDataSerializers.OPTIONAL_COMPONENT);

@@ -1,4 +1,4 @@
-package studio.fantasyit.ether_craft.entity.render;
+package studio.fantasyit.ether_craft.entity.stream.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -17,7 +17,7 @@ import net.minecraft.world.phys.Vec3;
 import org.joml.Quaternionf;
 import org.joml.Vector3fc;
 import studio.fantasyit.ether_craft.EtherCraft;
-import studio.fantasyit.ether_craft.entity.EtherStreamEntity;
+import studio.fantasyit.ether_craft.entity.stream.EtherStreamEntity;
 
 public class EtherStreamEntityRenderer extends EntityRenderer<EtherStreamEntity, EtherStreamEntityRenderState> {
     private static final Identifier TEXTURE = EtherCraft.id("textures/particle/ether_stream.png");

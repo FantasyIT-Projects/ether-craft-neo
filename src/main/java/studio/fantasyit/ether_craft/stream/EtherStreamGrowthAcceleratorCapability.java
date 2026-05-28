@@ -11,9 +11,9 @@ import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
+import org.jetbrains.annotations.UnknownNullability;
 import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.EtherCraft;
-import studio.fantasyit.ether_craft.entity.EtherStreamEntity;
 import studio.fantasyit.ether_craft.register.Tags;
 
 public class EtherStreamGrowthAcceleratorCapability implements IStreamCapability {
@@ -32,7 +32,7 @@ public class EtherStreamGrowthAcceleratorCapability implements IStreamCapability
     }
 
     @Override
-    public void tick(EtherStreamEntity streamEntity) {
+    public void tick(@UnknownNullability IEtherStreamLike streamEntity) {
         if (!(streamEntity.level() instanceof ServerLevel level))
             return;
 
@@ -57,17 +57,17 @@ public class EtherStreamGrowthAcceleratorCapability implements IStreamCapability
     }
 
     @Override
-    public boolean hitEntity(ServerLevel level, EtherStreamEntity streamEntity, EntityHitResult hit, Entity entity) {
+    public boolean hitEntity(ServerLevel level, IEtherStreamLike streamEntity, EntityHitResult hit, Entity entity) {
         return false;
     }
 
     @Override
-    public boolean hitBlock(ServerLevel level, EtherStreamEntity streamEntity, BlockHitResult hit, BlockState blockState) {
+    public boolean hitBlock(ServerLevel level, IEtherStreamLike streamEntity, BlockHitResult hit, BlockState blockState) {
         return false;
     }
 
     @Override
-    public void onDestroy(EtherStreamEntity streamEntity) {
+    public void onDestroy(IEtherStreamLike streamEntity) {
     }
 
     @Override

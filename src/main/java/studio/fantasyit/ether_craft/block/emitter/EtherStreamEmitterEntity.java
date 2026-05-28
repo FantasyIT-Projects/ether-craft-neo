@@ -4,6 +4,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -19,8 +20,9 @@ import studio.fantasyit.ether_craft.block.base.BaseEtherContainerBlockEntity;
 import studio.fantasyit.ether_craft.block.base.EtherContainer;
 import studio.fantasyit.ether_craft.block.base.ITickable;
 import studio.fantasyit.ether_craft.block.node.EtherAdaptNodeBlock;
-import studio.fantasyit.ether_craft.entity.EtherStreamEntity;
+import studio.fantasyit.ether_craft.entity.stream.EtherStreamEntity;
 import studio.fantasyit.ether_craft.stream.EtherStreamStorageCapability;
+import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
 
 import static studio.fantasyit.ether_craft.register.BlockEntityRegistry.ETHER_STREAM_EMITTER_ENTITY;
 
@@ -44,7 +46,7 @@ public class EtherStreamEmitterEntity extends BaseEtherContainerBlockEntity impl
             if (level != null) {
                 @NotNull Direction targetDirection = this.getBlockState().getValue(EtherAdaptNodeBlock.FACING);
                 Vec3 dir = targetDirection.getUnitVec3().multiply(0.55f, 0.55f, 0.55f);
-                EtherStreamEntity entity = EtherStreamEntity.create(
+                IEtherStreamLike entity = EtherStreamEntity.create(
                         this.level,
                         (int) this.getEther(),
                         this.getBlockPos().getCenter().add(dir),
@@ -65,7 +67,8 @@ public class EtherStreamEmitterEntity extends BaseEtherContainerBlockEntity impl
                 entity.addCapability(itemStorage);
 
                 this.setEther(0);
-                level.addFreshEntity(entity);
+                if (entity instanceof Entity e)
+                    level.addFreshEntity(e);
             }
         }
         if (markUpdate) {

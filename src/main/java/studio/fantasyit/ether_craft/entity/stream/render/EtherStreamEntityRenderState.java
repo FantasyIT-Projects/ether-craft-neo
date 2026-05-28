@@ -1,10 +1,10 @@
-package studio.fantasyit.ether_craft.entity.render;
+package studio.fantasyit.ether_craft.entity.stream.render;
 
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
-import studio.fantasyit.ether_craft.entity.EtherStreamEntity;
+import studio.fantasyit.ether_craft.entity.stream.EtherStreamEntity;
 
 public class EtherStreamEntityRenderState extends EntityRenderState {
     public final double[] tailX;

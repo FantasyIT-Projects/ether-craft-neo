@@ -148,8 +148,9 @@ git commit -m "feat: add EtherStreamLabelCapability"
 - [ ] **Step 1: Add label fields**
 
 Current file:
+
 ```java
-package studio.fantasyit.ether_craft.entity.render;
+package studio.fantasyit.ether_craft.entity.stream.render;
 
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
 import studio.fantasyit.ether_craft.entity.EtherStreamEntity;
@@ -171,8 +172,9 @@ public class EtherStreamEntityRenderState extends EntityRenderState {
 ```
 
 Replace with:
+
 ```java
-package studio.fantasyit.ether_craft.entity.render;
+package studio.fantasyit.ether_craft.entity.stream.render;
 
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
 import net.minecraft.network.chat.Component;

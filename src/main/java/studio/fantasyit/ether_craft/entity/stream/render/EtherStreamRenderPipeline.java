@@ -1,4 +1,4 @@
-package studio.fantasyit.ether_craft.entity.render;
+package studio.fantasyit.ether_craft.entity.stream.render;
 
 import com.mojang.blaze3d.pipeline.BlendFunction;
 import com.mojang.blaze3d.pipeline.ColorTargetState;

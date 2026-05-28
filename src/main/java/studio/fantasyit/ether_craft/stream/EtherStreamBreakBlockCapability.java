@@ -15,9 +15,9 @@ import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
+import org.jetbrains.annotations.UnknownNullability;
 import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.EtherCraft;
-import studio.fantasyit.ether_craft.entity.EtherStreamEntity;
 import studio.fantasyit.ether_craft.register.Tags;
 import studio.fantasyit.ether_craft.util.ContainerOps;
 
@@ -48,14 +48,14 @@ public class EtherStreamBreakBlockCapability implements IStreamCapability {
     }
 
     @Override
-    public void tick(EtherStreamEntity streamEntity) {
+    public void tick(@UnknownNullability IEtherStreamLike streamEntity) {
         if (streamEntity.level() instanceof ServerLevel level) {
             BlockState blockState = level.getBlockState(streamEntity.blockPosition());
             if (blockState.isAir()) return;
             if (hasAgeProperty(blockState) || isBerry(blockState) || isGlowBerry(blockState)) {
                 BlockHitResult bh = new BlockHitResult(
                         streamEntity.position(),
-                        streamEntity.getMotionDirection().getOpposite(),
+                        streamEntity.getDirection().getOpposite(),
                         streamEntity.blockPosition(),
                         true
                 );
@@ -65,12 +65,12 @@ public class EtherStreamBreakBlockCapability implements IStreamCapability {
     }
 
     @Override
-    public boolean hitEntity(ServerLevel level, EtherStreamEntity streamEntity, EntityHitResult hit, Entity entity) {
+    public boolean hitEntity(ServerLevel level, IEtherStreamLike streamEntity, EntityHitResult hit, Entity entity) {
         return false;
     }
 
     @Override
-    public boolean hitBlock(ServerLevel level, EtherStreamEntity streamEntity, BlockHitResult hit, BlockState blockState) {
+    public boolean hitBlock(ServerLevel level, IEtherStreamLike streamEntity, BlockHitResult hit, BlockState blockState) {
         if (tools.isEmpty() || blockState.isAir()) return false;
         if (blockState.is(Tags.ETHER_MACHINE)) return false;
         if (blockState.getDestroySpeed(level, hit.getBlockPos()) < 0) return false;
@@ -189,7 +189,7 @@ public class EtherStreamBreakBlockCapability implements IStreamCapability {
     }
 
     @Override
-    public void onDestroy(EtherStreamEntity streamEntity) {
+    public void onDestroy(IEtherStreamLike streamEntity) {
     }
 
     @Override

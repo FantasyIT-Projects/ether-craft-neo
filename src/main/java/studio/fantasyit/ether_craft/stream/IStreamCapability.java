@@ -8,22 +8,21 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.neoforged.neoforge.common.util.ValueIOSerializable;
-import studio.fantasyit.ether_craft.entity.EtherStreamEntity;
 
 public interface IStreamCapability extends ValueIOSerializable {
     Identifier getId();
 
     int getConsumption();
 
-    void tick(EtherStreamEntity streamEntity);
+    void tick(IEtherStreamLike streamEntity);
 
-    boolean hitEntity(ServerLevel level, EtherStreamEntity streamEntity, EntityHitResult hit, Entity entity);
+    boolean hitEntity(ServerLevel level, IEtherStreamLike streamEntity, EntityHitResult hit, Entity entity);
 
-    boolean hitBlock(ServerLevel level, EtherStreamEntity streamEntity, BlockHitResult hit, BlockState blockState);
+    boolean hitBlock(ServerLevel level, IEtherStreamLike streamEntity, BlockHitResult hit, BlockState blockState);
 
-    void onDestroy(EtherStreamEntity streamEntity);
+    void onDestroy(IEtherStreamLike streamEntity);
 
-    default void firstTick(EtherStreamEntity etherStreamEntity) {
+    default void firstTick(IEtherStreamLike etherStreamEntity) {
 
     }
 

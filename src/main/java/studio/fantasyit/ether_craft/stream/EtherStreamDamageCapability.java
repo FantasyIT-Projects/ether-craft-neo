@@ -14,7 +14,6 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.EtherCraft;
-import studio.fantasyit.ether_craft.entity.EtherStreamEntity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,11 +41,11 @@ public class EtherStreamDamageCapability implements IStreamCapability {
     }
 
     @Override
-    public void tick(EtherStreamEntity streamEntity) {
+    public void tick(IEtherStreamLike streamEntity) {
     }
 
     @Override
-    public boolean hitEntity(ServerLevel level, EtherStreamEntity streamEntity, EntityHitResult hit, Entity entity) {
+    public boolean hitEntity(ServerLevel level, IEtherStreamLike streamEntity, EntityHitResult hit, Entity entity) {
         if (weapons.isEmpty()) return false;
 
         ItemStack bestWeapon = findBestWeapon();
@@ -67,12 +66,12 @@ public class EtherStreamDamageCapability implements IStreamCapability {
     }
 
     @Override
-    public boolean hitBlock(ServerLevel level, EtherStreamEntity streamEntity, BlockHitResult hit, BlockState blockState) {
+    public boolean hitBlock(ServerLevel level, IEtherStreamLike streamEntity, BlockHitResult hit, BlockState blockState) {
         return false;
     }
 
     @Override
-    public void onDestroy(EtherStreamEntity streamEntity) {
+    public void onDestroy(IEtherStreamLike streamEntity) {
     }
 
     private ItemStack findBestWeapon() {

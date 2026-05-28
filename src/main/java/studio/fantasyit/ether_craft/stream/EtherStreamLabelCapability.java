@@ -12,11 +12,11 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnknownNullability;
 import org.joml.Vector3f;
 import studio.fantasyit.ether_craft.EtherCraft;
-import studio.fantasyit.ether_craft.entity.EtherStreamEntity;
 
-import static studio.fantasyit.ether_craft.entity.EtherStreamEntity.*;
+import static studio.fantasyit.ether_craft.entity.stream.EtherStreamEntity.*;
 
 public class EtherStreamLabelCapability implements IStreamCapability {
     public static final Identifier ID = EtherCraft.id("label");
@@ -64,21 +64,21 @@ public class EtherStreamLabelCapability implements IStreamCapability {
     }
 
     @Override
-    public void tick(EtherStreamEntity streamEntity) {
+    public void tick(IEtherStreamLike streamEntity) {
     }
 
     @Override
-    public boolean hitEntity(ServerLevel level, EtherStreamEntity streamEntity, EntityHitResult hit, Entity entity) {
+    public boolean hitEntity(ServerLevel level, IEtherStreamLike streamEntity, EntityHitResult hit, Entity entity) {
         return false;
     }
 
     @Override
-    public boolean hitBlock(ServerLevel level, EtherStreamEntity streamEntity, BlockHitResult hit, BlockState blockState) {
+    public boolean hitBlock(ServerLevel level, IEtherStreamLike streamEntity, BlockHitResult hit, BlockState blockState) {
         return false;
     }
 
     @Override
-    public void onDestroy(EtherStreamEntity streamEntity) {
+    public void onDestroy(IEtherStreamLike streamEntity) {
     }
 
     @Override
@@ -109,7 +109,7 @@ public class EtherStreamLabelCapability implements IStreamCapability {
     }
 
     @Override
-    public void firstTick(EtherStreamEntity etherStreamEntity) {
+    public void firstTick(@UnknownNullability IEtherStreamLike etherStreamEntity) {
         setStartPos(etherStreamEntity.position());
         etherStreamEntity.getEntityData().set(LABEL_DATA, java.util.Optional.ofNullable(getLabel()));
         Vec3 sp = getStartPos();

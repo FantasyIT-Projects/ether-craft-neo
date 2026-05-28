@@ -26,8 +26,8 @@ import net.neoforged.neoforge.transfer.item.VanillaContainerWrapper;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnknownNullability;
 import studio.fantasyit.ether_craft.EtherCraft;
-import studio.fantasyit.ether_craft.entity.EtherStreamEntity;
 import studio.fantasyit.ether_craft.util.ContainerOps;
 
 import java.util.Collections;
@@ -73,7 +73,7 @@ public class EtherStreamStorageCapability implements IStreamCapability, Containe
     }
 
     @Override
-    public void tick(EtherStreamEntity streamEntity) {
+    public void tick(@UnknownNullability IEtherStreamLike streamEntity) {
         AABB currentBlockPos = new AABB(streamEntity.blockPosition());
         List<ItemEntity> entities = streamEntity.level().getEntities(EntityTypeTest.forClass(ItemEntity.class), currentBlockPos, t -> t.isAlive() && !t.hasPickUpDelay());
         boolean changed = false;
@@ -102,7 +102,7 @@ public class EtherStreamStorageCapability implements IStreamCapability, Containe
     }
 
     @Override
-    public boolean hitEntity(ServerLevel level, EtherStreamEntity streamEntity, EntityHitResult hit, Entity entity) {
+    public boolean hitEntity(ServerLevel level, IEtherStreamLike streamEntity, EntityHitResult hit, Entity entity) {
         if (entity instanceof ServerPlayer sp) {
             PlayerInventoryWrapper playerInventoryWrapper = PlayerInventoryWrapper.of(sp);
             ContainerOps.tryPlaceToItemHandler(this, playerInventoryWrapper);
@@ -115,7 +115,7 @@ public class EtherStreamStorageCapability implements IStreamCapability, Containe
     }
 
     @Override
-    public boolean hitBlock(ServerLevel level, EtherStreamEntity streamEntity, BlockHitResult hit, BlockState blockState) {
+    public boolean hitBlock(ServerLevel level, IEtherStreamLike streamEntity, BlockHitResult hit, BlockState blockState) {
         ResourceHandler<@NotNull ItemResource> r = level.getCapability(Capabilities.Item.BLOCK, hit.getBlockPos(), hit.getDirection());
         if (r != null)
             ContainerOps.tryPlaceToItemHandler(this, r);
@@ -123,7 +123,7 @@ public class EtherStreamStorageCapability implements IStreamCapability, Containe
     }
 
     @Override
-    public void onDestroy(EtherStreamEntity streamEntity) {
+    public void onDestroy(IEtherStreamLike streamEntity) {
         Containers.dropContents(streamEntity.level(), streamEntity, this);
     }
 
