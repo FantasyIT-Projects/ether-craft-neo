@@ -15,6 +15,7 @@ import net.minecraft.world.phys.Vec3;
 import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.attachment.ChainedEmitterEntityHitCache;
 import studio.fantasyit.ether_craft.attachment.ChainedEmitterEntityHitCache.PosDir;
+import studio.fantasyit.ether_craft.register.Tags;
 import studio.fantasyit.ether_craft.stream.EtherStreamStorageCapability;
 import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
 import studio.fantasyit.ether_craft.stream.IStreamCapability;
@@ -58,7 +59,7 @@ public class VirtualEtherStream implements IEtherStreamLike {
 
     @Override
     public void consumeEther(int ether) {
-        this.ether -= ether;
+        this.ether = Math.max(0, this.ether - ether);
     }
 
     @Override
@@ -97,17 +98,31 @@ public class VirtualEtherStream implements IEtherStreamLike {
 
     public void doCollision(ChainedEmitterEntityHitCache cache, PosDir posDir, float motionLen) {
         Vec3 newPos = pos.add(motion);
+
+        // Entity collision: find only the closest entity, matching EtherStreamEntity.fastHit() behavior
         List<Entity> entities = cache.getAllEntities(level, pos, posDir, 0, motionLen);
         if (entities != null) {
+            double nearestDist = Double.MAX_VALUE;
+            Entity closestEntity = null;
+            Vec3 closestHit = null;
             for (Entity entity : entities) {
-                if (!(entity instanceof LivingEntity)) continue;
                 AABB hitbox = entity.getBoundingBox().inflate(0.3);
-                if (!hitbox.clip(pos, newPos).isPresent()) continue;
+                Optional<Vec3> clip = hitbox.clip(pos, newPos);
+                if (clip.isPresent()) {
+                    double dist = pos.distanceToSqr(clip.get());
+                    if (dist < nearestDist) {
+                        nearestDist = dist;
+                        closestEntity = entity;
+                        closestHit = clip.get();
+                    }
+                }
+            }
+            if (closestEntity != null && closestEntity instanceof LivingEntity) {
                 boolean handled = false;
                 ServerLevel serverLevel = (ServerLevel) level;
-                EntityHitResult hitResult = new EntityHitResult(entity, pos);
+                EntityHitResult hitResult = new EntityHitResult(closestEntity, closestHit);
                 for (IStreamCapability cap : capabilities) {
-                    if (cap.hitEntity(serverLevel, this, hitResult, entity)) handled = true;
+                    if (cap.hitEntity(serverLevel, this, hitResult, closestEntity)) handled = true;
                 }
                 if (!handled) {
                     markDead();
@@ -118,6 +133,7 @@ public class VirtualEtherStream implements IEtherStreamLike {
 
         BlockPos newBlockPos = BlockPos.containing(newPos);
         var blockState = level.getBlockState(newBlockPos);
+        if (blockState.is(Tags.ETHER_STREAM_PASS_THROUGH)) return;
         ServerLevel serverLevel = (ServerLevel) level;
         for (IStreamCapability cap : capabilities) {
             if (cap.shouldPassThrough(blockState, serverLevel, newBlockPos)) return;

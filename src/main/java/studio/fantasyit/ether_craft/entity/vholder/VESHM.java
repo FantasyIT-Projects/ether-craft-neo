@@ -8,7 +8,6 @@ import net.minecraft.world.phys.Vec3;
 import studio.fantasyit.ether_craft.attachment.ChainedEmitterEntityHitCache;
 import studio.fantasyit.ether_craft.attachment.ChainedEmitterEntityHitCache.PosDir;
 import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
-import studio.fantasyit.ether_craft.network.s2c.EtherStreamUpdateS2C;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -45,27 +44,7 @@ public class VESHM {
             holders.remove(posDir);
         }
 
-        // Send sync payloads
-        for (var entry : holders.entrySet()) {
-            PosDir posDir = entry.getKey();
-            VirtualEtherStreamHolder holder = entry.getValue();
-
-            List<EtherStreamUpdateS2C.StreamEntry> entries = new ArrayList<>();
-            for (VirtualEtherStream ves : holder.streams) {
-                byte flags = 0;
-                if (ves.dead) flags |= 1;
-                if (ves.dying) flags |= 2;
-                entries.add(new EtherStreamUpdateS2C.StreamEntry(
-                        ves.streamId, ves.tickCount, ves.getEther(), flags, ves.deathTick, ves.label, ves.labelColor
-                ));
-            }
-
-            if (!entries.isEmpty() || !holder.streams.isEmpty()) {
-                var payload = new EtherStreamUpdateS2C(posDir, entries);
-                net.neoforged.neoforge.network.PacketDistributor.sendToPlayersTrackingChunk(
-                        level, level.getChunk(posDir.pos()).getPos(), payload);
-            }
-        }
+        // TODO: send sync payloads (Task 5)
     }
 
     public static VESHM get(ServerLevel level) {

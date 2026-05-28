@@ -4,7 +4,6 @@ import net.minecraft.core.Direction;
 import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.attachment.ChainedEmitterEntityHitCache;
 import studio.fantasyit.ether_craft.attachment.ChainedEmitterEntityHitCache.PosDir;
-import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
 import studio.fantasyit.ether_craft.stream.IStreamCapability;
 
 import java.util.ArrayList;

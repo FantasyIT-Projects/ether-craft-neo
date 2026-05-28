@@ -79,7 +79,6 @@ public class ChainedEmitterEntityHitCache {
             );
             List<Entity> result = new ArrayList<>();
             for (Entity entity : entities) {
-                if (entity.getType().builtInRegistryHolder().is(net.minecraft.tags.EntityTypeTags.ARROWS)) continue;
                 result.add(entity);
             }
             cache.put(posDir, result);
