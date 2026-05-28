@@ -77,7 +77,7 @@ public class ClientVESHData {
             }
             current.startTickCount = update.tickCount();
             current.ether = update.ether();
-            if (update.label() != null) current.label = update.label();
+            current.label = update.label();
             current.labelColor = update.labelColor();
             current.receivedAtTick = Minecraft.getInstance().level != null
                     ? Minecraft.getInstance().level.getGameTime() : 0;
@@ -89,6 +89,11 @@ public class ClientVESHData {
 
         // Remove streams not in this update batch
         streams.entrySet().removeIf(e -> !seen.contains(e.getKey()));
+
+        // Remove empty entries
+        if (entry.streams.isEmpty()) {
+            entries.remove(msg.posDir());
+        }
     }
 
     public Map<PosDir, ClientVESHEntry> getEntries() {
