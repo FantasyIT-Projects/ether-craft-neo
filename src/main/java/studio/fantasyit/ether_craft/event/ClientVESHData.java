@@ -73,14 +73,17 @@ public class ClientVESHData {
 
             if (update.isDead() && !update.isDying()) {
                 current.removed = true;
-            } else if (update.isDying()) {
+                continue;
+            }
+            current.startTickCount = update.tickCount();
+            current.ether = update.ether();
+            if (update.label() != null) current.label = update.label();
+            current.labelColor = update.labelColor();
+            current.receivedAtTick = Minecraft.getInstance().level != null
+                    ? Minecraft.getInstance().level.getGameTime() : 0;
+            if (update.isDying()) {
                 current.flags = update.flags();
                 current.deathTick = update.deathTick();
-            } else {
-                current.startTickCount = update.tickCount();
-                current.ether = update.ether();
-                current.label = update.label();
-                current.labelColor = update.labelColor();
             }
         }
 
