@@ -35,7 +35,7 @@ public class QueuedTicket {
     public void tick(EtherAdaptNodeEntity nodeEntity) {
         HashSet<InstalledPlugin> keys = new HashSet<>(queuedCd.keySet());
         for (InstalledPlugin plugin : keys) {
-            if (queuedCd.get(plugin) <= 0 || nodeEntity.isPluginInstalled(plugin)) {
+            if (queuedCd.get(plugin) <= 0 || !nodeEntity.isPluginInstalled(plugin)) {
                 queuedCd.remove(plugin);
             } else {
                 queuedCd.put(plugin, queuedCd.get(plugin) - 1);

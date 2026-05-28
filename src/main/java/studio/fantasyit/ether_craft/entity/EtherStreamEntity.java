@@ -1,6 +1,7 @@
 package studio.fantasyit.ether_craft.entity;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -12,20 +13,20 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
+import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.EntityHitResult;
-import net.minecraft.world.phys.HitResult;
-import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.*;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
 import studio.fantasyit.ether_craft.Config;
+import studio.fantasyit.ether_craft.attachment.ChainedEmitterEntityHitCache;
 import studio.fantasyit.ether_craft.block.base.EtherContainer;
+import studio.fantasyit.ether_craft.register.AttachmentDataRegistry;
 import studio.fantasyit.ether_craft.register.EntityRegistry;
 import studio.fantasyit.ether_craft.register.Tags;
 import studio.fantasyit.ether_craft.stream.IStreamCapability;
@@ -38,7 +39,7 @@ public class EtherStreamEntity extends Projectile {
     static final EntityDataAccessor<Integer> ETHER_COUNT = SynchedEntityData.defineId(EtherStreamEntity.class, EntityDataSerializers.INT);
     public static final EntityDataAccessor<java.util.Optional<Component>> LABEL_DATA =
             SynchedEntityData.defineId(EtherStreamEntity.class, EntityDataSerializers.OPTIONAL_COMPONENT);
-    public static final EntityDataAccessor<Vector3fc> LABEL_START_POS =
+    public static final EntityDataAccessor<Vector3fc> START_POS =
             SynchedEntityData.defineId(EtherStreamEntity.class, EntityDataSerializers.VECTOR3);
     public static final EntityDataAccessor<Integer> LABEL_COLOR =
             SynchedEntityData.defineId(EtherStreamEntity.class, EntityDataSerializers.INT);
@@ -60,6 +61,8 @@ public class EtherStreamEntity extends Projectile {
     private int deathTickStart;
     private static final int MAX_DEATH_TICKS = 60;
     private List<IStreamCapability> capabilities = new ArrayList<>();
+    private ChainedEmitterEntityHitCache ceec;
+    private ChainedEmitterEntityHitCache.PosDir posDir;
 
     public static EtherStreamEntity create(Level level, int ether, Vec3 position, Vec3 motion) {
         EtherStreamEntity instance = new EtherStreamEntity(EntityRegistry.ETHER_STREAM_ENTITY.get(), level);
@@ -83,7 +86,7 @@ public class EtherStreamEntity extends Projectile {
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         builder.define(ETHER_COUNT, ether);
         builder.define(LABEL_DATA, java.util.Optional.empty());
-        builder.define(LABEL_START_POS, new Vector3f());
+        builder.define(START_POS, new Vector3f());
         builder.define(LABEL_COLOR, 0xFFFFFFFF);
         builder.define(DYING, false);
         builder.define(DEATH_POS, new Vector3f());
@@ -124,6 +127,11 @@ public class EtherStreamEntity extends Projectile {
     @Override
     public void tick() {
         super.tick();
+        if (ceec == null) {
+            ceec = level().getData(AttachmentDataRegistry.CHAINED_EMITTER_ENTITY_HIT_CACHE);
+            Direction d = Direction.getApproximateNearest(getDeltaMovement());
+            posDir = new ChainedEmitterEntityHitCache.PosDir(this.blockPosition(), d);
+        }
         if (this.level().isClientSide()) {
             this.ether = this.entityData.get(ETHER_COUNT);
             if (entityData.get(DYING)) {
@@ -162,7 +170,7 @@ public class EtherStreamEntity extends Projectile {
         }
 
         Vec3 vec3 = this.getDeltaMovement();
-        HitResult hitresult = ProjectileUtil.getHitResultOnMoveVector(this, this::canHitEntity);
+        HitResult hitresult = fastHit();
         if (hitresult.getType() != HitResult.Type.MISS)
             this.onHit(hitresult);
         this.setPos(this.getX() + vec3.x, this.getY() + vec3.y, this.getZ() + vec3.z);
@@ -270,9 +278,13 @@ public class EtherStreamEntity extends Projectile {
         for (IStreamCapability capability : capabilities) {
             capability.onDestroy(this);
         }
-        deathTickStart = this.tickCount;
-        entityData.set(DEATH_POS, new Vector3f((float) this.getX(), (float) this.getY(), (float) this.getZ()));
-        entityData.set(DYING, true);
+        if (entityData.get(LABEL_DATA).isPresent()) {
+            deathTickStart = this.tickCount;
+            entityData.set(DEATH_POS, new Vector3f((float) this.getX(), (float) this.getY(), (float) this.getZ()));
+            entityData.set(DYING, true);
+        } else {
+            this.discard();
+        }
     }
 
     @Override
@@ -285,7 +297,42 @@ public class EtherStreamEntity extends Projectile {
         super.readAdditionalSaveData(input);
     }
 
-    public void setChanged() {
-        //TODO
+
+    private HitResult fastHit() {
+        Vec3 movement = getDeltaMovement();
+        Level level = level();
+        Vec3 from = position();
+        Vec3 to = from.add(movement);
+        HitResult hitResult = level.clipIncludingBorder(new ClipContext(from, to, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, this));
+        if (hitResult.getType() != HitResult.Type.MISS) {
+            to = hitResult.getLocation();
+        }
+
+        List<Entity> entities = null;
+        if (ceec != null && posDir != null)
+            entities = ceec.getAllEntities(this, posDir, 1, 2);
+        if (entities == null)
+            entities = level.getEntities(this, getBoundingBox().expandTowards(movement).inflate(1.0F), this::canHitEntity);
+
+        double nearest = Double.MAX_VALUE;
+        double entityMargin = ProjectileUtil.computeMargin(this);
+        Optional<Vec3> nearestLocation = Optional.empty();
+        Entity hitEntity = null;
+        for (Entity entity : entities) {
+            if (!this.canHitEntity(entity))
+                continue;
+            AABB bb = entity.getBoundingBox().inflate(entityMargin);
+            Optional<Vec3> location = bb.clip(from, to);
+            if (location.isPresent()) {
+                double dd = from.distanceToSqr(location.get());
+                if (dd < nearest) {
+                    hitEntity = entity;
+                    nearest = dd;
+                    nearestLocation = location;
+                }
+            }
+        }
+
+        return hitEntity == null ? hitResult : new EntityHitResult(hitEntity, nearestLocation.get());
     }
 }

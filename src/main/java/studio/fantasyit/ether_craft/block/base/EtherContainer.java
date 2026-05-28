@@ -5,7 +5,7 @@ import net.neoforged.neoforge.capabilities.BlockCapability;
 import net.neoforged.neoforge.network.PacketDistributor;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.network.s2c.SyncBlockEtherValueS2C;
-import studio.fantasyit.ether_craft.register.BlockAttachmentDataRegistry;
+import studio.fantasyit.ether_craft.register.AttachmentDataRegistry;
 
 import java.util.Optional;
 
@@ -21,7 +21,7 @@ public interface EtherContainer {
     }
 
     default long getEther() {
-        return Optional.ofNullable(be().getExistingDataOrNull(BlockAttachmentDataRegistry.ETHER_CONTAINER)).orElse(0L);
+        return Optional.ofNullable(be().getExistingDataOrNull(AttachmentDataRegistry.ETHER_CONTAINER)).orElse(0L);
     }
 
     default long getMaxEther() {
@@ -45,7 +45,7 @@ public interface EtherContainer {
 
     default void setEtherNoUpdate(long amount) {
         amount = validateMax(amount);
-        be().setData(BlockAttachmentDataRegistry.ETHER_CONTAINER, amount);
+        be().setData(AttachmentDataRegistry.ETHER_CONTAINER, amount);
     }
 
     default void receiveEther(long amount) {
@@ -73,14 +73,14 @@ public interface EtherContainer {
     }
 
     default void syncClient() {
-        BlockEntity be = be();
-        if (be.getLevel() == null || be.getLevel().isClientSide()) return;
-        PacketDistributor.sendToAllPlayers(
-                new SyncBlockEtherValueS2C(
-                        getEther(),
-                        be.getBlockPos(),
-                        be.getLevel().dimension().identifier()
-                )
-        );
+//        BlockEntity be = be();
+//        if (be.getLevel() == null || be.getLevel().isClientSide()) return;
+//        PacketDistributor.sendToAllPlayers(
+//                new SyncBlockEtherValueS2C(
+//                        getEther(),
+//                        be.getBlockPos(),
+//                        be.getLevel().dimension().identifier()
+//                )
+//        );
     }
 }

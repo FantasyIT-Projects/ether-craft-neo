@@ -99,9 +99,6 @@ public class EtherStreamStorageCapability implements IStreamCapability, Containe
                 }
             }
         }
-        if (changed) {
-            streamEntity.setChanged();
-        }
     }
 
     @Override

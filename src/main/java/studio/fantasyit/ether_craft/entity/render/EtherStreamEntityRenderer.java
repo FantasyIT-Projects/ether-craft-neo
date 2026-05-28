@@ -55,7 +55,7 @@ public class EtherStreamEntityRenderer extends EntityRenderer<EtherStreamEntity,
         java.util.Optional<net.minecraft.network.chat.Component> labelData = entity.getEntityData().get(EtherStreamEntity.LABEL_DATA);
         labelData.ifPresent(label -> state.label = label);
         if (labelData.isPresent()) {
-            Vector3fc sp = entity.getEntityData().get(EtherStreamEntity.LABEL_START_POS);
+            Vector3fc sp = entity.getEntityData().get(EtherStreamEntity.START_POS);
             state.startPos = new Vec3(sp.x(), sp.y(), sp.z());
         }
         state.labelColor = entity.getEntityData().get(EtherStreamEntity.LABEL_COLOR);
