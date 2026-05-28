@@ -22,6 +22,12 @@ public class AttachmentDataRegistry {
     public static final Supplier<AttachmentType<ChainedEmitterEntityHitCache>> CHAINED_EMITTER_ENTITY_HIT_CACHE = ATTACHMENT_TYPES.register(
             "ether_inactivate_convert_data", () -> AttachmentType.builder(ChainedEmitterEntityHitCache::new).build()
     );
+    public static final Supplier<AttachmentType<studio.fantasyit.ether_craft.entity.vholder.VESHM>> VESHM = ATTACHMENT_TYPES.register(
+            "ether_stream_virtual_manager", () -> AttachmentType.builder(studio.fantasyit.ether_craft.entity.vholder.VESHM::new).build()
+    );
+    public static final Supplier<AttachmentType<studio.fantasyit.ether_craft.event.ClientVESHData>> CLIENT_VESH_DATA = ATTACHMENT_TYPES.register(
+            "client_vesh_data", () -> AttachmentType.builder(studio.fantasyit.ether_craft.event.ClientVESHData::new).build()
+    );
 
     public static void register(IEventBus modbus) {
         ATTACHMENT_TYPES.register(modbus);

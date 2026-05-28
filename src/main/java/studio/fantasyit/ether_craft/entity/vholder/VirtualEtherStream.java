@@ -16,7 +16,6 @@ import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.attachment.ChainedEmitterEntityHitCache;
 import studio.fantasyit.ether_craft.attachment.ChainedEmitterEntityHitCache.PosDir;
 import studio.fantasyit.ether_craft.register.Tags;
-import studio.fantasyit.ether_craft.stream.EtherStreamStorageCapability;
 import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
 import studio.fantasyit.ether_craft.stream.IStreamCapability;
 
@@ -78,7 +77,7 @@ public class VirtualEtherStream implements IEtherStreamLike {
     }
 
     @Override
-    public void addCapability(EtherStreamStorageCapability capability) {
+    public void addCapability(IStreamCapability capability) {
         this.capabilities.add(capability);
     }
 

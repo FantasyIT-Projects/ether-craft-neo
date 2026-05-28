@@ -23,5 +23,5 @@ public interface IEtherStreamLike {
 
     Optional<IStreamCapability> getCapability(Identifier id);
 
-    void addCapability(EtherStreamStorageCapability capability);
+    void addCapability(IStreamCapability capability);
 }

@@ -9,8 +9,9 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
 import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.EtherCraft;
+import studio.fantasyit.ether_craft.attachment.ChainedEmitterEntityHitCache.PosDir;
 import studio.fantasyit.ether_craft.block.node.EtherAdaptNodeEntity;
-import studio.fantasyit.ether_craft.entity.stream.EtherStreamEntity;
+import studio.fantasyit.ether_craft.entity.vholder.VESHM;
 import studio.fantasyit.ether_craft.menu.base.slot.BaseDataSlot;
 import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeContainerMenu;
 import studio.fantasyit.ether_craft.network.c2s.SyncScreenDataC2S;
@@ -19,6 +20,7 @@ import studio.fantasyit.ether_craft.node.plugins.base.AbstractNodePlugin;
 import studio.fantasyit.ether_craft.node.plugins.base.IEtherStreamCapabilityProviderPlugin;
 import studio.fantasyit.ether_craft.node.plugins.base.PluginMenuContext;
 import studio.fantasyit.ether_craft.stream.EtherStreamStorageCapability;
+import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
 
 import java.util.Optional;
 
@@ -55,9 +57,13 @@ public class FeatureEtherStreamEmitter extends AbstractDirectionalFilterFeature 
             long sendWith = Math.min(Integer.MAX_VALUE, nodeEntity.getEther());
             nodeEntity.extractEther(sendWith);
             Vec3 dir = direction.getUnitVec3().multiply(0.55f, 0.55f, 0.55f);
-            EtherStreamEntity entity = EtherStreamEntity.create(
-                    nodeEntity.getLevel(),
-                    (int) sendWith,
+            PosDir posDir = new PosDir(nodeEntity.getBlockPos(), direction);
+            net.minecraft.server.level.ServerLevel serverLevel = (net.minecraft.server.level.ServerLevel) nodeEntity.getLevel();
+            if (serverLevel == null) return false;
+
+            VESHM veshm = VESHM.get(serverLevel);
+            IEtherStreamLike stream = veshm.createStream(
+                    serverLevel, posDir, (int) sendWith,
                     nodeEntity.getBlockPos().getCenter().add(dir),
                     dir.multiply(0.1f, 0.1f, 0.1f)
             );
@@ -65,11 +71,11 @@ public class FeatureEtherStreamEmitter extends AbstractDirectionalFilterFeature 
             for (int i = 0; i < nodeEntity.featureUpgradeStorage.getContainerSize(); i++) {
                 AbstractNodePlugin plugin = nodeEntity.featureUpgradeStorage.getPlugin(i);
                 if (plugin instanceof IEtherStreamCapabilityProviderPlugin provider) {
-                    provider.provideCapabilities(entity);
+                    provider.provideCapabilities(stream);
                 }
             }
 
-            Optional<studio.fantasyit.ether_craft.stream.IStreamCapability> optCap = entity.getCapability(EtherStreamStorageCapability.ID);
+            Optional<studio.fantasyit.ether_craft.stream.IStreamCapability> optCap = stream.getCapability(EtherStreamStorageCapability.ID);
             if (optCap.isPresent() && optCap.get() instanceof EtherStreamStorageCapability itemCapability) {
                 try (Transaction transaction = Transaction.openRoot()) {
                     for (int i = 0; i < itemCapability.getContainerSize(); i++) {
@@ -83,9 +89,6 @@ public class FeatureEtherStreamEmitter extends AbstractDirectionalFilterFeature 
                 }
             }
 
-            if (nodeEntity.getLevel() != null) {
-                nodeEntity.getLevel().addFreshEntity(entity);
-            }
             return true;
         }
         return false;

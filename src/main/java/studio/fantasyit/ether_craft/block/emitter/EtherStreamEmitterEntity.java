@@ -4,7 +4,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.MenuProvider;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -20,7 +19,7 @@ import studio.fantasyit.ether_craft.block.base.BaseEtherContainerBlockEntity;
 import studio.fantasyit.ether_craft.block.base.EtherContainer;
 import studio.fantasyit.ether_craft.block.base.ITickable;
 import studio.fantasyit.ether_craft.block.node.EtherAdaptNodeBlock;
-import studio.fantasyit.ether_craft.entity.stream.EtherStreamEntity;
+import studio.fantasyit.ether_craft.entity.vholder.VESHM;
 import studio.fantasyit.ether_craft.stream.EtherStreamStorageCapability;
 import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
 
@@ -43,20 +42,23 @@ public class EtherStreamEmitterEntity extends BaseEtherContainerBlockEntity impl
     @Override
     public void tickServer() {
         if (this.getEther() > 1000) {
-            if (level != null) {
-                @NotNull Direction targetDirection = this.getBlockState().getValue(EtherAdaptNodeBlock.FACING);
+            if (level instanceof net.minecraft.server.level.ServerLevel serverLevel) {
+                @org.jetbrains.annotations.NotNull Direction targetDirection = this.getBlockState().getValue(EtherAdaptNodeBlock.FACING);
                 Vec3 dir = targetDirection.getUnitVec3().multiply(0.55f, 0.55f, 0.55f);
-                IEtherStreamLike entity = EtherStreamEntity.create(
-                        this.level,
-                        (int) this.getEther(),
+                studio.fantasyit.ether_craft.attachment.ChainedEmitterEntityHitCache.PosDir posDir =
+                        new studio.fantasyit.ether_craft.attachment.ChainedEmitterEntityHitCache.PosDir(this.getBlockPos(), targetDirection);
+
+                VESHM veshm = VESHM.get(serverLevel);
+                IEtherStreamLike stream = veshm.createStream(
+                        serverLevel, posDir, (int) this.getEther(),
                         this.getBlockPos().getCenter().add(dir),
                         dir.multiply(0.1f, 0.1f, 0.1f)
                 );
-                EtherStreamStorageCapability itemStorage = new EtherStreamStorageCapability(this.inputContainer.getContainerSize());
 
+                EtherStreamStorageCapability itemStorage = new EtherStreamStorageCapability(this.inputContainer.getContainerSize());
                 for (int i = 0; i < this.inputContainer.getContainerSize(); i++) {
                     try (Transaction transaction = Transaction.openRoot()) {
-                        @NotNull ItemResource res = this.handler.getResource(i);
+                        @org.jetbrains.annotations.NotNull ItemResource res = this.handler.getResource(i);
                         if (res.isEmpty()) continue;
                         int extracted = this.handler.extract(i, res, Integer.MAX_VALUE, transaction);
                         int insert = itemStorage.handler.insert(i, res, extracted, transaction);
@@ -64,11 +66,8 @@ public class EtherStreamEmitterEntity extends BaseEtherContainerBlockEntity impl
                             transaction.commit();
                     }
                 }
-                entity.addCapability(itemStorage);
-
+                stream.addCapability(itemStorage);
                 this.setEther(0);
-                if (entity instanceof Entity e)
-                    level.addFreshEntity(e);
             }
         }
         if (markUpdate) {

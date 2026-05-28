@@ -8,7 +8,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.WrittenBookContent;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.block.node.EtherAdaptNodeEntity;
-import studio.fantasyit.ether_craft.entity.stream.EtherStreamEntity;
+import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
 import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
 import studio.fantasyit.ether_craft.node.plugins.base.AbstractNodePlugin;
 import studio.fantasyit.ether_craft.node.plugins.base.IEtherStreamCapabilityProviderPlugin;
@@ -25,7 +25,7 @@ public class EtherStreamTextUpgrade extends AbstractNodePlugin implements IEther
     }
 
     @Override
-    public void provideCapabilities(EtherStreamEntity entity) {
+    public void provideCapabilities(IEtherStreamLike entity) {
         ItemStack item = nodeEntity.featureUpgradeStorage.getItem(installedId.id());
         if (item.is(Items.WRITTEN_BOOK)) {
             WrittenBookContent writtenBookContent = item.get(DataComponents.WRITTEN_BOOK_CONTENT);

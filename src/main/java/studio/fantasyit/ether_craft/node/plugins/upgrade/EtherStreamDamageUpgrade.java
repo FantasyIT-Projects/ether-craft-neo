@@ -4,7 +4,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.block.node.EtherAdaptNodeEntity;
-import studio.fantasyit.ether_craft.entity.stream.EtherStreamEntity;
+import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
 import studio.fantasyit.ether_craft.node.plugins.base.AbstractNodePlugin;
 import studio.fantasyit.ether_craft.node.plugins.base.IEtherStreamCapabilityProviderPlugin;
 import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
@@ -25,7 +25,7 @@ public class EtherStreamDamageUpgrade extends AbstractNodePlugin implements IEth
     }
 
     @Override
-    public void provideCapabilities(EtherStreamEntity entity) {
+    public void provideCapabilities(IEtherStreamLike entity) {
         ItemStack weapon = getWeapon();
         if (weapon.isEmpty()) return;
 
