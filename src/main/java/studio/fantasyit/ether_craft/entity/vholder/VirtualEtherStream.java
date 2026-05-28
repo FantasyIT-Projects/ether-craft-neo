@@ -20,6 +20,7 @@ import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
 import studio.fantasyit.ether_craft.stream.IStreamCapability;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,7 +29,7 @@ public class VirtualEtherStream implements IEtherStreamLike {
     Level level;
     Direction direction;
     int ether;
-    List<IStreamCapability> capabilities;
+    List<IStreamCapability> capabilities = new ArrayList<>();
     int streamId;
     Vec3 startPos;
     Vec3 motion;
