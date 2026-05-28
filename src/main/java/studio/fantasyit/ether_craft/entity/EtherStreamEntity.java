@@ -23,6 +23,7 @@ import net.minecraft.world.phys.*;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
+import org.jspecify.annotations.NonNull;
 import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.attachment.ChainedEmitterEntityHitCache;
 import studio.fantasyit.ether_craft.block.base.EtherContainer;
@@ -271,6 +272,11 @@ public class EtherStreamEntity extends Projectile {
         super.recreateFromPacket(entityPacket);
         Vec3 d = entityPacket.getMovement();
         this.setDeltaMovement(d.x, d.y, d.z);
+    }
+
+    @Override
+    public @NonNull Direction getDirection() {
+        return posDir.dir();
     }
 
     public void dropAndDiscard() {
