@@ -124,7 +124,7 @@ public class EtherStreamStorageCapability implements IStreamCapability, Containe
 
     @Override
     public void onDestroy(IEtherStreamLike streamEntity) {
-        Containers.dropContents(streamEntity.level(), streamEntity, this);
+        Containers.dropContents(streamEntity.level(), streamEntity.blockPosition(), this);
     }
 
 

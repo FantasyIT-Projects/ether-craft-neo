@@ -3,6 +3,7 @@ package studio.fantasyit.ether_craft.attachment;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import studio.fantasyit.ether_craft.register.EntityRegistry;
@@ -54,6 +55,37 @@ public class ChainedEmitterEntityHitCache {
         List<Entity> result = getAllEntitiesRect(source, posDir);
         if (result == null) return null;
         float dist = (float) source.position().distanceTo(posDir.pos.getCenter());
+        List<Entity> filtered = new ArrayList<>();
+        for (Entity entity : result) {
+            float newDist = (float) entity.position().distanceTo(posDir.pos.getCenter());
+            if (dist - backwardDist < newDist && newDist < dist + forwardDist)
+                filtered.add(entity);
+        }
+        return filtered;
+    }
+
+    public @Nullable List<Entity> getAllEntities(Level level, Vec3 pos, PosDir posDir, float backwardDist, float forwardDist) {
+        float dist = (float) pos.distanceTo(posDir.pos.getCenter());
+        if (!curDist.containsKey(posDir) || dist > curDist.get(posDir)) {
+            curDist.put(posDir, dist);
+        }
+        if (!maxDist.containsKey(posDir)) return null;
+
+        if (!cache.containsKey(posDir)) {
+            Vec3 unit = posDir.dir.getUnitVec3().scale(maxDist.get(posDir) + 0.5f);
+            List<Entity> entities = level.getEntities(
+                    null,
+                    new AABB(posDir.pos).expandTowards(unit).inflate(1)
+            );
+            List<Entity> result = new ArrayList<>();
+            for (Entity entity : entities) {
+                if (entity.getType().builtInRegistryHolder().is(net.minecraft.tags.EntityTypeTags.ARROWS)) continue;
+                result.add(entity);
+            }
+            cache.put(posDir, result);
+        }
+
+        List<Entity> result = cache.get(posDir);
         List<Entity> filtered = new ArrayList<>();
         for (Entity entity : result) {
             float newDist = (float) entity.position().distanceTo(posDir.pos.getCenter());

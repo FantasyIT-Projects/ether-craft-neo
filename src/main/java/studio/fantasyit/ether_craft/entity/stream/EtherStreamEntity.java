@@ -30,6 +30,7 @@ import studio.fantasyit.ether_craft.block.base.EtherContainer;
 import studio.fantasyit.ether_craft.register.AttachmentDataRegistry;
 import studio.fantasyit.ether_craft.register.EntityRegistry;
 import studio.fantasyit.ether_craft.register.Tags;
+import studio.fantasyit.ether_craft.stream.EtherStreamStorageCapability;
 import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
 import studio.fantasyit.ether_craft.stream.IStreamCapability;
 
@@ -112,6 +113,11 @@ public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
     public void consumeEther(int amount) {
         this.ether -= (int) Math.ceil(amount / getLowerFactory());
         this.entityData.set(ETHER_COUNT, ether);
+    }
+
+    @Override
+    public void addCapability(EtherStreamStorageCapability capability) {
+        capabilities.add(capability);
     }
 
     public void addCapability(IStreamCapability capability) {

@@ -111,11 +111,13 @@ public class EtherStreamLabelCapability implements IStreamCapability {
     @Override
     public void firstTick(@UnknownNullability IEtherStreamLike etherStreamEntity) {
         setStartPos(etherStreamEntity.position());
-        etherStreamEntity.getEntityData().set(LABEL_DATA, java.util.Optional.ofNullable(getLabel()));
-        Vec3 sp = getStartPos();
-        etherStreamEntity.getEntityData().set(START_POS, sp != null
-                ? new Vector3f((float) sp.x, (float) sp.y, (float) sp.z)
-                : new Vector3f());
-        etherStreamEntity.getEntityData().set(LABEL_COLOR, getColor());
+        if (etherStreamEntity instanceof Entity e) {
+            e.getEntityData().set(LABEL_DATA, java.util.Optional.ofNullable(getLabel()));
+            Vec3 sp = getStartPos();
+            e.getEntityData().set(START_POS, sp != null
+                    ? new Vector3f((float) sp.x, (float) sp.y, (float) sp.z)
+                    : new Vector3f());
+            e.getEntityData().set(LABEL_COLOR, getColor());
+        }
     }
 }

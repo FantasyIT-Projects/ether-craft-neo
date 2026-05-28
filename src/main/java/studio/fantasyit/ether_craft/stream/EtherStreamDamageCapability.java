@@ -59,7 +59,8 @@ public class EtherStreamDamageCapability implements IStreamCapability {
 
         streamEntity.consumeEther(cost);
 
-        DamageSource source = level.damageSources().indirectMagic(streamEntity, null);
+        Entity sourceEntity = streamEntity instanceof Entity e ? e : null;
+        DamageSource source = level.damageSources().indirectMagic(sourceEntity, null);
         entity.hurtServer(level, source, damage);
 
         return true;
