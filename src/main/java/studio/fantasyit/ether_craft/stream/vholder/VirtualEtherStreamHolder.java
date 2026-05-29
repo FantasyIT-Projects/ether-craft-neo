@@ -47,6 +47,17 @@ public class VirtualEtherStreamHolder {
         return ves;
     }
 
+    public boolean hasStreamInUnloadedChunk() {
+        for (VirtualEtherStream ves : streams) {
+            if (ves.markToRemove) continue;
+            BlockPos streamBlockPos = ves.blockPosition();
+            if (!level.isLoaded(streamBlockPos)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public void tick(PosDir posDir) {
         List<Integer> collectedToCreate = new ArrayList<>();
         List<Integer> collectedToRemove = new ArrayList<>();
@@ -54,6 +65,8 @@ public class VirtualEtherStreamHolder {
 
         // === PER-VES TICK ===
         for (VirtualEtherStream ves : streams) {
+            if (!level.isLoaded(ves.blockPosition())) continue;
+
             if (ves.consumer.isDirty()) {
                 ves.consumer.recompute(ves.capabilities);
                 ves.needsEtherSync = true;

@@ -26,6 +26,12 @@ public class VirtualEtherStreamHolderManager {
         return ves;
     }
 
+    public boolean canCreateStream(PosDir posDir) {
+        VirtualEtherStreamHolder holder = holders.get(posDir);
+        if (holder == null) return true;
+        return !holder.hasStreamInUnloadedChunk();
+    }
+
     public void tick(ServerLevel level) {
         List<PosDir> toRemove = new ArrayList<>();
         for (Map.Entry<PosDir, VirtualEtherStreamHolder> entry : holders.entrySet()) {

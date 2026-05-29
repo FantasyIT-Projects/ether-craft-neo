@@ -62,6 +62,7 @@ public class FeatureEtherStreamEmitter extends AbstractDirectionalFilterFeature 
             if (!(nodeEntity.getLevel() instanceof net.minecraft.server.level.ServerLevel serverLevel)) return false;
 
             VirtualEtherStreamHolderManager veshm = VirtualEtherStreamHolderManager.get(serverLevel);
+            if (!veshm.canCreateStream(posDir)) return false;
             IEtherStreamLike stream = veshm.createStream(
                     serverLevel, posDir, (int) sendWith,
                     nodeEntity.getBlockPos().getCenter().add(dir),

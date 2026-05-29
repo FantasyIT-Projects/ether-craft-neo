@@ -48,25 +48,27 @@ public class EtherStreamEmitterEntity extends BaseEtherContainerBlockEntity impl
                 PosDir posDir = new PosDir(this.getBlockPos(), targetDirection);
 
                 VirtualEtherStreamHolderManager veshm = VirtualEtherStreamHolderManager.get(serverLevel);
-                IEtherStreamLike stream = veshm.createStream(
-                        serverLevel, posDir, (int) this.getEther(),
-                        this.getBlockPos().getCenter().add(dir),
-                        dir.multiply(0.1f, 0.1f, 0.1f)
-                );
+                if (veshm.canCreateStream(posDir)) {
+                    IEtherStreamLike stream = veshm.createStream(
+                            serverLevel, posDir, (int) this.getEther(),
+                            this.getBlockPos().getCenter().add(dir),
+                            dir.multiply(0.1f, 0.1f, 0.1f)
+                    );
 
-                EtherStreamStorageCapability itemStorage = new EtherStreamStorageCapability(this.inputContainer.getContainerSize());
-                for (int i = 0; i < this.inputContainer.getContainerSize(); i++) {
-                    try (Transaction transaction = Transaction.openRoot()) {
-                        @org.jetbrains.annotations.NotNull ItemResource res = this.handler.getResource(i);
-                        if (res.isEmpty()) continue;
-                        int extracted = this.handler.extract(i, res, Integer.MAX_VALUE, transaction);
-                        int insert = itemStorage.handler.insert(i, res, extracted, transaction);
-                        if (insert == extracted)
-                            transaction.commit();
+                    EtherStreamStorageCapability itemStorage = new EtherStreamStorageCapability(this.inputContainer.getContainerSize());
+                    for (int i = 0; i < this.inputContainer.getContainerSize(); i++) {
+                        try (Transaction transaction = Transaction.openRoot()) {
+                            @org.jetbrains.annotations.NotNull ItemResource res = this.handler.getResource(i);
+                            if (res.isEmpty()) continue;
+                            int extracted = this.handler.extract(i, res, Integer.MAX_VALUE, transaction);
+                            int insert = itemStorage.handler.insert(i, res, extracted, transaction);
+                            if (insert == extracted)
+                                transaction.commit();
+                        }
                     }
+                    stream.addCapability(itemStorage);
+                    this.setEther(0);
                 }
-                stream.addCapability(itemStorage);
-                this.setEther(0);
             }
         }
         if (markUpdate) {
