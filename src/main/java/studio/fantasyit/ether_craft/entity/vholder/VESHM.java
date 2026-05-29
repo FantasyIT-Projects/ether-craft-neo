@@ -6,6 +6,8 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.network.PacketDistributor;
 import studio.fantasyit.ether_craft.attachment.ChainedEmitterEntityHitCache;
 import studio.fantasyit.ether_craft.attachment.ChainedEmitterEntityHitCache.PosDir;
+import studio.fantasyit.ether_craft.network.s2c.EtherStreamCreateS2C;
+import studio.fantasyit.ether_craft.network.s2c.EtherStreamCreateS2C;
 import studio.fantasyit.ether_craft.network.s2c.EtherStreamUpdateS2C;
 import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
 
@@ -26,6 +28,15 @@ public class VESHM {
         holder.activateTick = 5;
         VirtualEtherStream ves = holder.createStream(ether, pos, motion);
         ves.level = level;
+
+        if (level instanceof ServerLevel serverLevel) {
+            var payload = new EtherStreamCreateS2C(posDir, ves.streamId,
+                    ves.startPos, ves.motion, ves.ether, ves.tickCount,
+                    ves.label, ves.labelColor);
+            PacketDistributor.sendToPlayersTrackingChunk(
+                    serverLevel, serverLevel.getChunk(posDir.pos()).getPos(), payload);
+        }
+
         return ves;
     }
 
