@@ -11,8 +11,10 @@ import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.FormattedCharSequence;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Quaternionf;
+import org.joml.Vector3f;
 import studio.fantasyit.ether_craft.EtherCraft;
 
 public class ClientVirtualEtherStreamRenderer {
@@ -31,53 +33,73 @@ public class ClientVirtualEtherStreamRenderer {
     public static void onRender(Minecraft mc, PoseStack poseStack, SubmitNodeCollector collector, CameraRenderState camera) {
         ClientVESHData data = ClientVESHData.get();
         float partialTick = mc.getDeltaTracker().getGameTimeDeltaPartialTick(false);
+        Quaternionf invOrientation = camera.orientation.conjugate(new Quaternionf());
+        Vector3f offsetVec = new Vector3f();
+
+        poseStack.pushPose();
+        poseStack.mulPose(camera.orientation);
+
+        collector.order(1).submitCustomGeometry(poseStack, RENDER_TYPE, (pose, buffer) -> {
+            Vector3f normal = pose.transformNormal(0, 1f, 0, new Vector3f());
+            for (var posEntry : data.getEntries().entrySet()) {
+                ClientVESHData.ClientVESHEntry veshEntry = posEntry.getValue();
+                for (var streamEntry : veshEntry.streams.entrySet()) {
+                    ClientStreamEntry stream = streamEntry.getValue();
+                    if (stream.isRemoved()) continue;
+
+                    long elapsed = mc.level.getGameTime() - stream.receivedAtTick;
+                    Vec3 currentPos = stream.startPos.add(
+                            stream.motion.scale(stream.startTickCount + elapsed + partialTick));
+
+                    double speed = stream.motion.length();
+                    if (speed <= 0.0001) continue;
+
+                    Vec3 baseStep = stream.motion.reverse();
+                    Vec3 tailEnd = currentPos.add(baseStep.scale(5));
+                    if (!camera.cullFrustum.isVisible(new AABB(currentPos, tailEnd).inflate(0.5))) continue;
+
+                    for (int i = 0; i < 6; i++) {
+                        Vec3 tailPos = currentPos.add(baseStep.scale(i));
+                        offsetVec.set(
+                                (float) (tailPos.x - camera.pos.x),
+                                (float) (tailPos.y - camera.pos.y),
+                                (float) (tailPos.z - camera.pos.z));
+                        invOrientation.transform(offsetVec);
+
+                        float alpha = 1f - (float) i / 6.1f;
+                        float halfWidth = 0.5f * 0.1f / (float) Math.pow(1.5, i);
+                        int a = (int) (alpha * 255);
+                        int light = 0xF000F0;
+
+                        vertex(buffer, pose, -halfWidth + offsetVec.x, -halfWidth + offsetVec.y, offsetVec.z, a, 1, 1, light, normal);
+                        vertex(buffer, pose, halfWidth + offsetVec.x, -halfWidth + offsetVec.y, offsetVec.z, a, 0, 1, light, normal);
+                        vertex(buffer, pose, halfWidth + offsetVec.x, halfWidth + offsetVec.y, offsetVec.z, a, 0, 0, light, normal);
+                        vertex(buffer, pose, -halfWidth + offsetVec.x, halfWidth + offsetVec.y, offsetVec.z, a, 1, 0, light, normal);
+                    }
+                }
+            }
+        });
+
+        poseStack.popPose();
 
         for (var posEntry : data.getEntries().entrySet()) {
             ClientVESHData.ClientVESHEntry veshEntry = posEntry.getValue();
-
             for (var streamEntry : veshEntry.streams.entrySet()) {
-                int streamId = streamEntry.getKey();
                 ClientStreamEntry stream = streamEntry.getValue();
-
                 if (stream.isRemoved()) continue;
 
                 long elapsed = mc.level.getGameTime() - stream.receivedAtTick;
                 Vec3 currentPos = stream.startPos.add(
-                        stream.motion.scale(stream.startTickCount + elapsed + partialTick)
-                );
+                        stream.motion.scale(stream.startTickCount + elapsed + partialTick));
 
-                // Render tail: 6 billboard quads backward from currentPos
                 double speed = stream.motion.length();
                 if (speed > 0.0001) {
-                    Vec3 stepBack = stream.motion.reverse();
-                    for (int i = 0; i < 6; i++) {
-                        Vec3 tailPos = currentPos.add(stepBack.scale(i));
-                        poseStack.pushPose();
-                        float dx = (float) (tailPos.x - camera.pos.x);
-                        float dy = (float) (tailPos.y - camera.pos.y);
-                        float dz = (float) (tailPos.z - camera.pos.z);
-                        poseStack.translate(dx, dy, dz);
-                        poseStack.mulPose(camera.orientation);
-
-                        float alpha = 1f - (float) i / 6.1f;
-                        float size = 0.1f / (float) Math.pow(1.5, i);
-                        poseStack.scale(size, size, 1f);
-
-                        int a = (int) (alpha * 255);
-                        int light = 0xF000F0;
-
-                        collector.submitCustomGeometry(poseStack, RENDER_TYPE, (pose, buffer) -> {
-                            vertex(buffer, pose, -0.5f, -0.5f, a, 1, 1, light);
-                            vertex(buffer, pose, 0.5f, -0.5f, a, 0, 1, light);
-                            vertex(buffer, pose, 0.5f, 0.5f, a, 0, 0, light);
-                            vertex(buffer, pose, -0.5f, 0.5f, a, 1, 0, light);
-                        });
-
-                        poseStack.popPose();
-                    }
+                    Vec3 tailEnd = currentPos.add(stream.motion.reverse().scale(5));
+                    if (!camera.cullFrustum.isVisible(new AABB(currentPos, tailEnd).inflate(0.5))) continue;
+                } else {
+                    if (!camera.cullFrustum.isVisible(new AABB(currentPos, currentPos).inflate(0.5))) continue;
                 }
 
-                // Render label at currentPos
                 renderLabel(stream, currentPos, camera, poseStack, collector);
             }
         }
@@ -149,12 +171,12 @@ public class ClientVirtualEtherStreamRenderer {
         }
     }
 
-    private static void vertex(VertexConsumer buffer, PoseStack.Pose pose, float x, float y, int a, float u, float v, int light) {
-        buffer.addVertex(pose, x, y, 0f)
+    private static void vertex(VertexConsumer buffer, PoseStack.Pose pose, float x, float y, float z, int a, float u, float v, int light, Vector3f norm) {
+        buffer.addVertex(pose, x, y, z)
                 .setColor(255, 255, 255, a)
                 .setUv(u, v)
                 .setOverlay(OverlayTexture.NO_OVERLAY)
                 .setLight(light)
-                .setNormal(pose, 0f, 1f, 0f);
+                .setNormal(norm.x, norm.y, norm.z);
     }
 }
