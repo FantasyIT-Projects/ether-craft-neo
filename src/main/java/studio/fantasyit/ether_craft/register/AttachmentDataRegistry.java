@@ -7,7 +7,6 @@ import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import studio.fantasyit.ether_craft.EtherCraft;
-import studio.fantasyit.ether_craft.attachment.ChainedEmitterEntityHitCache;
 import studio.fantasyit.ether_craft.stream.client.ClientVESHData;
 import studio.fantasyit.ether_craft.stream.vholder.VirtualEtherStreamHolderManager;
 
@@ -20,9 +19,6 @@ public class AttachmentDataRegistry {
     );
     public static final Supplier<AttachmentType<Long>> ETHER_CONTAINER_MAX = ATTACHMENT_TYPES.register(
             "ether_container_max", () -> AttachmentType.builder(() -> 0L).serialize(Codec.LONG.fieldOf("ether_container_max")).build()
-    );
-    public static final Supplier<AttachmentType<ChainedEmitterEntityHitCache>> CHAINED_EMITTER_ENTITY_HIT_CACHE = ATTACHMENT_TYPES.register(
-            "ether_inactivate_convert_data", () -> AttachmentType.builder(ChainedEmitterEntityHitCache::new).build()
     );
     public static final Supplier<AttachmentType<VirtualEtherStreamHolderManager>> VESHM = ATTACHMENT_TYPES.register(
             "ether_stream_virtual_manager", () -> AttachmentType.builder(VirtualEtherStreamHolderManager::new).build()

@@ -28,7 +28,7 @@ public class ClientVirtualEtherStreamRenderer {
 
     private static final float LABEL_SCALE = 0.010416667F;
 
-    public static void onRender(Minecraft mc, PoseStack poseStack, SubmitNodeCollector collector,CameraRenderState camera) {
+    public static void onRender(Minecraft mc, PoseStack poseStack, SubmitNodeCollector collector, CameraRenderState camera) {
         ClientVESHData data = ClientVESHData.get();
         float partialTick = mc.getDeltaTracker().getGameTimeDeltaPartialTick(false);
 
@@ -60,7 +60,7 @@ public class ClientVirtualEtherStreamRenderer {
                         poseStack.mulPose(camera.orientation);
 
                         float alpha = 1f - (float) i / 6.1f;
-                        float size = 1.0f / (float) Math.pow(1.5, i);
+                        float size = 0.1f / (float) Math.pow(1.5, i);
                         poseStack.scale(size, size, 1f);
 
                         int a = (int) (alpha * 255);

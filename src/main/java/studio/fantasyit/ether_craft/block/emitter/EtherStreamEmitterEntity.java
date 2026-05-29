@@ -18,9 +18,10 @@ import studio.fantasyit.ether_craft.block.base.BaseEtherContainerBlockEntity;
 import studio.fantasyit.ether_craft.block.base.EtherContainer;
 import studio.fantasyit.ether_craft.block.base.ITickable;
 import studio.fantasyit.ether_craft.block.node.EtherAdaptNodeBlock;
-import studio.fantasyit.ether_craft.stream.vholder.VirtualEtherStreamHolderManager;
-import studio.fantasyit.ether_craft.stream.cap.EtherStreamStorageCapability;
 import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
+import studio.fantasyit.ether_craft.stream.PosDir;
+import studio.fantasyit.ether_craft.stream.cap.EtherStreamStorageCapability;
+import studio.fantasyit.ether_craft.stream.vholder.VirtualEtherStreamHolderManager;
 
 import static studio.fantasyit.ether_craft.register.BlockEntityRegistry.ETHER_STREAM_EMITTER_ENTITY;
 
@@ -44,8 +45,7 @@ public class EtherStreamEmitterEntity extends BaseEtherContainerBlockEntity impl
             if (level instanceof net.minecraft.server.level.ServerLevel serverLevel) {
                 @org.jetbrains.annotations.NotNull Direction targetDirection = this.getBlockState().getValue(EtherAdaptNodeBlock.FACING);
                 Vec3 dir = targetDirection.getUnitVec3().multiply(0.55f, 0.55f, 0.55f);
-                studio.fantasyit.ether_craft.attachment.ChainedEmitterEntityHitCache.PosDir posDir =
-                        new studio.fantasyit.ether_craft.attachment.ChainedEmitterEntityHitCache.PosDir(this.getBlockPos(), targetDirection);
+                PosDir posDir = new PosDir(this.getBlockPos(), targetDirection);
 
                 VirtualEtherStreamHolderManager veshm = VirtualEtherStreamHolderManager.get(serverLevel);
                 IEtherStreamLike stream = veshm.createStream(

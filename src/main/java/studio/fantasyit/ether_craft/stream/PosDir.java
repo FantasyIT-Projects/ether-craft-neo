@@ -7,7 +7,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.phys.Vec3;
 
 public record PosDir(BlockPos pos, Direction dir) {
-    private static final StreamCodec<RegistryFriendlyByteBuf, PosDir> POSDIR_CODEC = StreamCodec.composite(
+    public static final StreamCodec<RegistryFriendlyByteBuf, PosDir> STREAM_CODEC = StreamCodec.composite(
             BlockPos.STREAM_CODEC,
             PosDir::pos,
             Direction.STREAM_CODEC,

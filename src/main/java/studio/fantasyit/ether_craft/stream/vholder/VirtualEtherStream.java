@@ -41,6 +41,8 @@ public class VirtualEtherStream implements IEtherStreamLike {
         this.level = level;
         this.direction = direction;
         this.startPos = pos;
+        this.motion = motion;
+        this.markToSyncCreation = true;
     }
 
 

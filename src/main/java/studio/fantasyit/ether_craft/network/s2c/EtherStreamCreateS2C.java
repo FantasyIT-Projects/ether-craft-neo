@@ -1,7 +1,5 @@
 package studio.fantasyit.ether_craft.network.s2c;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
@@ -50,7 +48,7 @@ public record EtherStreamCreateS2C(
             );
 
     public static final StreamCodec<RegistryFriendlyByteBuf, @NotNull EtherStreamCreateS2C> CODEC = StreamCodec.composite(
-            POSDIR_CODEC, EtherStreamCreateS2C::posDir,
+            PosDir.STREAM_CODEC, EtherStreamCreateS2C::posDir,
             ByteBufCodecs.VAR_INT, EtherStreamCreateS2C::streamId,
             VEC3_CODEC, EtherStreamCreateS2C::startPos,
             VEC3_CODEC, EtherStreamCreateS2C::motion,

@@ -33,10 +33,9 @@ public class ClientVESHData {
             current.startTickCount = se.tickCount();
             current.ether = se.ether();
 
-            if (se.isDying() && !current.isDying) {
-                current.setDying(true);
-            }
-            if (se.isDead() && !se.isDying()) {
+            if (se.label() != null) {
+                if (!current.isDying) { current.setDying(true); }
+            } else {
                 current.removed = true;
             }
         }

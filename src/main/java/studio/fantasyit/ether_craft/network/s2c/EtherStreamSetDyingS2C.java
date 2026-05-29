@@ -29,8 +29,6 @@ public record EtherStreamSetDyingS2C(
             int streamId,
             int tickCount,
             int ether,
-            boolean isDead,
-            boolean isDying,
             @Nullable Component label,
             int labelColor
     ) {
@@ -58,8 +56,6 @@ public record EtherStreamSetDyingS2C(
             ByteBufCodecs.VAR_INT, StreamEntry::streamId,
             ByteBufCodecs.VAR_INT, StreamEntry::tickCount,
             ByteBufCodecs.VAR_INT, StreamEntry::ether,
-            ByteBufCodecs.BOOL, StreamEntry::isDead,
-            ByteBufCodecs.BOOL, StreamEntry::isDying,
             NULLABLE_COMPONENT_CODEC, StreamEntry::label,
             ByteBufCodecs.INT, StreamEntry::labelColor,
             StreamEntry::new

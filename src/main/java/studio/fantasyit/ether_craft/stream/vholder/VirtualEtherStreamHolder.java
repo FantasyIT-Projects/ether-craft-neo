@@ -3,29 +3,21 @@ package studio.fantasyit.ether_craft.stream.vholder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.phys.Vec3;
-import studio.fantasyit.ether_craft.Config;
-import studio.fantasyit.ether_craft.stream.PosDir;
-import studio.fantasyit.ether_craft.stream.cap.IStreamCapability;
-
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.EntityHitResult;
-import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.*;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.neoforged.neoforge.network.PacketDistributor;
+import studio.fantasyit.ether_craft.Config;
+import studio.fantasyit.ether_craft.block.base.EtherContainer;
 import studio.fantasyit.ether_craft.network.s2c.EtherStreamCreateS2C;
 import studio.fantasyit.ether_craft.network.s2c.EtherStreamSetDyingS2C;
 import studio.fantasyit.ether_craft.register.Tags;
+import studio.fantasyit.ether_craft.stream.PosDir;
+import studio.fantasyit.ether_craft.stream.cap.IStreamCapability;
 
-import java.util.ArrayList;
-import java.util.IdentityHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 public class VirtualEtherStreamHolder {
     private final Direction direction;
@@ -158,7 +150,10 @@ public class VirtualEtherStreamHolder {
             double nearestDist = Double.MAX_VALUE;
             for (EntityHitResult eh : allEntityHits.getOrDefault(ves, List.of())) {
                 double d = oldPos.distanceToSqr(eh.getLocation());
-                if (d < nearestDist) { nearestDist = d; nearestEntity = eh; }
+                if (d < nearestDist) {
+                    nearestDist = d;
+                    nearestEntity = eh;
+                }
             }
 
             // Resolve nearest
@@ -167,7 +162,12 @@ public class VirtualEtherStreamHolder {
                 for (IStreamCapability cap : ves.capabilities) {
                     handled |= cap.hitBlock(level, ves, blockHit, level.getBlockState(blockHit.getBlockPos()));
                 }
-                if (!handled) ves.markDead();
+                if (!handled) {
+                    EtherContainer capability = level.getCapability(EtherContainer.ETHER_CONTAINER, blockHit.getBlockPos());
+                    if (capability != null)
+                        capability.receiveEther(ves.getEther());
+                    ves.markDead();
+                }
             } else if (nearestEntity != null) {
                 boolean handled = false;
                 for (IStreamCapability cap : ves.capabilities) {
@@ -216,8 +216,6 @@ public class VirtualEtherStreamHolder {
                             ves.streamId,
                             ves.tickCount,
                             ves.ether,
-                            true,
-                            ves.label != null,
                             ves.label,
                             ves.labelColor
                     ));
