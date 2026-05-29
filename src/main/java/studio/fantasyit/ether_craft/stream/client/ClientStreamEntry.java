@@ -34,16 +34,16 @@ public class ClientStreamEntry {
         return removed;
     }
 
-    public ClientStreamEntry(@Nullable EtherStreamCreateS2C msg) {
-        if (msg != null) {
-            this.startPos = msg.startPos();
-            this.motion = msg.motion();
-            this.startTickCount = msg.tickCount();
-            this.tickCount = msg.tickCount();
-            this.ether = msg.ether();
-            this.consumer.fromState(msg.consumerState());
-            this.label = msg.label();
-            this.labelColor = msg.labelColor();
+    public ClientStreamEntry(@Nullable EtherStreamCreateS2C.StreamEntry entry) {
+        if (entry != null) {
+            this.startPos = entry.startPos();
+            this.motion = entry.motion();
+            this.startTickCount = entry.tickCount();
+            this.tickCount = entry.tickCount();
+            this.ether = entry.ether();
+            this.consumer.fromState(entry.consumerState());
+            this.label = entry.label();
+            this.labelColor = entry.labelColor();
         }
         Level level = Minecraft.getInstance().level;
         this.receivedAtTick = level != null ? level.getGameTime() : 0;

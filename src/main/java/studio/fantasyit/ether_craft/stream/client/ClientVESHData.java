@@ -19,8 +19,10 @@ public class ClientVESHData {
 
     public void handleCreate(EtherStreamCreateS2C msg) {
         ClientVESHEntry entry = entries.computeIfAbsent(msg.posDir(), k -> new ClientVESHEntry());
-        if (!entry.streams.containsKey(msg.streamId())) {
-            entry.streams.put(msg.streamId(), new ClientStreamEntry(msg));
+        for (EtherStreamCreateS2C.StreamEntry se : msg.entries()) {
+            if (!entry.streams.containsKey(se.streamId())) {
+                entry.streams.put(se.streamId(), new ClientStreamEntry(se));
+            }
         }
     }
 

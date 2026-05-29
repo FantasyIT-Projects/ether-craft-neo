@@ -3,6 +3,7 @@ package studio.fantasyit.ether_craft.stream.vholder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.block.state.BlockState;
@@ -210,25 +211,28 @@ public class VirtualEtherStreamHolder {
         }
 
         // === SYNC ===
-        for (int id : collectedToCreate) {
-            VirtualEtherStream ves = findStreamById(id);
-            if (ves != null) {
-                if (ves.consumer.isDirty()) {
-                    ves.consumer.recompute(ves.capabilities);
+        if (!collectedToCreate.isEmpty()) {
+            List<EtherStreamCreateS2C.StreamEntry> createEntries = new ArrayList<>();
+            for (int id : collectedToCreate) {
+                VirtualEtherStream ves = findStreamById(id);
+                if (ves != null) {
+                    if (ves.consumer.isDirty()) {
+                        ves.consumer.recompute(ves.capabilities);
+                    }
+                    createEntries.add(new EtherStreamCreateS2C.StreamEntry(
+                            ves.streamId,
+                            ves.startPos,
+                            ves.motion,
+                            ves.ether,
+                            ves.tickCount,
+                            ves.consumer.toState(),
+                            ves.label,
+                            ves.labelColor
+                    ));
                 }
-                EtherStreamCreateS2C payload = new EtherStreamCreateS2C(
-                        posDir,
-                        ves.streamId,
-                        ves.startPos,
-                        ves.motion,
-                        ves.ether,
-                        ves.tickCount,
-                        ves.consumer.toState(),
-                        ves.label,
-                        ves.labelColor
-                );
-                PacketDistributor.sendToPlayersTrackingChunk(level, level.getChunkAt(pos).getPos(), payload);
             }
+            EtherStreamCreateS2C payload = new EtherStreamCreateS2C(posDir, createEntries);
+            PacketDistributor.sendToPlayersInDimension(level, payload);
         }
 
         if (!collectedToRemove.isEmpty()) {
@@ -245,7 +249,7 @@ public class VirtualEtherStreamHolder {
                 }
             }
             EtherStreamSetDyingS2C payload = new EtherStreamSetDyingS2C(posDir, entries);
-            PacketDistributor.sendToPlayersTrackingChunk(level, level.getChunkAt(pos).getPos(), payload);
+            PacketDistributor.sendToPlayersInDimension(level, payload);
         }
 
         List<EtherStreamUpdateS2C.StreamEntry> updateEntries = new ArrayList<>();
@@ -262,7 +266,7 @@ public class VirtualEtherStreamHolder {
         }
         if (!updateEntries.isEmpty()) {
             EtherStreamUpdateS2C payload = new EtherStreamUpdateS2C(posDir, updateEntries);
-            PacketDistributor.sendToPlayersTrackingChunk(level, level.getChunkAt(pos).getPos(), payload);
+            PacketDistributor.sendToPlayersInDimension(level, payload);
         }
 
         // === CLEANUP ===
@@ -274,6 +278,30 @@ public class VirtualEtherStreamHolder {
             if (ves.streamId == id) return ves;
         }
         return null;
+    }
+
+    void syncStreamsToPlayer(ServerPlayer player, PosDir posDir) {
+        List<EtherStreamCreateS2C.StreamEntry> entries = new ArrayList<>();
+        for (VirtualEtherStream ves : streams) {
+            if (ves.markToRemove) continue;
+            if (ves.consumer.isDirty()) {
+                ves.consumer.recompute(ves.capabilities);
+            }
+            entries.add(new EtherStreamCreateS2C.StreamEntry(
+                    ves.streamId,
+                    ves.startPos,
+                    ves.motion,
+                    ves.ether,
+                    ves.tickCount,
+                    ves.consumer.toState(),
+                    ves.label,
+                    ves.labelColor
+            ));
+        }
+        if (!entries.isEmpty()) {
+            EtherStreamCreateS2C payload = new EtherStreamCreateS2C(posDir, entries);
+            PacketDistributor.sendToPlayer(player, payload);
+        }
     }
 
     public boolean isDead() {

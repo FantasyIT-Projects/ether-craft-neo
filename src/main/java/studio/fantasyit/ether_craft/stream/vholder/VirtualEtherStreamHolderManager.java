@@ -3,6 +3,7 @@ package studio.fantasyit.ether_craft.stream.vholder;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
@@ -82,6 +83,12 @@ public class VirtualEtherStreamHolderManager {
         }
         for (PosDir posDir : toRemove) {
             holders.remove(posDir);
+        }
+    }
+
+    public void syncAllToPlayer(ServerPlayer player) {
+        for (Map.Entry<PosDir, VirtualEtherStreamHolder> entry : holders.entrySet()) {
+            entry.getValue().syncStreamsToPlayer(player, entry.getKey());
         }
     }
 

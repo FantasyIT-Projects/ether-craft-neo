@@ -49,7 +49,7 @@ public class ClientVirtualEtherStreamRenderer {
 
                     long elapsed = mc.level.getGameTime() - stream.receivedAtTick;
                     Vec3 currentPos = stream.startPos.add(
-                            stream.motion.scale(stream.startTickCount + elapsed + partialTick));
+                            stream.motion.scale(stream.startTickCount + elapsed));//这里不加pt；
 
                     double speed = stream.motion.length();
                     if (speed <= 0.0001) continue;
