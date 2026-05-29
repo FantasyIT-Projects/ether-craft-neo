@@ -192,7 +192,6 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
         leak = factoryStructure.leakingSpeed;
         boolean[] hasRecipe = new boolean[ROWS];
         for (int i = 0; i < factoryStructure.recipes.size(); i++) {
-
             Optional<EtherProcessFactoryRecipe> recipeFor = EtherProcessRecipeManager.getRecipe(level, level.recipeAccess(), factoryStructure.recipes.get(i));
             Integer outputId = factoryStructure.recipes.get(i).outputId;
             if (recipeFor.isPresent()) {

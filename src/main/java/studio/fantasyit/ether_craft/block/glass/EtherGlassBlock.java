@@ -13,6 +13,8 @@ import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.fml.loading.FMLEnvironment;
 import org.jetbrains.annotations.NotNull;
 import studio.fantasyit.ether_craft.client.key.EtherGlassKeyHandler;
 import studio.fantasyit.ether_craft.register.BlockRegistry;
@@ -39,8 +41,9 @@ public class EtherGlassBlock extends TransparentBlock {
 
     @Override
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        if (EtherGlassKeyHandler.isAltThroughGlassDown())
-            return Shapes.empty();
+        if (FMLEnvironment.getDist() != Dist.DEDICATED_SERVER)
+            if (EtherGlassKeyHandler.isAltThroughGlassDown())
+                return Shapes.empty();
         return super.getShape(state, level, pos, context);
     }
 

@@ -3,11 +3,7 @@ package studio.fantasyit.ether_craft.integration.jei;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.recipe.types.IRecipeType;
-import mezz.jei.api.registration.IRecipeCatalystRegistration;
-import mezz.jei.api.registration.IRecipeCategoryRegistration;
-import mezz.jei.api.registration.IRecipeRegistration;
-import mezz.jei.api.registration.ISubtypeRegistration;
-import mezz.jei.api.registration.IVanillaCategoryExtensionRegistration;
+import mezz.jei.api.registration.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -140,6 +136,16 @@ public class JEIPlugin implements IModPlugin {
 
     private static List<NodeProcessRecipe> getNodeProcessRecipes() {
         List<NodeProcessRecipe> result = new ArrayList<>();
+        var syncedMap = ClientRecipeSyncEvent.getSyncedRecipeMap();
+        if (syncedMap != null) {
+            for (RecipeHolder<NodeProcessRecipe> holder : syncedMap.byType(RecipeTypeRegistry.NODE_PROCESS_RECIPE.get())) {
+                result.add(holder.value());
+            }
+        }
+
+        if (!result.isEmpty()) {
+            return result;
+        }
 
         var server = Minecraft.getInstance().getSingleplayerServer();
         if (server != null) {
