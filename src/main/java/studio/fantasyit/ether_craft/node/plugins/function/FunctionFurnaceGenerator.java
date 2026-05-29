@@ -13,6 +13,7 @@ import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
 
 public class FunctionFurnaceGenerator extends AbstractItemConsumeFunction {
     public static Identifier ID = EtherCraft.id("generator/furnace");
+    public static Identifier ID_BLAST = EtherCraft.id("generator/blast");
 
     public FunctionFurnaceGenerator(EtherAdaptNodeEntity nodeEntity, InstalledPlugin ID) {
         super(nodeEntity, ID);
@@ -34,7 +35,10 @@ public class FunctionFurnaceGenerator extends AbstractItemConsumeFunction {
             }
         }
         ItemStack remainStack = itemStack.copyWithCount(itemStack.getCount() - 1);
-        this.remainBurnTicks = itemStack.getBurnTime(null, nodeEntity.getLevel().fuelValues()) / Config.nodeFurnaceBurnTimeFactor;
+        int factor = Config.nodeFurnaceBurnTimeFactor;
+        if (this.installedId.pluginId().equals(ID_BLAST))
+            nodeEntity.receiveEther(Config.nodeBlastFurnaceBurnTimeFactor);
+        this.remainBurnTicks = itemStack.getBurnTime(null, nodeEntity.getLevel().fuelValues()) / factor;
 
         if (itemStack.is(ItemTags.LOGS) || itemStack.is(ItemTags.PLANKS))
             nodeEntity.setSyncedPluginData(installedId, WORKING_MATERIAL, WorkingMaterial.WOOD.ordinal());
@@ -50,7 +54,10 @@ public class FunctionFurnaceGenerator extends AbstractItemConsumeFunction {
 
     @Override
     void onBurnTick() {
-        nodeEntity.receiveEther(Config.nodeFurnaceEtherPerTick);
+        if (this.installedId.pluginId().equals(ID_BLAST))
+            nodeEntity.receiveEther(Config.nodeBlastFurnaceEtherPerTick);
+        else
+            nodeEntity.receiveEther(Config.nodeFurnaceEtherPerTick);
     }
 
     @Override

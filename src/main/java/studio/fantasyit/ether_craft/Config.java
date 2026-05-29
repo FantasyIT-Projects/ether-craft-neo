@@ -49,6 +49,13 @@ public class Config {
             .comment("Ether generated per tick while furnace is actively burning fuel")
             .defineInRange("node.furnace.ether_per_tick", 25, 1, Integer.MAX_VALUE);
 
+    private static final ModConfigSpec.IntValue NODE_BLAST_FURNACE_ETHER_PER_TICK = BUILDER
+            .comment("Ether generated per tick while blast furnace is actively burning fuel")
+            .defineInRange("node.furnace.ether_per_tick_blast_furnace", 50, 1, Integer.MAX_VALUE);
+    private static final ModConfigSpec.IntValue NODE_BLAST_FURNACE_BURN_TIME_FACTOR = BUILDER
+            .comment("Divisor applied to item burn time (higher = faster fuel consumption)")
+            .defineInRange("node.furnace.burn_time_factor_blast_furnace", 1, 1, 100);
+
     // -- node.magnet --
 
     private static final ModConfigSpec.IntValue NODE_MAGNET_ETHER_PER_STACK = BUILDER
@@ -178,6 +185,8 @@ public class Config {
     public static List<Integer> nodeUpgradeSlots;
     public static int nodeFurnaceBurnTimeFactor;
     public static int nodeFurnaceEtherPerTick;
+    public static int nodeBlastFurnaceBurnTimeFactor;
+    public static int nodeBlastFurnaceEtherPerTick;
     public static int nodeMagnetEtherPerStack;
     public static int nodeContainerInteractEtherPerItem;
     public static int nodeDropperThrowerEtherPerItem;
@@ -199,7 +208,8 @@ public class Config {
     public static int etherStreamDamageConstantCost;
     public static int etherStreamGrowthAcceleratorEtherCost;
     public static List<Integer> nodeEnchanterEtherCosts;
-    public static int nodeEnchanterMaxProgress;;
+    public static int nodeEnchanterMaxProgress;
+    ;
 
     @SubscribeEvent
     static void onLoad(final ModConfigEvent event) {
@@ -209,6 +219,8 @@ public class Config {
         nodeUpgradeSlots = NODE_UPGRADE_SLOTS.get().stream().map(t -> (Integer) t).toList();
         nodeFurnaceBurnTimeFactor = NODE_FURNACE_BURN_TIME_FACTOR.get();
         nodeFurnaceEtherPerTick = NODE_FURNACE_ETHER_PER_TICK.get();
+        nodeBlastFurnaceBurnTimeFactor = NODE_BLAST_FURNACE_BURN_TIME_FACTOR.get();
+        nodeBlastFurnaceEtherPerTick = NODE_BLAST_FURNACE_ETHER_PER_TICK.get();
         nodeMagnetEtherPerStack = NODE_MAGNET_ETHER_PER_STACK.get();
         nodeContainerInteractEtherPerItem = NODE_CONTAINER_INTERACT_ETHER_PER_ITEM.get();
         nodeDropperThrowerEtherPerItem = NODE_DROPPER_THROWER_ETHER_PER_ITEM.get();

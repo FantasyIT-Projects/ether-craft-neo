@@ -1,6 +1,12 @@
 {
   "type": "ether_craft:node_process",
-  "ingredients": ["minecraft:paper::3","minecraft:resin_clump"],
+  "ingredients": [
+    {
+      "ingredient": "minecraft:paper",
+      "count": 3
+    },
+    "minecraft:resin_clump"
+  ],
   "result": "minecraft:book",
   "etherCost": 2500
 }
