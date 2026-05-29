@@ -1,5 +1,7 @@
 package studio.fantasyit.ether_craft.stream;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -61,7 +63,13 @@ public class EtherConsumer {
     }
 
     public record State(double baseFactor, double factorByTime, int capConsumptionSum) {
-        public static final StreamCodec<RegistryFriendlyByteBuf, State> CODEC = StreamCodec.composite(
+        public static final Codec<State> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+                Codec.DOUBLE.fieldOf("baseFactor").forGetter(State::baseFactor),
+                Codec.DOUBLE.fieldOf("factorByTime").forGetter(State::factorByTime),
+                Codec.INT.fieldOf("capConsumptionSum").forGetter(State::capConsumptionSum)
+        ).apply(instance, State::new));
+
+        public static final StreamCodec<RegistryFriendlyByteBuf, State> STREAM_CODEC = StreamCodec.composite(
                 ByteBufCodecs.DOUBLE, State::baseFactor,
                 ByteBufCodecs.DOUBLE, State::factorByTime,
                 ByteBufCodecs.INT, State::capConsumptionSum,

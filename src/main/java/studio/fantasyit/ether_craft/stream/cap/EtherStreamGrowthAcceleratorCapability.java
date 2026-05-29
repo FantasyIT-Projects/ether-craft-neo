@@ -1,5 +1,7 @@
 package studio.fantasyit.ether_craft.stream.cap;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
@@ -17,8 +19,18 @@ import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.register.Tags;
 import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
 
+import java.util.Optional;
+
 public class EtherStreamGrowthAcceleratorCapability implements IStreamCapability {
     public static final Identifier ID = EtherCraft.id("growth_accelerator_stream");
+
+    public static final Codec<EtherStreamGrowthAcceleratorCapability> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            BlockPos.CODEC.optionalFieldOf("lastCatalyzedPos").forGetter(c -> Optional.ofNullable(c.lastCatalyzedPos))
+    ).apply(instance, pos -> {
+        EtherStreamGrowthAcceleratorCapability cap = new EtherStreamGrowthAcceleratorCapability();
+        cap.lastCatalyzedPos = pos.orElse(null);
+        return cap;
+    }));
 
     private BlockPos lastCatalyzedPos = null;
 

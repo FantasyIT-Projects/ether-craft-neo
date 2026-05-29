@@ -1,5 +1,7 @@
 package studio.fantasyit.ether_craft.stream.cap;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.NonNullList;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
@@ -36,6 +38,17 @@ import java.util.Collections;
 import java.util.List;
 
 public class EtherStreamStorageCapability implements IStreamCapability, Container {
+
+    public static final Codec<EtherStreamStorageCapability> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            ItemStack.OPTIONAL_CODEC.listOf().fieldOf("items").forGetter(c -> c.itemStack)
+    ).apply(instance, items -> {
+        EtherStreamStorageCapability cap = new EtherStreamStorageCapability(1);
+        cap.itemStack = NonNullList.createWithCapacity(items.size());
+        cap.itemStack.addAll(items);
+        cap.handler = VanillaContainerWrapper.of(cap);
+        return cap;
+    }));
+
     private NonNullList<ItemStack> itemStack;
     public ResourceHandler<ItemResource> handler;
     @Nullable

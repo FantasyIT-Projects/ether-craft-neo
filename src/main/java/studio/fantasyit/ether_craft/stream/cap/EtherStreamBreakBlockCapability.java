@@ -1,5 +1,7 @@
 package studio.fantasyit.ether_craft.stream.cap;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
@@ -28,6 +30,15 @@ import java.util.Optional;
 
 public class EtherStreamBreakBlockCapability implements IStreamCapability {
     public static final Identifier ID = EtherCraft.id("block_breaker");
+
+    public static final Codec<EtherStreamBreakBlockCapability> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            ItemStack.OPTIONAL_CODEC.listOf().fieldOf("tools").forGetter(c -> c.tools)
+    ).apply(instance, tools -> {
+        EtherStreamBreakBlockCapability cap = new EtherStreamBreakBlockCapability();
+        cap.tools.addAll(tools);
+        return cap;
+    }));
+
     private final List<ItemStack> tools = new ArrayList<>();
 
     public void addTool(ItemStack tool) {

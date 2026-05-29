@@ -26,7 +26,7 @@ public record EtherStreamUpdateS2C(
         public static final StreamCodec<RegistryFriendlyByteBuf, StreamEntry> CODEC = StreamCodec.composite(
                 ByteBufCodecs.INT, StreamEntry::streamId,
                 ByteBufCodecs.INT, StreamEntry::ether,
-                EtherConsumer.State.CODEC, StreamEntry::consumerState,
+                EtherConsumer.State.STREAM_CODEC, StreamEntry::consumerState,
                 StreamEntry::new
         );
     }

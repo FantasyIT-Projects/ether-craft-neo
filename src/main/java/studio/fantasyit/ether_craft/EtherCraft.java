@@ -9,6 +9,8 @@ import net.neoforged.fml.config.ModConfig;
 import org.slf4j.Logger;
 import studio.fantasyit.ether_craft.event.WrenchEventHandler;
 import studio.fantasyit.ether_craft.register.*;
+import studio.fantasyit.ether_craft.stream.CapabilityFactoryManager;
+import studio.fantasyit.ether_craft.stream.cap.*;
 
 @Mod(EtherCraft.MODID)
 public class EtherCraft
@@ -28,6 +30,12 @@ public class EtherCraft
         CreativeTabRegistry.register(modEventBus);
         DataComponentRegistry.register(modEventBus);
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
+
+        CapabilityFactoryManager.register(EtherStreamLabelCapability.ID, EtherStreamLabelCapability::new, EtherStreamLabelCapability.CODEC);
+        CapabilityFactoryManager.register(EtherStreamBreakBlockCapability.ID, EtherStreamBreakBlockCapability::new, EtherStreamBreakBlockCapability.CODEC);
+        CapabilityFactoryManager.register(EtherStreamGrowthAcceleratorCapability.ID, EtherStreamGrowthAcceleratorCapability::new, EtherStreamGrowthAcceleratorCapability.CODEC);
+        CapabilityFactoryManager.register(EtherStreamStorageCapability.ID, () -> new EtherStreamStorageCapability(1), EtherStreamStorageCapability.CODEC);
+        CapabilityFactoryManager.register(EtherStreamDamageCapability.ID, EtherStreamDamageCapability::new, EtherStreamDamageCapability.CODEC);
     }
     public static Identifier id(String path){
         return Identifier.fromNamespaceAndPath(MODID, path);

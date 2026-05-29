@@ -21,7 +21,9 @@ public class AttachmentDataRegistry {
             "ether_container_max", () -> AttachmentType.builder(() -> 0L).serialize(Codec.LONG.fieldOf("ether_container_max")).build()
     );
     public static final Supplier<AttachmentType<VirtualEtherStreamHolderManager>> VESHM = ATTACHMENT_TYPES.register(
-            "ether_stream_virtual_manager", () -> AttachmentType.builder(VirtualEtherStreamHolderManager::new).build()
+            "ether_stream_virtual_manager", () -> AttachmentType.builder(VirtualEtherStreamHolderManager::new)
+                    .serialize(VirtualEtherStreamHolderManager.CODEC.fieldOf("data"))
+                    .build()
     );
     public static final Supplier<AttachmentType<ClientVESHData>> CLIENT_VESH_DATA = ATTACHMENT_TYPES.register(
             "client_vesh_data", () -> AttachmentType.builder(ClientVESHData::new).build()

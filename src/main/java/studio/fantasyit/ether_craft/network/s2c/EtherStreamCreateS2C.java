@@ -57,7 +57,7 @@ public record EtherStreamCreateS2C(
             VEC3_CODEC, EtherStreamCreateS2C::motion,
             ByteBufCodecs.VAR_INT, EtherStreamCreateS2C::ether,
             ByteBufCodecs.VAR_INT, EtherStreamCreateS2C::tickCount,
-            EtherConsumer.State.CODEC, EtherStreamCreateS2C::consumerState,
+            EtherConsumer.State.STREAM_CODEC, EtherStreamCreateS2C::consumerState,
             NULLABLE_COMPONENT_CODEC, EtherStreamCreateS2C::label,
             ByteBufCodecs.INT, EtherStreamCreateS2C::labelColor,
             EtherStreamCreateS2C::new

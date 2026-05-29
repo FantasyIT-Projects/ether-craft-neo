@@ -1,5 +1,7 @@
 package studio.fantasyit.ether_craft.stream.cap;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.resources.Identifier;
@@ -17,10 +19,24 @@ import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
 import studio.fantasyit.ether_craft.stream.vholder.VirtualEtherStream;
 
+import java.util.Optional;
+
 
 @SuppressWarnings("deprecation")
 public class EtherStreamLabelCapability implements IStreamCapability {
     public static final Identifier ID = EtherCraft.id("label");
+
+    public static final Codec<EtherStreamLabelCapability> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            ComponentSerialization.CODEC.optionalFieldOf("label").forGetter(c -> Optional.ofNullable(c.label)),
+            Vec3.CODEC.optionalFieldOf("startPos").forGetter(c -> Optional.ofNullable(c.startPos)),
+            Codec.INT.fieldOf("color").forGetter(c -> c.color)
+    ).apply(instance, (label, startPos, color) -> {
+        EtherStreamLabelCapability cap = new EtherStreamLabelCapability();
+        label.ifPresent(l -> cap.label = l);
+        startPos.ifPresent(sp -> cap.startPos = sp);
+        cap.color = color;
+        return cap;
+    }));
 
     @Nullable
     private Component label;

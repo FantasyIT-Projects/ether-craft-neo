@@ -1,5 +1,7 @@
 package studio.fantasyit.ether_craft.stream.cap;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
@@ -21,6 +23,15 @@ import java.util.List;
 
 public class EtherStreamDamageCapability implements IStreamCapability {
     public static final Identifier ID = EtherCraft.id("damage_dealer");
+
+    public static final Codec<EtherStreamDamageCapability> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            ItemStack.OPTIONAL_CODEC.listOf().fieldOf("weapons").forGetter(c -> c.weapons)
+    ).apply(instance, weapons -> {
+        EtherStreamDamageCapability cap = new EtherStreamDamageCapability();
+        cap.weapons.addAll(weapons);
+        return cap;
+    }));
+
     private final List<ItemStack> weapons = new ArrayList<>();
 
     public void addWeapon(ItemStack weapon) {

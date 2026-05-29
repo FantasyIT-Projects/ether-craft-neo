@@ -23,7 +23,7 @@ import java.util.*;
 public class VirtualEtherStreamHolder {
     private final Direction direction;
     private final BlockPos pos;
-    private final ServerLevel level;
+    private ServerLevel level;
     int activateTick = 5;
     final List<VirtualEtherStream> streams = new ArrayList<>();
     int nextId = 0;
@@ -278,5 +278,22 @@ public class VirtualEtherStreamHolder {
 
     public boolean isDead() {
         return activateTick <= 0 && streams.isEmpty();
+    }
+
+    VirtualEtherStreamHolderData toData() {
+        List<VirtualEtherStreamData> streamDataList = new ArrayList<>();
+        for (VirtualEtherStream ves : streams) {
+            if (!ves.markToRemove) {
+                streamDataList.add(ves.toData());
+            }
+        }
+        return new VirtualEtherStreamHolderData(activateTick, nextId, streamDataList);
+    }
+
+    void initLevel(ServerLevel level) {
+        this.level = level;
+        for (VirtualEtherStream ves : streams) {
+            ves.level = level;
+        }
     }
 }
