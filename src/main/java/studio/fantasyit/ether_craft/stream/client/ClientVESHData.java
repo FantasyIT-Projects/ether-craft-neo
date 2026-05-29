@@ -30,21 +30,42 @@ public class ClientVESHData {
         ClientVESHEntry entry = entries.computeIfAbsent(msg.posDir(), k -> new ClientVESHEntry());
         Set<Integer> seen = new HashSet<>();
 
-        for (int id : msg.entries()) {
-            ClientStreamEntry current = entry.streams.get(id);
-            if (current == null) return;
-            if (current.label != null) {
-                current.deathTick = 0;
+        for (EtherStreamSetDyingS2C.StreamEntry se : msg.entries()) {
+            seen.add(se.streamId());
+            ClientStreamEntry current = entry.streams.get(se.streamId());
+            if (current == null) continue;
+
+            current.startTickCount = se.tickCount();
+            current.ether = se.ether();
+
+            if (se.isDying() && !current.isDying) {
+                current.setDying(true);
+            }
+            if (se.isDead() && !se.isDying()) {
+                current.removed = true;
             }
         }
 
-        // Remove streams not in this update batch
-        streams.entrySet().removeIf(e -> !seen.contains(e.getKey()));
+        // Remove streams not in this batch (expired without fanfare, and not currently dying)
+        entry.streams.entrySet().removeIf(e -> !seen.contains(e.getKey()) && !e.getValue().isDying);
 
         // Remove empty entries
         if (entry.streams.isEmpty()) {
             entries.remove(msg.posDir());
         }
+    }
+
+    public void tick() {
+        List<PosDir> toRemove = new ArrayList<>();
+        for (var entry : entries.entrySet()) {
+            ClientVESHEntry vesh = entry.getValue();
+            vesh.streams.values().forEach(ClientStreamEntry::tick);
+            vesh.streams.values().removeIf(e -> e.removed);
+            if (vesh.streams.isEmpty()) {
+                toRemove.add(entry.getKey());
+            }
+        }
+        toRemove.forEach(entries::remove);
     }
 
     public Map<PosDir, ClientVESHEntry> getEntries() {

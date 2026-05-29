@@ -96,9 +96,16 @@ public class ClientVirtualEtherStreamRenderer {
         int fullTextWidth = font.width(fullText);
         if (fullTextWidth == 0) return;
 
-        // Simplified: render full text without left/right clipping
         String visibleText = fullText;
         int visibleTextWidth = fullTextWidth;
+
+        if (stream.isDying) {
+            // Right-clip: deathTick counts down 60->0, consume text from right
+            float progress = (60f - stream.deathTick) / 60f;
+            int clipPixels = Math.min((int) (progress * fullTextWidth), fullTextWidth);
+            visibleText = font.plainSubstrByWidth(fullText, Math.max(0, fullTextWidth - clipPixels));
+            visibleTextWidth = font.width(visibleText);
+        }
 
         Vec3 dir = motion.normalize();
         Vec3 up = new Vec3(0.0, 1.0, 0.0);

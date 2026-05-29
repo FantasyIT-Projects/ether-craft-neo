@@ -3,11 +3,8 @@ package studio.fantasyit.ether_craft.stream.vholder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.network.PacketDistributor;
 import studio.fantasyit.ether_craft.attachment.ChainedEmitterEntityHitCache;
 import studio.fantasyit.ether_craft.attachment.ChainedEmitterEntityHitCache.PosDir;
-import studio.fantasyit.ether_craft.network.s2c.EtherStreamCreateS2C;
-import studio.fantasyit.ether_craft.network.s2c.EtherStreamSetDyingS2C;
 import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
 
 import java.util.ArrayList;
@@ -23,18 +20,10 @@ public class VirtualEtherStreamHolderManager {
 
     public IEtherStreamLike createStream(Level level, PosDir posDir, int ether, Vec3 pos, Vec3 motion) {
         VirtualEtherStreamHolder holder = holders.computeIfAbsent(posDir,
-                k -> new VirtualEtherStreamHolder(posDir.dir()));
+                k -> new VirtualEtherStreamHolder(posDir.pos(), posDir.dir(), (ServerLevel) level));
         holder.activateTick = 5;
         VirtualEtherStream ves = holder.createStream(ether, pos, motion);
         ves.level = level;
-
-        if (level instanceof ServerLevel serverLevel) {
-            var payload = new EtherStreamCreateS2C(posDir, ves.streamId,
-                    ves.startPos, ves.motion, ves.ether, ves.tickCount,
-                    ves.label, ves.labelColor);
-            PacketDistributor.sendToPlayersTrackingChunk(
-                    serverLevel, serverLevel.getChunk(posDir.pos()).getPos(), payload);
-        }
 
         return ves;
     }
@@ -52,29 +41,6 @@ public class VirtualEtherStreamHolderManager {
         }
         for (PosDir posDir : toRemove) {
             holders.remove(posDir);
-        }
-
-        // send sync payloads to tracking clients
-        for (var entry : holders.entrySet()) {
-            PosDir posDir = entry.getKey();
-            VirtualEtherStreamHolder holder = entry.getValue();
-
-            List<EtherStreamSetDyingS2C.StreamEntry> streamEntries = new ArrayList<>();
-            for (VirtualEtherStream ves : holder.streams) {
-                byte flags = 0;
-                if (ves.dead) flags |= EtherStreamSetDyingS2C.StreamEntry.FLAG_DEAD;
-                if (ves.dying) flags |= EtherStreamSetDyingS2C.StreamEntry.FLAG_DYING;
-                streamEntries.add(new EtherStreamSetDyingS2C.StreamEntry(
-                        ves.streamId, ves.tickCount, ves.ether, flags,
-                        ves.deathTick, ves.label, ves.labelColor
-                ));
-            }
-
-            if (!streamEntries.isEmpty() || !holder.streams.isEmpty()) {
-                var payload = new EtherStreamSetDyingS2C(posDir, streamEntries);
-                PacketDistributor.sendToPlayersTrackingChunk(
-                        level, level.getChunk(posDir.pos()).getPos(), payload);
-            }
         }
     }
 

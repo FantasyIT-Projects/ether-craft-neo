@@ -43,4 +43,14 @@ public class ClientStreamEntry {
         Level level = Minecraft.getInstance().level;
         this.receivedAtTick = level != null ? level.getGameTime() : 0;
     }
+
+    public void tick() {
+        if (isDying) {
+            deathTick--;
+            if (deathTick <= 0) {
+                removed = true;
+                isDying = false;
+            }
+        }
+    }
 }
