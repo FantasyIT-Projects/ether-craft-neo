@@ -35,7 +35,7 @@ public record EtherStreamSetDyingS2C(
     }
 
     public static final Type<@NotNull EtherStreamSetDyingS2C> TYPE = new Type<>(
-            Identifier.fromNamespaceAndPath(EtherCraft.MODID, "ether_stream_update")
+            Identifier.fromNamespaceAndPath(EtherCraft.MODID, "ether_stream_set_dying")
     );
 
     private static final StreamCodec<RegistryFriendlyByteBuf, PosDir> POSDIR_CODEC = StreamCodec.composite(

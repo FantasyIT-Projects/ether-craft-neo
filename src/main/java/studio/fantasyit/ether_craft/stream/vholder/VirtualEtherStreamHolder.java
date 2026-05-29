@@ -13,6 +13,7 @@ import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.block.base.EtherContainer;
 import studio.fantasyit.ether_craft.network.s2c.EtherStreamCreateS2C;
 import studio.fantasyit.ether_craft.network.s2c.EtherStreamSetDyingS2C;
+import studio.fantasyit.ether_craft.network.s2c.EtherStreamUpdateS2C;
 import studio.fantasyit.ether_craft.register.Tags;
 import studio.fantasyit.ether_craft.stream.PosDir;
 import studio.fantasyit.ether_craft.stream.cap.IStreamCapability;
@@ -53,6 +54,11 @@ public class VirtualEtherStreamHolder {
 
         // === PER-VES TICK ===
         for (VirtualEtherStream ves : streams) {
+            if (ves.consumer.isDirty()) {
+                ves.consumer.recompute(ves.capabilities);
+                ves.needsEtherSync = true;
+            }
+
             ves.tickCount++;
 
             if (ves.tickCount == 1) {
@@ -70,7 +76,7 @@ public class VirtualEtherStreamHolder {
             }
 
             int consumption = ves.getConsumption();
-            ves.consumeEther(consumption);
+            ves.consumeEtherInternal(consumption);
 
             if (ves.getEther() <= 0) {
                 ves.markDead();
@@ -194,6 +200,9 @@ public class VirtualEtherStreamHolder {
         for (int id : collectedToCreate) {
             VirtualEtherStream ves = findStreamById(id);
             if (ves != null) {
+                if (ves.consumer.isDirty()) {
+                    ves.consumer.recompute(ves.capabilities);
+                }
                 EtherStreamCreateS2C payload = new EtherStreamCreateS2C(
                         posDir,
                         ves.streamId,
@@ -201,6 +210,7 @@ public class VirtualEtherStreamHolder {
                         ves.motion,
                         ves.ether,
                         ves.tickCount,
+                        ves.consumer.toState(),
                         ves.label,
                         ves.labelColor
                 );
@@ -222,6 +232,23 @@ public class VirtualEtherStreamHolder {
                 }
             }
             EtherStreamSetDyingS2C payload = new EtherStreamSetDyingS2C(posDir, entries);
+            PacketDistributor.sendToPlayersTrackingChunk(level, level.getChunkAt(pos).getPos(), payload);
+        }
+
+        List<EtherStreamUpdateS2C.StreamEntry> updateEntries = new ArrayList<>();
+        for (VirtualEtherStream ves : streams) {
+            if (ves.markToRemove || ves.markToSyncCreation) continue;
+            if (ves.needsEtherSync) {
+                updateEntries.add(new EtherStreamUpdateS2C.StreamEntry(
+                        ves.streamId,
+                        ves.ether,
+                        ves.consumer.toState()
+                ));
+                ves.needsEtherSync = false;
+            }
+        }
+        if (!updateEntries.isEmpty()) {
+            EtherStreamUpdateS2C payload = new EtherStreamUpdateS2C(posDir, updateEntries);
             PacketDistributor.sendToPlayersTrackingChunk(level, level.getChunkAt(pos).getPos(), payload);
         }
 

@@ -8,12 +8,15 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.neoforged.neoforge.common.util.ValueIOSerializable;
+import studio.fantasyit.ether_craft.stream.EtherConsumer;
 import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
 
 public interface IStreamCapability extends ValueIOSerializable {
     Identifier getId();
 
-    int getConsumption();
+    default void getConsumption(EtherConsumer consumer) {}
+
+    default void setConsumer(EtherConsumer consumer) {}
 
     void tick(IEtherStreamLike streamEntity);
 

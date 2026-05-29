@@ -13,7 +13,6 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RegisterRenderPipelinesEvent;
 import studio.fantasyit.ether_craft.EtherCraft;
 
-@EventBusSubscriber
 public class EtherStreamRenderPipeline {
 
     public static final RenderPipeline ETHER_RENDER_PIPELINE = RenderPipeline.builder(RenderPipelines.PARTICLE_SNIPPET)
@@ -36,9 +35,4 @@ public class EtherStreamRenderPipeline {
             .withDepthStencilState(new DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, false))
             .build();
 
-    @SubscribeEvent
-    public static void register(RegisterRenderPipelinesEvent event) {
-        event.registerPipeline(ETHER_RENDER_PIPELINE);
-        event.registerPipeline(ETHER_STREAM_ENTITY_PIPELINE);
-    }
 }

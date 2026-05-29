@@ -2,11 +2,12 @@ package studio.fantasyit.ether_craft.datagen;
 
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.resources.ResourceManager;
+import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
 
-@EventBusSubscriber
+@EventBusSubscriber(value = Dist.CLIENT)
 public class GenerateGatherEvent {
     @SubscribeEvent
     public static void gatherData(GatherDataEvent.Client event) {

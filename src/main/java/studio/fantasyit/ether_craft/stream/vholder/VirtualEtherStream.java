@@ -6,7 +6,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import studio.fantasyit.ether_craft.Config;
+import studio.fantasyit.ether_craft.stream.EtherConsumer;
 import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
 import studio.fantasyit.ether_craft.stream.cap.IStreamCapability;
 
@@ -24,8 +24,10 @@ public class VirtualEtherStream implements IEtherStreamLike {
 
     public boolean markToSyncCreation = false;
     public boolean markToRemove = false;
+    public boolean needsEtherSync = false;
 
     List<IStreamCapability> capabilities = new ArrayList<>();
+    public final EtherConsumer consumer = new EtherConsumer();
     int ether;
     int streamId;
     int tickCount = 0;
@@ -44,8 +46,6 @@ public class VirtualEtherStream implements IEtherStreamLike {
         this.motion = motion;
         this.markToSyncCreation = true;
     }
-
-
     @Override
     public BlockPos blockPosition() {
         return BlockPos.containing(pos);
@@ -63,7 +63,12 @@ public class VirtualEtherStream implements IEtherStreamLike {
 
     @Override
     public void consumeEther(int ether) {
-        //TODO lower factor
+        consumeEtherInternal(ether);
+        this.needsEtherSync = true;
+    }
+
+    @Override
+    public void consumeEtherInternal(int ether) {
         this.ether = Math.max(0, this.ether - ether);
     }
 
@@ -85,6 +90,7 @@ public class VirtualEtherStream implements IEtherStreamLike {
     @Override
     public void addCapability(IStreamCapability capability) {
         this.capabilities.add(capability);
+        capability.setConsumer(this.consumer);
     }
 
     public void markDead() {
@@ -96,13 +102,7 @@ public class VirtualEtherStream implements IEtherStreamLike {
     }
 
     public int getConsumption() {
-        double factor = Config.etherStreamConsumptionFactor;
-        factor += Config.etherStreamConsumptionByTimeFactor * tickCount;
-        double value = Math.ceil(factor * ether);
-        for (IStreamCapability cap : capabilities) {
-            value += cap.getConsumption();
-        }
-        return (int) Math.ceil(value);
+        return consumer.getTotalConsumption(ether, tickCount);
     }
 
     public void setLabel(@Nullable Component label, int color) {

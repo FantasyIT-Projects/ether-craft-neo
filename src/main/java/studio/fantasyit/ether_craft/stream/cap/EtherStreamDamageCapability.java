@@ -37,11 +37,6 @@ public class EtherStreamDamageCapability implements IStreamCapability {
     }
 
     @Override
-    public int getConsumption() {
-        return 0;
-    }
-
-    @Override
     public void tick(IEtherStreamLike streamEntity) {
     }
 

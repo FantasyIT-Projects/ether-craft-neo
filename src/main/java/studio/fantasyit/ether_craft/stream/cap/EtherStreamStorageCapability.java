@@ -28,6 +28,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 import studio.fantasyit.ether_craft.EtherCraft;
+import studio.fantasyit.ether_craft.stream.EtherConsumer;
 import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
 import studio.fantasyit.ether_craft.util.ContainerOps;
 
@@ -37,6 +38,8 @@ import java.util.List;
 public class EtherStreamStorageCapability implements IStreamCapability, Container {
     private NonNullList<ItemStack> itemStack;
     public ResourceHandler<ItemResource> handler;
+    @Nullable
+    private EtherConsumer consumer;
 
     public EtherStreamStorageCapability(int size) {
         this.itemStack = NonNullList.withSize(size, ItemStack.EMPTY);
@@ -60,7 +63,7 @@ public class EtherStreamStorageCapability implements IStreamCapability, Containe
     }
 
     @Override
-    public int getConsumption() {
+    public void getConsumption(EtherConsumer consumer) {
         double consumption = 0;
         double scale = 0.1;
         for (ItemStack i : itemStack) {
@@ -70,7 +73,12 @@ public class EtherStreamStorageCapability implements IStreamCapability, Containe
                 consumption += (double) i.count() / i.getMaxStackSize();
             }
         }
-        return (int) Math.ceil(consumption * scale);
+        consumer.addConsumption((int) Math.ceil(consumption * scale));
+    }
+
+    @Override
+    public void setConsumer(EtherConsumer consumer) {
+        this.consumer = consumer;
     }
 
     @Override
@@ -164,6 +172,7 @@ public class EtherStreamStorageCapability implements IStreamCapability, Containe
 
     @Override
     public void setChanged() {
+        if (consumer != null) consumer.markDirty();
     }
 
     @Override

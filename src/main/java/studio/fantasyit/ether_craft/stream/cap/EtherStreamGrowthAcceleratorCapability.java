@@ -28,11 +28,6 @@ public class EtherStreamGrowthAcceleratorCapability implements IStreamCapability
     }
 
     @Override
-    public int getConsumption() {
-        return 0;
-    }
-
-    @Override
     public void tick(@UnknownNullability IEtherStreamLike streamEntity) {
         if (!(streamEntity.level() instanceof ServerLevel level))
             return;

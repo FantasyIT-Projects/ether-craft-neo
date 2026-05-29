@@ -1,6 +1,5 @@
 package studio.fantasyit.ether_craft.item;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
@@ -18,7 +17,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.Level;
 import studio.fantasyit.ether_craft.menu.grid.answer.AnswerFetchMenu;
-import studio.fantasyit.ether_craft.menu.grid.ViewGridScreen;
 import studio.fantasyit.ether_craft.recipe.grid.EtherProcessFactoryGrid;
 import studio.fantasyit.ether_craft.recipe.grid.EtherProcessFactoryGridInput;
 import studio.fantasyit.ether_craft.register.DataComponentRegistry;
@@ -60,8 +58,7 @@ public class EtherProcessRecipeAnswerItem extends Item {
         if (level.isClientSide()) {
             if (held.has(DataComponentRegistry.GRID)) {
                 List<List<ItemStack>> grid = held.get(DataComponentRegistry.GRID);
-                Minecraft.getInstance().setScreen(
-                        new ViewGridScreen(Component.translatable("gui.ether_craft.view_grid"), grid));
+                ViewGridScreenCreator.createAndSetScreen(grid);
             }
             return InteractionResult.SUCCESS;
         }

@@ -18,6 +18,8 @@ public interface IEtherStreamLike {
 
     void consumeEther(int ether);
 
+    void consumeEtherInternal(int ether);
+
     int getEther();
 
     Direction getDirection();

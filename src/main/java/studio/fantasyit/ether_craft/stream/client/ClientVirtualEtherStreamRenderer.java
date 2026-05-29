@@ -67,7 +67,9 @@ public class ClientVirtualEtherStreamRenderer {
                         invOrientation.transform(offsetVec);
 
                         float alpha = 1f - (float) i / 6.1f;
-                        float halfWidth = 0.5f * 0.1f / (float) Math.pow(1.5, i);
+                        float szFact = (float) (0.03f * Math.log10(stream.ether));
+
+                        float halfWidth = szFact * 0.5f / (float) Math.pow(1.5, i);
                         int a = (int) (alpha * 255);
                         int light = 0xF000F0;
 

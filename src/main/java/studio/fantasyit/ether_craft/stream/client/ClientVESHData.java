@@ -4,6 +4,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.world.level.Level;
 import studio.fantasyit.ether_craft.network.s2c.EtherStreamCreateS2C;
 import studio.fantasyit.ether_craft.network.s2c.EtherStreamSetDyingS2C;
+import studio.fantasyit.ether_craft.network.s2c.EtherStreamUpdateS2C;
 import studio.fantasyit.ether_craft.stream.PosDir;
 
 import java.util.*;
@@ -20,6 +21,15 @@ public class ClientVESHData {
         ClientVESHEntry entry = entries.computeIfAbsent(msg.posDir(), k -> new ClientVESHEntry());
         if (!entry.streams.containsKey(msg.streamId())) {
             entry.streams.put(msg.streamId(), new ClientStreamEntry(msg));
+        }
+    }
+
+    public void handleUpdate(EtherStreamUpdateS2C msg) {
+        ClientVESHEntry entry = entries.computeIfAbsent(msg.posDir(), k -> new ClientVESHEntry());
+        for (EtherStreamUpdateS2C.StreamEntry se : msg.entries()) {
+            ClientStreamEntry current = entry.streams.get(se.streamId());
+            if (current == null || current.isDying || current.removed) continue;
+            current.updateFromServer(se.ether(), se.consumerState());
         }
     }
 

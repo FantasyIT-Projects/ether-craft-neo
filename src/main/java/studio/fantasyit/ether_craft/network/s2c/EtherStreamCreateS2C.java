@@ -12,6 +12,7 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import studio.fantasyit.ether_craft.EtherCraft;
+import studio.fantasyit.ether_craft.stream.EtherConsumer;
 import studio.fantasyit.ether_craft.stream.PosDir;
 import studio.fantasyit.ether_craft.stream.client.ClientVESHData;
 
@@ -24,6 +25,7 @@ public record EtherStreamCreateS2C(
         Vec3 motion,
         int ether,
         int tickCount,
+        EtherConsumer.State consumerState,
         @Nullable Component label,
         int labelColor
 ) implements CustomPacketPayload {
@@ -54,6 +56,7 @@ public record EtherStreamCreateS2C(
             VEC3_CODEC, EtherStreamCreateS2C::motion,
             ByteBufCodecs.VAR_INT, EtherStreamCreateS2C::ether,
             ByteBufCodecs.VAR_INT, EtherStreamCreateS2C::tickCount,
+            EtherConsumer.State.CODEC, EtherStreamCreateS2C::consumerState,
             NULLABLE_COMPONENT_CODEC, EtherStreamCreateS2C::label,
             ByteBufCodecs.INT, EtherStreamCreateS2C::labelColor,
             EtherStreamCreateS2C::new

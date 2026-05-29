@@ -7,11 +7,13 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import studio.fantasyit.ether_craft.network.s2c.EtherStreamCreateS2C;
+import studio.fantasyit.ether_craft.stream.EtherConsumer;
 
 public class ClientStreamEntry {
     public Vec3 startPos = Vec3.ZERO;
     public Vec3 motion = Vec3.ZERO;
     public int startTickCount;
+    public int tickCount;
     public int ether;
     public long receivedAtTick;
     public int deathTick;
@@ -19,6 +21,7 @@ public class ClientStreamEntry {
     public int labelColor;
     public boolean isDying;
     public boolean removed;
+    public final EtherConsumer consumer = new EtherConsumer();
 
     public void setDying(boolean dying) {
         this.isDying = dying;
@@ -36,12 +39,19 @@ public class ClientStreamEntry {
             this.startPos = msg.startPos();
             this.motion = msg.motion();
             this.startTickCount = msg.tickCount();
+            this.tickCount = msg.tickCount();
             this.ether = msg.ether();
+            this.consumer.fromState(msg.consumerState());
             this.label = msg.label();
             this.labelColor = msg.labelColor();
         }
         Level level = Minecraft.getInstance().level;
         this.receivedAtTick = level != null ? level.getGameTime() : 0;
+    }
+
+    public void updateFromServer(int ether, EtherConsumer.State consumerState) {
+        this.ether = ether;
+        this.consumer.fromState(consumerState);
     }
 
     public void tick() {
@@ -51,6 +61,11 @@ public class ClientStreamEntry {
                 removed = true;
                 isDying = false;
             }
+            return;
         }
+
+        tickCount++;
+        int consumption = consumer.getTotalConsumption(ether, tickCount);
+        ether = Math.max(0, ether - consumption);
     }
 }

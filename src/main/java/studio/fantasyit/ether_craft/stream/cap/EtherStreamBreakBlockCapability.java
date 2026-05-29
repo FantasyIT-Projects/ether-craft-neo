@@ -44,11 +44,6 @@ public class EtherStreamBreakBlockCapability implements IStreamCapability {
     }
 
     @Override
-    public int getConsumption() {
-        return 0;
-    }
-
-    @Override
     public void tick(@UnknownNullability IEtherStreamLike streamEntity) {
         if (streamEntity.level() instanceof ServerLevel level) {
             BlockState blockState = level.getBlockState(streamEntity.blockPosition());
