@@ -1,4 +1,4 @@
-package studio.fantasyit.ether_craft.stream;
+package studio.fantasyit.ether_craft.stream.cap;
 
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
@@ -13,10 +13,10 @@ import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
-import org.joml.Vector3f;
 import studio.fantasyit.ether_craft.EtherCraft;
+import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
+import studio.fantasyit.ether_craft.stream.vholder.VirtualEtherStream;
 
-import static studio.fantasyit.ether_craft.entity.stream.EtherStreamEntity.*;
 
 @SuppressWarnings("deprecation")
 public class EtherStreamLabelCapability implements IStreamCapability {
@@ -112,14 +112,7 @@ public class EtherStreamLabelCapability implements IStreamCapability {
     @Override
     public void firstTick(@UnknownNullability IEtherStreamLike etherStreamEntity) {
         setStartPos(etherStreamEntity.position());
-        if (etherStreamEntity instanceof Entity e) {
-            e.getEntityData().set(LABEL_DATA, java.util.Optional.ofNullable(getLabel()));
-            Vec3 sp = getStartPos();
-            e.getEntityData().set(START_POS, sp != null
-                    ? new Vector3f((float) sp.x, (float) sp.y, (float) sp.z)
-                    : new Vector3f());
-            e.getEntityData().set(LABEL_COLOR, getColor());
-        } else if (etherStreamEntity instanceof studio.fantasyit.ether_craft.entity.vholder.VirtualEtherStream ves) {
+        if (etherStreamEntity instanceof VirtualEtherStream ves) {
             ves.setLabel(getLabel(), getColor());
         }
     }

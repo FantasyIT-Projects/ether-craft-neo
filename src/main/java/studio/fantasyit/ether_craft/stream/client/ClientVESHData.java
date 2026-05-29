@@ -1,14 +1,13 @@
-package studio.fantasyit.ether_craft.event;
+package studio.fantasyit.ether_craft.stream.client;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import studio.fantasyit.ether_craft.attachment.ChainedEmitterEntityHitCache.PosDir;
 import studio.fantasyit.ether_craft.network.s2c.EtherStreamCreateS2C;
-import studio.fantasyit.ether_craft.network.s2c.EtherStreamUpdateS2C;
+import studio.fantasyit.ether_craft.network.s2c.EtherStreamSetDyingS2C;
 
 import java.util.*;
 
@@ -57,12 +56,12 @@ public class ClientVESHData {
         }
     }
 
-    public void handleUpdate(EtherStreamUpdateS2C msg) {
+    public void handleUpdate(EtherStreamSetDyingS2C msg) {
         ClientVESHEntry entry = entries.computeIfAbsent(msg.posDir(), k -> new ClientVESHEntry());
         Map<Integer, ClientStreamEntry> streams = entry.streams;
         Set<Integer> seen = new HashSet<>();
 
-        for (EtherStreamUpdateS2C.StreamEntry update : msg.entries()) {
+        for (EtherStreamSetDyingS2C.StreamEntry update : msg.entries()) {
             seen.add(update.streamId());
             ClientStreamEntry current = streams.get(update.streamId());
 

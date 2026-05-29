@@ -1,4 +1,4 @@
-package studio.fantasyit.ether_craft.entity.vholder;
+package studio.fantasyit.ether_craft.stream.vholder;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -17,7 +17,7 @@ import studio.fantasyit.ether_craft.attachment.ChainedEmitterEntityHitCache;
 import studio.fantasyit.ether_craft.attachment.ChainedEmitterEntityHitCache.PosDir;
 import studio.fantasyit.ether_craft.register.Tags;
 import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
-import studio.fantasyit.ether_craft.stream.IStreamCapability;
+import studio.fantasyit.ether_craft.stream.cap.IStreamCapability;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;

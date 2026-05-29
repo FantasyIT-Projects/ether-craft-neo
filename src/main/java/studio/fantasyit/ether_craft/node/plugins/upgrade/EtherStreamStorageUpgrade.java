@@ -7,7 +7,8 @@ import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
 import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
 import studio.fantasyit.ether_craft.node.plugins.base.AbstractNodePlugin;
 import studio.fantasyit.ether_craft.node.plugins.base.IEtherStreamCapabilityProviderPlugin;
-import studio.fantasyit.ether_craft.stream.EtherStreamStorageCapability;
+import studio.fantasyit.ether_craft.stream.cap.EtherStreamStorageCapability;
+import studio.fantasyit.ether_craft.stream.cap.IStreamCapability;
 
 import java.util.Optional;
 
@@ -24,7 +25,7 @@ public class EtherStreamStorageUpgrade extends AbstractNodePlugin implements IEt
 
     @Override
     public void provideCapabilities(IEtherStreamLike entity) {
-        Optional<studio.fantasyit.ether_craft.stream.IStreamCapability> existing = entity.getCapability(EtherStreamStorageCapability.ID);
+        Optional<IStreamCapability> existing = entity.getCapability(EtherStreamStorageCapability.ID);
         if (existing.isPresent()) {
             ((EtherStreamStorageCapability) existing.get()).addSlots(this.streamIncrease);
         } else {

@@ -1,4 +1,4 @@
-package studio.fantasyit.ether_craft.stream;
+package studio.fantasyit.ether_craft.stream.cap;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.Identifier;
@@ -19,6 +19,7 @@ import org.jetbrains.annotations.UnknownNullability;
 import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.register.Tags;
+import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
 import studio.fantasyit.ether_craft.util.ContainerOps;
 
 import java.util.ArrayList;

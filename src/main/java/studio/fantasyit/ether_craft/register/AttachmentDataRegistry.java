@@ -8,6 +8,8 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.attachment.ChainedEmitterEntityHitCache;
+import studio.fantasyit.ether_craft.stream.client.ClientVESHData;
+import studio.fantasyit.ether_craft.stream.vholder.VirtualEtherStreamHolderManager;
 
 import java.util.function.Supplier;
 
@@ -22,11 +24,11 @@ public class AttachmentDataRegistry {
     public static final Supplier<AttachmentType<ChainedEmitterEntityHitCache>> CHAINED_EMITTER_ENTITY_HIT_CACHE = ATTACHMENT_TYPES.register(
             "ether_inactivate_convert_data", () -> AttachmentType.builder(ChainedEmitterEntityHitCache::new).build()
     );
-    public static final Supplier<AttachmentType<studio.fantasyit.ether_craft.entity.vholder.VESHM>> VESHM = ATTACHMENT_TYPES.register(
-            "ether_stream_virtual_manager", () -> AttachmentType.builder(studio.fantasyit.ether_craft.entity.vholder.VESHM::new).build()
+    public static final Supplier<AttachmentType<VirtualEtherStreamHolderManager>> VESHM = ATTACHMENT_TYPES.register(
+            "ether_stream_virtual_manager", () -> AttachmentType.builder(VirtualEtherStreamHolderManager::new).build()
     );
-    public static final Supplier<AttachmentType<studio.fantasyit.ether_craft.event.ClientVESHData>> CLIENT_VESH_DATA = ATTACHMENT_TYPES.register(
-            "client_vesh_data", () -> AttachmentType.builder(studio.fantasyit.ether_craft.event.ClientVESHData::new).build()
+    public static final Supplier<AttachmentType<ClientVESHData>> CLIENT_VESH_DATA = ATTACHMENT_TYPES.register(
+            "client_vesh_data", () -> AttachmentType.builder(ClientVESHData::new).build()
     );
 
     public static void register(IEventBus modbus) {

@@ -7,8 +7,8 @@ import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
 import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
 import studio.fantasyit.ether_craft.node.plugins.base.AbstractNodePlugin;
 import studio.fantasyit.ether_craft.node.plugins.base.IEtherStreamCapabilityProviderPlugin;
-import studio.fantasyit.ether_craft.stream.EtherStreamGrowthAcceleratorCapability;
-import studio.fantasyit.ether_craft.stream.IStreamCapability;
+import studio.fantasyit.ether_craft.stream.cap.EtherStreamGrowthAcceleratorCapability;
+import studio.fantasyit.ether_craft.stream.cap.IStreamCapability;
 
 import java.util.Optional;
 

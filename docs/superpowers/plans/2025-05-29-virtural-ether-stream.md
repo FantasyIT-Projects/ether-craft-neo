@@ -129,7 +129,7 @@ Run: `idea_build_project` with `filesToRebuild=["src/main/java/studio/fantasyit/
 Remove all imports. Replace with:
 
 ```java
-package studio.fantasyit.ether_craft.entity.vholder;
+package studio.fantasyit.ether_craft.stream.vholder;
 
 import net.minecraft.core.Direction;
 import studio.fantasyit.ether_craft.Config;
@@ -137,8 +137,6 @@ import studio.fantasyit.ether_craft.attachment.ChainedEmitterEntityHitCache;
 import studio.fantasyit.ether_craft.attachment.ChainedEmitterEntityHitCache.PosDir;
 import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
 
-import java.util.ArrayList;
-import java.util.List;
 ```
 
 Replace the entire class body. The class no longer extends `Entity`:
@@ -241,7 +239,7 @@ Run: `idea_build_project` with `filesToRebuild=["src/main/java/studio/fantasyit/
 - [ ] **Step 1: Create VESHM.java**
 
 ```java
-package studio.fantasyit.ether_craft.entity.vholder;
+package studio.fantasyit.ether_craft.stream.vholder;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -943,8 +941,9 @@ After existing fields, add:
 ```
 
 Add imports:
+
 ```java
-import studio.fantasyit.ether_craft.entity.vholder.VESHM;
+import studio.fantasyit.ether_craft.stream.vholder.VESHM;
 import studio.fantasyit.ether_craft.event.ClientVESHData;
 ```
 
@@ -968,7 +967,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import studio.fantasyit.ether_craft.EtherCraft;
-import studio.fantasyit.ether_craft.entity.vholder.VESHM;
+import studio.fantasyit.ether_craft.stream.vholder.VESHM;
 
 @EventBusSubscriber(modid = EtherCraft.MODID)
 public class ServerTickHandler {
@@ -1072,10 +1071,11 @@ Replace with:
 ```
 
 Add imports:
+
 ```java
 import net.minecraft.server.level.ServerLevel;
 import studio.fantasyit.ether_craft.attachment.ChainedEmitterEntityHitCache.PosDir;
-import studio.fantasyit.ether_craft.entity.vholder.VESHM;
+import studio.fantasyit.ether_craft.stream.vholder.VESHM;
 ```
 
 Remove unused imports: `Entity`, `EtherStreamEntity`.
@@ -1106,10 +1106,11 @@ And replace `provider.provideCapabilities(entity)` with `provider.provideCapabil
 And remove `nodeEntity.getLevel().addFreshEntity(entity)` (lines 86-88) — virtual streams don't need spawning.
 
 Add imports:
+
 ```java
 import net.minecraft.server.level.ServerLevel;
 import studio.fantasyit.ether_craft.attachment.ChainedEmitterEntityHitCache.PosDir;
-import studio.fantasyit.ether_craft.entity.vholder.VESHM;
+import studio.fantasyit.ether_craft.stream.vholder.VESHM;
 import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
 ```
 

@@ -13,14 +13,13 @@ import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import studio.fantasyit.ether_craft.block.base.BaseEtherContainerBlockEntity;
 import studio.fantasyit.ether_craft.block.base.EtherContainer;
 import studio.fantasyit.ether_craft.block.base.ITickable;
 import studio.fantasyit.ether_craft.block.node.EtherAdaptNodeBlock;
-import studio.fantasyit.ether_craft.entity.vholder.VESHM;
-import studio.fantasyit.ether_craft.stream.EtherStreamStorageCapability;
+import studio.fantasyit.ether_craft.stream.vholder.VirtualEtherStreamHolderManager;
+import studio.fantasyit.ether_craft.stream.cap.EtherStreamStorageCapability;
 import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
 
 import static studio.fantasyit.ether_craft.register.BlockEntityRegistry.ETHER_STREAM_EMITTER_ENTITY;
@@ -48,7 +47,7 @@ public class EtherStreamEmitterEntity extends BaseEtherContainerBlockEntity impl
                 studio.fantasyit.ether_craft.attachment.ChainedEmitterEntityHitCache.PosDir posDir =
                         new studio.fantasyit.ether_craft.attachment.ChainedEmitterEntityHitCache.PosDir(this.getBlockPos(), targetDirection);
 
-                VESHM veshm = VESHM.get(serverLevel);
+                VirtualEtherStreamHolderManager veshm = VirtualEtherStreamHolderManager.get(serverLevel);
                 IEtherStreamLike stream = veshm.createStream(
                         serverLevel, posDir, (int) this.getEther(),
                         this.getBlockPos().getCenter().add(dir),

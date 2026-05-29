@@ -1,4 +1,4 @@
-package studio.fantasyit.ether_craft.stream;
+package studio.fantasyit.ether_craft.stream.cap;
 
 import net.minecraft.core.NonNullList;
 import net.minecraft.resources.Identifier;
@@ -28,6 +28,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 import studio.fantasyit.ether_craft.EtherCraft;
+import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
 import studio.fantasyit.ether_craft.util.ContainerOps;
 
 import java.util.Collections;

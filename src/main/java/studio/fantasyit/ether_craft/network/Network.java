@@ -47,9 +47,9 @@ public class Network {
                 EtherStreamCreateS2C::handle
         );
         event.playToClient(
-                EtherStreamUpdateS2C.TYPE,
-                EtherStreamUpdateS2C.CODEC,
-                EtherStreamUpdateS2C::handle
+                EtherStreamSetDyingS2C.TYPE,
+                EtherStreamSetDyingS2C.CODEC,
+                EtherStreamSetDyingS2C::handle
         );
     }
 

@@ -12,7 +12,7 @@ import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
 import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
 import studio.fantasyit.ether_craft.node.plugins.base.AbstractNodePlugin;
 import studio.fantasyit.ether_craft.node.plugins.base.IEtherStreamCapabilityProviderPlugin;
-import studio.fantasyit.ether_craft.stream.EtherStreamLabelCapability;
+import studio.fantasyit.ether_craft.stream.cap.EtherStreamLabelCapability;
 
 import java.util.ArrayList;
 import java.util.List;

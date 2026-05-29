@@ -11,7 +11,7 @@ import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.attachment.ChainedEmitterEntityHitCache.PosDir;
 import studio.fantasyit.ether_craft.block.node.EtherAdaptNodeEntity;
-import studio.fantasyit.ether_craft.entity.vholder.VESHM;
+import studio.fantasyit.ether_craft.stream.vholder.VirtualEtherStreamHolderManager;
 import studio.fantasyit.ether_craft.menu.base.slot.BaseDataSlot;
 import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeContainerMenu;
 import studio.fantasyit.ether_craft.network.c2s.SyncScreenDataC2S;
@@ -19,8 +19,9 @@ import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
 import studio.fantasyit.ether_craft.node.plugins.base.AbstractNodePlugin;
 import studio.fantasyit.ether_craft.node.plugins.base.IEtherStreamCapabilityProviderPlugin;
 import studio.fantasyit.ether_craft.node.plugins.base.PluginMenuContext;
-import studio.fantasyit.ether_craft.stream.EtherStreamStorageCapability;
+import studio.fantasyit.ether_craft.stream.cap.EtherStreamStorageCapability;
 import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
+import studio.fantasyit.ether_craft.stream.cap.IStreamCapability;
 
 import java.util.Optional;
 
@@ -60,7 +61,7 @@ public class FeatureEtherStreamEmitter extends AbstractDirectionalFilterFeature 
             PosDir posDir = new PosDir(nodeEntity.getBlockPos(), direction);
             if (!(nodeEntity.getLevel() instanceof net.minecraft.server.level.ServerLevel serverLevel)) return false;
 
-            VESHM veshm = VESHM.get(serverLevel);
+            VirtualEtherStreamHolderManager veshm = VirtualEtherStreamHolderManager.get(serverLevel);
             IEtherStreamLike stream = veshm.createStream(
                     serverLevel, posDir, (int) sendWith,
                     nodeEntity.getBlockPos().getCenter().add(dir),
@@ -74,7 +75,7 @@ public class FeatureEtherStreamEmitter extends AbstractDirectionalFilterFeature 
                 }
             }
 
-            Optional<studio.fantasyit.ether_craft.stream.IStreamCapability> optCap = stream.getCapability(EtherStreamStorageCapability.ID);
+            Optional<IStreamCapability> optCap = stream.getCapability(EtherStreamStorageCapability.ID);
             if (optCap.isPresent() && optCap.get() instanceof EtherStreamStorageCapability itemCapability) {
                 try (Transaction transaction = Transaction.openRoot()) {
                     for (int i = 0; i < itemCapability.getContainerSize(); i++) {

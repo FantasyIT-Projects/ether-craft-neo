@@ -1,4 +1,4 @@
-package studio.fantasyit.ether_craft.stream;
+package studio.fantasyit.ether_craft.stream.cap;
 
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.Identifier;
@@ -14,6 +14,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.EtherCraft;
+import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
 
 import java.util.ArrayList;
 import java.util.List;

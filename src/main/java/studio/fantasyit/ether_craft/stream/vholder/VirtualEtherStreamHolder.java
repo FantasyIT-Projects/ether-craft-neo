@@ -1,10 +1,10 @@
-package studio.fantasyit.ether_craft.entity.vholder;
+package studio.fantasyit.ether_craft.stream.vholder;
 
 import net.minecraft.core.Direction;
 import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.attachment.ChainedEmitterEntityHitCache;
 import studio.fantasyit.ether_craft.attachment.ChainedEmitterEntityHitCache.PosDir;
-import studio.fantasyit.ether_craft.stream.IStreamCapability;
+import studio.fantasyit.ether_craft.stream.cap.IStreamCapability;
 
 import java.util.ArrayList;
 import java.util.List;

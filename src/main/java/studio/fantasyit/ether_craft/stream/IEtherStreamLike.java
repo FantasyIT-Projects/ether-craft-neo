@@ -5,6 +5,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import studio.fantasyit.ether_craft.stream.cap.IStreamCapability;
 
 import java.util.Optional;
 

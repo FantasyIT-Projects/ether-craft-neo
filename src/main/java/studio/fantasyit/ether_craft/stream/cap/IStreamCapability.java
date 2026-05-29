@@ -1,4 +1,4 @@
-package studio.fantasyit.ether_craft.stream;
+package studio.fantasyit.ether_craft.stream.cap;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.Identifier;
@@ -8,6 +8,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.neoforged.neoforge.common.util.ValueIOSerializable;
+import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
 
 public interface IStreamCapability extends ValueIOSerializable {
     Identifier getId();
