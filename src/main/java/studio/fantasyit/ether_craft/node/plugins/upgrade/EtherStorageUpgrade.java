@@ -1,6 +1,7 @@
 package studio.fantasyit.ether_craft.node.plugins.upgrade;
 
 import net.minecraft.resources.Identifier;
+import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.block.node.EtherAdaptNodeEntity;
 import studio.fantasyit.ether_craft.node.NodeProperty;
@@ -16,6 +17,6 @@ public class EtherStorageUpgrade extends AbstractNodePlugin {
 
     @Override
     public void modifyNodeProperty(NodeProperty nodeProperty) {
-        nodeProperty.maxEther *= 10;
+        nodeProperty.maxEther = (int) (nodeProperty.maxEther * Config.etherStorageMultiplier);
     }
 }

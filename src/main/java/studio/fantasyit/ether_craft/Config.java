@@ -177,6 +177,12 @@ public class Config {
             .comment("Ether consumed per crop block accelerated by Ether Stream Growth Accelerator capability")
             .defineInRange("ether_stream.growth_accelerator.ether_cost", 100, 1, Integer.MAX_VALUE);
 
+    // -- ether_stream.upgrade --
+    private static final ModConfigSpec.DoubleValue ETHER_STORAGE_MULTIPLIER = BUILDER
+            .comment("The multipiler each ether storage upgrade plugin will provide")
+            .defineInRange("node.upgrade.ether_storage_multipiler", 2.5, 1, 200);
+
+
     static final ModConfigSpec SPEC = BUILDER.build();
 
     public static int etherConvert;
@@ -209,7 +215,7 @@ public class Config {
     public static int etherStreamGrowthAcceleratorEtherCost;
     public static List<Integer> nodeEnchanterEtherCosts;
     public static int nodeEnchanterMaxProgress;
-    ;
+    public static double etherStorageMultiplier;
 
     @SubscribeEvent
     static void onLoad(final ModConfigEvent event) {
@@ -243,5 +249,6 @@ public class Config {
         etherStreamGrowthAcceleratorEtherCost = ETHER_STREAM_GROWTH_ACCELERATOR_ETHER_COST.get();
         nodeEnchanterEtherCosts = NODE_ENCHANTER_ETHER_COSTS.get().stream().map(t -> (Integer) t).toList();
         nodeEnchanterMaxProgress = NODE_ENCHANTER_MAX_PROGRESS.get();
+        etherStorageMultiplier = ETHER_STORAGE_MULTIPLIER.get();
     }
 }
