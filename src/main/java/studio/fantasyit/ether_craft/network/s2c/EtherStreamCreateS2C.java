@@ -14,7 +14,7 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import studio.fantasyit.ether_craft.EtherCraft;
-import studio.fantasyit.ether_craft.attachment.ChainedEmitterEntityHitCache.PosDir;
+import studio.fantasyit.ether_craft.stream.PosDir;
 import studio.fantasyit.ether_craft.stream.client.ClientVESHData;
 
 import java.util.Optional;
@@ -42,13 +42,6 @@ public record EtherStreamCreateS2C(
             buf -> new Vec3(buf.readDouble(), buf.readDouble(), buf.readDouble())
     );
 
-    private static final StreamCodec<RegistryFriendlyByteBuf, PosDir> POSDIR_CODEC = StreamCodec.composite(
-            BlockPos.STREAM_CODEC,
-            PosDir::pos,
-            Direction.STREAM_CODEC,
-            PosDir::dir,
-            PosDir::new
-    );
 
     private static final StreamCodec<RegistryFriendlyByteBuf, @Nullable Component> NULLABLE_COMPONENT_CODEC =
             ComponentSerialization.TRUSTED_OPTIONAL_STREAM_CODEC.map(
