@@ -35,13 +35,12 @@ public class FunctionEquipmentConsumeGenerator extends AbstractItemConsumeFuncti
 
     @Override
     ItemStack onConsumeItem(ItemStack itemStack) {
-        int base = 1;
         int enchantBonus = 0;
         for (Object2IntMap.Entry<Holder<Enchantment>> entry : EnchantmentHelper.getEnchantmentsForCrafting(itemStack).entrySet()) {
             if (entry.getKey().is(EnchantmentTags.CURSE)) continue;
             enchantBonus += 1 << (entry.getIntValue() - 1);
         }
-        etherToGenerate = (base + enchantBonus) * Config.nodeEquipmentGeneratorCoefficient;
+        etherToGenerate = enchantBonus * Config.nodeEquipmentGeneratorCoefficient + Config.nodeEquipmentGeneratorBaseAmount;
         remainBurnTicks = 1;
         nodeEntity.setSyncedPluginData(installedId, WORKING_MATERIAL, WorkingMaterial.ANY.ordinal());
         return ItemStack.EMPTY;
