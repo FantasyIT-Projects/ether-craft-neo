@@ -68,9 +68,7 @@ public class ClientVESHData {
         return entries;
     }
 
-    public static ClientVESHData get() {
-        Level level = Minecraft.getInstance().level;
-        if (level == null) return new ClientVESHData();
+    public static ClientVESHData get(Level level) {
         return CACHE.computeIfAbsent(level, k -> new ClientVESHData());
     }
 

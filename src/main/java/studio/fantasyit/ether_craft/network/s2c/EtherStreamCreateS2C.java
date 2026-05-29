@@ -15,6 +15,7 @@ import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.stream.EtherConsumer;
 import studio.fantasyit.ether_craft.stream.PosDir;
 import studio.fantasyit.ether_craft.stream.client.ClientVESHData;
+import studio.fantasyit.ether_craft.stream.client.ClientVESHDataGetter;
 
 import java.util.Optional;
 
@@ -69,7 +70,7 @@ public record EtherStreamCreateS2C(
 
     public void handle(IPayloadContext ctx) {
         ctx.enqueueWork(() -> {
-            ClientVESHData.get().handleCreate(this);
+            ClientVESHDataGetter.get().handleCreate(this);
         });
     }
 }

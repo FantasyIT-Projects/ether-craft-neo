@@ -467,7 +467,7 @@ public record EtherStreamCreateS2C(PosDir posDir, int streamId, Vec3 startPos, V
     public void handle(IPayloadContext ctx) {
         ctx.enqueueWork(() -> {
             if (ctx.player().level().isClientSide) {
-                ClientVESHData.get().handleCreate(this);
+                ClientVESHDataGetter.get().handleCreate(this);
             }
         });
     }
@@ -542,7 +542,7 @@ public record EtherStreamUpdateS2C(PosDir posDir, List<StreamEntry> entries) imp
     public void handle(IPayloadContext ctx) {
         ctx.enqueueWork(() -> {
             if (ctx.player().level().isClientSide) {
-                ClientVESHData.get().handleUpdate(this);
+                ClientVESHDataGetter.get().handleUpdate(this);
             }
         });
     }
@@ -767,7 +767,7 @@ public class EtherStreamRenderEvent {
         Minecraft mc = Minecraft.getInstance();
         if (mc.level == null) return;
 
-        ClientVESHData data = ClientVESHData.get();
+        ClientVESHData data = ClientVESHDataGetter.get();
         if (data.getEntries().isEmpty()) return;
 
         PoseStack poseStack = event.getPoseStack();

@@ -31,7 +31,7 @@ public class ClientVirtualEtherStreamRenderer {
     private static final float LABEL_SCALE = 0.010416667F;
 
     public static void onRender(Minecraft mc, PoseStack poseStack, SubmitNodeCollector collector, CameraRenderState camera) {
-        ClientVESHData data = ClientVESHData.get();
+        ClientVESHData data = ClientVESHDataGetter.get();
         float partialTick = mc.getDeltaTracker().getGameTimeDeltaPartialTick(false);
         Quaternionf invOrientation = camera.orientation.conjugate(new Quaternionf());
         Vector3f offsetVec = new Vector3f();

@@ -15,6 +15,7 @@ import org.jetbrains.annotations.Nullable;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.stream.PosDir;
 import studio.fantasyit.ether_craft.stream.client.ClientVESHData;
+import studio.fantasyit.ether_craft.stream.client.ClientVESHDataGetter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -74,7 +75,7 @@ public record EtherStreamSetDyingS2C(
 
     public void handle(IPayloadContext ctx) {
         ctx.enqueueWork(() -> {
-            ClientVESHData.get().handleDying(this);
+            ClientVESHDataGetter.get().handleDying(this);
         });
     }
 }

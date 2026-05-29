@@ -7,6 +7,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.tick.LevelTickEvent;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.stream.client.ClientVESHData;
+import studio.fantasyit.ether_craft.stream.client.ClientVESHDataGetter;
 
 @EventBusSubscriber(modid = EtherCraft.MODID, value = Dist.CLIENT)
 public class ClientTickEvent {
@@ -15,7 +16,7 @@ public class ClientTickEvent {
         if (event.getLevel().isClientSide()) {
             Minecraft mc = Minecraft.getInstance();
             if (mc.level == null) return;
-            ClientVESHData.get().tick();
+            ClientVESHDataGetter.get().tick();
         }
     }
 }

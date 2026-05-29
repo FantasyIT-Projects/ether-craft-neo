@@ -12,7 +12,6 @@ public class ServerStartUpEvent {
     @SubscribeEvent
     public static void onTagReload(FMLCommonSetupEvent event) {
         NodePluginManager.Instance.collect();
-        EtherAdaptNodeUpgradeTabManager.instance.collect();
         EtherProcessRecipeManager.collectProvider();
     }
 }
