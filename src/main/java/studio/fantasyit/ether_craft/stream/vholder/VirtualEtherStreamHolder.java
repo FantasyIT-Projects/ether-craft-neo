@@ -5,8 +5,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.phys.Vec3;
 import studio.fantasyit.ether_craft.Config;
-import studio.fantasyit.ether_craft.attachment.ChainedEmitterEntityHitCache;
-import studio.fantasyit.ether_craft.attachment.ChainedEmitterEntityHitCache.PosDir;
+import studio.fantasyit.ether_craft.stream.PosDir;
 import studio.fantasyit.ether_craft.stream.cap.IStreamCapability;
 
 import net.minecraft.world.entity.Entity;
@@ -55,7 +54,7 @@ public class VirtualEtherStreamHolder {
         return ves;
     }
 
-    public void tick(ChainedEmitterEntityHitCache cache, PosDir posDir) {
+    public void tick(PosDir posDir) {
         List<Integer> collectedToCreate = new ArrayList<>();
         List<Integer> collectedToRemove = new ArrayList<>();
         activateTick--;
@@ -109,20 +108,18 @@ public class VirtualEtherStreamHolder {
             allEntityHits.put(ves, new ArrayList<>());
         }
 
-        List<Entity> entities = cache.getAllEntities(level, furthestOldPos, posDir, 0, (float) furthestMotionLen);
-        if (entities != null) {
-            for (Entity entity : entities) {
-                if (entity == null) continue;
-                AABB bb = entity.getBoundingBox().inflate(0.3);
-                for (VirtualEtherStream ves : streams) {
-                    if (ves.markToRemove) continue;
-                    Vec3 oldPos = ves.pos;
-                    Vec3 newPos = oldPos.add(ves.motion);
-                    Optional<Vec3> clip = bb.clip(oldPos, newPos);
-                    if (clip.isPresent()) {
-                        allEntityHits.get(ves).add(new EntityHitResult(entity, clip.get()));
-                    }
-                }
+        double maxDist = Math.sqrt(furthestOldPos.distanceToSqr(pos.getCenter())) + furthestMotionLen;
+        Vec3 queryVec = direction.getUnitVec3().scale(maxDist + 0.5);
+        List<Entity> entities = level.getEntities(null, new AABB(pos).expandTowards(queryVec).inflate(1.0));
+        for (Entity entity : entities) {
+            if (entity == null) continue;
+            AABB bb = entity.getBoundingBox().inflate(0.3);
+            for (VirtualEtherStream ves : streams) {
+                if (ves.markToRemove) continue;
+                Vec3 oldPos = ves.pos;
+                Vec3 newPos = oldPos.add(ves.motion);
+                Optional<Vec3> clip = bb.clip(oldPos, newPos);
+                clip.ifPresent(vec3 -> allEntityHits.get(ves).add(new EntityHitResult(entity, vec3)));
             }
         }
 
@@ -187,8 +184,10 @@ public class VirtualEtherStreamHolder {
         for (VirtualEtherStream ves : streams) {
             if (ves.markToRemove)
                 collectedToRemove.add(ves.streamId);
-            if (ves.markToSyncCreation)
+            if (ves.markToSyncCreation) {
                 collectedToCreate.add(ves.streamId);
+                ves.markToSyncCreation = false;
+            }
         }
 
         // === SYNC ===

@@ -3,9 +3,8 @@ package studio.fantasyit.ether_craft.stream.vholder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import studio.fantasyit.ether_craft.attachment.ChainedEmitterEntityHitCache;
-import studio.fantasyit.ether_craft.attachment.ChainedEmitterEntityHitCache.PosDir;
 import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
+import studio.fantasyit.ether_craft.stream.PosDir;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,7 +13,6 @@ import java.util.Map;
 
 public class VirtualEtherStreamHolderManager {
     private final Map<PosDir, VirtualEtherStreamHolder> holders = new HashMap<>();
-    private final ChainedEmitterEntityHitCache cache = new ChainedEmitterEntityHitCache();
 
     public VirtualEtherStreamHolderManager() {}
 
@@ -29,12 +27,11 @@ public class VirtualEtherStreamHolderManager {
     }
 
     public void tick(ServerLevel level) {
-        cache.beforeTick();
         List<PosDir> toRemove = new ArrayList<>();
         for (Map.Entry<PosDir, VirtualEtherStreamHolder> entry : holders.entrySet()) {
             PosDir posDir = entry.getKey();
             VirtualEtherStreamHolder holder = entry.getValue();
-            holder.tick(cache, posDir);
+            holder.tick(posDir);
             if (holder.isDead()) {
                 toRemove.add(posDir);
             }

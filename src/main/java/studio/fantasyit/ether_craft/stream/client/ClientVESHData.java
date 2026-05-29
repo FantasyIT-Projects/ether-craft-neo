@@ -25,10 +25,8 @@ public class ClientVESHData {
 
     public void handleDying(EtherStreamSetDyingS2C msg) {
         ClientVESHEntry entry = entries.computeIfAbsent(msg.posDir(), k -> new ClientVESHEntry());
-        Set<Integer> seen = new HashSet<>();
 
         for (EtherStreamSetDyingS2C.StreamEntry se : msg.entries()) {
-            seen.add(se.streamId());
             ClientStreamEntry current = entry.streams.get(se.streamId());
             if (current == null) continue;
 
@@ -41,14 +39,6 @@ public class ClientVESHData {
             if (se.isDead() && !se.isDying()) {
                 current.removed = true;
             }
-        }
-
-        // Remove streams not in this batch (expired without fanfare, and not currently dying)
-        entry.streams.entrySet().removeIf(e -> !seen.contains(e.getKey()) && !e.getValue().isDying);
-
-        // Remove empty entries
-        if (entry.streams.isEmpty()) {
-            entries.remove(msg.posDir());
         }
     }
 

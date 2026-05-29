@@ -14,7 +14,6 @@ import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Quaternionf;
 import studio.fantasyit.ether_craft.EtherCraft;
-import studio.fantasyit.ether_craft.attachment.ChainedEmitterEntityHitCache;
 
 public class ClientVirtualEtherStreamRenderer {
 
@@ -34,7 +33,6 @@ public class ClientVirtualEtherStreamRenderer {
         float partialTick = mc.getDeltaTracker().getGameTimeDeltaPartialTick(false);
 
         for (var posEntry : data.getEntries().entrySet()) {
-            ChainedEmitterEntityHitCache.PosDir posDir = posEntry.getKey();
             ClientVESHData.ClientVESHEntry veshEntry = posEntry.getValue();
 
             for (var streamEntry : veshEntry.streams.entrySet()) {
