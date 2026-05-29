@@ -12,36 +12,6 @@ import studio.fantasyit.ether_craft.network.s2c.EtherStreamSetDyingS2C;
 import java.util.*;
 
 public class ClientVESHData {
-    public static class ClientStreamEntry {
-        Vec3 startPos = Vec3.ZERO;
-        Vec3 motion = Vec3.ZERO;
-        int startTickCount;
-        int ether;
-        long receivedAtTick;
-        byte flags;
-        int deathTick;
-        @Nullable
-        Component label;
-        int labelColor;
-        boolean removed;
-
-        public boolean isRemoved() {
-            return removed;
-        }
-
-        public ClientStreamEntry(@Nullable EtherStreamCreateS2C msg) {
-            if (msg != null) {
-                this.startPos = msg.startPos();
-                this.motion = msg.motion();
-                this.startTickCount = msg.tickCount();
-                this.ether = msg.ether();
-                this.label = msg.label();
-                this.labelColor = msg.labelColor();
-            }
-            Level level = Minecraft.getInstance().level;
-            this.receivedAtTick = level != null ? level.getGameTime() : 0;
-        }
-    }
 
     public static class ClientVESHEntry {
         final Map<Integer, ClientStreamEntry> streams = new HashMap<>();
@@ -56,33 +26,15 @@ public class ClientVESHData {
         }
     }
 
-    public void handleUpdate(EtherStreamSetDyingS2C msg) {
+    public void handleDying(EtherStreamSetDyingS2C msg) {
         ClientVESHEntry entry = entries.computeIfAbsent(msg.posDir(), k -> new ClientVESHEntry());
-        Map<Integer, ClientStreamEntry> streams = entry.streams;
         Set<Integer> seen = new HashSet<>();
 
-        for (EtherStreamSetDyingS2C.StreamEntry update : msg.entries()) {
-            seen.add(update.streamId());
-            ClientStreamEntry current = streams.get(update.streamId());
-
-            if (current == null) {
-                current = new ClientStreamEntry(null);
-                streams.put(update.streamId(), current);
-            }
-
-            if (update.isDead() && !update.isDying()) {
-                current.removed = true;
-                continue;
-            }
-            current.startTickCount = update.tickCount();
-            current.ether = update.ether();
-            current.label = update.label();
-            current.labelColor = update.labelColor();
-            current.receivedAtTick = Minecraft.getInstance().level != null
-                    ? Minecraft.getInstance().level.getGameTime() : 0;
-            if (update.isDying()) {
-                current.flags = update.flags();
-                current.deathTick = update.deathTick();
+        for (int id : msg.entries()) {
+            ClientStreamEntry current = entry.streams.get(id);
+            if (current == null) return;
+            if (current.label != null) {
+                current.deathTick = 0;
             }
         }
 

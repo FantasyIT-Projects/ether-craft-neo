@@ -39,7 +39,7 @@ public class ClientVirtualEtherStreamRenderer {
 
             for (var streamEntry : veshEntry.streams.entrySet()) {
                 int streamId = streamEntry.getKey();
-                ClientVESHData.ClientStreamEntry stream = streamEntry.getValue();
+                ClientStreamEntry stream = streamEntry.getValue();
 
                 if (stream.isRemoved()) continue;
 
@@ -85,7 +85,7 @@ public class ClientVirtualEtherStreamRenderer {
         }
     }
 
-    private static void renderLabel(ClientVESHData.ClientStreamEntry stream, Vec3 currentPos,
+    private static void renderLabel(ClientStreamEntry stream, Vec3 currentPos,
                                     CameraRenderState camera, PoseStack poseStack, SubmitNodeCollector collector) {
         if (stream.label == null) return;
         Vec3 motion = stream.motion;

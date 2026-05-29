@@ -4,18 +4,9 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
 import studio.fantasyit.ether_craft.Config;
-import studio.fantasyit.ether_craft.attachment.ChainedEmitterEntityHitCache;
-import studio.fantasyit.ether_craft.attachment.ChainedEmitterEntityHitCache.PosDir;
-import studio.fantasyit.ether_craft.register.Tags;
 import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
 import studio.fantasyit.ether_craft.stream.cap.IStreamCapability;
 
@@ -28,17 +19,29 @@ public class VirtualEtherStream implements IEtherStreamLike {
     Vec3 pos;
     Level level;
     Direction direction;
-    int ether;
-    List<IStreamCapability> capabilities = new ArrayList<>();
-    int streamId;
     Vec3 startPos;
     Vec3 motion;
+
+    public boolean markToSyncCreation = false;
+    public boolean markToRemove = false;
+
+    List<IStreamCapability> capabilities = new ArrayList<>();
+    int ether;
+    int streamId;
     int tickCount = 0;
-    boolean dead = false;
-    boolean dying = false;
-    int deathTick = 0;
+
     int labelColor = 0xFFFFFFFF;
-    @Nullable Component label;
+    @Nullable
+    Component label;
+
+    public VirtualEtherStream(int streamId, int ether, Vec3 pos, Vec3 motion, Level level, Direction direction) {
+        this.streamId = streamId;
+        this.ether = ether;
+        this.pos = pos;
+        this.level = level;
+        this.direction = direction;
+        this.startPos = pos;
+    }
 
 
     @Override
@@ -58,6 +61,7 @@ public class VirtualEtherStream implements IEtherStreamLike {
 
     @Override
     public void consumeEther(int ether) {
+        //TODO lower factor
         this.ether = Math.max(0, this.ether - ether);
     }
 
@@ -82,7 +86,11 @@ public class VirtualEtherStream implements IEtherStreamLike {
     }
 
     public void markDead() {
-        this.dead = true;
+        if (markToRemove) return;
+        for (IStreamCapability cap : capabilities) {
+            cap.onDestroy(this);
+        }
+        markToRemove = true;
     }
 
     public int getConsumption() {
@@ -93,61 +101,6 @@ public class VirtualEtherStream implements IEtherStreamLike {
             value += cap.getConsumption();
         }
         return (int) Math.ceil(value);
-    }
-
-    public void doCollision(ChainedEmitterEntityHitCache cache, PosDir posDir, float motionLen) {
-        Vec3 newPos = pos.add(motion);
-
-        // Entity collision: find only the closest entity, matching EtherStreamEntity.fastHit() behavior
-        List<Entity> entities = cache.getAllEntities(level, pos, posDir, 0, motionLen);
-        if (entities != null) {
-            double nearestDist = Double.MAX_VALUE;
-            Entity closestEntity = null;
-            Vec3 closestHit = null;
-            for (Entity entity : entities) {
-                AABB hitbox = entity.getBoundingBox().inflate(0.3);
-                Optional<Vec3> clip = hitbox.clip(pos, newPos);
-                if (clip.isPresent()) {
-                    double dist = pos.distanceToSqr(clip.get());
-                    if (dist < nearestDist) {
-                        nearestDist = dist;
-                        closestEntity = entity;
-                        closestHit = clip.get();
-                    }
-                }
-            }
-            if (closestEntity != null && closestEntity instanceof LivingEntity) {
-                boolean handled = false;
-                ServerLevel serverLevel = (ServerLevel) level;
-                EntityHitResult hitResult = new EntityHitResult(closestEntity, closestHit);
-                for (IStreamCapability cap : capabilities) {
-                    if (cap.hitEntity(serverLevel, this, hitResult, closestEntity)) handled = true;
-                }
-                if (!handled) {
-                    markDead();
-                    return;
-                }
-            }
-        }
-
-        BlockPos newBlockPos = BlockPos.containing(newPos);
-        var blockState = level.getBlockState(newBlockPos);
-        if (blockState.is(Tags.ETHER_STREAM_PASS_THROUGH)) return;
-        ServerLevel serverLevel = (ServerLevel) level;
-        for (IStreamCapability cap : capabilities) {
-            if (cap.shouldPassThrough(blockState, serverLevel, newBlockPos)) return;
-        }
-        boolean handled = false;
-        BlockHitResult blockHitResult = new BlockHitResult(pos, direction.getOpposite(), newBlockPos, false);
-        for (IStreamCapability cap : capabilities) {
-            if (cap.hitBlock(serverLevel, this, blockHitResult, blockState)) handled = true;
-        }
-        if (!handled) markDead();
-    }
-
-    public void setStartData(Vec3 startPos, Vec3 motion) {
-        this.startPos = startPos;
-        this.motion = motion;
     }
 
     public void setLabel(@Nullable Component label, int color) {

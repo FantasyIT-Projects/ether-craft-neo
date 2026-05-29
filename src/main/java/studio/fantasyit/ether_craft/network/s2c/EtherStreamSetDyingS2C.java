@@ -20,7 +20,6 @@ public record EtherStreamSetDyingS2C(
         PosDir posDir,
         List<Integer> entries
 ) implements CustomPacketPayload {
-
     public static final Type<@NotNull EtherStreamSetDyingS2C> TYPE = new Type<>(
             Identifier.fromNamespaceAndPath(EtherCraft.MODID, "ether_stream_update")
     );
@@ -35,7 +34,7 @@ public record EtherStreamSetDyingS2C(
 
     public static final StreamCodec<RegistryFriendlyByteBuf, @NotNull EtherStreamSetDyingS2C> CODEC = StreamCodec.composite(
             POSDIR_CODEC, EtherStreamSetDyingS2C::posDir,
-            ByteBufCodecs.collection(ArrayList::new, StreamEntry.STREAM_ENTRY_CODEC), EtherStreamSetDyingS2C::entries,
+            ByteBufCodecs.collection(ArrayList::new, ByteBufCodecs.INT), EtherStreamSetDyingS2C::entries,
             EtherStreamSetDyingS2C::new
     );
 
@@ -46,7 +45,7 @@ public record EtherStreamSetDyingS2C(
 
     public void handle(IPayloadContext ctx) {
         ctx.enqueueWork(() -> {
-            ClientVESHData.get().handleUpdate(this);
+            ClientVESHData.get().handleDying(this);
         });
     }
 }

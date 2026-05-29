@@ -1,6 +1,9 @@
 package studio.fantasyit.ether_craft.stream.vholder;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.phys.Vec3;
 import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.attachment.ChainedEmitterEntityHitCache;
 import studio.fantasyit.ether_craft.attachment.ChainedEmitterEntityHitCache.PosDir;
@@ -10,31 +13,37 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class VirtualEtherStreamHolder {
-    final Direction direction;
+    private final Direction direction;
+    private final BlockPos pos;
+    private final ServerLevel level;
     int activateTick = 5;
     final List<VirtualEtherStream> streams = new ArrayList<>();
     int nextId = 0;
 
-    public VirtualEtherStreamHolder(Direction direction) {
+    public VirtualEtherStreamHolder(BlockPos pos, Direction direction, ServerLevel level) {
+        this.level = level;
+        this.pos = pos;
         this.direction = direction;
     }
 
-    public VirtualEtherStream createStream(int ether, net.minecraft.world.phys.Vec3 pos, net.minecraft.world.phys.Vec3 motion) {
-        VirtualEtherStream ves = new VirtualEtherStream();
-        ves.pos = pos;
-        ves.motion = motion;
-        ves.startPos = pos;
-        ves.direction = this.direction;
-        ves.ether = ether;
-        ves.streamId = nextId++;
+    public VirtualEtherStream createStream(int ether, Vec3 pos, Vec3 motion) {
+        VirtualEtherStream ves = new VirtualEtherStream(
+                nextId++,
+                ether,
+                pos,
+                motion,
+                level,
+                direction
+        );
         streams.add(ves);
         return ves;
     }
 
     public void tick(ChainedEmitterEntityHitCache cache, PosDir posDir) {
+        List<Integer> collectedToCreate = new ArrayList<>();
+        List<Integer> collectedToRemove = new ArrayList<>();
         activateTick--;
-        List<VirtualEtherStream> snapshot = new ArrayList<>(streams);
-        for (VirtualEtherStream ves : snapshot) {
+        for (VirtualEtherStream ves : streams) {
             ves.tickCount++;
 
             if (ves.tickCount == 1) {
@@ -47,47 +56,26 @@ public class VirtualEtherStreamHolder {
                 ves.markDead();
             }
 
-            if (!ves.dead) {
-                int consumption = ves.getConsumption();
-                ves.consumeEther(consumption);
-                if (ves.getEther() <= 0) {
-                    ves.markDead();
-                }
-            }
-
             for (IStreamCapability cap : ves.capabilities) {
                 cap.tick(ves);
             }
+
+            int consumption = ves.getConsumption();
+            ves.consumeEther(consumption);
+
             if (ves.getEther() <= 0) {
                 ves.markDead();
             }
 
-            if (!ves.dead) {
-                float motionLen = (float) ves.motion.length();
-                ves.doCollision(cache, posDir, motionLen);
-                ves.pos = ves.pos.add(ves.motion);
-            }
+            ves.pos = ves.pos.add(ves.motion);
 
-            if (ves.dead && !ves.dying) {
-                if (ves.label != null) {
-                    ves.dying = true;
-                    ves.deathTick = 0;
-                    for (IStreamCapability cap : ves.capabilities) {
-                        cap.onDestroy(ves);
-                    }
-                } else {
-                    ves.deathTick = -1;
-                }
-            }
-            if (ves.dying) {
-                ves.deathTick++;
-                ves.pos = ves.pos.add(ves.motion);
-                if (ves.deathTick > 60) {
-                    ves.deathTick = -1;
-                }
-            }
+            if (ves.markToRemove)
+                collectedToRemove.add(ves.streamId);
+            if (ves.markToSyncCreation)
+                collectedToCreate.add(ves.streamId);
         }
-        streams.removeIf(ves -> ves.deathTick == -1);
+        //TODO sync
+        streams.removeIf(ves -> ves.markToRemove);
     }
 
     public boolean isDead() {
