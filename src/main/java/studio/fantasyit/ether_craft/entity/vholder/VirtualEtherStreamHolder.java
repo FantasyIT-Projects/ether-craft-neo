@@ -37,6 +37,12 @@ public class VirtualEtherStreamHolder {
         for (VirtualEtherStream ves : snapshot) {
             ves.tickCount++;
 
+            if (ves.tickCount == 1) {
+                for (IStreamCapability cap : ves.capabilities) {
+                    cap.firstTick(ves);
+                }
+            }
+
             if (ves.tickCount > Config.etherStreamMaxTick) {
                 ves.markDead();
             }

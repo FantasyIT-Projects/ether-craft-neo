@@ -119,6 +119,8 @@ public class EtherStreamLabelCapability implements IStreamCapability {
                     ? new Vector3f((float) sp.x, (float) sp.y, (float) sp.z)
                     : new Vector3f());
             e.getEntityData().set(LABEL_COLOR, getColor());
+        } else if (etherStreamEntity instanceof studio.fantasyit.ether_craft.entity.vholder.VirtualEtherStream ves) {
+            ves.setLabel(getLabel(), getColor());
         }
     }
 }
