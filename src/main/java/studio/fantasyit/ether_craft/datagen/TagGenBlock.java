@@ -55,6 +55,8 @@ public class TagGenBlock extends TagsProvider<Block> {
                 cropBuilder.addElement(BuiltInRegistries.BLOCK.getKey(block));
             }
         });
+        cropBuilder.addElement(BuiltInRegistries.BLOCK.getKey(Blocks.CAVE_VINES));
+        cropBuilder.addElement(BuiltInRegistries.BLOCK.getKey(Blocks.CAVE_VINES_PLANT));
         cropBuilder.addElement(BuiltInRegistries.BLOCK.getKey(Blocks.SUGAR_CANE));
         cropBuilder.addElement(BuiltInRegistries.BLOCK.getKey(Blocks.CACTUS));
         cropBuilder.addElement(BuiltInRegistries.BLOCK.getKey(Blocks.BAMBOO));

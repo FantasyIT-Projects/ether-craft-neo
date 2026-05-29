@@ -8,9 +8,7 @@ import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.CropBlock;
-import net.minecraft.world.level.block.SweetBerryBushBlock;
+import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
@@ -54,7 +52,7 @@ public class EtherStreamBreakBlockCapability implements IStreamCapability {
         if (streamEntity.level() instanceof ServerLevel level) {
             BlockState blockState = level.getBlockState(streamEntity.blockPosition());
             if (blockState.isAir()) return;
-            if (hasAgeProperty(blockState) || isBerry(blockState)) {
+            if (hasAgeProperty(blockState) || isBerry(blockState) || isGlowBerry(blockState)) {
                 BlockHitResult bh = new BlockHitResult(
                         streamEntity.position(),
                         streamEntity.getMotionDirection().getOpposite(),
@@ -98,6 +96,9 @@ public class EtherStreamBreakBlockCapability implements IStreamCapability {
             }
         } else if (isHoe(bestTool) && isBerry(blockState)) {
             BlockState blockState1 = blockState.setValue(SweetBerryBushBlock.AGE, 0);
+            level.setBlockAndUpdate(pos, blockState1);
+        } else if (isHoe(bestTool) && isGlowBerry(blockState)) {
+            BlockState blockState1 = blockState.setValue(CaveVinesPlantBlock.BERRIES, false);
             level.setBlockAndUpdate(pos, blockState1);
         } else {
             level.removeBlock(pos, false);
@@ -143,6 +144,10 @@ public class EtherStreamBreakBlockCapability implements IStreamCapability {
         return state.getBlock() instanceof SweetBerryBushBlock sb && state.hasProperty(SweetBerryBushBlock.AGE) && state.getValue(SweetBerryBushBlock.AGE) == SweetBerryBushBlock.MAX_AGE;
     }
 
+    private static boolean isGlowBerry(BlockState state) {
+        return state.getBlock() instanceof CaveVines cvp && state.hasProperty(CaveVinesPlantBlock.BERRIES) && state.getValue(CaveVinesPlantBlock.BERRIES);
+    }
+
     private static ItemStack findReplantSeed(List<ItemStack> drops, BlockState targetBlockState) {
         Block targetBlock = targetBlockState.getBlock();
         for (ItemStack drop : drops) {
@@ -162,7 +167,7 @@ public class EtherStreamBreakBlockCapability implements IStreamCapability {
     }
 
     private ItemStack findBestTool(ServerLevel level, BlockPos pos, BlockState state) {
-        if (hasAgeProperty(state) || isBerry(state)) {
+        if (hasAgeProperty(state) || isBerry(state) || isGlowBerry(state)) {
             for (ItemStack tool : tools) {
                 if (!tool.isEmpty() && isHoe(tool)) {
                     return tool;

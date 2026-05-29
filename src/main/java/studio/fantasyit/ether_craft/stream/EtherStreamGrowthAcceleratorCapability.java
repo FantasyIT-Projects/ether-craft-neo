@@ -4,6 +4,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.block.BonemealableBlock;
+import net.minecraft.world.level.block.CaveVines;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
@@ -48,6 +50,9 @@ public class EtherStreamGrowthAcceleratorCapability implements IStreamCapability
 
         streamEntity.consumeEther(cost);
         state.randomTick(level, pos, level.getRandom());
+        if (state.getBlock() instanceof CaveVines && state.getBlock() instanceof BonemealableBlock b)
+            b.performBonemeal(level, level.getRandom(), pos, state);
+
         lastCatalyzedPos = pos;
     }
 
