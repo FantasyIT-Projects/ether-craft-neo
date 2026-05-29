@@ -131,7 +131,7 @@ public class VirtualEtherStreamHolder {
             BlockHitResult blockHit = level.clipIncludingBorder(
                     new ClipContext(oldPos, newPos,
                             ClipContext.Block.COLLIDER,
-                            ClipContext.Fluid.NONE, (CollisionContext) null));
+                            ClipContext.Fluid.NONE, CollisionContext.empty()));
             boolean hasBlockHit = blockHit.getType() != HitResult.Type.MISS;
 
             // Check pass-through

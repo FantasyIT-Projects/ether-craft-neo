@@ -83,7 +83,7 @@ public class NodePluginInfoCategory implements IRecipeCategory<NodePluginInfoRec
         Component typeLabel = Component.translatable(typeKey).withStyle(color);
         Component idLine = Component.literal(recipe.pluginId().toString()).withStyle(ChatFormatting.GRAY);
 
-        String descKey = "jei.ether_craft.plugin." + recipe.pluginId().getNamespace() + "." + recipe.pluginId().getPath();
+        String descKey = "jei.ether_craft.plugin." + recipe.pluginId().getNamespace() + "." + recipe.pluginId().getPath().replace('/', '.');
         Component desc = Component.translatable(descKey).withStyle(ChatFormatting.WHITE);
 
         int typeWidth = font.width(typeLabel);
