@@ -1,6 +1,5 @@
 package studio.fantasyit.ether_craft.datagen;
 
-import com.google.gson.JsonObject;
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.ItemModelGenerators;
 import net.minecraft.client.data.models.ModelProvider;
@@ -16,7 +15,6 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.neoforged.neoforge.client.model.generators.blockstate.CustomBlockStateModelBuilder;
 import net.neoforged.neoforge.client.model.generators.template.ExtendedModelTemplateBuilder;
@@ -27,7 +25,6 @@ import studio.fantasyit.ether_craft.item.renderer.AnswerItemOverlaySMR;
 import studio.fantasyit.ether_craft.register.BlockRegistry;
 import studio.fantasyit.ether_craft.register.ItemRegistry;
 
-import java.util.Map;
 import java.util.Optional;
 
 public class ModelDataGen extends ModelProvider {
@@ -75,22 +72,19 @@ public class ModelDataGen extends ModelProvider {
         itemModels.generateFlatItem(ItemRegistry.CHEESE.get(), ITEM_SIMPLE);
         ClientItem.Properties oversizedProps = new ClientItem.Properties(false, true, 1.0f);
 
-        Identifier flat5x5 = createBlockLightFlatModel(ItemRegistry.ANSWER_GRID_5X5.get(), itemModels);
+        Identifier flat5x5 = itemModels.createFlatItemModel(ItemRegistry.ANSWER_GRID_5X5.get(), ITEM_SIMPLE);
         itemModels.itemModelOutput.accept(ItemRegistry.ANSWER_GRID_5X5.get(),
-                ItemModelUtils.composite(ItemModelUtils.plainModel(flat5x5),
-                        ItemModelUtils.specialModel(ModelLocationUtils.getModelLocation(ItemRegistry.ANSWER_GRID_5X5.get()), new AnswerItemOverlaySMR.Unbaked())),
+                ItemModelUtils.specialModel(flat5x5, new AnswerItemOverlaySMR.Unbaked(flat5x5)),
                 oversizedProps);
 
-        Identifier flat7x7 = createBlockLightFlatModel(ItemRegistry.ANSWER_GRID_7X7.get(), itemModels);
+        Identifier flat7x7 = itemModels.createFlatItemModel(ItemRegistry.ANSWER_GRID_7X7.get(), ITEM_SIMPLE);
         itemModels.itemModelOutput.accept(ItemRegistry.ANSWER_GRID_7X7.get(),
-                ItemModelUtils.composite(ItemModelUtils.plainModel(flat7x7),
-                        ItemModelUtils.specialModel(ModelLocationUtils.getModelLocation(ItemRegistry.ANSWER_GRID_7X7.get()), new AnswerItemOverlaySMR.Unbaked())),
+                ItemModelUtils.specialModel(flat7x7, new AnswerItemOverlaySMR.Unbaked(flat7x7)),
                 oversizedProps);
 
-        Identifier flat9x9 = createBlockLightFlatModel(ItemRegistry.ANSWER_GRID_9X9.get(), itemModels);
+        Identifier flat9x9 = itemModels.createFlatItemModel(ItemRegistry.ANSWER_GRID_9X9.get(), ITEM_SIMPLE);
         itemModels.itemModelOutput.accept(ItemRegistry.ANSWER_GRID_9X9.get(),
-                ItemModelUtils.composite(ItemModelUtils.plainModel(flat9x9),
-                        ItemModelUtils.specialModel(ModelLocationUtils.getModelLocation(ItemRegistry.ANSWER_GRID_9X9.get()), new AnswerItemOverlaySMR.Unbaked())),
+                ItemModelUtils.specialModel(flat9x9, new AnswerItemOverlaySMR.Unbaked(flat9x9)),
                 oversizedProps);
         rm.listResources("ether_process_chip", t -> t.getPath().endsWith(".json")).forEach((_id, resource) -> {
             String path = _id.getPath();
@@ -196,12 +190,5 @@ public class ModelDataGen extends ModelProvider {
         blockModels.blockStateOutput.accept(
                 MultiVariantGenerator.dispatch(BlockRegistry.ETHER_GLASS.get(), etherGlassCustom)
         );
-    }
-
-    private static Identifier createBlockLightFlatModel(Item item, ItemModelGenerators itemModels) {
-        Identifier modelId = ModelLocationUtils.getModelLocation(item, "_block_light");
-        JsonObject json = ITEM_SIMPLE.createBaseTemplate(modelId, Map.of(TextureSlot.LAYER0, TextureMapping.getItemTexture(item)));
-        itemModels.modelOutput.accept(modelId, () -> json);
-        return modelId;
     }
 }
