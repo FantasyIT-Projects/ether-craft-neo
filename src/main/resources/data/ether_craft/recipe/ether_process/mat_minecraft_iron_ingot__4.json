@@ -24,8 +24,8 @@
         "id": "ether_craft:process_chip",
         "count": 1,
         "components": {
-          "ether_craft:ether_process_chip_id": "ether_craft:separator_chip",
-          "minecraft:item_model": "ether_craft:separator_chip"
+          "ether_craft:ether_process_chip_id": "ether_craft:molding_chip",
+          "minecraft:item_model": "ether_craft:molding_chip"
         }
       }
     },
@@ -36,8 +36,8 @@
         "id": "ether_craft:process_chip",
         "count": 1,
         "components": {
-          "ether_craft:ether_process_chip_id": "ether_craft:separator_chip",
-          "minecraft:item_model": "ether_craft:separator_chip"
+          "ether_craft:ether_process_chip_id": "ether_craft:cutting_chip",
+          "minecraft:item_model": "ether_craft:cutting_chip"
         }
       }
     },
@@ -48,8 +48,8 @@
         "id": "ether_craft:process_chip",
         "count": 1,
         "components": {
-          "ether_craft:ether_process_chip_id": "ether_craft:converging_chip",
-          "minecraft:item_model": "ether_craft:converging_chip"
+          "ether_craft:ether_process_chip_id": "ether_craft:separator_chip",
+          "minecraft:item_model": "ether_craft:separator_chip"
         }
       }
     },
@@ -60,8 +60,8 @@
         "id": "ether_craft:process_chip",
         "count": 1,
         "components": {
-          "ether_craft:ether_process_chip_id": "ether_craft:cutting_chip",
-          "minecraft:item_model": "ether_craft:cutting_chip"
+          "ether_craft:ether_process_chip_id": "ether_craft:separator_chip",
+          "minecraft:item_model": "ether_craft:separator_chip"
         }
       }
     },
@@ -115,30 +115,6 @@
     },
     {
       "x": 0,
-      "y": 2,
-      "item": {
-        "id": "ether_craft:process_chip",
-        "count": 1,
-        "components": {
-          "ether_craft:ether_process_chip_id": "ether_craft:separator_chip",
-          "minecraft:item_model": "ether_craft:separator_chip"
-        }
-      }
-    },
-    {
-      "x": 2,
-      "y": 2,
-      "item": {
-        "id": "ether_craft:process_chip",
-        "count": 1,
-        "components": {
-          "ether_craft:ether_process_chip_id": "ether_craft:separator_chip",
-          "minecraft:item_model": "ether_craft:separator_chip"
-        }
-      }
-    },
-    {
-      "x": 3,
       "y": 2,
       "item": {
         "id": "ether_craft:process_chip",
@@ -150,7 +126,19 @@
       }
     },
     {
-      "x": 4,
+      "x": 1,
+      "y": 2,
+      "item": {
+        "id": "ether_craft:process_chip",
+        "count": 1,
+        "components": {
+          "ether_craft:ether_process_chip_id": "ether_craft:molding_chip",
+          "minecraft:item_model": "ether_craft:molding_chip"
+        }
+      }
+    },
+    {
+      "x": 2,
       "y": 2,
       "item": {
         "id": "ether_craft:process_chip",
@@ -158,6 +146,30 @@
         "components": {
           "ether_craft:ether_process_chip_id": "ether_craft:cutting_chip",
           "minecraft:item_model": "ether_craft:cutting_chip"
+        }
+      }
+    },
+    {
+      "x": 3,
+      "y": 2,
+      "item": {
+        "id": "ether_craft:process_chip",
+        "count": 1,
+        "components": {
+          "ether_craft:ether_process_chip_id": "ether_craft:separator_chip",
+          "minecraft:item_model": "ether_craft:separator_chip"
+        }
+      }
+    },
+    {
+      "x": 4,
+      "y": 2,
+      "item": {
+        "id": "ether_craft:process_chip",
+        "count": 1,
+        "components": {
+          "ether_craft:ether_process_chip_id": "ether_craft:separator_chip",
+          "minecraft:item_model": "ether_craft:separator_chip"
         }
       }
     },
@@ -300,8 +312,8 @@
         "id": "ether_craft:process_chip",
         "count": 1,
         "components": {
-          "ether_craft:ether_process_chip_id": "ether_craft:stamping_chip",
-          "minecraft:item_model": "ether_craft:stamping_chip"
+          "ether_craft:ether_process_chip_id": "ether_craft:separator_chip",
+          "minecraft:item_model": "ether_craft:separator_chip"
         }
       }
     },
@@ -312,8 +324,8 @@
         "id": "ether_craft:process_chip",
         "count": 1,
         "components": {
-          "ether_craft:ether_process_chip_id": "ether_craft:cutting_chip",
-          "minecraft:item_model": "ether_craft:cutting_chip"
+          "ether_craft:ether_process_chip_id": "ether_craft:separator_chip",
+          "minecraft:item_model": "ether_craft:separator_chip"
         }
       }
     },
@@ -514,10 +526,6 @@
     {
       "ingredient": "#c:raw_materials/iron",
       "count": 3
-    },
-    {
-      "ingredient": "#minecraft:coals",
-      "count": 1
     }
   ]
 }

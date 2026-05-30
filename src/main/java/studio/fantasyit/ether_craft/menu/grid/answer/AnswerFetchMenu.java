@@ -148,7 +148,13 @@ public class AnswerFetchMenu extends AbstractContainerMenu {
         }
         if (slotIndex == resultSlot.index && selectedGrid != null) {
             if (held != null && held.getItem() instanceof EtherProcessRecipeAnswerItem ai) {
-                player.setItemInHand(hand, selectedGrid.assemble(ai.getInput(held)));
+                ItemStack split = held.split(1);
+                ItemStack result = selectedGrid.assemble(ai.getInput(split));
+                if (player.getItemInHand(hand).isEmpty())
+                    player.setItemInHand(hand, result);
+                else {
+                    player.getInventory().placeItemBackInInventory(result);
+                }
                 player.closeContainer();
                 return;
             }

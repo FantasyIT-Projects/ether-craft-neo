@@ -187,7 +187,6 @@ public class EtherProcessFactoryContainerMenu extends BaseContainerMenu<@NotNull
     }
 
     /// /// 扳手快速放置
-
     public void onSwitchItem(boolean reverse) {
         if (quickPlaceChipSlotId == -1 && reverse) {
             selectedChips.clear();

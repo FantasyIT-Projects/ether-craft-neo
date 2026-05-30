@@ -6,6 +6,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -31,6 +32,9 @@ public class DataComponentRegistry {
             () -> DataComponentType.<List<List<ItemStack>>>builder().persistent(ItemStack.OPTIONAL_CODEC.listOf().listOf()).networkSynchronized(ByteBufCodecs.collection(
                     ArrayList::new, ByteBufCodecs.collection(ArrayList::new, ItemStack.OPTIONAL_STREAM_CODEC)
             )).build()
+    );
+    public static final DeferredHolder<DataComponentType<?>, @NotNull DataComponentType<ItemStackTemplate>> TARGET = DATA_COMPONENT.register("ether_process_recipe_target",
+            () -> DataComponentType.<ItemStackTemplate>builder().persistent(ItemStackTemplate.CODEC).networkSynchronized(ItemStackTemplate.STREAM_CODEC).build()
     );
 
     public static void register(IEventBus modbus) {

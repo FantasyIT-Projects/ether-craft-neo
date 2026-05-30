@@ -10,6 +10,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.Level;
+import net.neoforged.neoforge.common.crafting.SizedIngredient;
 import org.jetbrains.annotations.NotNull;
 import studio.fantasyit.ether_craft.item.ProcessChipItem;
 import studio.fantasyit.ether_craft.recipe.DelayedIngredient;
@@ -18,7 +19,6 @@ import studio.fantasyit.ether_craft.register.DataComponentRegistry;
 import studio.fantasyit.ether_craft.register.RecipeSerializerRegistry;
 import studio.fantasyit.ether_craft.register.RecipeTypeRegistry;
 import studio.fantasyit.ether_craft.register.Tags;
-import net.neoforged.neoforge.common.crafting.SizedIngredient;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -121,6 +121,7 @@ public class EtherProcessFactoryGrid implements Recipe<EtherProcessFactoryGridIn
                 grid.get(y).set(x, entry.item.create());
             }
         }
+        itemStack.set(DataComponentRegistry.TARGET, target);
         itemStack.set(DataComponentRegistry.GRID, grid);
         return itemStack;
     }
