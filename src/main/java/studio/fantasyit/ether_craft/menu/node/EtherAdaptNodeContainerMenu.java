@@ -102,7 +102,7 @@ public class EtherAdaptNodeContainerMenu extends BaseMenu<EtherAdaptNodeEntity> 
 
     @Override
     public boolean stillValid(Player player) {
-        return true;
+        return !entity.isRemoved();
     }
 
     public EtherAdaptNodeContainerMenu(int windowId, Player player, BlockPos pos) {

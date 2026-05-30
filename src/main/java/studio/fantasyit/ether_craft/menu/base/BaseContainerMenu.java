@@ -3,7 +3,6 @@ package studio.fantasyit.ether_craft.menu.base;
 import com.mojang.datafixers.util.Function4;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.Container;
-import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
@@ -33,8 +32,8 @@ public abstract class BaseContainerMenu<T extends @NotNull BaseEtherContainerBlo
     abstract public @NotNull ItemStack quickMoveStack(Player player, int index);
 
     @Override
-    public boolean stillValid(Player p_38874_) {
-        return true;
+    public boolean stillValid(Player player) {
+        return !entity.isRemoved();
     }
 
     public interface SlotSupplier {

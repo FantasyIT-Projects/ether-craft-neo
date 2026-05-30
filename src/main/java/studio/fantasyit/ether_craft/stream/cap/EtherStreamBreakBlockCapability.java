@@ -59,7 +59,7 @@ public class EtherStreamBreakBlockCapability implements IStreamCapability {
         if (streamEntity.level() instanceof ServerLevel level) {
             BlockState blockState = level.getBlockState(streamEntity.blockPosition());
             if (blockState.isAir()) return;
-            if (hasAgeProperty(blockState) || isBerry(blockState) || isGlowBerry(blockState)) {
+            if (isHoePrefer(blockState)) {
                 BlockHitResult bh = new BlockHitResult(
                         streamEntity.position(),
                         streamEntity.getDirection().getOpposite(),
@@ -107,6 +107,9 @@ public class EtherStreamBreakBlockCapability implements IStreamCapability {
         } else if (isHoe(bestTool) && isGlowBerry(blockState)) {
             BlockState blockState1 = blockState.setValue(CaveVinesPlantBlock.BERRIES, false);
             level.setBlockAndUpdate(pos, blockState1);
+        } else if (isHoe(bestTool) && isCocoa(blockState)) {
+            BlockState blockState1 = blockState.setValue(CocoaBlock.AGE, 0);
+            level.setBlockAndUpdate(pos, blockState1);
         } else {
             level.removeBlock(pos, false);
         }
@@ -141,10 +144,22 @@ public class EtherStreamBreakBlockCapability implements IStreamCapability {
         return tool.is(ItemTags.HOES);
     }
 
+
+    private static boolean isHoePrefer(BlockState state) {
+        return hasAgeProperty(state) || isBerry(state) || isGlowBerry(state) || isCocoa(state);
+    }
+
     private static boolean hasAgeProperty(BlockState state) {
-        if (!(state.getBlock() instanceof CropBlock cb)) return false;
-        if (cb.getAge(state) != cb.getMaxAge()) return false;
-        return true;
+        if (state.getBlock() instanceof CropBlock cb) {
+            return cb.getAge(state) == cb.getMaxAge();
+        } else if (state.getBlock() instanceof SugarCaneBlock) {
+            return true;
+        }
+        return false;
+    }
+
+    private static boolean isCocoa(BlockState state) {
+        return state.getBlock() instanceof CocoaBlock && state.hasProperty(CocoaBlock.AGE) && state.getValue(CocoaBlock.AGE) == CocoaBlock.MAX_AGE;
     }
 
     private static boolean isBerry(BlockState state) {
@@ -155,7 +170,10 @@ public class EtherStreamBreakBlockCapability implements IStreamCapability {
         return state.getBlock() instanceof CaveVines cvp && state.hasProperty(CaveVinesPlantBlock.BERRIES) && state.getValue(CaveVinesPlantBlock.BERRIES);
     }
 
+
     private static ItemStack findReplantSeed(List<ItemStack> drops, BlockState targetBlockState) {
+        if (drops.size() <= 1)
+            return ItemStack.EMPTY;
         Block targetBlock = targetBlockState.getBlock();
         for (ItemStack drop : drops) {
             if (!drop.isEmpty() && drop.getItem() instanceof BlockItem blockItem && blockItem.getBlock() == targetBlock) {
@@ -174,7 +192,7 @@ public class EtherStreamBreakBlockCapability implements IStreamCapability {
     }
 
     private ItemStack findBestTool(ServerLevel level, BlockPos pos, BlockState state) {
-        if (hasAgeProperty(state) || isBerry(state) || isGlowBerry(state)) {
+        if (isHoePrefer(state)) {
             for (ItemStack tool : tools) {
                 if (!tool.isEmpty() && isHoe(tool)) {
                     return tool;
