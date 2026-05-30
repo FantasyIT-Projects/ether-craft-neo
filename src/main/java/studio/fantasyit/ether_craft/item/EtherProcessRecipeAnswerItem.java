@@ -1,5 +1,6 @@
 package studio.fantasyit.ether_craft.item;
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
@@ -14,6 +15,9 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.Level;
 import studio.fantasyit.ether_craft.menu.grid.answer.AnswerFetchMenu;
@@ -23,6 +27,7 @@ import studio.fantasyit.ether_craft.register.DataComponentRegistry;
 import studio.fantasyit.ether_craft.register.RecipeTypeRegistry;
 
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class EtherProcessRecipeAnswerItem extends Item {
@@ -50,6 +55,17 @@ public class EtherProcessRecipeAnswerItem extends Item {
                 .stream().filter(r -> r.value().getType() == RecipeTypeRegistry.ETHER_PROCESS_FACTORY_GRID.get())
                 .map(r -> (EtherProcessFactoryGrid) r.value())
                 .filter(r -> r.matches(input, level)).toList();
+    }
+
+    @SuppressWarnings("deprecation")
+    @Override
+    public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay display, Consumer<Component> builder, TooltipFlag flag) {
+        super.appendHoverText(stack, context, display, builder, flag);
+        ItemStackTemplate target = stack.get(DataComponentRegistry.TARGET);
+        if (target != null) {
+            builder.accept(Component.translatable("tooltip.ether_craft.ether_process_recipe_answer.target",
+                    target.create().getHoverName()).withStyle(ChatFormatting.AQUA));
+        }
     }
 
     @Override

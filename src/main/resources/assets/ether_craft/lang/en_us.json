@@ -95,6 +95,8 @@
   "tooltip.ether_craft.welding_chip": "Welding Chip",
   "tooltip.ether_craft.energizing_chip": "Energizing Chip",
 
+  "tooltip.ether_craft.ether_process_recipe_answer.target": "Target: %s",
+
   "tooltip.ether_craft.adapt_node.plugin": "Plugin: %s",
   "tooltip.ether_craft.adapt_node.upgrades": "Upgrades: %s",
   "tooltip.ether_craft.factory.input": "Input: %s",

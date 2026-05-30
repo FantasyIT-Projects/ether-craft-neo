@@ -92,6 +92,8 @@
   "tooltip.ether_craft.stamping_chip": "冲压芯片",
   "tooltip.ether_craft.welding_chip": "焊接芯片",
   "tooltip.ether_craft.energizing_chip": "充能芯片",
+  "tooltip.ether_craft.ether_process_recipe_answer.target": "目标: %s",
+
   "tooltip.ether_craft.adapt_node.plugin": "插件: %s",
   "tooltip.ether_craft.adapt_node.upgrades": "升级: %s",
   "tooltip.ether_craft.factory.input": "输入: %s",
