@@ -22,7 +22,9 @@ import studio.fantasyit.ether_craft.register.Tags;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
 public class EtherProcessFactoryGrid implements Recipe<EtherProcessFactoryGridInput> {
     public ItemStack getTarget() {
@@ -75,6 +77,18 @@ public class EtherProcessFactoryGrid implements Recipe<EtherProcessFactoryGridIn
         return ByteBufCodecs.collection(ArrayList::new, delayedIngredientStreamCodec());
     }
 
+    private static final int[][] DIRS = new int[][]{
+            {0, 1},
+            {1, 0},
+            {0, -1},
+            {-1, 0}
+    };
+
+    int[][] marked;
+    boolean[][] chip;
+    int allHeight = 0;
+    int allWidth = 0;
+
     ItemStackTemplate target;
     List<GridEntry> entries;
     List<DelayedIngredient> inputs;
@@ -85,6 +99,44 @@ public class EtherProcessFactoryGrid implements Recipe<EtherProcessFactoryGridIn
         this.target = target;
         this.entries = entries;
         this.inputs = inputs;
+
+
+        int maxX = 0;
+        int maxY = 0;
+        for (GridEntry entry : entries) {
+            maxX = Math.max(maxX, entry.x);
+            maxY = Math.max(maxY, entry.y);
+        }
+        allHeight = maxY + 1;
+        allWidth = maxX + 1;
+        marked = new int[allHeight][allWidth];
+        chip = new boolean[allHeight][allWidth];
+        for (GridEntry entry : entries) {
+            chip[entry.y][entry.x] = true;
+        }
+
+        for (int i = 1; i < maxY - 1; i++) {
+            if (chip[i][maxX - 1])
+                continue;
+            Queue<Integer> queue = new LinkedList<>();
+            queue.add(((maxX - 1) << 8) + i);
+            while (!queue.isEmpty()) {
+                int xy = queue.poll();
+                int x = xy >> 8;
+                int y = xy & 0xFF;
+
+                for (int[] dir : DIRS) {
+                    int nx = x + dir[0];
+                    int ny = y + dir[1];
+                    if (nx < 0 || nx >= maxX || ny < 0 || ny >= maxY)
+                        continue;
+                    if (chip[ny][nx] || marked[ny][nx] != 0)
+                        continue;
+                    marked[ny][nx] = i;
+                    queue.add((nx << 8) + ny);
+                }
+            }
+        }
     }
 
     public List<GridEntry> getEntries() {
@@ -175,8 +227,8 @@ public class EtherProcessFactoryGrid implements Recipe<EtherProcessFactoryGridIn
         int maxX = Integer.MIN_VALUE;
         int maxY = Integer.MIN_VALUE;
         boolean found = false;
-        boolean[][] isChip = new boolean[16][16];
-        boolean[][] hasItem = new boolean[16][16];
+        boolean[][] isChip = new boolean[allHeight][allWidth];
+        boolean[][] hasItem = new boolean[allHeight][allWidth];
         for (GridEntry entry : entries) {
             ItemStack stack = entry.item.create();
             if (stack.isEmpty() || !stack.is(Tags.PROCESS_CHIP))
@@ -188,37 +240,78 @@ public class EtherProcessFactoryGrid implements Recipe<EtherProcessFactoryGridIn
             isChip[entry.y][entry.x] = true;
         }
         if (!found) return new Rect(0, 0, 0, 0);
-        boolean[][] affected = new boolean[16][16];
+        boolean[][] affected = new boolean[allHeight][allWidth];
 
-        for (int i = 0; i < 16; i++) {
-            for (int j = 0; j < 16; j++) {
-                if (isChip[i][j]) {
+        int targetId = 0;
+        for (int i = 0; i < chip.length; i++) {
+            boolean valid = true;
+            for (int y = 0; y < allHeight && valid; y++) {
+                for (int x = 0; x < allWidth && valid; x++) {
+                    if (!isChip[y][x]) continue;
+                    boolean anyMatch = false;
+                    for (int[] d : DIRECTIONS) {
+                        if (x + d[0] >= 0 && x + d[0] < allWidth && y + d[1] >= 0 && y + d[1] < allHeight) {
+                            if (marked[y + d[1]][x + d[0]] == i) {
+                                anyMatch = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (!anyMatch) {
+                        valid = false;
+                        break;
+                    }
+                }
+            }
+            if (valid) {
+                targetId = i;
+            }
+        }
+        for (int i = 0; i < allWidth; i++) {
+            for (int j = 0; j < allHeight; j++) {
+                if (isChip[j][i]) {
                     for (int[] direction : DIRECTIONS) {
                         int x = i + direction[0];
                         int y = j + direction[1];
-                        int xx = x + direction[0];
-                        int yy = y + direction[1];
-                        if (xx >= 0 && xx < 16 && yy >= 0 && yy < 16 && hasItem[xx][yy] && !hasItem[x][y]) {
-                            affected[x][y] = true;
+                        if (x >= 0 && x < allWidth && y >= 0 && y < allHeight && targetId == marked[y][x]) {
+                            affected[y][x] = true;
                         }
                     }
                 }
             }
         }
-        for (int i = 0; i < 16; i++) {
-            for (int j = 0; j < 16; j++) {
-                if (!hasItem[i][j])
-                    continue;
-                if (!isChip[i][j]) {
+        for (int i = 0; i < allHeight; i++) {
+            for (int j = 0; j < allWidth; j++) {
+                if (!hasItem[i][j]) {
+                    //当前格子没有物品，处于通道，附近有芯片，则是
                     boolean anyAffected = false;
+                    if (marked[i][j] == targetId) {
+                        for (int[] direction : DIRECTIONS) {
+                            int x = j + direction[0];
+                            int y = i + direction[1];
+                            if (x >= 0 && x < allWidth && y >= 0 && y < allHeight && isChip[y][x]) {
+                                anyAffected = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (!anyAffected) {
+                        continue;
+                    }
+                } else if (!isChip[i][j]) {
+                    //有物品，不是芯片（是隔板）
+                    boolean anyAffected = false;
+
+                    // 附近有被影响的
                     for (int[] direction : DIRECTIONS) {
-                        int x = i + direction[0];
-                        int y = j + direction[1];
-                        if (x >= 0 && x < 16 && y >= 0 && y < 16 && affected[x][y]) {
+                        int x = j + direction[0];
+                        int y = i + direction[1];
+                        if (x >= 0 && x < allWidth && y >= 0 && y < allHeight && affected[y][x]) {
                             anyAffected = true;
                             break;
                         }
                     }
+
                     if (!anyAffected)
                         continue;
                 }
