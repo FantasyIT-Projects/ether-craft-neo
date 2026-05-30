@@ -448,8 +448,12 @@
       "count": 1
     },
     {
-      "ingredient": "{         \"neoforge:ingredient_type\": \"neoforge:components\",         \"items\": \"ether_craft:process_chip\",         \"components\": {           \"minecraft:item_model\": \"ether_craft:heating_chip\",           \"ether_craft:ether_process_chip_id\": \"ether_craft:heating_chip\"         }",
-      "count": 1
+      "neoforge:ingredient_type": "neoforge:components",
+      "items": "ether_craft:process_chip",
+      "components": {
+        "minecraft:item_model": "ether_craft:heating_chip",
+        "ether_craft:ether_process_chip_id": "ether_craft:heating_chip"
+      }
     },
     {
       "ingredient": "ether_craft:ether_ingot",

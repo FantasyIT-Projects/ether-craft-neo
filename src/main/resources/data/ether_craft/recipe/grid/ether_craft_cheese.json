@@ -1,7 +1,8 @@
 {
   "type": "ether_craft:ether_process_factory_grid",
   "target": {
-    "id": "ether_craft:cheese::3"
+    "id": "ether_craft:cheese",
+    "count": 4
   },
   "entries": [
     {

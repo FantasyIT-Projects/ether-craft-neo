@@ -33,15 +33,21 @@ const Recipe = {
             (trimmed.endsWith('}') || trimmed.endsWith(']'))) {
             try {
                 const p = JSON.parse(trimmed);
-                if (Array.isArray(p)) return p.map(o => typeof o === 'string' ? { id: o } : o);
+                if (Array.isArray(p)) return p.map(o => typeof o === 'string' ? this._parseSingleOutput(o) : o);
                 if (typeof p === 'object') return [p];
             } catch (_) { }
         }
         if (trimmed.includes('\n')) {
             return trimmed.split('\n').map(s => s.trim()).filter(s => s)
-                .map(s => { const p = this.tryParseJson(s); return (p && typeof p === 'object' && !Array.isArray(p)) ? p : { id: s }; });
+                .map(s => { const p = this.tryParseJson(s); return (p && typeof p === 'object' && !Array.isArray(p)) ? p : this._parseSingleOutput(s); });
         }
-        return [{ id: trimmed }];
+        return [this._parseSingleOutput(trimmed)];
+    },
+
+    _parseSingleOutput(raw) {
+        const dm = raw.match(/^(.+?)::(\d+)$/);
+        if (dm) return { id: dm[1], count: parseInt(dm[2], 10) };
+        return { id: raw };
     },
 
     formatChips(chips) {

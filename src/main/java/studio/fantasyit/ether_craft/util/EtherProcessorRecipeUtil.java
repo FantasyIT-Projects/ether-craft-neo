@@ -66,7 +66,7 @@ public class EtherProcessorRecipeUtil {
         }
 
         //A.标记所有无环且不经过最后一列的树
-        for (int i = 0; i < rows; i++) {
+        for (int i = 1; i < rows - 1; i++) {
 
             //从最后一行（即输出位置）的每一个输出格开始寻找可能的树结构
             boolean illegal = false;

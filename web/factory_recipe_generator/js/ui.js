@@ -220,7 +220,7 @@ const UI = {
             children.get(p.next).push({ node: p.id, isProcess: true });
         }
         for (const inp of r.input) {
-            allNodes.set(inp.id, { id: inp.id, label: typeof inp.item === 'string' ? inp.item : (inp.item.item || inp.item.tag || '?'), type: 'input' });
+            allNodes.set(inp.id, { id: inp.id, label: typeof inp.item === 'string' ? inp.item : (inp.item.item || inp.item.ingredient || inp.item.tag || '?'), type: 'input' });
             if (!children.has(inp.next)) children.set(inp.next, []);
             children.get(inp.next).push({ node: inp.id, isProcess: false });
         }

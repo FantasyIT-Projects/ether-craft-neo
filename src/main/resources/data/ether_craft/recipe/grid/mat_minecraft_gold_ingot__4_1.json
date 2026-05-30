@@ -500,15 +500,15 @@
   ],
   "inputs": [
     {
-      "ingredient": "c:raw_materials/gold",
+      "ingredient": "#c:raw_materials/gold",
       "count": 2
     },
     {
-      "ingredient": "c:coal",
+      "ingredient": "#minecraft:coals",
       "count": 1
     },
     {
-      "ingredient": "c:coal",
+      "ingredient": "#minecraft:coals",
       "count": 1
     }
   ]
