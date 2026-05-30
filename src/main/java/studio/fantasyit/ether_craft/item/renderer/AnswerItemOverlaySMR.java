@@ -28,7 +28,6 @@ import studio.fantasyit.ether_craft.register.DataComponentRegistry;
 import java.util.List;
 import java.util.function.Consumer;
 
-@OnlyIn(Dist.CLIENT)
 public record AnswerItemOverlaySMR(List<BakedQuad> baseQuads) implements SpecialModelRenderer<ItemStackTemplate> {
 
     @Override
@@ -64,8 +63,7 @@ public record AnswerItemOverlaySMR(List<BakedQuad> baseQuads) implements Special
         return itemStack.get(DataComponentRegistry.TARGET);
     }
 
-    @OnlyIn(Dist.CLIENT)
-    public static record Unbaked(Identifier modelId) implements SpecialModelRenderer.Unbaked<ItemStackTemplate> {
+    public record Unbaked(Identifier modelId) implements SpecialModelRenderer.Unbaked<ItemStackTemplate> {
         public static final MapCodec<Unbaked> MAP_CODEC = Identifier.CODEC
                 .fieldOf("model")
                 .xmap(Unbaked::new, Unbaked::modelId);
