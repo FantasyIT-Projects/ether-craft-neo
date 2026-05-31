@@ -112,6 +112,15 @@ public class ItemFilter implements Container, ValueIOSerializable {
             return !ItemStack.isSameItemSameComponents(stack.toStack(), items[index]);
     }
 
+    public boolean acceptsAtAllowEmpty(ItemResource stack, int index) {
+        if (items[index].isEmpty())
+            return true;
+        if (whitelist)
+            return ItemStack.isSameItemSameComponents(stack.toStack(), items[index]);
+        else
+            return !ItemStack.isSameItemSameComponents(stack.toStack(), items[index]);
+    }
+
     @Override
     public void serialize(ValueOutput output) {
         output.putBoolean("whitelist", whitelist);

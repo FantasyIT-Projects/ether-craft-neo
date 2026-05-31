@@ -9,6 +9,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.EnchantmentTags;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.Containers;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
@@ -31,6 +32,7 @@ import studio.fantasyit.ether_craft.node.NodeProperty;
 import studio.fantasyit.ether_craft.node.filter.FilterGuiRegCommon;
 import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
 import studio.fantasyit.ether_craft.node.plugins.base.AbstractNodePlugin;
+import studio.fantasyit.ether_craft.util.ContainerOps;
 
 import java.util.List;
 import java.util.Optional;
@@ -216,5 +218,15 @@ public class FunctionEnchanter extends AbstractNodePlugin {
         progress = input.read("progress", Codec.INT).orElse(0);
         processSlot.setItem(0, input.read("processSlot", ItemStack.OPTIONAL_CODEC).orElse(ItemStack.EMPTY));
         filter.deserialize(input);
+    }
+
+    @Override
+    public void onDestroy() {
+        if (!processSlot.isEmpty()) {
+            ContainerOps.tryPlaceToItemHandler(processSlot, nodeEntity);
+            if (nodeEntity.getLevel() != null) {
+                Containers.dropContents(nodeEntity.getLevel(), nodeEntity.getBlockPos(), processSlot);
+            }
+        }
     }
 }

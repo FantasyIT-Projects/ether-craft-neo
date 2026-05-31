@@ -3,6 +3,7 @@ package studio.fantasyit.ether_craft.node.plugins.function;
 import com.mojang.serialization.Codec;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.Containers;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
@@ -29,6 +30,7 @@ import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
 import studio.fantasyit.ether_craft.node.plugins.base.AbstractNodePlugin;
 import studio.fantasyit.ether_craft.node.plugins.base.PluginMenuContext;
 import studio.fantasyit.ether_craft.recipe.node.NodeProcessRecipe;
+import studio.fantasyit.ether_craft.util.ContainerOps;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -151,11 +153,13 @@ public class FunctionNodeProcess extends AbstractNodePlugin {
             for (int i = 0; i < inputSlots.getContainerSize(); i++) {
                 try (Transaction tx = Transaction.openRoot()) {
                     int finalI = i;
+                    ItemStack oItem = inputSlots.getItem(i);
+                    int maxAccept = oItem.isEmpty() ? 64 : (inputSlots.getMaxStackSize(oItem) - oItem.getCount());
                     ItemStack pulled = nodeEntity.extractWithPredicate(
-                            res -> inputItemFilter.acceptsAt(res, finalI), tx, 64
+                            res -> inputSlots.canPlaceItem(finalI, res.toStack()) && inputItemFilter.acceptsAtAllowEmpty(res, finalI), tx, maxAccept
                     );
                     if (!pulled.isEmpty()) {
-                        inputSlots.setItem(i, pulled);
+                        inputSlots.setItem(i, pulled.copyWithCount(pulled.getCount() + oItem.getCount()));
                         tx.commit();
                     }
                 }
@@ -182,24 +186,26 @@ public class FunctionNodeProcess extends AbstractNodePlugin {
             }
             if (targetRecipe.matchesSubset(inputList) && nodeEntity.getEther() >= (long) targetRecipe.etherCost * extraCost) {
                 progressing++;
+                //加工成功
                 if (progressing >= Config.nodeProcessMaxProgress) {
-                    nodeEntity.extractEther(targetRecipe.etherCost);
-                    for (SizedIngredient ingredient : targetRecipe.ingredients) {
-                        int needed = ingredient.count();
-                        for (int i = 0; i < inputSlots.getContainerSize() && needed > 0; i++) {
-                            ItemStack slot = inputSlots.getItem(i);
-                            if (!slot.isEmpty() && ingredient.ingredient().test(slot)) {
-                                int take = Math.min(needed, slot.getCount());
-                                slot.shrink(take);
-                                needed -= take;
-                            }
-                        }
-                    }
                     try (Transaction tx = Transaction.openRoot()) {
                         ItemStack result = targetRecipe.result.create();
                         int inserted = nodeEntity.insert(ItemResource.of(result), result.getCount(), tx);
-                        if (inserted > 0)
+                        if (inserted > 0) {
+                            nodeEntity.extractEther(targetRecipe.etherCost);
+                            for (SizedIngredient ingredient : targetRecipe.ingredients) {
+                                int needed = ingredient.count();
+                                for (int i = 0; i < inputSlots.getContainerSize() && needed > 0; i++) {
+                                    ItemStack slot = inputSlots.getItem(i);
+                                    if (!slot.isEmpty() && ingredient.ingredient().test(slot)) {
+                                        int take = Math.min(needed, slot.getCount());
+                                        slot.shrink(take);
+                                        needed -= take;
+                                    }
+                                }
+                            }
                             tx.commit();
+                        }
                     }
                     progressing = 0;
                 }
@@ -269,6 +275,17 @@ public class FunctionNodeProcess extends AbstractNodePlugin {
     public PluginMenuContext<?> makeContext(EtherAdaptNodeContainerMenu etherAdaptNodeContainerMenu) {
         return new ProgressMenuContext(etherAdaptNodeContainerMenu, this);
     }
+
+    @Override
+    public void onDestroy() {
+        if (!inputSlots.isEmpty()) {
+            ContainerOps.tryPlaceToItemHandler(inputSlots, nodeEntity);
+            if (nodeEntity.getLevel() != null) {
+                Containers.dropContents(nodeEntity.getLevel(), nodeEntity.getBlockPos(), inputSlots);
+            }
+        }
+    }
+
 
     public static class ProgressMenuContext extends PluginMenuContext<FunctionNodeProcess> implements IFilterSwitchable {
 

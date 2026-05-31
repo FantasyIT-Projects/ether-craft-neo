@@ -2,6 +2,7 @@ package studio.fantasyit.ether_craft.node.plugins.function;
 
 import com.mojang.serialization.Codec;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.Containers;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
@@ -12,9 +13,9 @@ import net.neoforged.neoforge.transfer.transaction.Transaction;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.block.base.ItemFilter;
 import studio.fantasyit.ether_craft.block.node.EtherAdaptNodeEntity;
-import studio.fantasyit.ether_craft.menu.node.slot.OversizedEtherSlot;
 import studio.fantasyit.ether_craft.menu.base.slot.BaseDataSlot;
 import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeContainerMenu;
+import studio.fantasyit.ether_craft.menu.node.slot.OversizedEtherSlot;
 import studio.fantasyit.ether_craft.network.c2s.SyncScreenDataC2S;
 import studio.fantasyit.ether_craft.node.NodeProperty;
 import studio.fantasyit.ether_craft.node.filter.FilterGuiRegCommon;
@@ -73,9 +74,11 @@ public abstract class AbstractItemConsumeFunction extends AbstractNodePlugin {
 
         if (remainBurnTicks == 0 && !container.getItem(0).isEmpty()) {
             ItemStack toConsumeItemStack = container.getItem(0);
-            ItemStack newStack = onConsumeItem(toConsumeItemStack);
-            container.setItem(0, newStack);
-            onBurnTick();
+            if (accepts(ItemResource.of(toConsumeItemStack))) {
+                ItemStack newStack = onConsumeItem(toConsumeItemStack);
+                container.setItem(0, newStack);
+                onBurnTick();
+            }
         } else if (remainBurnTicks > 0) {
             onBurnTick();
             remainBurnTicks--;
@@ -112,4 +115,14 @@ public abstract class AbstractItemConsumeFunction extends AbstractNodePlugin {
         FilterGuiRegCommon.slots(menu, filter);
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (!container.isEmpty()) {
+            ContainerOps.tryPlaceToItemHandler(container, nodeEntity);
+            if (nodeEntity.getLevel() != null) {
+                Containers.dropContents(nodeEntity.getLevel(), nodeEntity.getBlockPos(), container);
+            }
+        }
+    }
 }

@@ -66,7 +66,6 @@ public class FunctionNodeProcessScreen extends BaseEtherNodeTabWidgetProvider<Fu
 
     @Override
     public void createWidget() {
-        FilterGuiRegClient.widget(screen,()-> plugin.inputItemFilter.whitelist, plugin.installedId);
         IASwitchButton filterBtn = new IASwitchButton(
                 lx(15), ly(96),
                 EtherAdaptNodeAsset.BTN_BLANK_DOWN,
