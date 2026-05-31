@@ -60,6 +60,11 @@ public class Network {
                 EtherStreamUpdateS2C.CODEC,
                 EtherStreamUpdateS2C::handle
         );
+        event.playToClient(
+                SyncPluginTipsS2C.TYPE,
+                SyncPluginTipsS2C.CODEC,
+                SyncPluginTipsS2C::handle
+        );
 
 
         event.playToServer(

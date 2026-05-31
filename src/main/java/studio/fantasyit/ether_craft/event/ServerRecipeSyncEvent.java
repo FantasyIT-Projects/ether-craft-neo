@@ -9,6 +9,8 @@ import studio.fantasyit.ether_craft.factory.EtherProcessChipManager;
 import studio.fantasyit.ether_craft.factory.EtherProcessRecipeManager;
 import studio.fantasyit.ether_craft.network.s2c.SyncChipInfoS2C;
 import studio.fantasyit.ether_craft.network.s2c.SyncExtraRecipesS2C;
+import studio.fantasyit.ether_craft.network.s2c.SyncPluginTipsS2C;
+import studio.fantasyit.ether_craft.node.tip.NodePluginTipManager;
 import studio.fantasyit.ether_craft.register.RecipeTypeRegistry;
 
 @EventBusSubscriber
@@ -25,6 +27,13 @@ public class ServerRecipeSyncEvent {
             );
             PacketDistributor.sendToPlayer(player,
                     new SyncChipInfoS2C(EtherProcessChipManager.chipInfo)
+            );
+            PacketDistributor.sendToPlayer(player,
+                    new SyncPluginTipsS2C(
+                            NodePluginTipManager.INSTANCE.getAllTips().entrySet().stream()
+                                    .map(e -> new SyncPluginTipsS2C.Entry(e.getKey(), e.getValue()))
+                                    .toList()
+                    )
             );
         });
     }

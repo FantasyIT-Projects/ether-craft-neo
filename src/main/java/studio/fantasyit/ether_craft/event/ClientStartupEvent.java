@@ -6,6 +6,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import studio.fantasyit.ether_craft.node.EtherAdaptNodeUpgradeTabManager;
 import studio.fantasyit.ether_craft.node.PluginRenderManager;
+import studio.fantasyit.ether_craft.node.tip.NodePluginTipManager;
 
 @EventBusSubscriber(value = Dist.CLIENT)
 public class ClientStartupEvent {
@@ -13,5 +14,6 @@ public class ClientStartupEvent {
     public static void init(FMLClientSetupEvent event) {
         EtherAdaptNodeUpgradeTabManager.instance.collect();
         PluginRenderManager.Instance.collect();
+        NodePluginTipManager.INSTANCE.collect();
     }
 }
