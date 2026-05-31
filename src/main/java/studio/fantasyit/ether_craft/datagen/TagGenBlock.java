@@ -68,7 +68,6 @@ public class TagGenBlock extends TagsProvider<Block> {
         cropBuilder.addElement(BuiltInRegistries.BLOCK.getKey(Blocks.KELP));
         cropBuilder.addElement(BuiltInRegistries.BLOCK.getKey(Blocks.KELP_PLANT));
         cropBuilder.addElement(BuiltInRegistries.BLOCK.getKey(Blocks.CHORUS_FLOWER));
-        cropBuilder.addElement(BuiltInRegistries.BLOCK.getKey(Blocks.BUDDING_AMETHYST));
 
         getOrCreateRawBuilder(BlockTags.NEEDS_IRON_TOOL)
                 .addElement(BlockRegistry.ETHER_BLOCK.getKey().identifier())

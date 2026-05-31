@@ -126,7 +126,7 @@ public class ModelDataGen extends ModelProvider {
             String suffix = "_lv_" + level;
             TextureMapping texMapping = new TextureMapping()
                     .put(texSlot, TextureMapping.getBlockTexture(processFactory))
-                    .put(TextureSlot.PARTICLE, TextureMapping.getBlockTexture(processFactory));
+                    .put(TextureSlot.PARTICLE, new Material(EtherCraft.id("block/ether_process_factory_breaking")));
             levelModelIds[level] = builder.build().createWithSuffix(
                     processFactory, suffix, texMapping, blockModels.modelOutput);
         }
