@@ -96,7 +96,7 @@ public class RedstoneSignalTab extends BaseEtherNodeTabWidgetProvider<FeatureRed
                     ClientPacketDistributor.sendToServer(new SyncScreenDataC2S(
                             plugin.installedId,
                             FeatureRedstoneSignal.SYNC_MODE,
-                            0, t ? 1 : 0));
+                            0, (!t) ? 1 : 0));
                     return true;
                 }
         );

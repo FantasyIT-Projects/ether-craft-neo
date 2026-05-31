@@ -9,7 +9,7 @@ import studio.fantasyit.ether_craft.menu.node.ScreenMenuSyncer;
 import studio.fantasyit.ether_craft.network.c2s.SyncScreenDataC2S;
 import studio.fantasyit.ether_craft.node.filter.FilterGuiRegClient;
 import studio.fantasyit.ether_craft.node.plugins.base.PluginMenuContext;
-import studio.fantasyit.ether_craft.node.plugins.upgrade.DestructionUpgrade;
+import studio.fantasyit.ether_craft.node.plugins.feature.DestructionUpgrade;
 import studio.fantasyit.ether_craft.node.tabs.BaseEtherNodeTabWidgetProvider;
 
 public class DestructionTab extends BaseEtherNodeTabWidgetProvider<DestructionUpgrade> {
@@ -23,10 +23,10 @@ public class DestructionTab extends BaseEtherNodeTabWidgetProvider<DestructionUp
 
         IASwitchButton modeButton = new IASwitchButton(
                 lx(90), ly(12),
-                EtherAdaptNodeAsset.BTN_BLACK,
-                EtherAdaptNodeAsset.BTN_BLACK_HOVER,
-                EtherAdaptNodeAsset.BTN_WHITE,
-                EtherAdaptNodeAsset.BTN_WHITE_HOVER,
+                EtherAdaptNodeAsset.BTN_BLANK,
+                EtherAdaptNodeAsset.BTN_BLANK_HOVER,
+                EtherAdaptNodeAsset.BTN_BLANK_DOWN,
+                EtherAdaptNodeAsset.BTN_BLANK_DOWN_HOVER,
                 null,
                 Component.translatable("ether_craft.gui.node.destruction.mode_overflow"),
                 Component.translatable("ether_craft.gui.node.destruction.mode_all"),
@@ -34,7 +34,7 @@ public class DestructionTab extends BaseEtherNodeTabWidgetProvider<DestructionUp
                     ClientPacketDistributor.sendToServer(new SyncScreenDataC2S(
                             plugin.installedId,
                             DestructionUpgrade.SYNC_MODE,
-                            0, t ? 1 : 0));
+                            0, (!t) ? 1 : 0));
                     return true;
                 }
         );

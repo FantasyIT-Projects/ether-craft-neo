@@ -8,23 +8,24 @@ import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeScreen;
 import studio.fantasyit.ether_craft.menu.node.ScreenMenuSyncer;
 import studio.fantasyit.ether_craft.network.c2s.SyncScreenDataC2S;
 import studio.fantasyit.ether_craft.node.plugins.base.PluginMenuContext;
-import studio.fantasyit.ether_craft.node.plugins.upgrade.RedstoneSwitchUpgrade;
+import studio.fantasyit.ether_craft.node.plugins.feature.RedstoneSwitchUpgrade;
 import studio.fantasyit.ether_craft.node.tabs.BaseEtherNodeTabWidgetProvider;
 
 public class RedstoneSwitchTab extends BaseEtherNodeTabWidgetProvider<RedstoneSwitchUpgrade> {
     public RedstoneSwitchTab(PluginMenuContext<RedstoneSwitchUpgrade> context, EtherAdaptNodeScreen screen) {
         super(context, screen);
-        screen.registerMenuSyncer(new ScreenMenuSyncer<>(() -> plugin.workWithSignal, v -> {}));
+        screen.registerMenuSyncer(new ScreenMenuSyncer<>(() -> plugin.workWithSignal, v -> {
+        }));
     }
 
     @Override
     public void createWidget() {
         IASwitchButton button = new IASwitchButton(
                 lx(15), ly(77),
-                EtherAdaptNodeAsset.BTN_BLACK,
-                EtherAdaptNodeAsset.BTN_BLACK_HOVER,
-                EtherAdaptNodeAsset.BTN_WHITE,
-                EtherAdaptNodeAsset.BTN_WHITE_HOVER,
+                EtherAdaptNodeAsset.BTN_BLANK,
+                EtherAdaptNodeAsset.BTN_BLANK_HOVER,
+                EtherAdaptNodeAsset.BTN_BLANK_DOWN,
+                EtherAdaptNodeAsset.BTN_BLANK_DOWN_HOVER,
                 null,
                 Component.translatable("ether_craft.gui.node.redstone_switch.work_with_signal"),
                 Component.translatable("ether_craft.gui.node.redstone_switch.work_without_signal"),
@@ -33,7 +34,7 @@ public class RedstoneSwitchTab extends BaseEtherNodeTabWidgetProvider<RedstoneSw
                             plugin.installedId,
                             RedstoneSwitchUpgrade.SYNC_MODE,
                             0,
-                            t ? 1 : 0
+                            (!t) ? 1 : 0
                     ));
                     return true;
                 }

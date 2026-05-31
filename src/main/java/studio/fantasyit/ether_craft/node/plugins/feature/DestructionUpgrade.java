@@ -1,4 +1,4 @@
-package studio.fantasyit.ether_craft.node.plugins.upgrade;
+package studio.fantasyit.ether_craft.node.plugins.feature;
 
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.storage.ValueInput;

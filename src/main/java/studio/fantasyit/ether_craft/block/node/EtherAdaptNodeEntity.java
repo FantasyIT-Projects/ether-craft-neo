@@ -266,11 +266,12 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
         int handlerInserted = normalHandler.insert(index - 1, resource, amount - earlyCosted, transaction);
         int overflow = amount - earlyCosted - handlerInserted;
         int overflowConsumed = 0;
-        for (AbstractNodePlugin plugin : getPlugins()) {
-            overflowConsumed += plugin.handleOverflow(resource, overflow - overflowConsumed, transaction);
-            if (overflowConsumed >= overflow)
-                break;
-        }
+        if (index == nodeProperty.slotUnlock)
+            for (AbstractNodePlugin plugin : getPlugins()) {
+                overflowConsumed += plugin.handleOverflow(resource, overflow - overflowConsumed, transaction);
+                if (overflowConsumed >= overflow)
+                    break;
+            }
         return handlerInserted + earlyCosted + overflowConsumed;
     }
 
