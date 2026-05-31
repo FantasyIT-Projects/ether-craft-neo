@@ -28,11 +28,12 @@ public class EtherStreamRenderPipeline {
             .withShaderDefine("EMISSIVE")
             .withShaderDefine("NO_OVERLAY")
             .withShaderDefine("NO_CARDINAL_LIGHTING")
+            .withShaderDefine("ALPHA_CUTOUT", 0.1F)
             .withSampler("Sampler0")
             .withColorTargetState(new ColorTargetState(BlendFunction.ADDITIVE))
             .withCull(false)
             .withVertexFormat(DefaultVertexFormat.ENTITY, VertexFormat.Mode.QUADS)
-            .withDepthStencilState(new DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, false))
+            .withDepthStencilState(new DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, true))
             .build();
 
 }

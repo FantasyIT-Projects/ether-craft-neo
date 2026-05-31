@@ -1,0 +1,13 @@
+{
+  "replace": true,
+  "values": {
+    "minecraft:basalt": {
+      "burnTicks": 100,
+      "etherPerTick": 50
+    },
+    "minecraft:cobblestone": {
+      "burnTicks": 100,
+      "etherPerTick": 25
+    }
+  }
+}

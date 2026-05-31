@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/paper",
+  "textures": {
+    "layer0": "ether_craft:item/antimatter_producing_chip"
+  }
+}

@@ -1,0 +1,83 @@
+{
+  "parent": "minecraft:block/cube",
+  "elements": [
+    {
+      "faces": {
+        "down": {
+          "cullface": "down",
+          "texture": "#tex",
+          "uv": [
+            8.0,
+            12.0,
+            12.0,
+            16.0
+          ]
+        },
+        "east": {
+          "cullface": "east",
+          "texture": "#tex",
+          "uv": [
+            4.0,
+            12.0,
+            8.0,
+            16.0
+          ]
+        },
+        "north": {
+          "cullface": "north",
+          "texture": "#tex",
+          "uv": [
+            4.0,
+            12.0,
+            8.0,
+            16.0
+          ]
+        },
+        "south": {
+          "cullface": "south",
+          "texture": "#tex",
+          "uv": [
+            4.0,
+            12.0,
+            8.0,
+            16.0
+          ]
+        },
+        "up": {
+          "cullface": "up",
+          "texture": "#tex",
+          "uv": [
+            0.0,
+            12.0,
+            4.0,
+            16.0
+          ]
+        },
+        "west": {
+          "cullface": "west",
+          "texture": "#tex",
+          "uv": [
+            4.0,
+            12.0,
+            8.0,
+            16.0
+          ]
+        }
+      },
+      "from": [
+        0,
+        0,
+        0
+      ],
+      "to": [
+        16,
+        16,
+        16
+      ]
+    }
+  ],
+  "textures": {
+    "particle": "ether_craft:block/ether_process_factory_breaking",
+    "tex": "ether_craft:block/ether_process_factory"
+  }
+}

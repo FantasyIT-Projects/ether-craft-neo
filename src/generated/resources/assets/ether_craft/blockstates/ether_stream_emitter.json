@@ -1,0 +1,27 @@
+{
+  "variants": {
+    "facing=down": {
+      "model": "ether_craft:block/ether_stream_emitter",
+      "x": 90
+    },
+    "facing=east": {
+      "model": "ether_craft:block/ether_stream_emitter",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "ether_craft:block/ether_stream_emitter"
+    },
+    "facing=south": {
+      "model": "ether_craft:block/ether_stream_emitter",
+      "y": 180
+    },
+    "facing=up": {
+      "model": "ether_craft:block/ether_stream_emitter",
+      "x": 270
+    },
+    "facing=west": {
+      "model": "ether_craft:block/ether_stream_emitter",
+      "y": 270
+    }
+  }
+}

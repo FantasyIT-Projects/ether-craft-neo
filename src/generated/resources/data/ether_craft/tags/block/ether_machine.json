@@ -1,0 +1,7 @@
+{
+  "values": [
+    "ether_craft:ether_process_factory",
+    "ether_craft:ether_stream_emitter",
+    "ether_craft:ether_adapt_node"
+  ]
+}

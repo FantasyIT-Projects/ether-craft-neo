@@ -1,0 +1,12 @@
+{
+  "hand_animation_on_swap": false,
+  "model": {
+    "type": "minecraft:special",
+    "base": "ether_craft:item/ether_process_recipe_answer_5x5",
+    "model": {
+      "type": "ether_craft:answer_item_overlay",
+      "model": "ether_craft:item/ether_process_recipe_answer_5x5"
+    }
+  },
+  "oversized_in_gui": true
+}

@@ -24,7 +24,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.display.SlotDisplayContext;
 import org.jetbrains.annotations.Nullable;
 import studio.fantasyit.ether_craft.recipe.factory.EtherProcessFactoryRecipe;
-import studio.fantasyit.ether_craft.register.ItemRegistry;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,9 +34,9 @@ public class EtherProcessCategory implements IRecipeCategory<EtherProcessFactory
     private final Component title;
 
     public EtherProcessCategory(IGuiHelper guiHelper,
-                                 IRecipeType<EtherProcessFactoryRecipe> recipeType,
-                                 Component title,
-                                 ItemStack iconStack) {
+                                IRecipeType<EtherProcessFactoryRecipe> recipeType,
+                                Component title,
+                                ItemStack iconStack) {
         this.recipeType = recipeType;
         this.title = title;
         this.icon = guiHelper.createDrawableIngredient(
@@ -126,8 +125,8 @@ public class EtherProcessCategory implements IRecipeCategory<EtherProcessFactory
         }
         int outCount = recipe.json.output().item().size();
         for (int j = 0; j < outCount; j++) {
-            worldXs.add(layout.outputX + j * (TreeLayout.SLOT_SIZE + 2));
-            worldYs.add(layout.outputY);
+            worldXs.add(layout.outputX);
+            worldYs.add(layout.outputY + j * (TreeLayout.SLOT_SIZE_OUTPUT + 2));
         }
 
         ViewportTransform vt = new ViewportTransform(

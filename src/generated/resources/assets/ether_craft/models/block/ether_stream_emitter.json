@@ -1,0 +1,7 @@
+{
+  "parent": "ether_craft:_block_faces_base",
+  "textures": {
+    "0": "ether_craft:block/ether_stream_emitter",
+    "particle": "ether_craft:block/ether_stream_emitter"
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/paper",
+  "textures": {
+    "layer0": "ether_craft:item/ether_process_recipe_answer_9x9"
+  }
+}

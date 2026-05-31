@@ -13,14 +13,9 @@ import studio.fantasyit.ether_craft.block.node.EtherAdaptNodeEntity;
 import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
 import studio.fantasyit.ether_craft.node.plugins.MainPageDummyPlugin;
 import studio.fantasyit.ether_craft.node.plugins.base.AbstractNodePlugin;
-import studio.fantasyit.ether_craft.node.plugins.feature.FeatureContainerInteract;
-import studio.fantasyit.ether_craft.node.plugins.feature.FeatureDropperThrower;
-import studio.fantasyit.ether_craft.node.plugins.feature.FeatureEtherStreamEmitter;
+import studio.fantasyit.ether_craft.node.plugins.feature.*;
 import studio.fantasyit.ether_craft.node.plugins.function.*;
 import studio.fantasyit.ether_craft.node.plugins.upgrade.*;
-import studio.fantasyit.ether_craft.node.plugins.feature.FeatureRedstoneSignal;
-import studio.fantasyit.ether_craft.node.plugins.feature.RedstoneSwitchUpgrade;
-import studio.fantasyit.ether_craft.node.plugins.feature.DestructionUpgrade;
 import studio.fantasyit.ether_craft.register.ItemRegistry;
 
 import java.util.ArrayList;
@@ -54,7 +49,7 @@ public class NodePluginManager {
     public final static Predicate<PluginType> FEATURE_UPGRADE_TYPE = t -> t == PluginType.FEATURE || t == PluginType.UPGRADE;
 
     public final static InstalledPlugin MAIN_PAGE = new InstalledPlugin(PluginType.DUMMY, 0, MainPageDummyPlugin.ID);
-    public final static PluginInfo MAIN_PAGE_INFO = new PluginInfo(PluginType.UPGRADE, MainPageDummyPlugin.ID, MainPageDummyPlugin::new, _ -> false, Items.BARRIER);
+    public final static PluginInfo MAIN_PAGE_INFO;
 
     public record PluginInfo(PluginType type, Identifier id,
                              BiFunction<EtherAdaptNodeEntity, InstalledPlugin, AbstractNodePlugin> constructor,
@@ -69,6 +64,7 @@ public class NodePluginManager {
     public static final List<PluginInfo> ALL_PLUGINS = new ArrayList<>();
 
     static {
+        MAIN_PAGE_INFO = new PluginInfo(PluginType.UPGRADE, MainPageDummyPlugin.ID, MainPageDummyPlugin::new, _ -> false, ItemRegistry.ETHER_ADAPT_NODE_ITEM_LV_1.get());
         ALL_PLUGINS.add(MAIN_PAGE_INFO);
         ALL_PLUGINS.add(new PluginInfo(PluginType.FUNCTION, FunctionFurnaceGenerator.ID, FunctionFurnaceGenerator::new, t -> t.is(Items.FURNACE), Items.FURNACE));
         ALL_PLUGINS.add(new PluginInfo(PluginType.FUNCTION, FunctionFurnaceGenerator.ID_BLAST, FunctionFurnaceGenerator::new, t -> t.is(Items.BLAST_FURNACE), Items.BLAST_FURNACE));

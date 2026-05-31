@@ -10,6 +10,7 @@ import java.util.*;
 
 public class TreeLayout {
     static final int SLOT_SIZE = 18;
+    static final int SLOT_SIZE_OUTPUT = 22;
     static final int CHIP_GAP = 1;
     static final int NODE_GAP = 6;
     static final int PADDING = 4;
@@ -55,7 +56,7 @@ public class TreeLayout {
             nodeH.put(in.id(), SLOT_SIZE);
         for (var proc : json.process()) {
             int cnt = proc.item().size();
-            nodeH.put(proc.id(), cnt * SLOT_SIZE + (cnt - 1) * CHIP_GAP);
+            nodeH.put(proc.id(), cnt * SLOT_SIZE + (cnt - 1) * CHIP_GAP - (cnt - 1) * 9);
         }
 
         Map<String, String> nextMap = new HashMap<>();
@@ -64,8 +65,10 @@ public class TreeLayout {
         for (var proc : json.process())
             nextMap.put(proc.id(), proc.next());
 
+
         int outCount = json.output().item().size();
-        int outWidth = outCount * SLOT_SIZE + Math.max(0, outCount - 1) * 2;
+        int outHeight = outCount * SLOT_SIZE + Math.max(0, outCount - 1) * CHIP_GAP;  // 纵向总高度
+        int outWidth = SLOT_SIZE;  // 固定宽度（一个槽位宽度）
         int usable = WIDTH - 2 * PADDING - outWidth;
         int spacing = maxLevel > 0 ? Math.max(MIN_SPACING, usable / maxLevel) : 0;
         layout.canvasWidth = PADDING + maxLevel * spacing + outWidth + PADDING;
@@ -111,7 +114,7 @@ public class TreeLayout {
         }
 
         layout.outputX = layout.canvasWidth - PADDING - outWidth;
-        layout.outputY = (HEIGHT - SLOT_SIZE) / 2;
+        layout.outputY = PADDING + (HEIGHT - 2 * PADDING - outHeight) / 2;
 
         layout.canvasHeight = HEIGHT;
 
@@ -137,7 +140,7 @@ public class TreeLayout {
                 ty = nodeY.get(next) + nodeMidY(isInput.get(next), nodeH.get(next));
             } else {
                 tx = layout.outputX;
-                ty = layout.outputY + SLOT_SIZE / 2;
+                ty = layout.outputY + outHeight / 2;
             }
             layout.edges.add(new Edge(fx, fy, tx, ty));
         }
@@ -151,7 +154,7 @@ public class TreeLayout {
                 ty = nodeY.get(next) + nodeMidY(isInput.get(next), nodeH.get(next));
             } else {
                 tx = layout.outputX;
-                ty = layout.outputY + SLOT_SIZE / 2;
+                ty = layout.outputY + outHeight / 2;
             }
             layout.edges.add(new Edge(fx, fy, tx, ty));
         }
