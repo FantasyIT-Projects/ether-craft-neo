@@ -28,6 +28,7 @@ public class DestructionUpgrade extends AbstractNodePlugin {
 
     public DestructionUpgrade(EtherAdaptNodeEntity nodeEntity, InstalledPlugin installedId) {
         super(nodeEntity, installedId);
+        filter.whitelist = true;
     }
 
     @Override
