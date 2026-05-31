@@ -147,6 +147,10 @@ public class Config {
             .comment("Additional ether consumption factor added per tick of the stream's lifetime (accumulates over time)")
             .defineInRange("ether_stream.consumption_factor_by_time", 0.0001, 0, 10);
 
+    private static final ModConfigSpec.IntValue ETHER_GLASS_PREVENT_CONSUME = BUILDER
+            .comment("...")
+            .defineInRange("ether_stream.ether_glass_prevent_consume", 20, 0, Integer.MAX_VALUE);
+
     // -- ether_stream.break_block --
 
     private static final ModConfigSpec.IntValue ETHER_STREAM_BREAK_BLOCK_HARDNESS_MULTIPLIER = BUILDER
@@ -216,6 +220,7 @@ public class Config {
     public static List<Integer> nodeEnchanterEtherCosts;
     public static int nodeEnchanterMaxProgress;
     public static double etherStorageMultiplier;
+    public static int etherGlassPreventConsume;
 
     @SubscribeEvent
     static void onLoad(final ModConfigEvent event) {
@@ -250,5 +255,6 @@ public class Config {
         nodeEnchanterEtherCosts = NODE_ENCHANTER_ETHER_COSTS.get().stream().map(t -> (Integer) t).toList();
         nodeEnchanterMaxProgress = NODE_ENCHANTER_MAX_PROGRESS.get();
         etherStorageMultiplier = ETHER_STORAGE_MULTIPLIER.get();
+        etherGlassPreventConsume = ETHER_GLASS_PREVENT_CONSUME.get();
     }
 }

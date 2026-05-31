@@ -23,20 +23,31 @@ import java.util.Optional;
 
 public class EtherStreamGrowthAcceleratorCapability implements IStreamCapability {
     public static final Identifier ID = EtherCraft.id("growth_accelerator_stream");
+    public static final Identifier ID_ALL = EtherCraft.id("growth_accelerator_stream_all");
+
+    public static final Codec<EtherStreamGrowthAcceleratorCapability> CODEC_ALLOW_ALL = RecordCodecBuilder.create(instance -> instance.group(
+            BlockPos.CODEC.optionalFieldOf("lastCatalyzedPos").forGetter(c -> Optional.ofNullable(c.lastCatalyzedPos))
+    ).apply(instance, t -> new EtherStreamGrowthAcceleratorCapability(true, t)));
 
     public static final Codec<EtherStreamGrowthAcceleratorCapability> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             BlockPos.CODEC.optionalFieldOf("lastCatalyzedPos").forGetter(c -> Optional.ofNullable(c.lastCatalyzedPos))
-    ).apply(instance, pos -> {
-        EtherStreamGrowthAcceleratorCapability cap = new EtherStreamGrowthAcceleratorCapability();
-        cap.lastCatalyzedPos = pos.orElse(null);
-        return cap;
-    }));
+    ).apply(instance, t -> new EtherStreamGrowthAcceleratorCapability(false, t)));
 
+    private final boolean allowAll;
     private BlockPos lastCatalyzedPos = null;
+
+    public EtherStreamGrowthAcceleratorCapability(boolean allowAll) {
+        this.allowAll = allowAll;
+    }
+
+    public EtherStreamGrowthAcceleratorCapability(boolean allowAll, Optional<BlockPos> lastCatalyzedPos) {
+        this.allowAll = allowAll;
+        this.lastCatalyzedPos = lastCatalyzedPos.orElse(null);
+    }
 
     @Override
     public Identifier getId() {
-        return ID;
+        return allowAll ? ID_ALL : ID;
     }
 
     @Override
@@ -49,8 +60,13 @@ public class EtherStreamGrowthAcceleratorCapability implements IStreamCapability
             return;
 
         BlockState state = level.getBlockState(pos);
-        if (!state.is(Tags.CROP_ACCELERATABLE))
-            return;
+        if (allowAll) {
+            if (state.isEmpty() || state.is(Tags.ETHER_STREAM_PASS_THROUGH))
+                return;
+        } else {
+            if (!state.is(Tags.CROP_ACCELERATABLE))
+                return;
+        }
 
         int cost = Config.etherStreamGrowthAcceleratorEtherCost;
         if (streamEntity.getEther() < cost)

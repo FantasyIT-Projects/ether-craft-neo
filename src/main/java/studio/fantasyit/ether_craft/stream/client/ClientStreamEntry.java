@@ -8,6 +8,7 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import studio.fantasyit.ether_craft.network.s2c.EtherStreamCreateS2C;
 import studio.fantasyit.ether_craft.stream.EtherConsumer;
+import studio.fantasyit.ether_craft.stream.EtherStreamConsumeModifier;
 
 public class ClientStreamEntry {
     public Vec3 startPos = Vec3.ZERO;
@@ -72,6 +73,8 @@ public class ClientStreamEntry {
 
         tickCount++;
         int consumption = consumer.getTotalConsumption(ether, tickCount);
+        Vec3 position = startPos.add(motion.scale(tickCount - startTickCount));
+        consumption = EtherStreamConsumeModifier.modify(consumption, ether, tickCount, Minecraft.getInstance().level, position);
         ether = Math.max(0, ether - consumption);
     }
 

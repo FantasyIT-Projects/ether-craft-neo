@@ -16,6 +16,7 @@ import studio.fantasyit.ether_craft.network.s2c.EtherStreamCreateS2C;
 import studio.fantasyit.ether_craft.network.s2c.EtherStreamSetDyingS2C;
 import studio.fantasyit.ether_craft.network.s2c.EtherStreamUpdateS2C;
 import studio.fantasyit.ether_craft.register.Tags;
+import studio.fantasyit.ether_craft.stream.EtherStreamConsumeModifier;
 import studio.fantasyit.ether_craft.stream.PosDir;
 import studio.fantasyit.ether_craft.stream.cap.IStreamCapability;
 
@@ -90,6 +91,7 @@ public class VirtualEtherStreamHolder {
             }
 
             int consumption = ves.getConsumption();
+            consumption = EtherStreamConsumeModifier.modify(consumption, ves.ether, ves.tickCount, level, ves.position());
             ves.consumeEtherInternal(consumption);
 
             if (ves.getEther() <= 0) {

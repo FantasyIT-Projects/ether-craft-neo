@@ -3,7 +3,7 @@ package studio.fantasyit.ether_craft.stream;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.resources.Identifier;
-import studio.fantasyit.ether_craft.stream.cap.IStreamCapability;
+import studio.fantasyit.ether_craft.stream.cap.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -11,6 +11,15 @@ import java.util.function.Supplier;
 
 public class CapabilityFactoryManager {
     private static final Map<Identifier, Entry<?>> ENTRIES = new HashMap<>();
+
+    public static void init() {
+        register(EtherStreamLabelCapability.ID, EtherStreamLabelCapability::new, EtherStreamLabelCapability.CODEC);
+        register(EtherStreamBreakBlockCapability.ID, EtherStreamBreakBlockCapability::new, EtherStreamBreakBlockCapability.CODEC);
+        register(EtherStreamGrowthAcceleratorCapability.ID, ()->new EtherStreamGrowthAcceleratorCapability(false), EtherStreamGrowthAcceleratorCapability.CODEC);
+        register(EtherStreamGrowthAcceleratorCapability.ID_ALL, () -> new EtherStreamGrowthAcceleratorCapability(true), EtherStreamGrowthAcceleratorCapability.CODEC_ALLOW_ALL);
+        register(EtherStreamStorageCapability.ID, () -> new EtherStreamStorageCapability(1), EtherStreamStorageCapability.CODEC);
+        register(EtherStreamDamageCapability.ID, EtherStreamDamageCapability::new, EtherStreamDamageCapability.CODEC);
+    }
 
     public static <T extends IStreamCapability> void register(Identifier id, Supplier<T> factory, Codec<T> codec) {
         ENTRIES.put(id, new Entry<>(factory, codec));
