@@ -69,4 +69,12 @@ public abstract class AbstractNodePlugin implements ISyncTargetMenu {
     public PluginMenuContext<?> makeContext(EtherAdaptNodeContainerMenu etherAdaptNodeContainerMenu) {
         return PluginMenuContext.of(etherAdaptNodeContainerMenu, this);
     }
+
+    public boolean preTick() {
+        return true;
+    }
+
+    public int handleOverflow(ItemResource resource, int amount, TransactionContext transaction) {
+        return 0;
+    }
 }
