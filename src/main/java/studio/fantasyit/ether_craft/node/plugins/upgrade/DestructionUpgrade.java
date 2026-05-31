@@ -55,6 +55,7 @@ public class DestructionUpgrade extends AbstractNodePlugin {
     public void loadAdditional(ValueInput input) {
         destroyMode = input.getBooleanOr("desMode", false) ? DestroyMode.ALL : DestroyMode.OVERFLOW;
         filter.deserialize(input);
+        filter.whitelist = true;
     }
 
     @Override
