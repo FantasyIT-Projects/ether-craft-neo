@@ -61,6 +61,18 @@ public class EtherAdaptNodeBlock extends BaseBlock {
     }
 
     @Override
+    protected boolean hasAnalogOutputSignal(@NotNull BlockState state) {
+        return true;
+    }
+
+    @Override
+    protected int getAnalogOutputSignal(@NotNull BlockState state, Level level, @NotNull BlockPos pos, @NotNull Direction direction) {
+        if (level.getBlockEntity(pos) instanceof EtherAdaptNodeEntity eane)
+            return eane.getAnalogOutputSignal();
+        return 0;
+    }
+
+    @Override
     public @Nullable BlockEntity newBlockEntity(BlockPos blockPos, BlockState blockState) {
         return new EtherAdaptNodeEntity(blockPos, blockState);
     }
