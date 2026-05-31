@@ -18,6 +18,7 @@
   "ether_craft.gui.node.filter.using_white_list": "Now using Whitelist",
   "ether_craft.gui.node.filter_mode": "Filter Mode",
   "ether_craft.gui.node.function_node_process.show_input_filter": "Show Input Filter",
+  "ether_craft.gui.node.function_node_process.result_filter": "Output Filter. When set, only matching recipes are processed.",
   "ether_craft.gui.node.enchanter.level_cost": "Ether: %d",
   "ether_craft_tab_main": "Ether Craft",
   "message.ether_craft.plugin_installed": "Plugin installed",
@@ -55,6 +56,8 @@
   "item.ether_craft.ether_process_recipe_answer_9x9": "Ether Process Recipe Answer (9×9)",
   "itemGroup.ether_craft": "Ether Craft",
   "menu.ether_craft.ether_bar_tooltip": "Ether: %d",
+  "menu.ether_craft.ether_bar_tooltip_speed": "Speed Bonus: %d",
+  "menu.ether_craft.ether_bar_tooltip_leak": "Leak: %d",
   "menu.ether_craft.scroll_tooltip": "Scroll to adjust, hold Ctrl/Shift to adjust faster",
   "menu.ether_craft.factory.debug.ether": "Ether: %d",
   "menu.ether_craft.factory.debug.leak": "Leak: %d",
@@ -67,6 +70,8 @@
   "menu.ether_craft.node.directional_filter.direction.south": "South",
   "menu.ether_craft.node.directional_filter.direction.up": "Up",
   "menu.ether_craft.node.directional_filter.direction.west": "West",
+  "menu.ether_craft.node.creative_ether.label": "Creative Ether",
+  "menu.ether_craft.node.creative_ether.value": "%d",
   "menu.ether_craft.node.magnet.cx": "X",
   "menu.ether_craft.node.magnet.cy": "Y",
   "menu.ether_craft.node.magnet.cz": "Z",
@@ -189,5 +194,8 @@
   "ether_craft.gui.node.redstone_signal.mode_ether": "Ether",
   "ether_craft.gui.node.redstone_signal.mode_inventory": "Inventory",
   "ether_craft.gui.node.redstone_signal.disabled": "Disabled",
-  "ether_craft.gui.node.redstone_signal.enabled": "Enabled"
+  "ether_craft.gui.node.redstone_signal.enabled": "Enabled",
+  "menu.ether_craft.ether_bar_tooltip_speed": "Speed: %d",
+  "menu.ether_craft.ether_bar_tooltip_leak": "Leak: %d",
+  "ether_craft.gui.node.function_node_process.result_filter": "Output Filter. Set to restrict the recipe to be processed."
 }

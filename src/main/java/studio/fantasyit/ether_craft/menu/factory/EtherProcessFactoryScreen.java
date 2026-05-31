@@ -9,6 +9,7 @@ import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.Util;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
@@ -135,11 +136,6 @@ public class EtherProcessFactoryScreen extends AbstractContainerScreen<@NotNull 
     @Override
     public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
         super.extractRenderState(graphics, mouseX, mouseY, a);
-        graphics.text(font, Component.translatable("menu.ether_craft.factory.debug.ether", be.getEther()), getLeftPos() + 5, getTopPos() + 200, 0xffffffff);
-        graphics.text(font, Component.translatable("menu.ether_craft.factory.debug.speed", be.pressureBonus), getLeftPos() + 5, getTopPos() + 220, 0xffffffff);
-        graphics.text(font, Component.translatable("menu.ether_craft.factory.debug.leak", be.leak), getLeftPos() + 5, getTopPos() + 240, 0xffffffff);
-        //TODO 将信息写入Tooltip
-
         int internalX = f.posInternal().x;
         int internalY = f.posInternal().y;
         if (!menu.isFilterActive()) {
@@ -230,7 +226,11 @@ public class EtherProcessFactoryScreen extends AbstractContainerScreen<@NotNull 
         BAR.blit(graphics, lpx, lpy + 21);
         UIUtil.renderEtherBar(be.getEther() == 0 ? 0 : be.pressureBonus, lpx + 1, lpy + 22, 16, 2, graphics);
         if (mouseX >= lpx && mouseX < lpx + BAR.w && mouseY >= lpy + 21 && mouseY < lpy + 21 + BAR.h)
-            graphics.setTooltipForNextFrame(Component.translatable("menu.ether_craft.ether_bar_tooltip", menu.entity.getEther()), mouseX, mouseY);
+            graphics.setTooltipForNextFrame(List.of(
+                    Component.translatable("menu.ether_craft.ether_bar_tooltip", menu.entity.getEther()).getVisualOrderText(),
+                    Component.translatable("menu.ether_craft.ether_bar_tooltip_speed", be.pressureBonus).getVisualOrderText(),
+                    Component.translatable("menu.ether_craft.ether_bar_tooltip_leak", be.leak).getVisualOrderText()
+            ), mouseX, mouseY);
 
         int rpx = getLeftPos() + f.panelRight().x;
         int rpy = getTopPos() + f.panelRight().y;
@@ -244,6 +244,18 @@ public class EtherProcessFactoryScreen extends AbstractContainerScreen<@NotNull 
         if (isFiltering) {
             for (int i = 0; i < be.ROWS; i++) {
                 ARROW.blit(graphics, getLeftPos() + f.posFilterMark().x, getTopPos() + f.posFilterMark().y + i * 18);
+            }
+        } else {
+            for (int i = 0; i < be.ROWS; i++) {
+                List<ItemStack> itemList = menu.entity.filters[i].getItemList();
+                if (itemList.isEmpty()) continue;
+                int idx = Math.toIntExact((Util.getMillis() / 1000) % itemList.size());
+                UIUtil.renderItemStackSlotPlaceholder(
+                        graphics,
+                        itemList.get(idx),
+                        getLeftPos() + menu.mainUiSlots.get(i).x,
+                        getTopPos() + menu.mainUiSlots.get(i).y
+                );
             }
         }
     }

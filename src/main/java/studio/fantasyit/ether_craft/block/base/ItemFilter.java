@@ -10,7 +10,9 @@ import net.neoforged.neoforge.transfer.item.ItemResource;
 import org.jetbrains.annotations.NotNull;
 import studio.fantasyit.ether_craft.util.ContainerOps;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class ItemFilter implements Container, ValueIOSerializable {
     private final Runnable save;
@@ -131,5 +133,14 @@ public class ItemFilter implements Container, ValueIOSerializable {
     public void deserialize(ValueInput input) {
         whitelist = input.getBooleanOr("whitelist", false);
         input.read("filter", ItemStack.OPTIONAL_CODEC.listOf()).ifPresent(l -> ContainerOps.fillContainerByItemList(this, l));
+    }
+
+    public List<ItemStack> getItemList() {
+        List<ItemStack> list = new ArrayList<>();
+        for (ItemStack s : items) {
+            if (!s.isEmpty())
+                list.add(s);
+        }
+        return list;
     }
 }

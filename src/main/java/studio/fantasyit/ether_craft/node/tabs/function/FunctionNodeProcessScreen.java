@@ -6,6 +6,7 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
@@ -20,6 +21,8 @@ import studio.fantasyit.ether_craft.node.plugins.base.PluginMenuContext;
 import studio.fantasyit.ether_craft.node.plugins.function.FunctionNodeProcess;
 import studio.fantasyit.ether_craft.node.tabs.BaseEtherNodeTabWidgetProvider;
 import studio.fantasyit.ether_craft.util.UIUtil;
+
+import java.util.List;
 
 public class FunctionNodeProcessScreen extends BaseEtherNodeTabWidgetProvider<FunctionNodeProcess> {
 
@@ -107,6 +110,7 @@ public class FunctionNodeProcessScreen extends BaseEtherNodeTabWidgetProvider<Fu
                 ClientPacketDistributor.sendToServer(new SetFilterSlotC2S(ctx().targetFilterIdx, 0, carried));
             }
         });
+        collectTooltipArea(new Rect2i(lx(134), ly(94), 18, 18), () -> List.of(Component.translatable("ether_craft.gui.node.function_node_process.result_filter")));
     }
 
     @Override
