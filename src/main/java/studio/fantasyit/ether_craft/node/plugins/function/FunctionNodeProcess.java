@@ -173,18 +173,7 @@ public class FunctionNodeProcess extends AbstractNodePlugin {
             for (int i = 0; i < inputSlots.getContainerSize(); i++) {
                 inputList.add(inputSlots.getItem(i));
             }
-            int extraCost = 1;
-            if (targetRecipe.matchesSubset(inputList)) {
-                for (int i = 0; i < inputSlots.getContainerSize(); i++) {
-                    int finalI = i;
-                    if (targetRecipe.ingredients.stream().noneMatch(e -> e.ingredient().test(inputSlots.getItem(finalI)))
-                            && !ProcessChipItem.isSeparator(inputSlots.getItem(i))
-                    ) {
-                        extraCost *= 10;
-                    }
-                }
-            }
-            if (targetRecipe.matchesSubset(inputList) && nodeEntity.getEther() >= (long) targetRecipe.etherCost * extraCost) {
+            if (targetRecipe.matchesSubset(inputList) && nodeEntity.getEther() >= getCurrentRecipeConsume(inputList)) {
                 progressing++;
                 //加工成功
                 if (progressing >= Config.nodeProcessMaxProgress) {
@@ -257,6 +246,29 @@ public class FunctionNodeProcess extends AbstractNodePlugin {
         input.read("progress", Codec.INT).ifPresent(i -> progressing = i);
         input.read("inputSlots", ItemStack.OPTIONAL_CODEC.listOf()).ifPresent(l -> fillContainer(inputSlots, l));
         targetRecipe = null;
+    }
+
+    private int getCurrentRecipeConsume(List<ItemStack> inputList) {
+        if (targetRecipe == null)
+            return 0;
+        int ingredientSlots = 0;
+        int unmatched = 1;
+        boolean[] matchedIngredient = new boolean[targetRecipe.ingredients.size()];
+        for (int i = 0; i < inputSlots.getContainerSize(); i++) {
+            boolean matched = false;
+            for (int j = 0; j < targetRecipe.ingredients.size(); j++) {
+                if (matchedIngredient[j]) continue;
+                if (!targetRecipe.ingredients.get(j).test(inputList.get(i))) continue;
+                ingredientSlots++;
+                matchedIngredient[j] = true;
+                matched = true;
+                break;
+            }
+            if (!matched && !ProcessChipItem.isSeparator(inputSlots.getItem(i))) {
+                unmatched++;
+            }
+        }
+        return targetRecipe.etherCost + Config.nodeProcessEtherConsumePreUnmatched * unmatched * unmatched;
     }
 
     private static List<ItemStack> containerToList(SimpleContainer c) {

@@ -186,6 +186,10 @@ public class Config {
             .comment("The multipiler each ether storage upgrade plugin will provide")
             .defineInRange("node.upgrade.ether_storage_multipiler", 2.5, 1, 200);
 
+    public static final ModConfigSpec.IntValue ETHER_PROCESS_ETHER_CONSUME_PRE_UNMATCHED = BUILDER
+            .comment("The ether consumed per tick before the node process upgrade is matched")
+            .defineInRange("node.process.ether_consume_pre_unmatched", 1, 0, Integer.MAX_VALUE);
+
 
     static final ModConfigSpec SPEC = BUILDER.build();
 
@@ -221,6 +225,7 @@ public class Config {
     public static int nodeEnchanterMaxProgress;
     public static double etherStorageMultiplier;
     public static int etherGlassPreventConsume;
+    public static int nodeProcessEtherConsumePreUnmatched;
 
     @SubscribeEvent
     static void onLoad(final ModConfigEvent event) {
@@ -256,5 +261,6 @@ public class Config {
         nodeEnchanterMaxProgress = NODE_ENCHANTER_MAX_PROGRESS.get();
         etherStorageMultiplier = ETHER_STORAGE_MULTIPLIER.get();
         etherGlassPreventConsume = ETHER_GLASS_PREVENT_CONSUME.get();
+        nodeProcessEtherConsumePreUnmatched = ETHER_PROCESS_ETHER_CONSUME_PRE_UNMATCHED.get();
     }
 }

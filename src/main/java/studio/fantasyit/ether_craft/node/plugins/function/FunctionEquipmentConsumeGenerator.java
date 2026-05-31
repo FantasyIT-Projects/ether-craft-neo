@@ -38,7 +38,15 @@ public class FunctionEquipmentConsumeGenerator extends AbstractItemConsumeFuncti
         int enchantBonus = 0;
         for (Object2IntMap.Entry<Holder<Enchantment>> entry : EnchantmentHelper.getEnchantmentsForCrafting(itemStack).entrySet()) {
             if (entry.getKey().is(EnchantmentTags.CURSE)) continue;
-            enchantBonus += 1 << (entry.getIntValue() - 1);
+
+            int level = entry.getIntValue();
+            if (entry.getKey().is(EnchantmentTags.TREASURE))
+                level += 2;
+
+            if (level >= 5)
+                enchantBonus += level * level;
+            else
+                enchantBonus += (1 << level);
         }
         etherToGenerate = enchantBonus * Config.nodeEquipmentGeneratorCoefficient + Config.nodeEquipmentGeneratorBaseAmount;
         remainBurnTicks = 1;
