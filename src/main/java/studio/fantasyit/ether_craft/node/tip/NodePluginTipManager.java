@@ -1,6 +1,8 @@
 package studio.fantasyit.ether_craft.node.tip;
 
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -11,8 +13,6 @@ import studio.fantasyit.ether_craft.node.plugins.function.*;
 import studio.fantasyit.ether_craft.node.plugins.upgrade.*;
 import studio.fantasyit.ether_craft.recipe.node.NodeProcessRecipe;
 import studio.fantasyit.ether_craft.register.ItemRegistry;
-import studio.fantasyit.ether_craft.register.RecipeTypeRegistry;
-import studio.fantasyit.ether_craft.register.Tags;
 
 import java.util.*;
 
@@ -61,26 +61,30 @@ public class NodePluginTipManager {
         registerTip(EtherStorageUpgrade.ID,
                 new TipInfo(List.of(Ingredient.of(ItemRegistry.ETHERPHILIC_BOWL.get())), List.of(), Set.of(TipConcept.ETHER_STORAGE)));
         registerTip(StorageUpgrade.ID,
-                new TipInfo(List.of(Ingredient.of(Items.CHEST), Ingredient.of(Items.COPPER_CHEST)), List.of(), Set.of(TipConcept.ETHER_STORAGE)));
+                new TipInfo(List.of(Ingredient.of(Items.CHEST), Ingredient.of(Items.COPPER_CHEST)), List.of(), Set.of(TipConcept.LOGISTICS)));
         registerTip(EtherStreamStorageUpgrade.ID,
                 new TipInfo(List.of(
-                        Ingredient.of(Items.OAK_CHEST_BOAT), Ingredient.of(Items.SPRUCE_CHEST_BOAT)
+                        Ingredient.of(BuiltInRegistries.ITEM.getOrThrow(ItemTags.BOATS)), Ingredient.of(Items.SPRUCE_CHEST_BOAT)
                 ), List.of(), Set.of(TipConcept.ETHER_FLOW, TipConcept.LOGISTICS)));
         registerTip(EtherStreamStorageUpgrade.ID_1,
                 new TipInfo(List.of(Ingredient.of(Items.CHEST_MINECART)), List.of(), Set.of(TipConcept.ETHER_FLOW, TipConcept.LOGISTICS)));
         registerTip(EtherStreamStorageUpgrade.ID_2,
-                new TipInfo(List.of(Ingredient.of(Items.SHULKER_BOX)), List.of(), Set.of(TipConcept.ETHER_FLOW, TipConcept.LOGISTICS)));
+                new TipInfo(List.of(
+                        Ingredient.of(BuiltInRegistries.ITEM.getOrThrow(ItemTags.SHULKER_BOXES))
+                ), List.of(), Set.of(TipConcept.ETHER_FLOW, TipConcept.LOGISTICS)));
         registerTip(EtherStreamPreventDecayUpgrade.ID,
                 new TipInfo(List.of(Ingredient.of(Items.REPEATER)), List.of(), Set.of(TipConcept.ETHER_FLOW)));
         registerTip(EtherStreamBreakBlockUpgrade.ID,
                 new TipInfo(List.of(
-                        Ingredient.of(Items.IRON_PICKAXE),
-                        Ingredient.of(Items.IRON_AXE),
-                        Ingredient.of(Items.IRON_SHOVEL),
-                        Ingredient.of(Items.IRON_HOE)
+                        Ingredient.of(BuiltInRegistries.ITEM.getOrThrow(ItemTags.PICKAXES)),
+                        Ingredient.of(BuiltInRegistries.ITEM.getOrThrow(ItemTags.AXES)),
+                        Ingredient.of(BuiltInRegistries.ITEM.getOrThrow(ItemTags.SHOVELS)),
+                        Ingredient.of(BuiltInRegistries.ITEM.getOrThrow(ItemTags.HOES))
                 ), List.of(), Set.of(TipConcept.WORLD_INTERACTION, TipConcept.ETHER_FLOW)));
         registerTip(EtherStreamDamageUpgrade.ID,
-                new TipInfo(List.of(Ingredient.of(Items.IRON_SWORD), Ingredient.of(Items.DIAMOND_SWORD)), List.of(), Set.of(TipConcept.WORLD_INTERACTION, TipConcept.ETHER_FLOW)));
+                new TipInfo(List.of(
+                        Ingredient.of(BuiltInRegistries.ITEM.getOrThrow(ItemTags.SWORDS))
+                ), List.of(), Set.of(TipConcept.WORLD_INTERACTION, TipConcept.ETHER_FLOW)));
         registerTip(EtherFilterUpgrade.ID,
                 new TipInfo(List.of(Ingredient.of(Items.PAPER)), List.of(), Set.of(TipConcept.LOGISTICS)));
         registerTip(EtherItemifyUpgrade.ID,
@@ -96,20 +100,16 @@ public class NodePluginTipManager {
     }
 
     private void scanNodeProcessRecipes(RecipeManager recipeManager) {
-        List<Ingredient> allIngredients = new ArrayList<>();
         List<ItemStack> allResults = new ArrayList<>();
 
         for (RecipeHolder<?> holder : recipeManager.getRecipes()) {
             if (holder.value() instanceof NodeProcessRecipe recipe) {
-                for (var sized : recipe.ingredients) {
-                    allIngredients.add(sized.ingredient());
-                }
                 allResults.add(recipe.result.create());
             }
         }
 
         registerTip(FunctionNodeProcess.ID, new TipInfo(
-                allIngredients,
+                List.of(Ingredient.of(Items.CRAFTER)),
                 allResults,
                 Set.of(TipConcept.CRAFTING)
         ));

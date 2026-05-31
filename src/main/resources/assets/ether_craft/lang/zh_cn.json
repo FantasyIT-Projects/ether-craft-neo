@@ -132,6 +132,10 @@
   "jei.ether_craft.plugin.ether_craft.ether_itemify_upgrade": "使以太表现为可跨物品栏传输的实体物品。",
   "jei.ether_craft.plugin.ether_craft.ether_stream_text_upgrade": "使以太流从升级槽中放置的书籍中发射文字粒子。",
   "jei.ether_craft.plugin.ether_craft.growth_accelerator_upgrade": "允许以太流在接触时加速作物和树木生长。",
+  "jei.ether_craft.plugin.ether_craft.growth_accelerator_upgrade_allow_all": "允许以太流在接触时加速所有方块类型（使用幽匿催发体）。",
+  "jei.ether_craft.plugin.ether_craft.redstone_signal": "根据节点的以太等级或物品栏填充比例输出比较器信号。",
+  "jei.ether_craft.plugin.ether_craft.redstone_switch": "根据红石信号启用或禁用节点。",
+  "jei.ether_craft.plugin.ether_craft.destruction": "销毁节点物品栏中匹配过滤器的物品（溢出模式或全部匹配物品）。",
   "jei.ether_craft.node_plugin_info.concepts": "概念:",
   "tip.ether_craft.concept.ether_flow": "以太流",
   "tip.ether_craft.concept.ether_storage": "以太存储",
@@ -166,5 +170,16 @@
   "ether_craft.gui.node.enchanter.line_1_idle": "未选择",
   "ether_craft.gui.node.enchanter.line_2": "进度: %d/%d",
   "ether_craft.gui.node.enchanter.line_idle": "空闲",
-  "ether_craft.gui.node.enchanter.line_3": "以太: %d/%d"
+  "ether_craft.gui.node.enchanter.line_3": "以太: %d/%d",
+
+  "ether_craft.gui.node.destruction.mode_overflow": "溢出销毁",
+  "ether_craft.gui.node.destruction.mode_all": "全部销毁",
+
+  "ether_craft.gui.node.redstone_switch.work_with_signal": "有信号工作",
+  "ether_craft.gui.node.redstone_switch.work_without_signal": "无信号工作",
+
+  "ether_craft.gui.node.redstone_signal.mode_ether": "以太检测",
+  "ether_craft.gui.node.redstone_signal.mode_inventory": "物品检测",
+  "ether_craft.gui.node.redstone_signal.disabled": "禁用",
+  "ether_craft.gui.node.redstone_signal.enabled": "启用"
 }
