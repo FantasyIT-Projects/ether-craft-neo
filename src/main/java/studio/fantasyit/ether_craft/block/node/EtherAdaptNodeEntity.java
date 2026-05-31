@@ -52,6 +52,7 @@ import studio.fantasyit.ether_craft.node.NodeProperty;
 import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
 import studio.fantasyit.ether_craft.node.plugins.base.AbstractNodePlugin;
 import studio.fantasyit.ether_craft.node.plugins.feature.AbstractDirectionalFeature;
+import studio.fantasyit.ether_craft.node.plugins.feature.FeatureRedstoneSignal;
 import studio.fantasyit.ether_craft.register.ItemRegistry;
 import studio.fantasyit.ether_craft.util.SerializeUtil;
 
@@ -141,6 +142,8 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
 
     @Override
     public void tickServer() {
+        if (!functionStorage.preTick() || !featureUpgradeStorage.preTick())
+            return;
         functionStorage.tickInput();
         featureUpgradeStorage.tickInput();
         functionStorage.tickWork();
@@ -260,7 +263,15 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
             if (earlyCosted >= amount)
                 return earlyCosted;
         }
-        return normalHandler.insert(index - 1, resource, amount - earlyCosted, transaction) + earlyCosted;
+        int handlerInserted = normalHandler.insert(index - 1, resource, amount - earlyCosted, transaction);
+        int overflow = amount - earlyCosted - handlerInserted;
+        int overflowConsumed = 0;
+        for (AbstractNodePlugin plugin : getPlugins()) {
+            overflowConsumed += plugin.handleOverflow(resource, overflow - overflowConsumed, transaction);
+            if (overflowConsumed >= overflow)
+                break;
+        }
+        return handlerInserted + earlyCosted + overflowConsumed;
     }
 
     @Override
@@ -514,6 +525,15 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
         setChanged();
         if (level != null && !level.isClientSide())
             markUpdate = true;
+    }
+
+    public int getAnalogOutputSignal() {
+        for (AbstractNodePlugin plugin : getPlugins()) {
+            if (plugin instanceof FeatureRedstoneSignal rss && rss.enabled) {
+                return rss.getSignal();
+            }
+        }
+        return 0;
     }
 
     public void setSyncedPluginData(InstalledPlugin plugin, Identifier actionId, int value) {
