@@ -18,6 +18,9 @@ import studio.fantasyit.ether_craft.node.plugins.feature.FeatureDropperThrower;
 import studio.fantasyit.ether_craft.node.plugins.feature.FeatureEtherStreamEmitter;
 import studio.fantasyit.ether_craft.node.plugins.function.*;
 import studio.fantasyit.ether_craft.node.plugins.upgrade.*;
+import studio.fantasyit.ether_craft.node.plugins.feature.FeatureRedstoneSignal;
+import studio.fantasyit.ether_craft.node.plugins.upgrade.RedstoneSwitchUpgrade;
+import studio.fantasyit.ether_craft.node.plugins.upgrade.DestructionUpgrade;
 import studio.fantasyit.ether_craft.register.ItemRegistry;
 
 import java.util.ArrayList;
@@ -94,6 +97,9 @@ public class NodePluginManager {
         ALL_PLUGINS.add(new PluginInfo(PluginType.UPGRADE, EtherStreamTextUpgrade.ID, EtherStreamTextUpgrade::new, t -> t.is(Items.WRITTEN_BOOK), Items.WRITTEN_BOOK));
         ALL_PLUGINS.add(new PluginInfo(PluginType.UPGRADE, EtherStreamGrowthAcceleratorUpgrade.ID, EtherStreamGrowthAcceleratorUpgrade::new, t -> t.is(Items.BONE_MEAL), Items.BONE_MEAL));
         ALL_PLUGINS.add(new PluginInfo(PluginType.UPGRADE, EtherStreamGrowthAcceleratorUpgrade.ID_ALL, EtherStreamGrowthAcceleratorUpgrade::new, t -> t.is(Items.SCULK_CATALYST), Items.SCULK_CATALYST));
+        ALL_PLUGINS.add(new PluginInfo(PluginType.FEATURE, FeatureRedstoneSignal.ID, FeatureRedstoneSignal::new, t -> t.is(Items.COMPARATOR), Items.COMPARATOR));
+        ALL_PLUGINS.add(new PluginInfo(PluginType.UPGRADE, RedstoneSwitchUpgrade.ID, RedstoneSwitchUpgrade::new, t -> t.is(Items.REDSTONE), Items.REDSTONE));
+        ALL_PLUGINS.add(new PluginInfo(PluginType.UPGRADE, DestructionUpgrade.ID, DestructionUpgrade::new, t -> t.is(Items.LAVA_BUCKET), Items.LAVA_BUCKET));
     }
 
     public NodePluginManager() {
