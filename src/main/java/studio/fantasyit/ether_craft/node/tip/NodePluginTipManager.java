@@ -2,7 +2,17 @@ package studio.fantasyit.ether_craft.node.tip;
 
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.item.crafting.RecipeManager;
+import studio.fantasyit.ether_craft.node.plugins.feature.*;
+import studio.fantasyit.ether_craft.node.plugins.function.*;
+import studio.fantasyit.ether_craft.node.plugins.upgrade.*;
+import studio.fantasyit.ether_craft.recipe.node.NodeProcessRecipe;
+import studio.fantasyit.ether_craft.register.ItemRegistry;
+import studio.fantasyit.ether_craft.register.RecipeTypeRegistry;
+import studio.fantasyit.ether_craft.register.Tags;
 
 import java.util.*;
 
@@ -11,8 +21,98 @@ public class NodePluginTipManager {
 
     private final Map<Identifier, TipInfo> tips = new HashMap<>();
 
-    public void collect() {
+    public void collect(RecipeManager recipeManager) {
         tips.clear();
+
+        registerTip(FunctionFurnaceGenerator.ID,
+                new TipInfo(List.of(Ingredient.of(Items.FURNACE)), List.of(), Set.of(TipConcept.ETHER_PRODUCTION)));
+        registerTip(FunctionFurnaceGenerator.ID_BLAST,
+                new TipInfo(List.of(Ingredient.of(Items.BLAST_FURNACE)), List.of(), Set.of(TipConcept.ETHER_PRODUCTION)));
+        registerTip(FunctionStoneGenerator.ID,
+                new TipInfo(List.of(Ingredient.of(Items.STONECUTTER)), List.of(), Set.of(TipConcept.ETHER_PRODUCTION)));
+        registerTip(FunctionMagnet.ID,
+                new TipInfo(List.of(Ingredient.of(ItemRegistry.VACUUM_PIPE.get())), List.of(), Set.of(TipConcept.LOGISTICS)));
+        registerTip(FunctionEquipmentConsumeGenerator.ID,
+                new TipInfo(List.of(Ingredient.of(Items.GRINDSTONE)), List.of(), Set.of(TipConcept.ETHER_PRODUCTION)));
+        registerTip(FunctionEtherConverter.ID,
+                new TipInfo(List.of(Ingredient.of(Items.DRAGON_EGG)), List.of(), Set.of(TipConcept.ETHER_PRODUCTION)));
+        registerTip(FunctionGrowthAccelerator.ID,
+                new TipInfo(List.of(Ingredient.of(Items.BONE_MEAL)), List.of(), Set.of(TipConcept.WORLD_INTERACTION)));
+        registerTip(FunctionEnchanter.ID,
+                new TipInfo(List.of(Ingredient.of(Items.ENCHANTING_TABLE)), List.of(), Set.of(TipConcept.CRAFTING)));
+        registerTip(FunctionCreativeEther.ID,
+                new TipInfo(List.of(Ingredient.of(ItemRegistry.ETHER_CREATIVE.get())), List.of(), Set.of(TipConcept.ETHER_PRODUCTION)));
+        registerTip(FunctionCreativeEther.ID_FUNC,
+                new TipInfo(List.of(Ingredient.of(ItemRegistry.ETHER_CREATIVE.get())), List.of(), Set.of(TipConcept.ETHER_PRODUCTION)));
+
+        registerTip(FeatureEtherStreamEmitter.ID,
+                new TipInfo(List.of(Ingredient.of(Items.DISPENSER)), List.of(), Set.of(TipConcept.ETHER_FLOW, TipConcept.LOGISTICS)));
+        registerTip(FeatureDropperThrower.ID,
+                new TipInfo(List.of(Ingredient.of(Items.DROPPER)), List.of(), Set.of(TipConcept.LOGISTICS, TipConcept.WORLD_INTERACTION)));
+        registerTip(FeatureContainerInteract.ID,
+                new TipInfo(List.of(Ingredient.of(Items.HOPPER)), List.of(), Set.of(TipConcept.LOGISTICS)));
+        registerTip(FeatureRedstoneSignal.ID,
+                new TipInfo(List.of(Ingredient.of(Items.COMPARATOR)), List.of(), Set.of(TipConcept.LOGISTICS)));
+        registerTip(RedstoneSwitchUpgrade.ID,
+                new TipInfo(List.of(Ingredient.of(Items.REDSTONE)), List.of(), Set.of(TipConcept.LOGISTICS)));
+        registerTip(DestructionUpgrade.ID,
+                new TipInfo(List.of(Ingredient.of(Items.LAVA_BUCKET)), List.of(), Set.of(TipConcept.LOGISTICS)));
+
+        registerTip(EtherStorageUpgrade.ID,
+                new TipInfo(List.of(Ingredient.of(ItemRegistry.ETHERPHILIC_BOWL.get())), List.of(), Set.of(TipConcept.ETHER_STORAGE)));
+        registerTip(StorageUpgrade.ID,
+                new TipInfo(List.of(Ingredient.of(Items.CHEST), Ingredient.of(Items.COPPER_CHEST)), List.of(), Set.of(TipConcept.ETHER_STORAGE)));
+        registerTip(EtherStreamStorageUpgrade.ID,
+                new TipInfo(List.of(
+                        Ingredient.of(Items.OAK_CHEST_BOAT), Ingredient.of(Items.SPRUCE_CHEST_BOAT)
+                ), List.of(), Set.of(TipConcept.ETHER_FLOW, TipConcept.LOGISTICS)));
+        registerTip(EtherStreamStorageUpgrade.ID_1,
+                new TipInfo(List.of(Ingredient.of(Items.CHEST_MINECART)), List.of(), Set.of(TipConcept.ETHER_FLOW, TipConcept.LOGISTICS)));
+        registerTip(EtherStreamStorageUpgrade.ID_2,
+                new TipInfo(List.of(Ingredient.of(Items.SHULKER_BOX)), List.of(), Set.of(TipConcept.ETHER_FLOW, TipConcept.LOGISTICS)));
+        registerTip(EtherStreamPreventDecayUpgrade.ID,
+                new TipInfo(List.of(Ingredient.of(Items.REPEATER)), List.of(), Set.of(TipConcept.ETHER_FLOW)));
+        registerTip(EtherStreamBreakBlockUpgrade.ID,
+                new TipInfo(List.of(
+                        Ingredient.of(Items.IRON_PICKAXE),
+                        Ingredient.of(Items.IRON_AXE),
+                        Ingredient.of(Items.IRON_SHOVEL),
+                        Ingredient.of(Items.IRON_HOE)
+                ), List.of(), Set.of(TipConcept.WORLD_INTERACTION, TipConcept.ETHER_FLOW)));
+        registerTip(EtherStreamDamageUpgrade.ID,
+                new TipInfo(List.of(Ingredient.of(Items.IRON_SWORD), Ingredient.of(Items.DIAMOND_SWORD)), List.of(), Set.of(TipConcept.WORLD_INTERACTION, TipConcept.ETHER_FLOW)));
+        registerTip(EtherFilterUpgrade.ID,
+                new TipInfo(List.of(Ingredient.of(Items.PAPER)), List.of(), Set.of(TipConcept.LOGISTICS)));
+        registerTip(EtherItemifyUpgrade.ID,
+                new TipInfo(List.of(Ingredient.of(ItemRegistry.INACTIVATED_ETHER.get())), List.of(), Set.of(TipConcept.ETHER_STORAGE)));
+        registerTip(EtherStreamTextUpgrade.ID,
+                new TipInfo(List.of(Ingredient.of(Items.WRITTEN_BOOK)), List.of(), Set.of(TipConcept.DECORATION)));
+        registerTip(EtherStreamGrowthAcceleratorUpgrade.ID,
+                new TipInfo(List.of(Ingredient.of(Items.BONE_MEAL)), List.of(), Set.of(TipConcept.WORLD_INTERACTION, TipConcept.ETHER_FLOW)));
+        registerTip(EtherStreamGrowthAcceleratorUpgrade.ID_ALL,
+                new TipInfo(List.of(Ingredient.of(Items.SCULK_CATALYST)), List.of(), Set.of(TipConcept.WORLD_INTERACTION, TipConcept.ETHER_FLOW)));
+
+        scanNodeProcessRecipes(recipeManager);
+    }
+
+    private void scanNodeProcessRecipes(RecipeManager recipeManager) {
+        List<Ingredient> allIngredients = new ArrayList<>();
+        List<ItemStack> allResults = new ArrayList<>();
+
+        for (RecipeHolder<?> holder : recipeManager.getRecipes()) {
+            if (holder.value() instanceof NodeProcessRecipe recipe) {
+                for (var sized : recipe.ingredients) {
+                    allIngredients.add(sized.ingredient());
+                }
+                allResults.add(recipe.result.create());
+            }
+        }
+
+        registerTip(FunctionNodeProcess.ID, new TipInfo(
+                allIngredients,
+                allResults,
+                Set.of(TipConcept.CRAFTING)
+        ));
     }
 
     public void registerTip(Identifier pluginId, TipInfo tipInfo) {

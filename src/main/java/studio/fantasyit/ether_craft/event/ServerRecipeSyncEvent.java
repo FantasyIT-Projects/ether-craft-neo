@@ -21,6 +21,7 @@ public class ServerRecipeSyncEvent {
         event.sendRecipes(RecipeTypeRegistry.NODE_PROCESS_RECIPE.get());
         RecipeManager recipeManager = event.getPlayerList().getServer().getRecipeManager();
         EtherProcessRecipeManager.onReload(recipeManager);
+        NodePluginTipManager.INSTANCE.collect(recipeManager);
         event.getRelevantPlayers().forEach(player -> {
             PacketDistributor.sendToPlayer(player,
                     new SyncExtraRecipesS2C(EtherProcessRecipeManager.extraRecipes)

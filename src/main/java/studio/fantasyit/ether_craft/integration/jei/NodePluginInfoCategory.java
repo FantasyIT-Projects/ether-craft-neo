@@ -34,7 +34,7 @@ public class NodePluginInfoCategory implements IRecipeCategory<NodePluginInfoRec
     private static final int TEXT_X = 28;
     private static final int LINE1_Y = 6;
     private static final int LINE2_Y = 20;
-    private static final int LINE3_Y = 34;
+    private static final int LINE3_Y = 48;
 
     private final IDrawable icon;
 
@@ -83,11 +83,13 @@ public class NodePluginInfoCategory implements IRecipeCategory<NodePluginInfoRec
             }
             inputSlot.setStandardSlotBackground();
 
-            var outputSlot = builder.addOutputSlot(ITEM_X + 22, itemY);
-            for (ItemStack stack : tip.producibleItems()) {
-                outputSlot.add(stack);
+            if (tip.producibleItems().size() > 0) {
+                var outputSlot = builder.addOutputSlot(ITEM_X, itemY + 19);
+                for (ItemStack stack : tip.producibleItems()) {
+                    outputSlot.add(stack);
+                }
+                outputSlot.setStandardSlotBackground();
             }
-            outputSlot.setStandardSlotBackground();
         } else {
             int itemY = (HEIGHT - 18) / 2;
             builder.addInputSlot(ITEM_X, itemY)
@@ -112,7 +114,7 @@ public class NodePluginInfoCategory implements IRecipeCategory<NodePluginInfoRec
         String descKey = "jei.ether_craft.plugin." + recipe.pluginId().getNamespace() + "." + recipe.pluginId().getPath().replace('/', '.');
         Component desc = Component.translatable(descKey).withStyle(ChatFormatting.WHITE);
 
-        int textX = tipOpt.isPresent() ? 50 : TEXT_X;
+        int textX = TEXT_X;
         int availableTextWidth = WIDTH - textX - 4;
 
         int typeWidth = font.width(typeLabel);
