@@ -14,9 +14,9 @@ import studio.fantasyit.ether_craft.block.node.EtherAdaptNodeEntity;
 import studio.fantasyit.ether_craft.menu.base.slot.BaseDataSlot;
 import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeContainerMenu;
 import studio.fantasyit.ether_craft.network.c2s.SyncScreenDataC2S;
-import studio.fantasyit.ether_craft.node.plugins.base.AbstractNodePlugin;
 import studio.fantasyit.ether_craft.node.filter.FilterGuiRegCommon;
 import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
+import studio.fantasyit.ether_craft.node.plugins.base.AbstractNodePlugin;
 
 import java.util.List;
 
@@ -65,7 +65,8 @@ public class FunctionMagnet extends AbstractNodePlugin {
         if (nodeEntity.getLevel() != null) {
             List<ItemEntity> ie = nodeEntity.getLevel().getEntitiesOfClass(ItemEntity.class, new AABB(nodeEntity.getBlockPos()).move(centerX, centerY, centerZ).inflate(shapeX, shapeY, shapeZ));
             for (ItemEntity itemEntity : ie) {
-                if (nodeEntity.getEther() < Config.nodeMagnetEtherPerStack)
+                int toConsumePreStack = Config.nodeMagnetEtherPerStack * itemEntity.blockPosition().distManhattan(nodeEntity.getBlockPos());
+                if (nodeEntity.getEther() < toConsumePreStack)
                     break;
                 ItemResource res = ItemResource.of(itemEntity.getItem());
                 if (filter.accepts(res)) {
@@ -76,7 +77,7 @@ public class FunctionMagnet extends AbstractNodePlugin {
                             itemEntity.getItem().shrink(insert);
                             if (itemEntity.getItem().isEmpty())
                                 itemEntity.discard();
-                            nodeEntity.extractEther(Config.nodeMagnetEtherPerStack);
+                            nodeEntity.extractEther(toConsumePreStack);
                             t.commit();
                         }
                     }

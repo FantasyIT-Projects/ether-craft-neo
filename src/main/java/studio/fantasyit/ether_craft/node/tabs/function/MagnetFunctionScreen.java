@@ -18,14 +18,13 @@ import java.util.List;
 import java.util.function.Supplier;
 
 public class MagnetFunctionScreen extends BaseEtherNodeTabWidgetProvider<FunctionMagnet> {
-    private static final int CENTER_RANGE = 10;
-    private static final int SHAPE_RANGE = 9;
+    private static final int CENTER_RANGE = 5;
 
     private static final int[][] SCROLL_POS = {
             {20, 5}, {40, 5}, {60, 5},
             {103, 5}, {123, 5}, {143, 5},
     };
-    private static final int[] MAX_VALUES = {20, 20, 20, 9, 9, 9};
+    private static final int[] MAX_VALUES = {11, 11, 11, 5, 5, 5};
 
     private final ScrollableWidget[] scrolls = new ScrollableWidget[6];
 

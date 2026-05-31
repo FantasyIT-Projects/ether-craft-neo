@@ -40,6 +40,7 @@ public class EtherAdaptNodeUpgradeTabManager {
         register(FunctionEquipmentConsumeGenerator.ID, wrap(EquipmentConsumeScreen::new));
         register(FunctionEtherConverter.ID, wrap(EtherConverterScreen::new));
         register(FunctionEnchanter.ID, wrap(EnchanterScreen::new));
+        register(FunctionCreativeEther.ID_FUNC, wrap(CreativeEtherScreen::new));
         register(FeatureEtherStreamEmitter.ID, wrap(EtherStreamEmitterScreen::new));
         register(FeatureDropperThrower.ID, wrap(DropperThrowerScreen::new));
         register(FeatureContainerInteract.ID, wrap(ContainerInteractScreen::new));

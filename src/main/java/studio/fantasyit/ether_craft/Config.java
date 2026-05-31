@@ -137,7 +137,7 @@ public class Config {
 
     private static final ModConfigSpec.IntValue ETHER_STREAM_MAX_TICK = BUILDER
             .comment("Maximum lifetime of an Ether Stream entity in ticks (20 ticks = 1 second)")
-            .defineInRange("ether_stream.max_tick", 1200, 1, Integer.MAX_VALUE);
+            .defineInRange("ether_stream.max_tick", 12000, 1, Integer.MAX_VALUE);
 
     private static final ModConfigSpec.DoubleValue ETHER_STREAM_CONSUMPTION_FACTOR = BUILDER
             .comment("Base ether consumption per tick as a fraction of total ether stored in the stream")

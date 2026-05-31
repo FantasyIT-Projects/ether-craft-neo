@@ -74,6 +74,8 @@
   "menu.ether_craft.node.magnet.sy": "rY",
   "menu.ether_craft.node.magnet.sz": "rZ",
   "menu.ether_craft.node.magnet.value": "%d",
+  "menu.ether_craft.node.creative_ether.label": "Fill/tick",
+  "menu.ether_craft.node.creative_ether.value": "%d/tick",
   "tooltip.ether_craft.ai_supercomputing_chip": "AI Chip",
   "tooltip.ether_craft.anima_infusing_chip": "Anima Infusing Chip",
   "tooltip.ether_craft.antimatter_producing_chip": "Antimatter Producing Chip",

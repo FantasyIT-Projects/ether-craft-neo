@@ -72,6 +72,8 @@
   "menu.ether_craft.node.magnet.sy": "rY",
   "menu.ether_craft.node.magnet.sz": "rZ",
   "menu.ether_craft.node.magnet.value": "%d",
+  "menu.ether_craft.node.creative_ether.label": "每tick填充",
+  "menu.ether_craft.node.creative_ether.value": "%d/tick",
   "tooltip.ether_craft.ai_supercomputing_chip": "AI芯片",
   "tooltip.ether_craft.anima_infusing_chip": "焕生芯片",
   "tooltip.ether_craft.antimatter_producing_chip": "反物质芯片",
