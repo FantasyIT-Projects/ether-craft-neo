@@ -37,18 +37,16 @@ public class ClientVESHData {
 
     public void handleDying(EtherStreamSetDyingS2C msg) {
         ClientVESHEntry entry = entries.computeIfAbsent(msg.posDir(), k -> new ClientVESHEntry());
-
-        for (EtherStreamSetDyingS2C.StreamEntry se : msg.entries()) {
-            ClientStreamEntry current = entry.streams.get(se.streamId());
+        long levelTime = Minecraft.getInstance().level.getGameTime();
+        for (int sid : msg.entries()) {
+            ClientStreamEntry current = entry.streams.get(sid);
             if (current == null) continue;
 
-            current.startTickCount = se.tickCount();
-            current.ether = se.ether();
-
-            if (se.label() != null) {
-                if (!current.isDying) { current.setDying(true); }
+            if (current.label != null) {
+                current.setDying();
+                current.deathAtTick = levelTime;
             } else {
-                current.removed = true;
+                current.setRemoved();
             }
         }
     }

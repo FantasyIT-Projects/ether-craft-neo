@@ -236,16 +236,10 @@ public class VirtualEtherStreamHolder {
         }
 
         if (!collectedToRemove.isEmpty()) {
-            List<EtherStreamSetDyingS2C.StreamEntry> entries = new ArrayList<>();
+            List<Integer> entries = new ArrayList<>();
             for (VirtualEtherStream ves : streams) {
                 if (ves.markToRemove) {
-                    entries.add(new EtherStreamSetDyingS2C.StreamEntry(
-                            ves.streamId,
-                            ves.tickCount,
-                            ves.ether,
-                            ves.label,
-                            ves.labelColor
-                    ));
+                    entries.add(ves.streamId);
                 }
             }
             EtherStreamSetDyingS2C payload = new EtherStreamSetDyingS2C(posDir, entries);

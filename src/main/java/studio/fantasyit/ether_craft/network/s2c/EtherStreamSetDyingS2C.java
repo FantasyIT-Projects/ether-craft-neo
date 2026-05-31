@@ -1,7 +1,5 @@
 package studio.fantasyit.ether_craft.network.s2c;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
@@ -14,7 +12,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.stream.PosDir;
-import studio.fantasyit.ether_craft.stream.client.ClientVESHData;
 import studio.fantasyit.ether_craft.stream.client.ClientVESHDataGetter;
 
 import java.util.ArrayList;
@@ -23,28 +20,10 @@ import java.util.Optional;
 
 public record EtherStreamSetDyingS2C(
         PosDir posDir,
-        List<StreamEntry> entries
+        List<Integer> entries
 ) implements CustomPacketPayload {
-
-    public record StreamEntry(
-            int streamId,
-            int tickCount,
-            int ether,
-            @Nullable Component label,
-            int labelColor
-    ) {
-    }
-
     public static final Type<@NotNull EtherStreamSetDyingS2C> TYPE = new Type<>(
             Identifier.fromNamespaceAndPath(EtherCraft.MODID, "ether_stream_set_dying")
-    );
-
-    private static final StreamCodec<RegistryFriendlyByteBuf, PosDir> POSDIR_CODEC = StreamCodec.composite(
-            BlockPos.STREAM_CODEC,
-            PosDir::pos,
-            Direction.STREAM_CODEC,
-            PosDir::dir,
-            PosDir::new
     );
 
     private static final StreamCodec<RegistryFriendlyByteBuf, @Nullable Component> NULLABLE_COMPONENT_CODEC =
@@ -53,18 +32,9 @@ public record EtherStreamSetDyingS2C(
                     Optional::ofNullable
             );
 
-    private static final StreamCodec<RegistryFriendlyByteBuf, StreamEntry> STREAM_ENTRY_CODEC = StreamCodec.composite(
-            ByteBufCodecs.VAR_INT, StreamEntry::streamId,
-            ByteBufCodecs.VAR_INT, StreamEntry::tickCount,
-            ByteBufCodecs.VAR_INT, StreamEntry::ether,
-            NULLABLE_COMPONENT_CODEC, StreamEntry::label,
-            ByteBufCodecs.INT, StreamEntry::labelColor,
-            StreamEntry::new
-    );
-
     public static final StreamCodec<RegistryFriendlyByteBuf, @NotNull EtherStreamSetDyingS2C> CODEC = StreamCodec.composite(
-            POSDIR_CODEC, EtherStreamSetDyingS2C::posDir,
-            ByteBufCodecs.collection(ArrayList::new, STREAM_ENTRY_CODEC), EtherStreamSetDyingS2C::entries,
+            PosDir.STREAM_CODEC, EtherStreamSetDyingS2C::posDir,
+            ByteBufCodecs.collection(ArrayList::new, ByteBufCodecs.INT), EtherStreamSetDyingS2C::entries,
             EtherStreamSetDyingS2C::new
     );
 

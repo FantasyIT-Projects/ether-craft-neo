@@ -13,9 +13,11 @@ public class ClientStreamEntry {
     public Vec3 startPos = Vec3.ZERO;
     public Vec3 motion = Vec3.ZERO;
     public int startTickCount;
+
     public int tickCount;
     public int ether;
     public long receivedAtTick;
+    public long deathAtTick;
     public int deathTick;
     public @Nullable Component label;
     public int labelColor;
@@ -23,11 +25,15 @@ public class ClientStreamEntry {
     public boolean removed;
     public final EtherConsumer consumer = new EtherConsumer();
 
-    public void setDying(boolean dying) {
-        this.isDying = dying;
-        if (dying) {
+    public void setDying() {
+        if (!this.isDying) {
             this.deathTick = 60;
         }
+        this.isDying = true;
+    }
+
+    public void setRemoved() {
+        this.removed = true;
     }
 
     public boolean isRemoved() {
@@ -67,5 +73,9 @@ public class ClientStreamEntry {
         tickCount++;
         int consumption = consumer.getTotalConsumption(ether, tickCount);
         ether = Math.max(0, ether - consumption);
+    }
+
+    public boolean isDying() {
+        return isDying;
     }
 }

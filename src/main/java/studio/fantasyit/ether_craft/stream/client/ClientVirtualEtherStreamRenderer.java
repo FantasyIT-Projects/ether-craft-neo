@@ -45,7 +45,7 @@ public class ClientVirtualEtherStreamRenderer {
                 ClientVESHData.ClientVESHEntry veshEntry = posEntry.getValue();
                 for (var streamEntry : veshEntry.streams.entrySet()) {
                     ClientStreamEntry stream = streamEntry.getValue();
-                    if (stream.isRemoved()) continue;
+                    if (stream.isRemoved() || stream.isDying()) continue;
 
                     long elapsed = mc.level.getGameTime() - stream.receivedAtTick;
                     Vec3 currentPos = stream.startPos.add(
@@ -90,9 +90,10 @@ public class ClientVirtualEtherStreamRenderer {
                 ClientStreamEntry stream = streamEntry.getValue();
                 if (stream.isRemoved()) continue;
 
-                long elapsed = mc.level.getGameTime() - stream.receivedAtTick;
+                float elapsed = mc.level.getGameTime() - stream.receivedAtTick + partialTick;
+                if (stream.isDying) elapsed = stream.deathAtTick - stream.receivedAtTick;
                 Vec3 currentPos = stream.startPos.add(
-                        stream.motion.scale(stream.startTickCount + elapsed + partialTick));
+                        stream.motion.scale(stream.startTickCount + elapsed));
 
                 double speed = stream.motion.length();
                 if (speed > 0.0001) {
@@ -123,8 +124,8 @@ public class ClientVirtualEtherStreamRenderer {
 
         if (stream.isDying) {
             // Right-clip: deathTick counts down 60->0, consume text from right
-            float progress = (60f - stream.deathTick) / 60f;
-            int clipPixels = Math.min((int) (progress * fullTextWidth), fullTextWidth);
+            int moveFromDeath = (int) ((60f - stream.deathTick) * stream.motion.length() * 100);
+            int clipPixels = Math.min(moveFromDeath, fullTextWidth);
             visibleText = font.plainSubstrByWidth(fullText, Math.max(0, fullTextWidth - clipPixels));
             visibleTextWidth = font.width(visibleText);
         }
