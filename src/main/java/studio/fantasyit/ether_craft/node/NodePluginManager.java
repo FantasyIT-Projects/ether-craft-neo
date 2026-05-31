@@ -98,8 +98,8 @@ public class NodePluginManager {
         ALL_PLUGINS.add(new PluginInfo(PluginType.UPGRADE, EtherStreamGrowthAcceleratorUpgrade.ID, EtherStreamGrowthAcceleratorUpgrade::new, t -> t.is(Items.BONE_MEAL), Items.BONE_MEAL));
         ALL_PLUGINS.add(new PluginInfo(PluginType.UPGRADE, EtherStreamGrowthAcceleratorUpgrade.ID_ALL, EtherStreamGrowthAcceleratorUpgrade::new, t -> t.is(Items.SCULK_CATALYST), Items.SCULK_CATALYST));
         ALL_PLUGINS.add(new PluginInfo(PluginType.FEATURE, FeatureRedstoneSignal.ID, FeatureRedstoneSignal::new, t -> t.is(Items.COMPARATOR), Items.COMPARATOR));
-        ALL_PLUGINS.add(new PluginInfo(PluginType.UPGRADE, RedstoneSwitchUpgrade.ID, RedstoneSwitchUpgrade::new, t -> t.is(Items.REDSTONE), Items.REDSTONE));
-        ALL_PLUGINS.add(new PluginInfo(PluginType.UPGRADE, DestructionUpgrade.ID, DestructionUpgrade::new, t -> t.is(Items.LAVA_BUCKET), Items.LAVA_BUCKET));
+        ALL_PLUGINS.add(new PluginInfo(PluginType.FEATURE, RedstoneSwitchUpgrade.ID, RedstoneSwitchUpgrade::new, t -> t.is(Items.REDSTONE), Items.REDSTONE));
+        ALL_PLUGINS.add(new PluginInfo(PluginType.FEATURE, DestructionUpgrade.ID, DestructionUpgrade::new, t -> t.is(Items.LAVA_BUCKET), Items.LAVA_BUCKET));
     }
 
     public NodePluginManager() {

@@ -8,12 +8,18 @@ import studio.fantasyit.ether_craft.node.plugins.base.PluginMenuContext;
 import studio.fantasyit.ether_craft.node.plugins.feature.FeatureContainerInteract;
 import studio.fantasyit.ether_craft.node.plugins.feature.FeatureDropperThrower;
 import studio.fantasyit.ether_craft.node.plugins.feature.FeatureEtherStreamEmitter;
+import studio.fantasyit.ether_craft.node.plugins.feature.FeatureRedstoneSignal;
 import studio.fantasyit.ether_craft.node.plugins.function.*;
+import studio.fantasyit.ether_craft.node.plugins.upgrade.DestructionUpgrade;
+import studio.fantasyit.ether_craft.node.plugins.upgrade.RedstoneSwitchUpgrade;
 import studio.fantasyit.ether_craft.node.tabs.BaseEtherNodeTabWidgetProvider;
 import studio.fantasyit.ether_craft.node.tabs.MainPageProvider;
 import studio.fantasyit.ether_craft.node.tabs.feature.ContainerInteractScreen;
+import studio.fantasyit.ether_craft.node.tabs.feature.DestructionTab;
 import studio.fantasyit.ether_craft.node.tabs.feature.DropperThrowerScreen;
 import studio.fantasyit.ether_craft.node.tabs.feature.EtherStreamEmitterScreen;
+import studio.fantasyit.ether_craft.node.tabs.feature.RedstoneSignalTab;
+import studio.fantasyit.ether_craft.node.tabs.feature.RedstoneSwitchTab;
 import studio.fantasyit.ether_craft.node.tabs.function.*;
 
 import java.util.HashMap;
@@ -37,6 +43,9 @@ public class EtherAdaptNodeUpgradeTabManager {
         register(FeatureEtherStreamEmitter.ID, wrap(EtherStreamEmitterScreen::new));
         register(FeatureDropperThrower.ID, wrap(DropperThrowerScreen::new));
         register(FeatureContainerInteract.ID, wrap(ContainerInteractScreen::new));
+        register(FeatureRedstoneSignal.ID, wrap(RedstoneSignalTab::new));
+        register(RedstoneSwitchUpgrade.ID, wrap(RedstoneSwitchTab::new));
+        register(DestructionUpgrade.ID, wrap(DestructionTab::new));
     }
 
     public <T extends AbstractNodePlugin> BiFunction<PluginMenuContext, EtherAdaptNodeScreen, BaseEtherNodeTabWidgetProvider<?>> wrap(BiFunction<PluginMenuContext<T>, EtherAdaptNodeScreen, BaseEtherNodeTabWidgetProvider<T>> construct) {
