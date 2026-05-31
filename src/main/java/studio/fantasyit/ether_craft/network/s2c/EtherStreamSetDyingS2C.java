@@ -12,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.stream.PosDir;
-import studio.fantasyit.ether_craft.stream.client.ClientVESHDataGetter;
+import studio.fantasyit.ether_craft.stream.client.data.ClientVESHDataGetter;
 
 import java.util.ArrayList;
 import java.util.List;

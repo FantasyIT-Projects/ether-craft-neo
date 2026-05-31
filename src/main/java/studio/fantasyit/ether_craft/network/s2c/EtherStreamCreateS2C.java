@@ -14,8 +14,9 @@ import org.jetbrains.annotations.Nullable;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.stream.EtherConsumer;
 import studio.fantasyit.ether_craft.stream.PosDir;
-import studio.fantasyit.ether_craft.stream.client.ClientVESHData;
-import studio.fantasyit.ether_craft.stream.client.ClientVESHDataGetter;
+import studio.fantasyit.ether_craft.stream.client.data.ClientVESHDataGetter;
+import studio.fantasyit.ether_craft.stream.data.IEtherStreamSyncedData;
+import studio.fantasyit.ether_craft.stream.data.SyncedEtherStreamDataManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,8 +34,7 @@ public record EtherStreamCreateS2C(
             int ether,
             int tickCount,
             EtherConsumer.State consumerState,
-            @Nullable Component label,
-            int labelColor
+            List<IEtherStreamSyncedData> syncedData
     ) {
     }
 
@@ -64,8 +64,7 @@ public record EtherStreamCreateS2C(
             ByteBufCodecs.VAR_INT, StreamEntry::ether,
             ByteBufCodecs.VAR_INT, StreamEntry::tickCount,
             EtherConsumer.State.STREAM_CODEC, StreamEntry::consumerState,
-            NULLABLE_COMPONENT_CODEC, StreamEntry::label,
-            ByteBufCodecs.INT, StreamEntry::labelColor,
+            ByteBufCodecs.collection(ArrayList::new, SyncedEtherStreamDataManager.STREAM_CODEC), StreamEntry::syncedData,
             StreamEntry::new
     );
 

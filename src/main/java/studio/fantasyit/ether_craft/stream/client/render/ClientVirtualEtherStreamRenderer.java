@@ -1,4 +1,4 @@
-package studio.fantasyit.ether_craft.stream.client;
+package studio.fantasyit.ether_craft.stream.client.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -16,6 +16,10 @@ import net.minecraft.world.phys.Vec3;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import studio.fantasyit.ether_craft.EtherCraft;
+import studio.fantasyit.ether_craft.stream.client.data.ClientStreamEntry;
+import studio.fantasyit.ether_craft.stream.client.data.ClientVESHData;
+import studio.fantasyit.ether_craft.stream.client.data.ClientVESHDataGetter;
+import studio.fantasyit.ether_craft.stream.client.extra.EtherStreamClientLogicManager;
 
 public class ClientVirtualEtherStreamRenderer {
 
@@ -27,8 +31,6 @@ public class ClientVirtualEtherStreamRenderer {
                     .sortOnUpload()
                     .createRenderSetup()
     );
-
-    private static final float LABEL_SCALE = 0.010416667F;
 
     public static void onRender(Minecraft mc, PoseStack poseStack, SubmitNodeCollector collector, CameraRenderState camera) {
         ClientVESHData data = ClientVESHDataGetter.get();
@@ -103,78 +105,12 @@ public class ClientVirtualEtherStreamRenderer {
                     if (!camera.cullFrustum.isVisible(new AABB(currentPos, currentPos).inflate(0.5))) continue;
                 }
 
-                renderLabel(stream, currentPos, camera, poseStack, collector);
+
+                EtherStreamClientLogicManager.renderExtra(stream, currentPos, camera, poseStack, collector);
             }
         }
     }
-
-    private static void renderLabel(ClientStreamEntry stream, Vec3 currentPos,
-                                    CameraRenderState camera, PoseStack poseStack, SubmitNodeCollector collector) {
-        if (stream.label == null) return;
-        Vec3 motion = stream.motion;
-        if (motion.lengthSqr() < 0.0001) return;
-
-        Font font = Minecraft.getInstance().font;
-        String fullText = stream.label.getString();
-        int fullTextWidth = font.width(fullText);
-        if (fullTextWidth == 0) return;
-
-        String visibleText = fullText;
-        int visibleTextWidth = fullTextWidth;
-
-        if (stream.isDying) {
-            // Right-clip: deathTick counts down 60->0, consume text from right
-            int moveFromDeath = (int) ((60f - stream.deathTick) * stream.motion.length() * 100);
-            int clipPixels = Math.min(moveFromDeath, fullTextWidth);
-            visibleText = font.plainSubstrByWidth(fullText, Math.max(0, fullTextWidth - clipPixels));
-            visibleTextWidth = font.width(visibleText);
-        }
-
-        Vec3 dir = motion.normalize();
-        Vec3 up = new Vec3(0.0, 1.0, 0.0);
-        boolean vertical = Math.abs(dir.dot(up)) > 0.999;
-        Vec3 normal;
-        if (vertical) {
-            normal = dir.cross(new Vec3(1.0, 0.0, 0.0)).normalize();
-        } else {
-            normal = dir.cross(up).normalize();
-        }
-
-        FormattedCharSequence text = FormattedCharSequence.forward(visibleText, net.minecraft.network.chat.Style.EMPTY);
-
-        // Render on both faces so the label is visible from either side
-        for (Vec3 faceNormal : new Vec3[]{normal, normal.scale(-1)}) {
-            poseStack.pushPose();
-
-            poseStack.translate(
-                    currentPos.x - camera.pos.x,
-                    currentPos.y - camera.pos.y,
-                    currentPos.z - camera.pos.z
-            );
-
-            Quaternionf rotation = new Quaternionf().rotateTo(
-                    new org.joml.Vector3f(0, 0, 1),
-                    new org.joml.Vector3f((float) faceNormal.x, (float) faceNormal.y, (float) faceNormal.z));
-            poseStack.mulPose(rotation);
-            if (vertical) {
-                poseStack.mulPose(new Quaternionf().rotateZ((float) Math.toRadians(faceNormal == normal ? -90 : 90)));
-            }
-            poseStack.scale(LABEL_SCALE, -LABEL_SCALE, LABEL_SCALE);
-
-            float textX;
-            if (vertical) {
-                textX = faceNormal == normal ? 0 : -visibleTextWidth;
-            } else {
-                textX = faceNormal == normal ? -visibleTextWidth : 0;
-            }
-            collector.submitText(poseStack, textX, 0, text, false,
-                    Font.DisplayMode.NORMAL, 0xF000F0, stream.labelColor, 0, 0);
-
-            poseStack.popPose();
-        }
-    }
-
-    private static void vertex(VertexConsumer buffer, PoseStack.Pose pose, float x, float y, float z, int a, float u, float v, int light, Vector3f norm) {
+    public static void vertex(VertexConsumer buffer, PoseStack.Pose pose, float x, float y, float z, int a, float u, float v, int light, Vector3f norm) {
         buffer.addVertex(pose, x, y, z)
                 .setColor(255, 255, 255, a)
                 .setUv(u, v)

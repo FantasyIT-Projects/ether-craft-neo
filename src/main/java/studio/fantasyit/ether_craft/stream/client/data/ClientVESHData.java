@@ -1,18 +1,22 @@
-package studio.fantasyit.ether_craft.stream.client;
+package studio.fantasyit.ether_craft.stream.client.data;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.level.Level;
 import studio.fantasyit.ether_craft.network.s2c.EtherStreamCreateS2C;
 import studio.fantasyit.ether_craft.network.s2c.EtherStreamSetDyingS2C;
+import studio.fantasyit.ether_craft.network.s2c.EtherStreamSyncDataS2C;
 import studio.fantasyit.ether_craft.network.s2c.EtherStreamUpdateS2C;
 import studio.fantasyit.ether_craft.stream.PosDir;
+import studio.fantasyit.ether_craft.stream.client.extra.EtherStreamClientLogicManager;
+import studio.fantasyit.ether_craft.stream.data.IEtherStreamSyncedData;
 
 import java.util.*;
 
 public class ClientVESHData {
 
+
     public static class ClientVESHEntry {
-        final Map<Integer, ClientStreamEntry> streams = new HashMap<>();
+        public final Map<Integer, ClientStreamEntry> streams = new HashMap<>();
     }
 
     private final Map<PosDir, ClientVESHEntry> entries = new HashMap<>();
@@ -42,12 +46,21 @@ public class ClientVESHData {
             ClientStreamEntry current = entry.streams.get(sid);
             if (current == null) continue;
 
-            if (current.label != null) {
+            if (EtherStreamClientLogicManager.shouldDelayDeath(current)) {
                 current.setDying();
                 current.deathAtTick = levelTime;
             } else {
                 current.setRemoved();
             }
+        }
+    }
+
+    public void handleSync(EtherStreamSyncDataS2C etherStreamSyncDataS2C) {
+        ClientVESHEntry ent = entries.get(etherStreamSyncDataS2C.posDir());
+        if (ent == null) return;
+        if (ent.streams.containsKey(etherStreamSyncDataS2C.streamId())) {
+            for (IEtherStreamSyncedData data : etherStreamSyncDataS2C.data())
+                ent.streams.get(etherStreamSyncDataS2C.streamId()).setSyncedData(data);
         }
     }
 

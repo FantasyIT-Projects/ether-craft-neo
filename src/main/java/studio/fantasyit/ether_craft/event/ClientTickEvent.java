@@ -6,8 +6,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.tick.LevelTickEvent;
 import studio.fantasyit.ether_craft.EtherCraft;
-import studio.fantasyit.ether_craft.stream.client.ClientVESHData;
-import studio.fantasyit.ether_craft.stream.client.ClientVESHDataGetter;
+import studio.fantasyit.ether_craft.stream.client.data.ClientVESHDataGetter;
 
 @EventBusSubscriber(modid = EtherCraft.MODID, value = Dist.CLIENT)
 public class ClientTickEvent {

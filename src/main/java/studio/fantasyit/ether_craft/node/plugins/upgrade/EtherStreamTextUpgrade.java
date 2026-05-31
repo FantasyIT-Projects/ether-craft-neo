@@ -12,7 +12,7 @@ import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
 import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
 import studio.fantasyit.ether_craft.node.plugins.base.AbstractNodePlugin;
 import studio.fantasyit.ether_craft.node.plugins.base.IEtherStreamCapabilityProviderPlugin;
-import studio.fantasyit.ether_craft.stream.cap.EtherStreamLabelCapability;
+import studio.fantasyit.ether_craft.stream.data.EtherStreamLabelData;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,10 +34,8 @@ public class EtherStreamTextUpgrade extends AbstractNodePlugin implements IEther
             writtenBookContent.pages().forEach(t -> allLines.add(t.raw()));
             if (allLines.isEmpty()) return;
             Component component = allLines.get(nodeEntity.getLevel().getRandom().nextInt(allLines.size()));
-            EtherStreamLabelCapability etherStreamLabelCapability = new EtherStreamLabelCapability();
-            etherStreamLabelCapability.setLabel(component);
-            etherStreamLabelCapability.setColor(0xFFFFFFFF);
-            entity.addCapability(etherStreamLabelCapability);
+            EtherStreamLabelData etherStreamLabelCapability = new EtherStreamLabelData(component, 0xFFFFFFFF);
+            entity.setSyncedData(etherStreamLabelCapability);
         }
     }
 }

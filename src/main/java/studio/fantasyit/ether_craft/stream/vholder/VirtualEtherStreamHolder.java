@@ -15,6 +15,7 @@ import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.block.base.EtherContainer;
 import studio.fantasyit.ether_craft.network.s2c.EtherStreamCreateS2C;
 import studio.fantasyit.ether_craft.network.s2c.EtherStreamSetDyingS2C;
+import studio.fantasyit.ether_craft.network.s2c.EtherStreamSyncDataS2C;
 import studio.fantasyit.ether_craft.network.s2c.EtherStreamUpdateS2C;
 import studio.fantasyit.ether_craft.register.Tags;
 import studio.fantasyit.ether_craft.stream.EtherStreamConsumeModifier;
@@ -64,6 +65,7 @@ public class VirtualEtherStreamHolder {
     public void tick(PosDir posDir) {
         List<Integer> collectedToCreate = new ArrayList<>();
         List<Integer> collectedToRemove = new ArrayList<>();
+        List<Integer> collectedToSyncData = new ArrayList<>();
         activateTick--;
 
         // === PER-VES TICK ===
@@ -175,7 +177,7 @@ public class VirtualEtherStreamHolder {
             double nearestDist = Double.MAX_VALUE;
             for (EntityHitResult eh : allEntityHits.getOrDefault(ves, List.of())) {
                 double d = oldPos.distanceToSqr(eh.getLocation());
-                if (d < nearestDist) {
+                if (d < nearestDist && !ves.shouldPassThrough(eh.getEntity())) {
                     nearestDist = d;
                     nearestEntity = eh;
                 }
@@ -212,6 +214,10 @@ public class VirtualEtherStreamHolder {
             if (ves.markToSyncCreation) {
                 collectedToCreate.add(ves.streamId);
                 ves.markToSyncCreation = false;
+                ves.markToSyncData = false;
+            } else if (ves.markToSyncData) {
+                collectedToSyncData.add(ves.streamId);
+                ves.markToSyncData = false;
             }
         }
 
@@ -231,8 +237,7 @@ public class VirtualEtherStreamHolder {
                             ves.ether,
                             ves.tickCount,
                             ves.consumer.toState(),
-                            ves.label,
-                            ves.labelColor
+                            ves.toSyncData
                     ));
                 }
             }
@@ -249,6 +254,16 @@ public class VirtualEtherStreamHolder {
             }
             EtherStreamSetDyingS2C payload = new EtherStreamSetDyingS2C(posDir, entries);
             PacketDistributor.sendToPlayersInDimension(level, payload);
+        }
+
+
+        if (!collectedToSyncData.isEmpty()) {
+            for (int id : collectedToSyncData) {
+                VirtualEtherStream ves = findStreamById(id);
+                if (ves == null) continue;
+                EtherStreamSyncDataS2C payload = new EtherStreamSyncDataS2C(posDir, id, ves.toSyncData);
+                PacketDistributor.sendToPlayersInDimension(level, payload);
+            }
         }
 
         List<EtherStreamUpdateS2C.StreamEntry> updateEntries = new ArrayList<>();
@@ -293,8 +308,7 @@ public class VirtualEtherStreamHolder {
                     ves.ether,
                     ves.tickCount,
                     ves.consumer.toState(),
-                    ves.label,
-                    ves.labelColor
+                    new ArrayList<>(ves.toSyncData)
             ));
         }
         if (!entries.isEmpty()) {

@@ -1,4 +1,4 @@
-package studio.fantasyit.ether_craft.stream.client;
+package studio.fantasyit.ether_craft.stream.client.data;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.level.Level;

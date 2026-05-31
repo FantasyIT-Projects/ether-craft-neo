@@ -1,14 +1,19 @@
-package studio.fantasyit.ether_craft.stream.client;
+package studio.fantasyit.ether_craft.stream.client.data;
 
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import studio.fantasyit.ether_craft.network.s2c.EtherStreamCreateS2C;
 import studio.fantasyit.ether_craft.stream.EtherConsumer;
 import studio.fantasyit.ether_craft.stream.EtherStreamConsumeModifier;
+import studio.fantasyit.ether_craft.stream.client.extra.EtherStreamClientLogicManager;
+import studio.fantasyit.ether_craft.stream.data.IEtherStreamSyncedData;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class ClientStreamEntry {
     public Vec3 startPos = Vec3.ZERO;
@@ -20,11 +25,10 @@ public class ClientStreamEntry {
     public long receivedAtTick;
     public long deathAtTick;
     public int deathTick;
-    public @Nullable Component label;
-    public int labelColor;
     public boolean isDying;
     public boolean removed;
     public final EtherConsumer consumer = new EtherConsumer();
+    public Map<Identifier, IEtherStreamSyncedData> syncedData = new HashMap<>();
 
     public void setDying() {
         if (!this.isDying) {
@@ -49,8 +53,9 @@ public class ClientStreamEntry {
             this.tickCount = entry.tickCount();
             this.ether = entry.ether();
             this.consumer.fromState(entry.consumerState());
-            this.label = entry.label();
-            this.labelColor = entry.labelColor();
+            this.syncedData = new HashMap<>();
+            for (IEtherStreamSyncedData data : entry.syncedData())
+                this.syncedData.put(data.getId(), data);
         }
         Level level = Minecraft.getInstance().level;
         this.receivedAtTick = level != null ? level.getGameTime() : 0;
@@ -76,9 +81,18 @@ public class ClientStreamEntry {
         Vec3 position = startPos.add(motion.scale(tickCount - startTickCount));
         consumption = EtherStreamConsumeModifier.modify(consumption, ether, tickCount, Minecraft.getInstance().level, position);
         ether = Math.max(0, ether - consumption);
+        EtherStreamClientLogicManager.onTick(this);
     }
 
     public boolean isDying() {
         return isDying;
+    }
+
+    public @Nullable IEtherStreamSyncedData getSyncedData(Identifier id) {
+        return syncedData.get(id);
+    }
+
+    public void setSyncedData(IEtherStreamSyncedData data) {
+        syncedData.put(data.getId(), data);
     }
 }

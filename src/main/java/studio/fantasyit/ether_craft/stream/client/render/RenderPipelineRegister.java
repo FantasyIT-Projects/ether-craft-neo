@@ -1,4 +1,4 @@
-package studio.fantasyit.ether_craft.stream.client;
+package studio.fantasyit.ether_craft.stream.client.render;
 
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;

@@ -33,4 +33,8 @@ public interface IStreamCapability extends ValueIOSerializable {
     default boolean shouldPassThrough(BlockState blockState, ServerLevel level, BlockPos blockPos) {
         return false;
     }
+
+    default boolean shouldPassThrough(Entity entity) {
+        return false;
+    }
 }

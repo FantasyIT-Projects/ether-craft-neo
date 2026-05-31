@@ -9,8 +9,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.SubmitCustomGeometryEvent;
 import studio.fantasyit.ether_craft.EtherCraft;
-import studio.fantasyit.ether_craft.stream.client.ClientVESHData;
-import studio.fantasyit.ether_craft.stream.client.ClientVirtualEtherStreamRenderer;
+import studio.fantasyit.ether_craft.stream.client.render.ClientVirtualEtherStreamRenderer;
 
 @EventBusSubscriber(modid = EtherCraft.MODID, value = Dist.CLIENT)
 public class EtherStreamRenderEvent {
