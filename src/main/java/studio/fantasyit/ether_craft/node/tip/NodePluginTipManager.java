@@ -95,6 +95,10 @@ public class NodePluginTipManager {
                 new TipInfo(List.of(Ingredient.of(Items.BONE_MEAL)), List.of(), Set.of(TipConcept.WORLD_INTERACTION, TipConcept.ETHER_FLOW)));
         registerTip(EtherStreamGrowthAcceleratorUpgrade.ID_ALL,
                 new TipInfo(List.of(Ingredient.of(Items.SCULK_CATALYST)), List.of(), Set.of(TipConcept.WORLD_INTERACTION, TipConcept.ETHER_FLOW)));
+        registerTip(EtherStreamCarryEntityUpgrade.ID,
+                new TipInfo(List.of(
+                        Ingredient.of(BuiltInRegistries.ITEM.getOrThrow(ItemTags.BOATS))
+                ), List.of(), Set.of(TipConcept.ETHER_FLOW, TipConcept.WORLD_INTERACTION)));
 
         scanNodeProcessRecipes(recipeManager);
     }

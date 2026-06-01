@@ -146,6 +146,7 @@
   "jei.ether_craft.plugin.ether_craft.ether_stream_text_upgrade": "Makes ether streams emit text particles from books placed in the upgrade slot.",
   "jei.ether_craft.plugin.ether_craft.growth_accelerator_upgrade": "Allows ether streams to accelerate crop and tree growth on contact.",
   "jei.ether_craft.plugin.ether_craft.growth_accelerator_upgrade_allow_all": "Allows ether streams to accelerate all block types (uses sculk catalyst).",
+  "jei.ether_craft.plugin.ether_craft.carry_entity_upgrade": "Allows ether streams to pick up and carry entities on contact.",
   "jei.ether_craft.plugin.ether_craft.redstone_signal": "Outputs a comparator signal based on the node's ether level or inventory fill percentage.",
   "jei.ether_craft.plugin.ether_craft.redstone_switch": "Enables or disables the node based on redstone signal.",
   "jei.ether_craft.plugin.ether_craft.destruction": "Destroys filtered items in the node inventory (overflow mode or all matching items).",
