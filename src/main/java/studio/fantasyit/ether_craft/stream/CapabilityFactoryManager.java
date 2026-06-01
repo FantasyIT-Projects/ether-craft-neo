@@ -13,7 +13,6 @@ public class CapabilityFactoryManager {
     private static final Map<Identifier, Entry<?>> ENTRIES = new HashMap<>();
 
     public static void init() {
-        register(EtherStreamLabelCapability.ID, EtherStreamLabelCapability::new, EtherStreamLabelCapability.CODEC);
         register(EtherStreamBreakBlockCapability.ID, EtherStreamBreakBlockCapability::new, EtherStreamBreakBlockCapability.CODEC);
         register(EtherStreamGrowthAcceleratorCapability.ID, ()->new EtherStreamGrowthAcceleratorCapability(false), EtherStreamGrowthAcceleratorCapability.CODEC);
         register(EtherStreamGrowthAcceleratorCapability.ID_ALL, () -> new EtherStreamGrowthAcceleratorCapability(true), EtherStreamGrowthAcceleratorCapability.CODEC_ALLOW_ALL);
