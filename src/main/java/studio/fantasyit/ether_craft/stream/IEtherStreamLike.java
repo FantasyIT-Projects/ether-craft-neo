@@ -36,4 +36,9 @@ public interface IEtherStreamLike {
     boolean shouldPassThrough(Entity entity);
 
     void setSyncedData(IEtherStreamSyncedData data);
+
+    void clearSyncedData(Identifier id);
+
+    @org.jetbrains.annotations.Nullable
+    IEtherStreamSyncedData getSyncedData(Identifier id);
 }

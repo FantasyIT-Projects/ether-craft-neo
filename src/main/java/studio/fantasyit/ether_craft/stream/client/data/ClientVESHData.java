@@ -59,8 +59,10 @@ public class ClientVESHData {
         ClientVESHEntry ent = entries.get(etherStreamSyncDataS2C.posDir());
         if (ent == null) return;
         if (ent.streams.containsKey(etherStreamSyncDataS2C.streamId())) {
+            ClientStreamEntry entry = ent.streams.get(etherStreamSyncDataS2C.streamId());
+            entry.syncedData.clear();
             for (IEtherStreamSyncedData data : etherStreamSyncDataS2C.data())
-                ent.streams.get(etherStreamSyncDataS2C.streamId()).setSyncedData(data);
+                entry.syncedData.put(data.getId(), data);
         }
     }
 

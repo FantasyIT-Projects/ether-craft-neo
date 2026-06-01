@@ -47,6 +47,7 @@ public class VirtualEtherStreamHolder {
                 level,
                 direction
         );
+        ves.setPosDir(new PosDir(this.pos, this.direction));
         streams.add(ves);
         return ves;
     }

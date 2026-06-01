@@ -34,10 +34,11 @@ public class VirtualEtherStreamHolderManager {
                     VirtualEtherStreamHolderData data = entry.holderData();
                     holder.activateTick = data.activateTick();
                     holder.nextId = data.nextId();
-                    for (VirtualEtherStreamData streamData : data.streams()) {
-                        VirtualEtherStream ves = VirtualEtherStream.fromData(null, streamData);
-                        holder.streams.add(ves);
-                    }
+                for (VirtualEtherStreamData streamData : data.streams()) {
+                    VirtualEtherStream ves = VirtualEtherStream.fromData(null, streamData);
+                    ves.setPosDir(posDir);
+                    holder.streams.add(ves);
+                }
                     mgr.holders.put(posDir, holder);
                 }
                 return mgr;

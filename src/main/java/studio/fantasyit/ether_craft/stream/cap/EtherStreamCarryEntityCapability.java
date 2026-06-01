@@ -1,5 +1,6 @@
 package studio.fantasyit.ether_craft.stream.cap;
 
+import com.mojang.serialization.Codec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
@@ -12,15 +13,15 @@ import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
-
-import javax.annotation.Nullable;
-import java.util.UUID;
+import studio.fantasyit.ether_craft.stream.data.EtherStreamCarryingEntityData;
+import studio.fantasyit.ether_craft.stream.vholder.VirtualEtherStream;
 
 public class EtherStreamCarryEntityCapability implements IStreamCapability {
     public static final Identifier ID = EtherCraft.id("carry_entity");
+    public static final Codec<EtherStreamCarryEntityCapability> CODEC =
+            Codec.INT.xmap(i -> new EtherStreamCarryEntityCapability(), c -> 0);
 
-    public @Nullable UUID carriedUUID;
-    public @Nullable Entity carriedEntity;
+    private transient Entity cachedEntity;
 
     @Override
     public Identifier getId() {
@@ -29,25 +30,49 @@ public class EtherStreamCarryEntityCapability implements IStreamCapability {
 
     @Override
     public void tick(IEtherStreamLike streamEntity) {
-        if (carriedEntity != null) {
-            carriedEntity.noPhysics = true;
-            carriedEntity.setPos(streamEntity.position());
-            Vec3 vec3 = streamEntity.deltaMovement();
-            carriedEntity.setDeltaMovement(vec3);
+        EtherStreamCarryingEntityData data = getCarriedData(streamEntity);
+        if (data == null) {
+            cachedEntity = null;
+            return;
         }
+
+        if (cachedEntity == null || !cachedEntity.getUUID().equals(data.entityUUID())) {
+            if (streamEntity.level() instanceof ServerLevel sl) {
+                cachedEntity = sl.getEntity(data.entityUUID());
+            }
+        }
+
+        if (cachedEntity == null || !cachedEntity.isAlive() || cachedEntity.isRemoved()
+                || cachedEntity.level() != streamEntity.level()) {
+            streamEntity.clearSyncedData(EtherStreamCarryingEntityData.ID);
+            cachedEntity = null;
+            return;
+        }
+
+        cachedEntity.noPhysics = true;
+        cachedEntity.setPos(streamEntity.position());
+        cachedEntity.setDeltaMovement(streamEntity.deltaMovement());
     }
 
     @Override
     public boolean hitEntity(ServerLevel level, IEtherStreamLike streamEntity, EntityHitResult hit, Entity entity) {
-        if (carriedUUID == null) {
-            carriedUUID = entity.getUUID();
-            carriedEntity = entity;
+        EtherStreamCarryingEntityData data = getCarriedData(streamEntity);
+
+        if (data == null) {
+            if (streamEntity instanceof VirtualEtherStream ves) {
+                streamEntity.setSyncedData(new EtherStreamCarryingEntityData(
+                        entity.getUUID(), entity.getId(), ves.getPosDir(), ves.getStreamId()));
+            }
+            cachedEntity = entity;
             return true;
         }
-        if (carriedUUID.equals(entity.getUUID())) {
-            carriedUUID = null;
+
+        if (data.entityUUID().equals(entity.getUUID())) {
             return true;
         }
+
+        streamEntity.clearSyncedData(EtherStreamCarryingEntityData.ID);
+        cachedEntity = null;
         return false;
     }
 
@@ -58,19 +83,32 @@ public class EtherStreamCarryEntityCapability implements IStreamCapability {
 
     @Override
     public void onDestroy(IEtherStreamLike streamEntity) {
-        if (carriedEntity != null && carriedEntity.isAlive()) {
-            BlockPos pos = streamEntity.blockPosition().below();
-            if (streamEntity.level().getBlockState(pos).isEmpty())
-                carriedEntity.teleportTo(pos.getX(), pos.getY(), pos.getZ());
-            else
-                carriedEntity.teleportTo(streamEntity.position().x, streamEntity.position().y, streamEntity.position().z);
+        EtherStreamCarryingEntityData data = getCarriedData(streamEntity);
+        if (data == null) return;
+
+        Entity entity = null;
+        if (cachedEntity != null && cachedEntity.getUUID().equals(data.entityUUID())) {
+            entity = cachedEntity;
+        } else if (streamEntity.level() instanceof ServerLevel sl) {
+            entity = sl.getEntity(data.entityUUID());
+        }
+        cachedEntity = null;
+
+        if (entity != null && entity.isAlive()) {
+            entity.noPhysics = false;
+            entity.setDeltaMovement(Vec3.ZERO);
+            BlockPos below = streamEntity.blockPosition().below();
+            if (streamEntity.level().getBlockState(below).isEmpty()) {
+                entity.teleportTo(below.getX() + 0.5, below.getY(), below.getZ() + 0.5);
+            } else {
+                entity.teleportTo(streamEntity.position().x, streamEntity.position().y, streamEntity.position().z);
+            }
         }
     }
 
-
     @Override
     public boolean shouldPassThrough(Entity entity) {
-        return entity.getUUID().equals(carriedEntity);
+        return cachedEntity != null && cachedEntity.getUUID().equals(entity.getUUID());
     }
 
     @Override
@@ -79,5 +117,9 @@ public class EtherStreamCarryEntityCapability implements IStreamCapability {
 
     @Override
     public void deserialize(ValueInput input) {
+    }
+
+    private EtherStreamCarryingEntityData getCarriedData(IEtherStreamLike streamEntity) {
+        return (EtherStreamCarryingEntityData) streamEntity.getSyncedData(EtherStreamCarryingEntityData.ID);
     }
 }

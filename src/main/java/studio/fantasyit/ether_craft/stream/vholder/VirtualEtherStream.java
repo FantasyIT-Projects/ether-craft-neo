@@ -7,8 +7,10 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.Nullable;
 import studio.fantasyit.ether_craft.stream.EtherConsumer;
 import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
+import studio.fantasyit.ether_craft.stream.PosDir;
 import studio.fantasyit.ether_craft.stream.cap.IStreamCapability;
 import studio.fantasyit.ether_craft.stream.data.IEtherStreamSyncedData;
 
@@ -22,6 +24,7 @@ public class VirtualEtherStream implements IEtherStreamLike {
     Direction direction;
     Vec3 startPos;
     Vec3 motion;
+    PosDir posDir;
 
     public boolean markToSyncCreation = false;
     public boolean markToRemove = false;
@@ -124,7 +127,35 @@ public class VirtualEtherStream implements IEtherStreamLike {
 
     @Override
     public void setSyncedData(IEtherStreamSyncedData data) {
+        toSyncData.removeIf(d -> d.getId().equals(data.getId()));
         toSyncData.add(data);
+        markToSyncData = true;
+    }
+
+    @Override
+    public void clearSyncedData(Identifier id) {
+        toSyncData.removeIf(d -> d.getId().equals(id));
+        markToSyncData = true;
+    }
+
+    @Override
+    public @Nullable IEtherStreamSyncedData getSyncedData(Identifier id) {
+        for (IEtherStreamSyncedData d : toSyncData) {
+            if (d.getId().equals(id)) return d;
+        }
+        return null;
+    }
+
+    public PosDir getPosDir() {
+        return posDir;
+    }
+
+    public void setPosDir(PosDir posDir) {
+        this.posDir = posDir;
+    }
+
+    public int getStreamId() {
+        return streamId;
     }
 
     VirtualEtherStreamData toData() {
@@ -157,6 +188,7 @@ public class VirtualEtherStream implements IEtherStreamLike {
         for (IStreamCapability cap : data.capabilities()) {
             cap.setConsumer(ves.consumer);
         }
+        ves.toSyncData = new ArrayList<>(data.toSyncData());
         return ves;
     }
 }

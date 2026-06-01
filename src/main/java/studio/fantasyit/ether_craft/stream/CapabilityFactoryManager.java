@@ -18,6 +18,7 @@ public class CapabilityFactoryManager {
         register(EtherStreamGrowthAcceleratorCapability.ID_ALL, () -> new EtherStreamGrowthAcceleratorCapability(true), EtherStreamGrowthAcceleratorCapability.CODEC_ALLOW_ALL);
         register(EtherStreamStorageCapability.ID, () -> new EtherStreamStorageCapability(1), EtherStreamStorageCapability.CODEC);
         register(EtherStreamDamageCapability.ID, EtherStreamDamageCapability::new, EtherStreamDamageCapability.CODEC);
+        register(EtherStreamCarryEntityCapability.ID, EtherStreamCarryEntityCapability::new, EtherStreamCarryEntityCapability.CODEC);
     }
 
     public static <T extends IStreamCapability> void register(Identifier id, Supplier<T> factory, Codec<T> codec) {

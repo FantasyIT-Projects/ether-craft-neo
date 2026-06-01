@@ -33,5 +33,6 @@ public class SyncedEtherStreamDataManager {
 
     public static void collect() {
         register(EtherStreamLabelData.ID, EtherStreamLabelData::fromBuffer, EtherStreamLabelData.CODEC);
+        register(EtherStreamCarryingEntityData.ID, EtherStreamCarryingEntityData::fromBuffer, EtherStreamCarryingEntityData.CODEC);
     }
 }
