@@ -28,6 +28,11 @@ public class AttachmentDataRegistry {
     public static final Supplier<AttachmentType<ClientVESHData>> CLIENT_VESH_DATA = ATTACHMENT_TYPES.register(
             "client_vesh_data", () -> AttachmentType.builder(ClientVESHData::new).build()
     );
+    public static final Supplier<AttachmentType<Long>> CARRY_COOLDOWN = ATTACHMENT_TYPES.register(
+            "carry_cooldown", () -> AttachmentType.builder(() -> -40L)
+                    .serialize(Codec.LONG.fieldOf("carry_cooldown"))
+                    .build()
+    );
 
     public static void register(IEventBus modbus) {
         ATTACHMENT_TYPES.register(modbus);

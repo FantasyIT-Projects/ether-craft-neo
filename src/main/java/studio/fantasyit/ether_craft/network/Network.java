@@ -102,6 +102,11 @@ public class Network {
                 FactoryMenuSwitchItemC2S.CODEC,
                 wrapWithPlayer(FactoryMenuSwitchItemC2SHandler::handle)
         );
+        event.playToServer(
+                UncarryC2S.TYPE,
+                UncarryC2S.CODEC,
+                wrapWithPlayer(UncarryC2S::handle)
+        );
     }
 
 

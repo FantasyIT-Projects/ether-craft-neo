@@ -106,4 +106,8 @@ public class VirtualEtherStreamHolderManager {
         mgr.initLevel(level);
         return mgr;
     }
+
+    public VirtualEtherStreamHolder getHolder(PosDir posDir) {
+        return holders.get(posDir);
+    }
 }

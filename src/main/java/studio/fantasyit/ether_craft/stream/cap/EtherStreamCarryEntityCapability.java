@@ -50,7 +50,8 @@ public class EtherStreamCarryEntityCapability implements IStreamCapability {
         }
 
         cachedEntity.noPhysics = true;
-        cachedEntity.setPos(streamEntity.position());
+        Vec3 position = streamEntity.position();
+        cachedEntity.setPos(position.x, position.y - cachedEntity.getEyeHeight(), position.z);
         cachedEntity.setDeltaMovement(streamEntity.deltaMovement());
     }
 
@@ -59,6 +60,10 @@ public class EtherStreamCarryEntityCapability implements IStreamCapability {
         EtherStreamCarryingEntityData data = getCarriedData(streamEntity);
 
         if (data == null) {
+            long cooldown = entity.getData(studio.fantasyit.ether_craft.register.AttachmentDataRegistry.CARRY_COOLDOWN.get());
+            if (level.getGameTime() - cooldown < 40) {
+                return false;
+            }
             if (streamEntity instanceof VirtualEtherStream ves) {
                 streamEntity.setSyncedData(new EtherStreamCarryingEntityData(
                         entity.getUUID(), entity.getId(), ves.getPosDir(), ves.getStreamId()));

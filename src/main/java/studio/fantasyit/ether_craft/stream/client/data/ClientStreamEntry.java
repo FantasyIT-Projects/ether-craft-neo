@@ -88,6 +88,10 @@ public class ClientStreamEntry {
         return isDying;
     }
 
+    public Vec3 getCurrentPosition() {
+        return startPos.add(motion.scale(tickCount - startTickCount));
+    }
+
     public @Nullable IEtherStreamSyncedData getSyncedData(Identifier id) {
         return syncedData.get(id);
     }

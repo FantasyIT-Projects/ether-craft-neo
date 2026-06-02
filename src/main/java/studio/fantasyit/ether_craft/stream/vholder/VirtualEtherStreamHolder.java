@@ -288,7 +288,7 @@ public class VirtualEtherStreamHolder {
         streams.removeIf(ves -> ves.markToRemove);
     }
 
-    private VirtualEtherStream findStreamById(int id) {
+    public VirtualEtherStream findStreamById(int id) {
         for (VirtualEtherStream ves : streams) {
             if (ves.streamId == id) return ves;
         }
