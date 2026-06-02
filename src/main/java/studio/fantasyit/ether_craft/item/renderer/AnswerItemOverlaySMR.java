@@ -25,6 +25,8 @@ import org.joml.Vector3fc;
 import org.jspecify.annotations.Nullable;
 import studio.fantasyit.ether_craft.register.DataComponentRegistry;
 
+import studio.fantasyit.ether_craft.render.LightmapSubmitNodeCollector;
+
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -41,14 +43,14 @@ public record AnswerItemOverlaySMR(List<BakedQuad> baseQuads) implements Special
 
         ItemModelResolver resolver = Minecraft.getInstance().getItemModelResolver();
         ItemStackRenderState state = new ItemStackRenderState();
-        resolver.updateForTopItem(state, targetStack.create(), ItemDisplayContext.NONE,
+        resolver.updateForTopItem(state, targetStack.create(), ItemDisplayContext.GUI,
                 Minecraft.getInstance().level, null, 0);
 
         poseStack.pushPose();
         poseStack.translate(0.5f, 0.1f, 0.55f);
         poseStack.scale(0.5f, 0.5f, 0.001f);
         poseStack.translate(0.5f, 0.5f, 1.0f);
-        state.submit(poseStack, submitNodeCollector, light, overlay, outline);
+        state.submit(poseStack, new LightmapSubmitNodeCollector(submitNodeCollector), light, overlay, outline);
         poseStack.popPose();
     }
 
