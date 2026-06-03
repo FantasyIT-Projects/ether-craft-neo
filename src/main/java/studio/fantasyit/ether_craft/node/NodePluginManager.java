@@ -97,6 +97,7 @@ public class NodePluginManager {
         ALL_PLUGINS.add(new PluginInfo(PluginType.UPGRADE, EtherStreamGrowthAcceleratorUpgrade.ID, EtherStreamGrowthAcceleratorUpgrade::new, t -> t.is(Items.BONE_MEAL), Items.BONE_MEAL));
         ALL_PLUGINS.add(new PluginInfo(PluginType.UPGRADE, EtherStreamGrowthAcceleratorUpgrade.ID_ALL, EtherStreamGrowthAcceleratorUpgrade::new, t -> t.is(Items.SCULK_CATALYST), Items.SCULK_CATALYST));
         ALL_PLUGINS.add(new PluginInfo(PluginType.UPGRADE, EtherStreamCarryEntityUpgrade.ID, EtherStreamCarryEntityUpgrade::new, t -> t.is(ItemTags.BOATS), Items.OAK_BOAT));
+        ALL_PLUGINS.add(new PluginInfo(PluginType.UPGRADE, EtherStreamSpeedUpUpgrade.ID, EtherStreamSpeedUpUpgrade::new, t -> t.is(Items.POWERED_RAIL), Items.POWERED_RAIL));
     }
 
     public NodePluginManager() {

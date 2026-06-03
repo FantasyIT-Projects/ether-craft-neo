@@ -11,12 +11,12 @@ import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.world.level.CardinalLighting;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LightLayer;
+import net.minecraft.world.level.block.state.BlockState;
 import studio.fantasyit.ether_craft.block.node.EtherAdaptNodeEntity;
 
 import java.util.ArrayList;
@@ -25,12 +25,12 @@ import java.util.List;
 
 public class EtherAdapterNodeRenderState extends BlockEntityRenderState {
     EtherAdapterNodeAtlas.AtlasUV[] sides = new EtherAdapterNodeAtlas.AtlasUV[]{
-            EtherAdapterNodeAtlas.BOTTOM,
-            EtherAdapterNodeAtlas.TOP,
-            EtherAdapterNodeAtlas.SIDE,
-            EtherAdapterNodeAtlas.SIDE,
-            EtherAdapterNodeAtlas.SIDE,
-            EtherAdapterNodeAtlas.SIDE
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
     };
     int[] packedLightSides = new int[6];
 
@@ -157,6 +157,13 @@ public class EtherAdapterNodeRenderState extends BlockEntityRenderState {
 
     public void setSideAtlas(Direction key, EtherAdapterNodeAtlas.AtlasUV apply) {
         sides[key.ordinal()] = apply;
+        for (int i = 0; i < overlays.size(); i++) {
+            if (overlayDirections.get(i) == key) {
+                overlays.remove(i);
+                overlayDirections.remove(i);
+                i--;
+            }
+        }
     }
 
     public void addOverlay(Direction face, EtherAdapterNodeAtlas.AtlasUV atlasUV) {

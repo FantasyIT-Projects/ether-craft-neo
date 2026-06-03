@@ -37,4 +37,19 @@ public class EtherStreamClientLogicManager {
             logic.onRender(stream, currentPos, camera, poseStack, collector);
         }
     }
+
+    public static boolean shouldRender(ClientStreamEntry entry) {
+        for (IEtherStreamExtraClientLogic logic : extraLogic) {
+            if (!logic.shouldRender(entry)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static void onDestroy(ClientStreamEntry entry) {
+        for (IEtherStreamExtraClientLogic logic : extraLogic) {
+            logic.onDestroy(entry);
+        }
+    }
 }

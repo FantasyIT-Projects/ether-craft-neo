@@ -3,14 +3,12 @@ package studio.fantasyit.ether_craft.stream.client.render;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.rendertype.RenderSetup;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.Identifier;
-import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Quaternionf;
@@ -47,7 +45,8 @@ public class ClientVirtualEtherStreamRenderer {
                 ClientVESHData.ClientVESHEntry veshEntry = posEntry.getValue();
                 for (var streamEntry : veshEntry.streams.entrySet()) {
                     ClientStreamEntry stream = streamEntry.getValue();
-                    if (stream.isRemoved() || stream.isDying()) continue;
+                    if (stream.isRemoved() || stream.isDying() || !EtherStreamClientLogicManager.shouldRender(stream))
+                        continue;
 
                     long elapsed = mc.level.getGameTime() - stream.receivedAtTick;
                     Vec3 currentPos = stream.startPos.add(
@@ -110,6 +109,7 @@ public class ClientVirtualEtherStreamRenderer {
             }
         }
     }
+
     public static void vertex(VertexConsumer buffer, PoseStack.Pose pose, float x, float y, float z, int a, float u, float v, int light, Vector3f norm) {
         buffer.addVertex(pose, x, y, z)
                 .setColor(255, 255, 255, a)

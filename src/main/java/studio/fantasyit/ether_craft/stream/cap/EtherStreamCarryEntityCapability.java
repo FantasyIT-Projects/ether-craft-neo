@@ -1,10 +1,12 @@
 package studio.fantasyit.ether_craft.stream.cap;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
@@ -12,16 +14,26 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
 import studio.fantasyit.ether_craft.EtherCraft;
+import studio.fantasyit.ether_craft.register.AttachmentDataRegistry;
 import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
 import studio.fantasyit.ether_craft.stream.data.EtherStreamCarryingEntityData;
 import studio.fantasyit.ether_craft.stream.vholder.VirtualEtherStream;
 
+import java.util.Optional;
+
 public class EtherStreamCarryEntityCapability implements IStreamCapability {
     public static final Identifier ID = EtherCraft.id("carry_entity");
-    public static final Codec<EtherStreamCarryEntityCapability> CODEC =
-            Codec.INT.xmap(i -> new EtherStreamCarryEntityCapability(), c -> 0);
+    public static final Codec<EtherStreamCarryEntityCapability> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            BlockPos.CODEC.fieldOf("source").forGetter(t -> t.source)
+    ).apply(instance, EtherStreamCarryEntityCapability::new));
 
     private transient Entity cachedEntity;
+
+    private BlockPos source;
+
+    public EtherStreamCarryEntityCapability(BlockPos source) {
+        this.source = source;
+    }
 
     @Override
     public Identifier getId() {
@@ -53,6 +65,7 @@ public class EtherStreamCarryEntityCapability implements IStreamCapability {
         Vec3 position = streamEntity.position();
         cachedEntity.setPos(position.x, position.y - cachedEntity.getEyeHeight(), position.z);
         cachedEntity.setDeltaMovement(streamEntity.deltaMovement());
+        cachedEntity.setInvisible(true);
     }
 
     @Override
@@ -60,10 +73,14 @@ public class EtherStreamCarryEntityCapability implements IStreamCapability {
         EtherStreamCarryingEntityData data = getCarriedData(streamEntity);
 
         if (data == null) {
-            long cooldown = entity.getData(studio.fantasyit.ether_craft.register.AttachmentDataRegistry.CARRY_COOLDOWN.get());
+            long cooldown = entity.getData(AttachmentDataRegistry.CARRY_COOLDOWN.get());
             if (level.getGameTime() - cooldown < 40) {
-                return false;
+                Optional<BlockPos> source = entity.getData(AttachmentDataRegistry.CARRY_COOLDOWN_SOURCE);
+                if (source.isEmpty() || source.get().equals(this.source))
+                    return false;
             }
+            if (entity.noPhysics)
+                return false;
             if (streamEntity instanceof VirtualEtherStream ves) {
                 streamEntity.setSyncedData(new EtherStreamCarryingEntityData(
                         entity.getUUID(), entity.getId(), ves.getPosDir(), ves.getStreamId()));
@@ -72,13 +89,7 @@ public class EtherStreamCarryEntityCapability implements IStreamCapability {
             return true;
         }
 
-        if (data.entityUUID().equals(entity.getUUID())) {
-            return true;
-        }
-
-        streamEntity.clearSyncedData(EtherStreamCarryingEntityData.ID);
-        cachedEntity = null;
-        return false;
+        return data.entityUUID().equals(entity.getUUID());
     }
 
     @Override
@@ -102,12 +113,29 @@ public class EtherStreamCarryEntityCapability implements IStreamCapability {
         if (entity != null && entity.isAlive()) {
             entity.noPhysics = false;
             entity.setDeltaMovement(Vec3.ZERO);
-            BlockPos below = streamEntity.blockPosition().below();
-            if (streamEntity.level().getBlockState(below).isEmpty()) {
-                entity.teleportTo(below.getX() + 0.5, below.getY(), below.getZ() + 0.5);
-            } else {
-                entity.teleportTo(streamEntity.position().x, streamEntity.position().y, streamEntity.position().z);
-            }
+            Vec3 dropPlayerPos = streamEntity.position();
+            Vec3 motion = streamEntity.deltaMovement();
+            dropEntityTo(streamEntity.level(), dropPlayerPos, motion, entity);
+            entity.setData(AttachmentDataRegistry.CARRY_COOLDOWN.get(), entity.level().getGameTime());
+            entity.setData(AttachmentDataRegistry.CARRY_COOLDOWN_SOURCE.get(), Optional.of(source));
+        }
+    }
+
+    public static void dropEntityTo(Level level, Vec3 dropPlayerPos, Vec3 motion, Entity entity) {
+        Vec3 subtract = dropPlayerPos.subtract(motion.normalize().scale(0.5));
+        dropPlayerPos = new Vec3(Math.floor(subtract.x) + 0.5, dropPlayerPos.y, Math.floor(subtract.z) + 0.5);
+        Vec3 realDraggedAt = dropPlayerPos.subtract(0, entity.getEyeHeight(), 0);
+        BlockPos below = BlockPos.containing(realDraggedAt);
+        if (level.getBlockState(below).isEmpty()) {
+            dropPlayerPos = realDraggedAt;
+        }
+        entity.setDeltaMovement(Vec3.ZERO);
+        if (entity.level() instanceof ServerLevel) {
+            entity.teleportTo(dropPlayerPos.x, dropPlayerPos.y, dropPlayerPos.z);
+            entity.setOldPosAndRot();
+            entity.setInvisible(false);
+        } else {
+            entity.setPos(dropPlayerPos.x, dropPlayerPos.y, dropPlayerPos.z);
         }
     }
 

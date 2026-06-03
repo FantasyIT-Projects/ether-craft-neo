@@ -7,11 +7,10 @@ import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
+import org.jetbrains.annotations.Nullable;
 import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.block.node.EtherAdaptNodeEntity;
-import studio.fantasyit.ether_craft.stream.PosDir;
-import studio.fantasyit.ether_craft.stream.vholder.VirtualEtherStreamHolderManager;
 import studio.fantasyit.ether_craft.menu.base.slot.BaseDataSlot;
 import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeContainerMenu;
 import studio.fantasyit.ether_craft.network.c2s.SyncScreenDataC2S;
@@ -19,9 +18,12 @@ import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
 import studio.fantasyit.ether_craft.node.plugins.base.AbstractNodePlugin;
 import studio.fantasyit.ether_craft.node.plugins.base.IEtherStreamCapabilityProviderPlugin;
 import studio.fantasyit.ether_craft.node.plugins.base.PluginMenuContext;
-import studio.fantasyit.ether_craft.stream.cap.EtherStreamStorageCapability;
+import studio.fantasyit.ether_craft.node.plugins.upgrade.EtherStreamSpeedUpUpgrade;
 import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
+import studio.fantasyit.ether_craft.stream.PosDir;
+import studio.fantasyit.ether_craft.stream.cap.EtherStreamStorageCapability;
 import studio.fantasyit.ether_craft.stream.cap.IStreamCapability;
+import studio.fantasyit.ether_craft.stream.vholder.VirtualEtherStreamHolderManager;
 
 import java.util.Optional;
 
@@ -63,10 +65,17 @@ public class FeatureEtherStreamEmitter extends AbstractDirectionalFilterFeature 
 
             VirtualEtherStreamHolderManager veshm = VirtualEtherStreamHolderManager.get(serverLevel);
             if (!veshm.canCreateStream(posDir)) return false;
+            Vec3 spd = dir.multiply(0.1f, 0.1f, 0.1f);
+            for (int i = 0; i < nodeEntity.featureUpgradeStorage.getContainerSize(); i++) {
+                @Nullable Identifier plugin = nodeEntity.featureUpgradeStorage.getPluginId(i);
+                if (EtherStreamSpeedUpUpgrade.ID.equals(plugin)) {
+                    spd = spd.multiply(2f, 2f, 2f);
+                }
+            }
             IEtherStreamLike stream = veshm.createStream(
                     serverLevel, posDir, (int) sendWith,
                     nodeEntity.getBlockPos().getCenter().add(dir),
-                    dir.multiply(0.1f, 0.1f, 0.1f)
+                    spd
             );
 
             for (int i = 0; i < nodeEntity.featureUpgradeStorage.getContainerSize(); i++) {

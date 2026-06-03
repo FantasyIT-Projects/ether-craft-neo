@@ -154,7 +154,7 @@ public class EtherAdaptNodeBlock extends BaseBlock {
 
     @Override
     public @NotNull RenderShape getRenderShape(@NotNull BlockState p_49232_) {
-        return RenderShape.INVISIBLE;
+        return RenderShape.MODEL;
     }
 
     @Override

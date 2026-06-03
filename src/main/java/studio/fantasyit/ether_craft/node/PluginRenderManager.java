@@ -28,74 +28,78 @@ public class PluginRenderManager {
     public void collect() {
         PluginRender generatorLayer = (face, dTick, nodeEntity, state, installedPlugin) -> {
             AbstractItemConsumeFunction.WorkingMaterial value = AbstractItemConsumeFunction.WorkingMaterial.values()[nodeEntity.getSyncedPluginData(installedPlugin, AbstractItemConsumeFunction.WORKING_MATERIAL)];
-            state.setSideAtlas(face, EtherAdapterNodeAtlas.FUNCTION_BURNER_EMPTY);
+            state.setSideAtlas(face, EtherAdapterNodeAtlas.FUNCTION_ITEM_CONSUME_GENERATOR);
+
+            if (value != AbstractItemConsumeFunction.WorkingMaterial.IDLE)
+                state.addOverlay(face, EtherAdapterNodeAtlas.FUNCTION_ITEM_CONSUME_WORKING);
 
             if (value == AbstractItemConsumeFunction.WorkingMaterial.COAL) {
-                state.addOverlay(face, EtherAdapterNodeAtlas.OVERLAY_FUNCTION_BURNER_COAL.get(dTick));
+                state.addOverlay(face, EtherAdapterNodeAtlas.FUNCTION_ITEM_CONSUME_MATERIAL_FIRE.get(dTick));
             } else if (value == AbstractItemConsumeFunction.WorkingMaterial.LAVA) {
-                state.addOverlay(face, EtherAdapterNodeAtlas.OVERLAY_FUNCTION_BURNER_LAVA.get(dTick));
+                state.addOverlay(face, EtherAdapterNodeAtlas.FUNCTION_ITEM_CONSUME_MATERIAL_LAVA.get(dTick));
             } else if (value == AbstractItemConsumeFunction.WorkingMaterial.WOOD) {
-                state.addOverlay(face, EtherAdapterNodeAtlas.OVERLAY_FUNCTION_BURNER_WOOD);
+                state.addOverlay(face, EtherAdapterNodeAtlas.FUNCTION_ITEM_CONSUME_MATERIAL_WOOD);
             } else if (value == AbstractItemConsumeFunction.WorkingMaterial.STONE) {
-                state.addOverlay(face, EtherAdapterNodeAtlas.OVERLAY_FUNCTION_BURNER_STONE);
+                state.addOverlay(face, EtherAdapterNodeAtlas.FUNCTION_ITEM_CONSUME_MATERIAL_STONE);
             } else if (value == AbstractItemConsumeFunction.WorkingMaterial.DEEPSLATE) {
-                state.addOverlay(face, EtherAdapterNodeAtlas.OVERLAY_FUNCTION_BURNER_DEEPSLATE);
+                state.addOverlay(face, EtherAdapterNodeAtlas.FUNCTION_ITEM_CONSUME_MATERIAL_BASALT);
             } else if (value != AbstractItemConsumeFunction.WorkingMaterial.IDLE) {
-                state.addOverlay(face, EtherAdapterNodeAtlas.OVERLAY_FUNCTION_BURNER_COAL.get(dTick));
+                state.addOverlay(face, EtherAdapterNodeAtlas.FUNCTION_ITEM_CONSUME_MATERIAL_FIRE.get(dTick));
             }
 
             long maxEther = nodeEntity.getMaxEther();
             if (maxEther != 0)
-                state.addOverlay(face, EtherAdapterNodeAtlas.OVERLAY_FUNCTION_BURNER_FILL.get((int) Math.min((nodeEntity.getEther() * 10 / maxEther), 10)));
+                state.addOverlay(face, EtherAdapterNodeAtlas.ETHER_FILL.get((int) Math.min((nodeEntity.getEther() * 10 / maxEther), 10)));
             else
-                state.addOverlay(face, EtherAdapterNodeAtlas.OVERLAY_FUNCTION_BURNER_FILL.get(10));
+                state.addOverlay(face, EtherAdapterNodeAtlas.ETHER_FILL.get(9));
         };
         register(FunctionFurnaceGenerator.ID, generatorLayer);
         register(FunctionStoneGenerator.ID, generatorLayer);
         register(FunctionEquipmentConsumeGenerator.ID, generatorLayer);
+        register(FunctionGrowthAccelerator.ID, (face, dTick, nodeEntity, state, installedPlugin) ->
+                state.setSideAtlas(face, EtherAdapterNodeAtlas.FUNCTION_ACCELERATE)
+        );
         register(FunctionEtherConverter.ID, (face, dTick, nodeEntity, state, installedPlugin) -> {
-            state.setSideAtlas(face, EtherAdapterNodeAtlas.FUNCTION_ETHER_CONVERTER);
+            state.setSideAtlas(face, EtherAdapterNodeAtlas.FUNCTION_ETHER_CONVERT);
             int workState = nodeEntity.getSyncedPluginData(installedPlugin, FunctionEtherConverter.STATE);
             if (workState == 1) {
-                state.addOverlay(face, EtherAdapterNodeAtlas.OVERLAY_FUNCTION_ETHER_CONVERTER_WORKING.get(dTick));
+                state.addOverlay(face, EtherAdapterNodeAtlas.FUNCTION_ETHER_CONVERT_WORKING.get(dTick));
             }
         });
         register(FunctionEquipmentConsumeGenerator.ID, (face, dTick, nodeEntity, state, installedPlugin) -> {
-//            state.setSideAtlas(face, EtherAdapterNodeAtlas.FUNCTION_GRIND_EMPTY);
-//            int workState = nodeEntity.getSyncedPluginData(installedPlugin, FunctionEquipmentConsumeGenerator.STATE);
-//            if (workState == 1) {
-            state.setSideAtlas(face, EtherAdapterNodeAtlas.FUNCTION_GRIND_WORKING);
-//            }
+            state.setSideAtlas(face, EtherAdapterNodeAtlas.FUNCTION_EQUIPMENT_CONSUME);
+            int workState = nodeEntity.getSyncedPluginData(installedPlugin, FunctionEquipmentConsumeGenerator.STATE);
+            if (workState == 1) {
+                state.setSideAtlas(face, EtherAdapterNodeAtlas.FUNCTION_EQUIPMENT_CONSUME_WORKING.get(dTick));
+            }
             long maxEther = nodeEntity.getMaxEther();
             if (maxEther != 0)
-                state.addOverlay(face, EtherAdapterNodeAtlas.OVERLAY_FUNCTION_BURNER_FILL.get((int) Math.min((nodeEntity.getEther() * 10 / maxEther), 10)));
+                state.addOverlay(face, EtherAdapterNodeAtlas.ETHER_FILL.get((int) Math.min((nodeEntity.getEther() * 10 / maxEther), 10)));
             else
-                state.addOverlay(face, EtherAdapterNodeAtlas.OVERLAY_FUNCTION_BURNER_FILL.get(10));
+                state.addOverlay(face, EtherAdapterNodeAtlas.ETHER_FILL.get(9));
         });
-        register(FeatureContainerInteract.ID, (face, dTick, nodeEntity, state, installedPlugin) ->
-                state.setSideAtlas(face, switch (face) {
-                    case UP -> EtherAdapterNodeAtlas.FEATURE_CONTAINER_INT_TOP;
-                    case DOWN -> EtherAdapterNodeAtlas.FEATURE_CONTAINER_INT_BOTTOM;
-                    default -> EtherAdapterNodeAtlas.FEATURE_CONTAINER_INT_SIDE;
-                }));
-        register(FeatureDropperThrower.ID, (face, dTick, nodeEntity, state, installedPlugin) ->
-                state.setSideAtlas(face, switch (face) {
-                    case UP -> EtherAdapterNodeAtlas.FEATURE_DROPPER_TOP;
-                    case DOWN -> EtherAdapterNodeAtlas.FEATURE_DROPPER_BOTTOM;
-                    default -> EtherAdapterNodeAtlas.FEATURE_DROPPER_SIDE;
-                }));
-        register(FunctionMagnet.ID, (face, dTick, nodeEntity, state, installedPlugin) ->
-                state.setSideAtlas(face, switch (face) {
-                    case UP -> EtherAdapterNodeAtlas.FEATURE_MAGNET_TOP;
-                    case DOWN -> EtherAdapterNodeAtlas.FEATURE_MAGNET_BOTTOM;
-                    default -> EtherAdapterNodeAtlas.FEATURE_MAGNET_SIDE;
-                }));
+        register(FeatureContainerInteract.ID, (face, dTick, nodeEntity, state, installedPlugin) -> {
+            boolean extractMode = nodeEntity.getSyncedPluginData(installedPlugin, FeatureContainerInteract.WORKING_MODE) == 1;
+            if (extractMode)
+                state.setSideAtlas(face, EtherAdapterNodeAtlas.FEATURE_INTERACT_EXTRACT);
+            else
+                state.setSideAtlas(face, EtherAdapterNodeAtlas.FEATURE_INTERACT_INSERT);
+        });
+        register(FeatureDropperThrower.ID, (face, dTick, nodeEntity, state, installedPlugin) -> {
+            state.setSideAtlas(face, EtherAdapterNodeAtlas.FEATURE_DROPPER);
+        });
+        register(FunctionMagnet.ID, (face, dTick, nodeEntity, state, installedPlugin) -> {
+                    state.setSideAtlas(Direction.DOWN, EtherAdapterNodeAtlas.FUNCTION_MAGNET_BOT.get(dTick));
+                    state.setSideAtlas(Direction.UP, EtherAdapterNodeAtlas.FUNCTION_MAGNET_TOP.get(dTick));
+                }
+        );
+        register(FunctionNodeProcess.ID, (face, dTick, nodeEntity, state, installedPlugin) -> {
+                    state.setSideAtlas(Direction.DOWN, EtherAdapterNodeAtlas.FUNCTION_CRAFTING_BOTTOM);
+                    state.setSideAtlas(Direction.UP, EtherAdapterNodeAtlas.FUNCTION_CRAFTING_TOP);
+                }
+        );
         register(FeatureEtherStreamEmitter.ID, (face, dTick, nodeEntity, state, installedPlugin) ->
-                state.setSideAtlas(face, switch (face) {
-                    case UP -> EtherAdapterNodeAtlas.FEATURE_STREAM_EMITTER_TOP;
-                    case DOWN -> EtherAdapterNodeAtlas.FEATURE_STREAM_EMITTER_BOTTOM;
-                    default -> EtherAdapterNodeAtlas.FEATURE_STREAM_EMITTER_SIDE;
-                })
+                state.setSideAtlas(face, EtherAdapterNodeAtlas.FEATURE_EMITTER)
         );
     }
 

@@ -84,107 +84,143 @@ public class EtherAdapterNodeAtlas {
         }
     }
 
-    private static final GridSplitter MAIN_MACHINE_ATLAS = new GridSplitter(16, 160, 160, EtherCraft.id("textures/block/ether_adapt_node_atlas.png"));
-    public static final AtlasUV BOTTOM = MAIN_MACHINE_ATLAS.next();
-    public static final AtlasUV TOP = MAIN_MACHINE_ATLAS.next();
-    public static final AtlasUV SIDE = MAIN_MACHINE_ATLAS.next();
-    public static final AtlasUV TRANSPARENT = MAIN_MACHINE_ATLAS.next();
-
-    public static final AtlasUV FEATURE_DROPPER_ZIMING = MAIN_MACHINE_ATLAS.nextRow().next();
-    public static final AtlasUV FEATURE_STREAM_EMITTER_SIDE = MAIN_MACHINE_ATLAS.next();
-    public static final AtlasUV FUNCTION_ETHER_CONVERTER = MAIN_MACHINE_ATLAS.next();
-    public static final AtlasUV FUNCTION_BURNER_EMPTY = MAIN_MACHINE_ATLAS.next();
-    public static final AtlasUV FUNCTION_BURNER_WORKING = MAIN_MACHINE_ATLAS.next();
-    public static final AtlasUV FUNCTION_BURNER_FULL = MAIN_MACHINE_ATLAS.next();
-    public static final AtlasUV FUNCTION_UNKNOWN_1 = MAIN_MACHINE_ATLAS.next();
-    public static final AtlasUV FUNCTION_GRIND_EMPTY = MAIN_MACHINE_ATLAS.next();
-    public static final AtlasUV FUNCTION_GRIND_WORKING = MAIN_MACHINE_ATLAS.next();
-
-    public static final AtlasUV FEATURE_MAGNET_SIDE = MAIN_MACHINE_ATLAS.nextRow().next();
-    public static final AtlasUV FEATURE_DROPPER_SIDE = MAIN_MACHINE_ATLAS.next();
-    public static final AtlasUV FEATURE_CONTAINER_INT_SIDE = MAIN_MACHINE_ATLAS.next();
-    public static final AtlasUV FEATURE_STREAM_EMITTER_TOP = MAIN_MACHINE_ATLAS.skip(2).next();
-
-    public static final AtlasUV FEATURE_MAGNET_BOTTOM = MAIN_MACHINE_ATLAS.nextRow().next();
-    public static final AtlasUV FEATURE_DROPPER_BOTTOM = MAIN_MACHINE_ATLAS.next();
-    public static final AtlasUV FEATURE_CONTAINER_INT_BOTTOM = MAIN_MACHINE_ATLAS.next();
-    public static final AtlasUV FEATURE_STREAM_EMITTER_BOTTOM = MAIN_MACHINE_ATLAS.skip(2).next();
+    private static final GridSplitter MAIN_MACHINE_ATLAS = new GridSplitter(16, 256, 256, EtherCraft.id("textures/block/ether_adapt_node_atlas.png"));
 
 
-    public static final AtlasUV FEATURE_MAGNET_TOP = MAIN_MACHINE_ATLAS.nextRow().next();
-    public static final AtlasUV FEATURE_DROPPER_TOP = MAIN_MACHINE_ATLAS.next();
-    public static final AtlasUV FEATURE_CONTAINER_INT_TOP = MAIN_MACHINE_ATLAS.next();
+    public static final AtlasUV FEATURE_EMITTER = MAIN_MACHINE_ATLAS.skip(3).next();
+    public static final AtlasUV FEATURE_DROPPER = MAIN_MACHINE_ATLAS.next();
+    public static final AtlasUV FEATURE_INTERACT_EXTRACT = MAIN_MACHINE_ATLAS.next();
+    public static final AtlasUV FEATURE_INTERACT_INSERT = MAIN_MACHINE_ATLAS.next();
+    public static final AtlasUV FUNCTION_ACCELERATE = MAIN_MACHINE_ATLAS.next();
+    public static final AtlasUV FUNCTION_CRAFTING_TOP = MAIN_MACHINE_ATLAS.next();
+    public static final AtlasUV FUNCTION_CRAFTING_BOTTOM = MAIN_MACHINE_ATLAS.next();
 
-    public static final AtlasUV FUNCTION_TRANSFORM_WORKING_0 = MAIN_MACHINE_ATLAS.nextRow().next();
-    public static final AtlasUV FUNCTION_TRANSFORM_WORKING_1 = MAIN_MACHINE_ATLAS.next();
-    public static final AtlasUV FUNCTION_TRANSFORM_WORKING_2 = MAIN_MACHINE_ATLAS.next();
-    public static final AtlasUV FUNCTION_TRANSFORM_WORKING_3 = MAIN_MACHINE_ATLAS.next();
-    public static final AtlasUV FUNCTION_TRANSFORM_WORKING_4 = MAIN_MACHINE_ATLAS.next();
-    public static final AtlasUV FUNCTION_TRANSFORM_WORKING_5 = MAIN_MACHINE_ATLAS.next();
-    public static final AtlasUV FUNCTION_TRANSFORM_WORKING_6 = MAIN_MACHINE_ATLAS.next();
-    public static final AtlasUV FUNCTION_TRANSFORM_WORKING_7 = MAIN_MACHINE_ATLAS.next();
+    public static final AtlasUV FUNCTION_ITEM_CONSUME_GENERATOR = MAIN_MACHINE_ATLAS.nextRow().next();
+    public static final AtlasUV FUNCTION_ITEM_CONSUME_WORKING = MAIN_MACHINE_ATLAS.next();
+    public static final AtlasUV ETHER_FILL_1 = MAIN_MACHINE_ATLAS.next();
+    public static final AtlasUV ETHER_FILL_2 = MAIN_MACHINE_ATLAS.next();
+    public static final AtlasUV ETHER_FILL_3 = MAIN_MACHINE_ATLAS.next();
+    public static final AtlasUV ETHER_FILL_4 = MAIN_MACHINE_ATLAS.next();
+    public static final AtlasUV ETHER_FILL_5 = MAIN_MACHINE_ATLAS.next();
+    public static final AtlasUV ETHER_FILL_6 = MAIN_MACHINE_ATLAS.next();
+    public static final AtlasUV ETHER_FILL_7 = MAIN_MACHINE_ATLAS.next();
+    public static final AtlasUV ETHER_FILL_8 = MAIN_MACHINE_ATLAS.next();
+    public static final AtlasUV ETHER_FILL_9 = MAIN_MACHINE_ATLAS.next();
+    public static final AtlasUV ETHER_FILL_10 = MAIN_MACHINE_ATLAS.next();
 
-    public static final AtlasUV OVERLAY_FUNCTION_BURNER_STONE = MAIN_MACHINE_ATLAS.nextRow().next();
-    public static final AtlasUV OVERLAY_FUNCTION_BURNER_WOOD = MAIN_MACHINE_ATLAS.next();
-    public static final AtlasUV OVERLAY_FUNCTION_BURNER_DEEPSLATE = MAIN_MACHINE_ATLAS.next();
+    public static final AtlasUV FUNCTION_ITEM_CONSUME_MATERIAL_STONE = MAIN_MACHINE_ATLAS.nextRow().next();
+    public static final AtlasUV FUNCTION_ITEM_CONSUME_MATERIAL_WOOD = MAIN_MACHINE_ATLAS.next();
+    public static final AtlasUV FUNCTION_ITEM_CONSUME_MATERIAL_BASALT = MAIN_MACHINE_ATLAS.next();
 
-    public static final AtlasUV OVERLAY_FUNCTION_BURNER_COAL_0 = MAIN_MACHINE_ATLAS.nextRow().next();
-    public static final AtlasUV OVERLAY_FUNCTION_BURNER_COAL_1 = MAIN_MACHINE_ATLAS.next();
-    public static final AtlasUV OVERLAY_FUNCTION_BURNER_COAL_2 = MAIN_MACHINE_ATLAS.next();
-    public static final AtlasUV OVERLAY_FUNCTION_BURNER_COAL_3 = MAIN_MACHINE_ATLAS.next();
-    public static final AtlasUV OVERLAY_FUNCTION_BURNER_LAVA_0 = MAIN_MACHINE_ATLAS.next();
-    public static final AtlasUV OVERLAY_FUNCTION_BURNER_LAVA_1 = MAIN_MACHINE_ATLAS.next();
-    public static final AtlasUV OVERLAY_FUNCTION_BURNER_LAVA_2 = MAIN_MACHINE_ATLAS.next();
-    public static final AtlasUV OVERLAY_FUNCTION_BURNER_LAVA_3 = MAIN_MACHINE_ATLAS.next();
+    public static final AtlasUV FUNCTION_ITEM_CONSUME_MATERIAL_FIRE_1 = MAIN_MACHINE_ATLAS.nextRow().next();
+    public static final AtlasUV FUNCTION_ITEM_CONSUME_MATERIAL_FIRE_2 = MAIN_MACHINE_ATLAS.next();
+    public static final AtlasUV FUNCTION_ITEM_CONSUME_MATERIAL_FIRE_3 = MAIN_MACHINE_ATLAS.next();
+    public static final AtlasUV FUNCTION_ITEM_CONSUME_MATERIAL_FIRE_4 = MAIN_MACHINE_ATLAS.next();
+    public static final AtlasUV FUNCTION_ITEM_CONSUME_MATERIAL_LAVA_1 = MAIN_MACHINE_ATLAS.next();
+    public static final AtlasUV FUNCTION_ITEM_CONSUME_MATERIAL_LAVA_2 = MAIN_MACHINE_ATLAS.next();
+    public static final AtlasUV FUNCTION_ITEM_CONSUME_MATERIAL_LAVA_3 = MAIN_MACHINE_ATLAS.next();
+    public static final AtlasUV FUNCTION_ITEM_CONSUME_MATERIAL_LAVA_4 = MAIN_MACHINE_ATLAS.next();
 
-    public static final AtlasUV OVERLAY_FUNCTION_BURNER_FILL_10 = MAIN_MACHINE_ATLAS.nextRow().skip(9).next();
+    public static final AtlasUV FUNCTION_EQUIPMENT_CONSUME = MAIN_MACHINE_ATLAS.nextRow().next();
+    public static final AtlasUV FUNCTION_EQUIPMENT_CONSUME_WORKING_1 = MAIN_MACHINE_ATLAS.next();
+    public static final AtlasUV FUNCTION_EQUIPMENT_CONSUME_WORKING_2 = MAIN_MACHINE_ATLAS.next();
+    public static final AtlasUV FUNCTION_EQUIPMENT_CONSUME_WORKING_3 = MAIN_MACHINE_ATLAS.next();
+    public static final AtlasUV FUNCTION_EQUIPMENT_CONSUME_WORKING_4 = MAIN_MACHINE_ATLAS.next();
+    public static final AtlasUV FUNCTION_EQUIPMENT_CONSUME_WORKING_5 = MAIN_MACHINE_ATLAS.next();
+    public static final AtlasUV FUNCTION_EQUIPMENT_CONSUME_WORKING_6 = MAIN_MACHINE_ATLAS.next();
+    public static final AtlasUV FUNCTION_EQUIPMENT_CONSUME_WORKING_7 = MAIN_MACHINE_ATLAS.next();
+    public static final AtlasUV FUNCTION_EQUIPMENT_CONSUME_WORKING_8 = MAIN_MACHINE_ATLAS.next();
 
-    public static final AtlasUV OVERLAY_FUNCTION_BURNER_FILL_0 = MAIN_MACHINE_ATLAS.nextRow().next();
-    public static final AtlasUV OVERLAY_FUNCTION_BURNER_FILL_1 = MAIN_MACHINE_ATLAS.next();
-    public static final AtlasUV OVERLAY_FUNCTION_BURNER_FILL_2 = MAIN_MACHINE_ATLAS.next();
-    public static final AtlasUV OVERLAY_FUNCTION_BURNER_FILL_3 = MAIN_MACHINE_ATLAS.next();
-    public static final AtlasUV OVERLAY_FUNCTION_BURNER_FILL_4 = MAIN_MACHINE_ATLAS.next();
-    public static final AtlasUV OVERLAY_FUNCTION_BURNER_FILL_5 = MAIN_MACHINE_ATLAS.next();
-    public static final AtlasUV OVERLAY_FUNCTION_BURNER_FILL_6 = MAIN_MACHINE_ATLAS.next();
-    public static final AtlasUV OVERLAY_FUNCTION_BURNER_FILL_7 = MAIN_MACHINE_ATLAS.next();
-    public static final AtlasUV OVERLAY_FUNCTION_BURNER_FILL_8 = MAIN_MACHINE_ATLAS.next();
-    public static final AtlasUV OVERLAY_FUNCTION_BURNER_FILL_9 = MAIN_MACHINE_ATLAS.next();
+    public static final AtlasUV FUNCTION_ETHER_CONVERT = MAIN_MACHINE_ATLAS.nextRow().next();
+    public static final AtlasUV FUNCTION_ETHER_CONVERT_WORKING_1 = MAIN_MACHINE_ATLAS.next();
+    public static final AtlasUV FUNCTION_ETHER_CONVERT_WORKING_2 = MAIN_MACHINE_ATLAS.next();
+    public static final AtlasUV FUNCTION_ETHER_CONVERT_WORKING_3 = MAIN_MACHINE_ATLAS.next();
+    public static final AtlasUV FUNCTION_ETHER_CONVERT_WORKING_4 = MAIN_MACHINE_ATLAS.next();
+    public static final AtlasUV FUNCTION_ETHER_CONVERT_WORKING_5 = MAIN_MACHINE_ATLAS.next();
+    public static final AtlasUV FUNCTION_ETHER_CONVERT_WORKING_6 = MAIN_MACHINE_ATLAS.next();
+    public static final AtlasUV FUNCTION_ETHER_CONVERT_WORKING_7 = MAIN_MACHINE_ATLAS.next();
+    public static final AtlasUV FUNCTION_ETHER_CONVERT_WORKING_8 = MAIN_MACHINE_ATLAS.next();
+
+    public static final AtlasUV FUNCTION_MAGNET_BOT_1 = MAIN_MACHINE_ATLAS.nextRow().next();
+    public static final AtlasUV FUNCTION_MAGNET_BOT_2 = MAIN_MACHINE_ATLAS.next();
+    public static final AtlasUV FUNCTION_MAGNET_BOT_3 = MAIN_MACHINE_ATLAS.next();
+    public static final AtlasUV FUNCTION_MAGNET_BOT_4 = MAIN_MACHINE_ATLAS.next();
+    public static final AtlasUV FUNCTION_MAGNET_BOT_5 = MAIN_MACHINE_ATLAS.next();
+
+    public static final AtlasUV FUNCTION_MAGNET_TOP_1 = MAIN_MACHINE_ATLAS.nextRow().next();
+    public static final AtlasUV FUNCTION_MAGNET_TOP_2 = MAIN_MACHINE_ATLAS.next();
+    public static final AtlasUV FUNCTION_MAGNET_TOP_3 = MAIN_MACHINE_ATLAS.next();
+    public static final AtlasUV FUNCTION_MAGNET_TOP_4 = MAIN_MACHINE_ATLAS.next();
+    public static final AtlasUV FUNCTION_MAGNET_TOP_5 = MAIN_MACHINE_ATLAS.next();
+
+    public static final AtlasUV FUNCTION_ENCHANT_1 = MAIN_MACHINE_ATLAS.nextRow().next();
+    public static final AtlasUV FUNCTION_ENCHANT_2 = MAIN_MACHINE_ATLAS.next();
+    public static final AtlasUV FUNCTION_ENCHANT_3 = MAIN_MACHINE_ATLAS.next();
+    public static final AtlasUV FUNCTION_ENCHANT_4 = MAIN_MACHINE_ATLAS.next();
 
 
-    public static final GroupAtlasUV OVERLAY_FUNCTION_ETHER_CONVERTER_WORKING = new GroupAtlasUV(
-            FUNCTION_TRANSFORM_WORKING_0,
-            FUNCTION_TRANSFORM_WORKING_1,
-            FUNCTION_TRANSFORM_WORKING_2,
-            FUNCTION_TRANSFORM_WORKING_3,
-            FUNCTION_TRANSFORM_WORKING_4,
-            FUNCTION_TRANSFORM_WORKING_5,
-            FUNCTION_TRANSFORM_WORKING_6,
-            FUNCTION_TRANSFORM_WORKING_7
+    public static final GroupAtlasUV ETHER_FILL = new GroupAtlasUV(
+            ETHER_FILL_1,
+            ETHER_FILL_2,
+            ETHER_FILL_3,
+            ETHER_FILL_4,
+            ETHER_FILL_5,
+            ETHER_FILL_6,
+            ETHER_FILL_7,
+            ETHER_FILL_8,
+            ETHER_FILL_9,
+            ETHER_FILL_10
     );
-    public static final GroupAtlasUV OVERLAY_FUNCTION_BURNER_COAL = new GroupAtlasUV(
-            OVERLAY_FUNCTION_BURNER_COAL_0,
-            OVERLAY_FUNCTION_BURNER_COAL_1,
-            OVERLAY_FUNCTION_BURNER_COAL_2,
-            OVERLAY_FUNCTION_BURNER_COAL_3
+    public static final GroupAtlasUV FUNCTION_MAGNET_BOT = new GroupAtlasUV(
+            FUNCTION_MAGNET_BOT_1,
+            FUNCTION_MAGNET_BOT_2,
+            FUNCTION_MAGNET_BOT_3,
+            FUNCTION_MAGNET_BOT_4,
+            FUNCTION_MAGNET_BOT_5
     );
-    public static final GroupAtlasUV OVERLAY_FUNCTION_BURNER_LAVA = new GroupAtlasUV(
-            OVERLAY_FUNCTION_BURNER_LAVA_0,
-            OVERLAY_FUNCTION_BURNER_LAVA_1,
-            OVERLAY_FUNCTION_BURNER_LAVA_2,
-            OVERLAY_FUNCTION_BURNER_LAVA_3
+    public static final GroupAtlasUV FUNCTION_MAGNET_TOP = new GroupAtlasUV(
+            FUNCTION_MAGNET_TOP_1,
+            FUNCTION_MAGNET_TOP_2,
+            FUNCTION_MAGNET_TOP_3,
+            FUNCTION_MAGNET_TOP_4,
+            FUNCTION_MAGNET_TOP_5
     );
-
-    public static final GroupAtlasUV OVERLAY_FUNCTION_BURNER_FILL = new GroupAtlasUV(
-            OVERLAY_FUNCTION_BURNER_FILL_0,
-            OVERLAY_FUNCTION_BURNER_FILL_1,
-            OVERLAY_FUNCTION_BURNER_FILL_2,
-            OVERLAY_FUNCTION_BURNER_FILL_3,
-            OVERLAY_FUNCTION_BURNER_FILL_4,
-            OVERLAY_FUNCTION_BURNER_FILL_5,
-            OVERLAY_FUNCTION_BURNER_FILL_6,
-            OVERLAY_FUNCTION_BURNER_FILL_7,
-            OVERLAY_FUNCTION_BURNER_FILL_8,
-            OVERLAY_FUNCTION_BURNER_FILL_9,
-            OVERLAY_FUNCTION_BURNER_FILL_10
+    public static final GroupAtlasUV FUNCTION_ENCHANT = new GroupAtlasUV(
+            FUNCTION_ENCHANT_1,
+            FUNCTION_ENCHANT_2,
+            FUNCTION_ENCHANT_3,
+            FUNCTION_ENCHANT_4
+    );
+    public static final GroupAtlasUV FUNCTION_EQUIPMENT_CONSUME_WORKING = new GroupAtlasUV(
+            FUNCTION_EQUIPMENT_CONSUME_WORKING_1,
+            FUNCTION_EQUIPMENT_CONSUME_WORKING_2,
+            FUNCTION_EQUIPMENT_CONSUME_WORKING_3,
+            FUNCTION_EQUIPMENT_CONSUME_WORKING_4,
+            FUNCTION_EQUIPMENT_CONSUME_WORKING_5,
+            FUNCTION_EQUIPMENT_CONSUME_WORKING_6,
+            FUNCTION_EQUIPMENT_CONSUME_WORKING_7,
+            FUNCTION_EQUIPMENT_CONSUME_WORKING_8
+    );
+    public static final GroupAtlasUV FUNCTION_ETHER_CONVERT_WORKING = new GroupAtlasUV(
+            FUNCTION_ETHER_CONVERT_WORKING_1,
+            FUNCTION_ETHER_CONVERT_WORKING_2,
+            FUNCTION_ETHER_CONVERT_WORKING_3,
+            FUNCTION_ETHER_CONVERT_WORKING_4,
+            FUNCTION_ETHER_CONVERT_WORKING_5,
+            FUNCTION_ETHER_CONVERT_WORKING_6,
+            FUNCTION_ETHER_CONVERT_WORKING_7,
+            FUNCTION_ETHER_CONVERT_WORKING_8
+    );
+    public static final GroupAtlasUV FUNCTION_ITEM_CONSUME_MATERIAL_LAVA = new GroupAtlasUV(
+            FUNCTION_ITEM_CONSUME_MATERIAL_LAVA_1,
+            FUNCTION_ITEM_CONSUME_MATERIAL_LAVA_2,
+            FUNCTION_ITEM_CONSUME_MATERIAL_LAVA_3,
+            FUNCTION_ITEM_CONSUME_MATERIAL_LAVA_4
+    );
+    public static final GroupAtlasUV FUNCTION_ITEM_CONSUME_MATERIAL_FIRE = new GroupAtlasUV(
+            FUNCTION_ITEM_CONSUME_MATERIAL_FIRE_1,
+            FUNCTION_ITEM_CONSUME_MATERIAL_FIRE_2,
+            FUNCTION_ITEM_CONSUME_MATERIAL_FIRE_3,
+            FUNCTION_ITEM_CONSUME_MATERIAL_FIRE_4
     );
 }

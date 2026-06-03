@@ -99,4 +99,7 @@ public class ClientStreamEntry {
     public void setSyncedData(IEtherStreamSyncedData data) {
         syncedData.put(data.getId(), data);
     }
+    public void removeSyncedData(Identifier id) {
+        syncedData.remove(id);
+    }
 }

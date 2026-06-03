@@ -136,10 +136,14 @@ public class VirtualEtherStreamHolder {
             AABB bb = entity.getBoundingBox().inflate(0.3);
             for (VirtualEtherStream ves : streams) {
                 if (ves.markToRemove) continue;
-                Vec3 oldPos = ves.pos;
-                Vec3 newPos = oldPos.add(ves.motion);
-                Optional<Vec3> clip = bb.clip(oldPos, newPos);
-                clip.ifPresent(vec3 -> allEntityHits.get(ves).add(new EntityHitResult(entity, vec3)));
+                if(bb.contains(ves.pos)){
+                    allEntityHits.get(ves).add(new EntityHitResult(entity, ves.pos));
+                }else {
+                    Vec3 oldPos = ves.pos;
+                    Vec3 newPos = oldPos.add(ves.motion);
+                    Optional<Vec3> clip = bb.clip(oldPos, newPos);
+                    clip.ifPresent(vec3 -> allEntityHits.get(ves).add(new EntityHitResult(entity, vec3)));
+                }
             }
         }
 

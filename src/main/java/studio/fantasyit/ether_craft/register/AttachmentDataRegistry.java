@@ -1,6 +1,7 @@
 package studio.fantasyit.ether_craft.register;
 
 import com.mojang.serialization.Codec;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.attachment.AttachmentType;
@@ -10,6 +11,7 @@ import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.stream.client.data.ClientVESHData;
 import studio.fantasyit.ether_craft.stream.vholder.VirtualEtherStreamHolderManager;
 
+import java.util.Optional;
 import java.util.function.Supplier;
 
 public class AttachmentDataRegistry {
@@ -31,6 +33,11 @@ public class AttachmentDataRegistry {
     public static final Supplier<AttachmentType<Long>> CARRY_COOLDOWN = ATTACHMENT_TYPES.register(
             "carry_cooldown", () -> AttachmentType.builder(() -> -40L)
                     .serialize(Codec.LONG.fieldOf("carry_cooldown"))
+                    .build()
+    );
+    public static final Supplier<AttachmentType<Optional<BlockPos>>> CARRY_COOLDOWN_SOURCE = ATTACHMENT_TYPES.register(
+            "carry_cooldown_source", () -> AttachmentType.builder((Supplier<Optional<BlockPos>>) Optional::empty)
+                    .serialize(BlockPos.CODEC.optionalFieldOf("carry_cooldown_source"))
                     .build()
     );
 

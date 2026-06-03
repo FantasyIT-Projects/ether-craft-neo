@@ -4,9 +4,9 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.block.node.EtherAdaptNodeEntity;
+import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
 import studio.fantasyit.ether_craft.node.plugins.base.AbstractNodePlugin;
 import studio.fantasyit.ether_craft.node.plugins.base.IEtherStreamCapabilityProviderPlugin;
-import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
 import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
 import studio.fantasyit.ether_craft.stream.cap.EtherStreamCarryEntityCapability;
 import studio.fantasyit.ether_craft.stream.cap.IStreamCapability;
@@ -27,7 +27,7 @@ public class EtherStreamCarryEntityUpgrade extends AbstractNodePlugin implements
 
         Optional<IStreamCapability> existing = entity.getCapability(EtherStreamCarryEntityCapability.ID);
         if (existing.isEmpty()) {
-            entity.addCapability(new EtherStreamCarryEntityCapability());
+            entity.addCapability(new EtherStreamCarryEntityCapability(nodeEntity.getBlockPos()));
         }
     }
 }

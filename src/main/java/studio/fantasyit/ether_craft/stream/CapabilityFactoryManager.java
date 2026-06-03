@@ -2,6 +2,7 @@ package studio.fantasyit.ether_craft.stream;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
+import net.minecraft.core.BlockPos;
 import net.minecraft.resources.Identifier;
 import studio.fantasyit.ether_craft.stream.cap.*;
 
@@ -14,11 +15,11 @@ public class CapabilityFactoryManager {
 
     public static void init() {
         register(EtherStreamBreakBlockCapability.ID, EtherStreamBreakBlockCapability::new, EtherStreamBreakBlockCapability.CODEC);
-        register(EtherStreamGrowthAcceleratorCapability.ID, ()->new EtherStreamGrowthAcceleratorCapability(false), EtherStreamGrowthAcceleratorCapability.CODEC);
+        register(EtherStreamGrowthAcceleratorCapability.ID, () -> new EtherStreamGrowthAcceleratorCapability(false), EtherStreamGrowthAcceleratorCapability.CODEC);
         register(EtherStreamGrowthAcceleratorCapability.ID_ALL, () -> new EtherStreamGrowthAcceleratorCapability(true), EtherStreamGrowthAcceleratorCapability.CODEC_ALLOW_ALL);
         register(EtherStreamStorageCapability.ID, () -> new EtherStreamStorageCapability(1), EtherStreamStorageCapability.CODEC);
         register(EtherStreamDamageCapability.ID, EtherStreamDamageCapability::new, EtherStreamDamageCapability.CODEC);
-        register(EtherStreamCarryEntityCapability.ID, EtherStreamCarryEntityCapability::new, EtherStreamCarryEntityCapability.CODEC);
+        register(EtherStreamCarryEntityCapability.ID, () -> new EtherStreamCarryEntityCapability(BlockPos.ZERO), EtherStreamCarryEntityCapability.CODEC);
     }
 
     public static <T extends IStreamCapability> void register(Identifier id, Supplier<T> factory, Codec<T> codec) {
@@ -43,5 +44,6 @@ public class CapabilityFactoryManager {
             CapabilityFactoryManager::getMapCodec
     );
 
-    private record Entry<T extends IStreamCapability>(Supplier<T> factory, Codec<T> codec) {}
+    private record Entry<T extends IStreamCapability>(Supplier<T> factory, Codec<T> codec) {
+    }
 }

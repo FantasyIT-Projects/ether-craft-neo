@@ -7,9 +7,20 @@ import net.minecraft.world.phys.Vec3;
 import studio.fantasyit.ether_craft.stream.client.data.ClientStreamEntry;
 
 public interface IEtherStreamExtraClientLogic {
-    boolean shouldDelayDeath(ClientStreamEntry entry);
+    default boolean shouldDelayDeath(ClientStreamEntry entry) {
+        return false;
+    }
 
-    void onTick(ClientStreamEntry entry);
+    default void onTick(ClientStreamEntry entry) {
+    }
 
-    void onRender(ClientStreamEntry stream, Vec3 currentPos, CameraRenderState camera, PoseStack poseStack, SubmitNodeCollector collector);
+    default void onRender(ClientStreamEntry stream, Vec3 currentPos, CameraRenderState camera, PoseStack poseStack, SubmitNodeCollector collector) {
+    }
+
+    default boolean shouldRender(ClientStreamEntry entry) {
+        return true;
+    }
+
+    default void onDestroy(ClientStreamEntry entry) {
+    }
 }

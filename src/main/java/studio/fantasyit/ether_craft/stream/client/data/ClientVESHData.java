@@ -71,6 +71,7 @@ public class ClientVESHData {
         for (var entry : entries.entrySet()) {
             ClientVESHEntry vesh = entry.getValue();
             vesh.streams.values().forEach(ClientStreamEntry::tick);
+            vesh.streams.values().stream().filter(e -> e.removed).forEach(EtherStreamClientLogicManager::onDestroy);
             vesh.streams.values().removeIf(e -> e.removed);
             if (vesh.streams.isEmpty()) {
                 toRemove.add(entry.getKey());

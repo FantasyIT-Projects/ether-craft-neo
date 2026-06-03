@@ -7,16 +7,18 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.register.AttachmentDataRegistry;
 import studio.fantasyit.ether_craft.stream.PosDir;
+import studio.fantasyit.ether_craft.stream.cap.EtherStreamCarryEntityCapability;
 import studio.fantasyit.ether_craft.stream.data.EtherStreamCarryingEntityData;
 import studio.fantasyit.ether_craft.stream.data.IEtherStreamSyncedData;
 import studio.fantasyit.ether_craft.stream.vholder.VirtualEtherStream;
 import studio.fantasyit.ether_craft.stream.vholder.VirtualEtherStreamHolder;
 import studio.fantasyit.ether_craft.stream.vholder.VirtualEtherStreamHolderManager;
+
+import java.util.Optional;
 
 public record UncarryC2S(PosDir posDir, int streamId) implements CustomPacketPayload {
     public static final CustomPacketPayload.Type<@NotNull UncarryC2S> TYPE =
@@ -47,7 +49,8 @@ public record UncarryC2S(PosDir posDir, int streamId) implements CustomPacketPay
 
         ves.clearSyncedData(EtherStreamCarryingEntityData.ID);
         player.noPhysics = false;
-        player.setDeltaMovement(Vec3.ZERO);
+        EtherStreamCarryEntityCapability.dropEntityTo(level, ves.position(), ves.deltaMovement(), player);
         player.setData(AttachmentDataRegistry.CARRY_COOLDOWN.get(), level.getGameTime());
+        player.setData(AttachmentDataRegistry.CARRY_COOLDOWN_SOURCE.get(), Optional.empty());
     }
 }
