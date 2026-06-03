@@ -14,11 +14,12 @@ public class EtherConsumer {
     private double baseFactor;
     private double factorByTime;
     private int capConsumptionSum;
+    private double globalFactor;
     private boolean dirty = true;
 
     public int getTotalConsumption(int ether, int tickCount) {
         double factor = baseFactor + factorByTime * tickCount;
-        return (int) Math.ceil(Math.ceil(factor * ether) + capConsumptionSum);
+        return (int) Math.ceil(Math.ceil(Math.ceil(factor * ether) + capConsumptionSum) * globalFactor);
     }
 
     public void markDirty() {
@@ -33,6 +34,7 @@ public class EtherConsumer {
         this.baseFactor = Config.etherStreamConsumptionFactor;
         this.factorByTime = Config.etherStreamConsumptionByTimeFactor;
         this.capConsumptionSum = 0;
+        this.globalFactor = 1.0;
         for (IStreamCapability cap : caps) {
             cap.getConsumption(this);
         }
@@ -51,28 +53,35 @@ public class EtherConsumer {
         this.factorByTime += d;
     }
 
+    public void multiplyGlobalFactor(double d) {
+        this.globalFactor *= d;
+    }
+
     public State toState() {
-        return new State(baseFactor, factorByTime, capConsumptionSum);
+        return new State(baseFactor, factorByTime, capConsumptionSum, globalFactor);
     }
 
     public void fromState(State s) {
         this.baseFactor = s.baseFactor();
         this.factorByTime = s.factorByTime();
         this.capConsumptionSum = s.capConsumptionSum();
+        this.globalFactor = s.globalFactor();
         this.dirty = false;
     }
 
-    public record State(double baseFactor, double factorByTime, int capConsumptionSum) {
+    public record State(double baseFactor, double factorByTime, int capConsumptionSum, double globalFactor) {
         public static final Codec<State> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                 Codec.DOUBLE.fieldOf("baseFactor").forGetter(State::baseFactor),
                 Codec.DOUBLE.fieldOf("factorByTime").forGetter(State::factorByTime),
-                Codec.INT.fieldOf("capConsumptionSum").forGetter(State::capConsumptionSum)
+                Codec.INT.fieldOf("capConsumptionSum").forGetter(State::capConsumptionSum),
+                Codec.DOUBLE.fieldOf("globalFactor").forGetter(State::globalFactor)
         ).apply(instance, State::new));
 
         public static final StreamCodec<RegistryFriendlyByteBuf, State> STREAM_CODEC = StreamCodec.composite(
                 ByteBufCodecs.DOUBLE, State::baseFactor,
                 ByteBufCodecs.DOUBLE, State::factorByTime,
                 ByteBufCodecs.INT, State::capConsumptionSum,
+                ByteBufCodecs.DOUBLE, State::globalFactor,
                 State::new
         );
     }

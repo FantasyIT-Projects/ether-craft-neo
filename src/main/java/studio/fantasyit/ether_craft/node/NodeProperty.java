@@ -6,7 +6,6 @@ public class NodeProperty {
     public int maxEther;
     public int slotUnlock;
 
-    public int streamPreventDecay;
     public boolean enableFilter;
     public boolean itemifyEther;
 
@@ -17,7 +16,6 @@ public class NodeProperty {
     public void reset(){
         this.maxEther = Config.nodeDefaultMaxEther;
         this.slotUnlock = 0;
-        this.streamPreventDecay = 0;
         this.enableFilter = false;
         this.itemifyEther = false;
     }
