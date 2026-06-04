@@ -16,7 +16,6 @@ public class ServerStartUpEvent {
         NodePluginManager.Instance.collect();
         EtherProcessRecipeManager.collectProvider();
         CapabilityFactoryManager.init();
-        EtherStreamClientLogicManager.collect();
         SyncedEtherStreamDataManager.collect();
     }
 }
