@@ -11,14 +11,13 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.*;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.neoforged.neoforge.network.PacketDistributor;
-import studio.fantasyit.ether_craft.Config;
+import org.jetbrains.annotations.NotNull;
 import studio.fantasyit.ether_craft.block.base.EtherContainer;
 import studio.fantasyit.ether_craft.network.s2c.EtherStreamCreateS2C;
 import studio.fantasyit.ether_craft.network.s2c.EtherStreamSetDyingS2C;
 import studio.fantasyit.ether_craft.network.s2c.EtherStreamSyncDataS2C;
 import studio.fantasyit.ether_craft.network.s2c.EtherStreamUpdateS2C;
 import studio.fantasyit.ether_craft.register.Tags;
-import studio.fantasyit.ether_craft.stream.EtherStreamConsumeModifier;
 import studio.fantasyit.ether_craft.stream.PosDir;
 import studio.fantasyit.ether_craft.stream.cap.IStreamCapability;
 
@@ -27,15 +26,16 @@ import java.util.*;
 public class VirtualEtherStreamHolder {
     private final Direction direction;
     private final BlockPos pos;
-    private ServerLevel level;
-    int activateTick = 5;
+    private final PosDir posDir;
+    private final ServerLevel level;
     final List<VirtualEtherStream> streams = new ArrayList<>();
     int nextId = 0;
 
-    public VirtualEtherStreamHolder(BlockPos pos, Direction direction, ServerLevel level) {
+    public VirtualEtherStreamHolder(PosDir posDir, @NotNull ServerLevel level) {
         this.level = level;
-        this.pos = pos;
-        this.direction = direction;
+        this.pos = posDir.pos();
+        this.direction = posDir.dir();
+        this.posDir = posDir;
     }
 
     public VirtualEtherStream createStream(int ether, Vec3 pos, Vec3 motion) {
@@ -43,11 +43,10 @@ public class VirtualEtherStreamHolder {
                 nextId++,
                 ether,
                 pos,
+                posDir,
                 motion,
-                level,
-                direction
+                level
         );
-        ves.setPosDir(new PosDir(this.pos, this.direction));
         streams.add(ves);
         return ves;
     }
@@ -63,45 +62,8 @@ public class VirtualEtherStreamHolder {
         return false;
     }
 
-    public void tick(PosDir posDir) {
-        List<Integer> collectedToCreate = new ArrayList<>();
-        List<Integer> collectedToRemove = new ArrayList<>();
-        List<Integer> collectedToSyncData = new ArrayList<>();
-        activateTick--;
-
-        // === PER-VES TICK ===
-        for (VirtualEtherStream ves : streams) {
-            if (!level.isLoaded(ves.blockPosition())) continue;
-
-            if (ves.consumer.isDirty()) {
-                ves.consumer.recompute(ves.capabilities);
-                ves.needsEtherSync = true;
-            }
-
-            ves.tickCount++;
-
-            if (ves.tickCount == 1) {
-                for (IStreamCapability cap : ves.capabilities) {
-                    cap.firstTick(ves);
-                }
-            }
-
-            if (ves.tickCount > Config.etherStreamMaxTick) {
-                ves.markDead();
-            }
-
-            for (IStreamCapability cap : ves.capabilities) {
-                cap.tick(ves);
-            }
-
-            int consumption = ves.getConsumption();
-            consumption = EtherStreamConsumeModifier.modify(consumption, ves.ether, ves.tickCount, level, ves.position());
-            ves.consumeEtherInternal(consumption);
-
-            if (ves.getEther() <= 0) {
-                ves.markDead();
-            }
-        }
+    public void tick() {
+        for (VirtualEtherStream ves : streams) ves.tick();
 
         // === COLLISION ===
         // Compute furthest old pos and max motion length for entity query
@@ -136,9 +98,9 @@ public class VirtualEtherStreamHolder {
             AABB bb = entity.getBoundingBox().inflate(0.3);
             for (VirtualEtherStream ves : streams) {
                 if (ves.markToRemove) continue;
-                if(bb.contains(ves.pos)){
+                if (bb.contains(ves.pos)) {
                     allEntityHits.get(ves).add(new EntityHitResult(entity, ves.pos));
-                }else {
+                } else {
                     Vec3 oldPos = ves.pos;
                     Vec3 newPos = oldPos.add(ves.motion);
                     Optional<Vec3> clip = bb.clip(oldPos, newPos);
@@ -208,11 +170,18 @@ public class VirtualEtherStreamHolder {
                 if (!handled) ves.markDead();
             }
 
-            // Move (even if dead - cleanup moves too)
             ves.pos = ves.pos.add(ves.motion);
         }
 
-        // === COLLECT ===
+        syncAll();
+        streams.removeIf(ves -> ves.markToRemove);
+    }
+
+    private void syncAll() {
+        List<Integer> collectedToCreate = new ArrayList<>();
+        List<Integer> collectedToRemove = new ArrayList<>();
+        List<Integer> collectedToSyncData = new ArrayList<>();
+        List<Integer> collectedToSyncEtherConsume = new ArrayList<>();
         for (VirtualEtherStream ves : streams) {
             if (ves.markToRemove)
                 collectedToRemove.add(ves.streamId);
@@ -223,11 +192,14 @@ public class VirtualEtherStreamHolder {
             } else if (ves.markToSyncData) {
                 collectedToSyncData.add(ves.streamId);
                 ves.markToSyncData = false;
+            } else if (ves.needsEtherSync) {
+                collectedToSyncEtherConsume.add(ves.streamId);
+                ves.needsEtherSync = false;
             }
         }
 
-        // === SYNC ===
         if (!collectedToCreate.isEmpty()) {
+            //创建新的Stream
             List<EtherStreamCreateS2C.StreamEntry> createEntries = new ArrayList<>();
             for (int id : collectedToCreate) {
                 VirtualEtherStream ves = findStreamById(id);
@@ -251,6 +223,7 @@ public class VirtualEtherStreamHolder {
         }
 
         if (!collectedToRemove.isEmpty()) {
+            //删除Stream
             List<Integer> entries = new ArrayList<>();
             for (VirtualEtherStream ves : streams) {
                 if (ves.markToRemove) {
@@ -263,6 +236,7 @@ public class VirtualEtherStreamHolder {
 
 
         if (!collectedToSyncData.isEmpty()) {
+            //Synced data 变化的
             for (int id : collectedToSyncData) {
                 VirtualEtherStream ves = findStreamById(id);
                 if (ves == null) continue;
@@ -271,25 +245,22 @@ public class VirtualEtherStreamHolder {
             }
         }
 
-        List<EtherStreamUpdateS2C.StreamEntry> updateEntries = new ArrayList<>();
-        for (VirtualEtherStream ves : streams) {
-            if (ves.markToRemove || ves.markToSyncCreation) continue;
-            if (ves.needsEtherSync) {
-                updateEntries.add(new EtherStreamUpdateS2C.StreamEntry(
+        if (!collectedToSyncEtherConsume.isEmpty()) {
+            //同步消耗对象
+            List<EtherStreamUpdateS2C.StreamEntry> updateEntries = new ArrayList<>();
+            for (int id : collectedToSyncData) {
+                VirtualEtherStream ves = findStreamById(id);
+                if (ves == null) continue;
+                EtherStreamUpdateS2C.StreamEntry streamEntry = new EtherStreamUpdateS2C.StreamEntry(
                         ves.streamId,
                         ves.ether,
                         ves.consumer.toState()
-                ));
-                ves.needsEtherSync = false;
+                );
+                updateEntries.add(streamEntry);
             }
-        }
-        if (!updateEntries.isEmpty()) {
             EtherStreamUpdateS2C payload = new EtherStreamUpdateS2C(posDir, updateEntries);
             PacketDistributor.sendToPlayersInDimension(level, payload);
         }
-
-        // === CLEANUP ===
-        streams.removeIf(ves -> ves.markToRemove);
     }
 
     public VirtualEtherStream findStreamById(int id) {
@@ -299,7 +270,7 @@ public class VirtualEtherStreamHolder {
         return null;
     }
 
-    void syncStreamsToPlayer(ServerPlayer player, PosDir posDir) {
+    void syncToPlayer(ServerPlayer player) {
         List<EtherStreamCreateS2C.StreamEntry> entries = new ArrayList<>();
         for (VirtualEtherStream ves : streams) {
             if (ves.markToRemove) continue;
@@ -323,7 +294,7 @@ public class VirtualEtherStreamHolder {
     }
 
     public boolean isDead() {
-        return activateTick <= 0 && streams.isEmpty();
+        return streams.isEmpty();
     }
 
     VirtualEtherStreamHolderData toData() {
@@ -333,13 +304,15 @@ public class VirtualEtherStreamHolder {
                 streamDataList.add(ves.toData());
             }
         }
-        return new VirtualEtherStreamHolderData(activateTick, nextId, streamDataList);
+        return new VirtualEtherStreamHolderData(nextId, streamDataList);
     }
 
-    void initLevel(ServerLevel level) {
-        this.level = level;
-        for (VirtualEtherStream ves : streams) {
-            ves.level = level;
+
+    public void loadFromData(VirtualEtherStreamHolderData holderData) {
+        nextId = holderData.nextId();
+        for (VirtualEtherStreamData data : holderData.streams()) {
+            VirtualEtherStream ves = VirtualEtherStream.fromData(level, data);
+            streams.add(ves);
         }
     }
 }

@@ -8,7 +8,9 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
+import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.stream.EtherConsumer;
+import studio.fantasyit.ether_craft.stream.EtherStreamConsumeModifier;
 import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
 import studio.fantasyit.ether_craft.stream.PosDir;
 import studio.fantasyit.ether_craft.stream.cap.IStreamCapability;
@@ -20,11 +22,11 @@ import java.util.Optional;
 
 public class VirtualEtherStream implements IEtherStreamLike {
     Vec3 pos;
-    Level level;
-    Direction direction;
-    Vec3 startPos;
-    Vec3 motion;
-    PosDir posDir;
+    final Level level;
+    final Direction direction;
+    final Vec3 startPos;
+    final Vec3 motion;
+    final PosDir posDir;
 
     public boolean markToSyncCreation = false;
     public boolean markToRemove = false;
@@ -39,18 +41,15 @@ public class VirtualEtherStream implements IEtherStreamLike {
 
     List<IEtherStreamSyncedData> toSyncData = new ArrayList<>();
 
-    VirtualEtherStream() {
-    }
-
-    public VirtualEtherStream(int streamId, int ether, Vec3 pos, Vec3 motion, Level level, Direction direction) {
+    public VirtualEtherStream(int streamId, int ether, Vec3 startPos, PosDir posDir, Vec3 motion, Level level) {
         this.streamId = streamId;
         this.ether = ether;
-        this.pos = pos;
         this.level = level;
-        this.direction = direction;
-        this.startPos = pos;
         this.motion = motion;
         this.markToSyncCreation = true;
+        this.startPos = this.pos = startPos;
+        this.direction = posDir.dir();
+        this.posDir = posDir;
     }
 
     @Override
@@ -132,6 +131,35 @@ public class VirtualEtherStream implements IEtherStreamLike {
         markToSyncData = true;
     }
 
+    public void tick() {
+        if (!level.isLoaded(this.blockPosition()))
+            return;
+
+        if (this.consumer.isDirty()) {
+            this.consumer.recompute(this.capabilities);
+            this.needsEtherSync = true;
+        }
+
+
+        if (this.tickCount == 0)
+            for (IStreamCapability cap : this.capabilities) {
+                cap.firstTick(this);
+            }
+        this.tickCount++;
+
+        for (IStreamCapability cap : this.capabilities) {
+            cap.tick(this);
+        }
+
+        int consumption = this.getConsumption();
+        consumption = EtherStreamConsumeModifier.modify(consumption, this.ether, this.tickCount, level, this.position());
+        this.consumeEtherInternal(consumption);
+
+        if (this.getEther() <= 0 && this.tickCount > Config.etherStreamMaxTick) {
+            this.markDead();
+        }
+    }
+
     @Override
     public void clearSyncedData(Identifier id) {
         toSyncData.removeIf(d -> d.getId().equals(id));
@@ -150,10 +178,6 @@ public class VirtualEtherStream implements IEtherStreamLike {
         return posDir;
     }
 
-    public void setPosDir(PosDir posDir) {
-        this.posDir = posDir;
-    }
-
     public int getStreamId() {
         return streamId;
     }
@@ -164,7 +188,7 @@ public class VirtualEtherStream implements IEtherStreamLike {
                 pos,
                 startPos,
                 motion,
-                direction,
+                posDir,
                 ether,
                 tickCount,
                 consumer.toState(),
@@ -174,14 +198,15 @@ public class VirtualEtherStream implements IEtherStreamLike {
     }
 
     static VirtualEtherStream fromData(ServerLevel level, VirtualEtherStreamData data) {
-        VirtualEtherStream ves = new VirtualEtherStream();
-        ves.streamId = data.streamId();
-        ves.ether = data.ether();
+        VirtualEtherStream ves = new VirtualEtherStream(
+                data.streamId(),
+                data.ether(),
+                data.startPos(),
+                data.posDir(),
+                data.motion(),
+                level
+        );
         ves.pos = data.pos();
-        ves.startPos = data.startPos();
-        ves.motion = data.motion();
-        ves.level = level;
-        ves.direction = data.direction();
         ves.tickCount = data.tickCount();
         ves.consumer.fromState(data.consumerState());
         ves.capabilities.addAll(data.capabilities());
