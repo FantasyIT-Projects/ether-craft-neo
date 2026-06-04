@@ -14,34 +14,30 @@ import studio.fantasyit.ether_craft.stream.PosDir;
 import java.util.*;
 
 public class VirtualEtherStreamHolderManager {
-    private record VESHMapEntry(PosDir posDir, VirtualEtherStreamHolderData holderData) {
-        static final Codec<VESHMapEntry> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-                PosDir.CODEC.fieldOf("pos_dir").forGetter(VESHMapEntry::posDir),
-                VirtualEtherStreamHolderData.CODEC.fieldOf("holder").forGetter(VESHMapEntry::holderData)
-        ).apply(instance, VESHMapEntry::new));
+    public record VESHEntry(PosDir posDir, VirtualEtherStreamHolderData holderData) {
+        static final Codec<VESHEntry> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+                PosDir.CODEC.fieldOf("pos_dir").forGetter(VESHEntry::posDir),
+                VirtualEtherStreamHolderData.CODEC.fieldOf("holder").forGetter(VESHEntry::holderData)
+        ).apply(instance, VESHEntry::new));
     }
 
-    public static final Codec<VirtualEtherStreamHolderManager> CODEC = VESHMapEntry.CODEC.listOf().xmap(VirtualEtherStreamHolderManager::new,
-            mgr -> {
-                List<VESHMapEntry> entries = new ArrayList<>();
-                for (Map.Entry<PosDir, VirtualEtherStreamHolder> e : mgr.holders.entrySet()) {
-                    entries.add(new VESHMapEntry(e.getKey(), e.getValue().toData()));
-                }
-                return entries;
-            }
-    );
+    public static final Codec<VirtualEtherStreamHolderManager> CODEC = VESHEntry.CODEC.listOf().xmap(VirtualEtherStreamHolderManager::new, VirtualEtherStreamHolderManager::toData);
 
 
     private final Map<PosDir, VirtualEtherStreamHolder> holders = new HashMap<>();
-    private List<VESHMapEntry> lazyLoadData;
+    private List<VESHEntry> lazyLoadData;
 
-    public VirtualEtherStreamHolderManager(@Nullable List<VESHMapEntry> toBeLoaded) {
+    public static VirtualEtherStreamHolderManager empty() {
+        return new VirtualEtherStreamHolderManager(null);
+    }
+
+    public VirtualEtherStreamHolderManager(@Nullable List<VESHEntry> toBeLoaded) {
         lazyLoadData = toBeLoaded;
     }
 
     private void ensureLazy(ServerLevel level) {
         if (lazyLoadData != null) {
-            for (VESHMapEntry entry : lazyLoadData) {
+            for (VESHEntry entry : lazyLoadData) {
                 VirtualEtherStreamHolder virtualEtherStreamHolder = new VirtualEtherStreamHolder(entry.posDir, level);
                 virtualEtherStreamHolder.loadFromData(entry.holderData);
                 holders.put(entry.posDir, virtualEtherStreamHolder);
@@ -72,6 +68,7 @@ public class VirtualEtherStreamHolderManager {
 
     public void tick(ServerLevel level) {
         ensureLazy(level);
+        level.getData(AttachmentDataRegistry.ESBS_CACHE).clearCache();
         HashSet<Map.Entry<PosDir, VirtualEtherStreamHolder>> keys = new HashSet<>(holders.entrySet());
         for (Map.Entry<PosDir, VirtualEtherStreamHolder> entry : keys) {
             PosDir posDir = entry.getKey();
@@ -97,5 +94,13 @@ public class VirtualEtherStreamHolderManager {
 
     public VirtualEtherStreamHolder getHolder(PosDir posDir) {
         return holders.get(posDir);
+    }
+
+    public List<VESHEntry> toData() {
+        List<VESHEntry> entries = new ArrayList<>();
+        for (Map.Entry<PosDir, VirtualEtherStreamHolder> e : holders.entrySet()) {
+            entries.add(new VESHEntry(e.getKey(), e.getValue().toData()));
+        }
+        return entries;
     }
 }

@@ -9,10 +9,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import studio.fantasyit.ether_craft.Config;
-import studio.fantasyit.ether_craft.stream.EtherConsumer;
-import studio.fantasyit.ether_craft.stream.EtherStreamConsumeModifier;
-import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
-import studio.fantasyit.ether_craft.stream.PosDir;
+import studio.fantasyit.ether_craft.register.AttachmentDataRegistry;
+import studio.fantasyit.ether_craft.stream.*;
 import studio.fantasyit.ether_craft.stream.cap.IStreamCapability;
 import studio.fantasyit.ether_craft.stream.data.IEtherStreamSyncedData;
 
@@ -132,9 +130,11 @@ public class VirtualEtherStream implements IEtherStreamLike {
     }
 
     public void tick() {
-        if (!level.isLoaded(this.blockPosition()))
+        if (!level.isLoaded(this.blockPosition())) {
             return;
+        }
 
+        EtherStreamBlockStateReadCache data = level.getData(AttachmentDataRegistry.ESBS_CACHE);
         if (this.consumer.isDirty()) {
             this.consumer.recompute(this.capabilities);
             this.needsEtherSync = true;
@@ -152,7 +152,7 @@ public class VirtualEtherStream implements IEtherStreamLike {
         }
 
         int consumption = this.getConsumption();
-        consumption = EtherStreamConsumeModifier.modify(consumption, this.ether, this.tickCount, level, this.position());
+        consumption = EtherStreamConsumeModifier.modify(consumption, this.ether, this.tickCount, level, this.position(), data);
         this.consumeEtherInternal(consumption);
 
         if (this.getEther() <= 0 && this.tickCount > Config.etherStreamMaxTick) {

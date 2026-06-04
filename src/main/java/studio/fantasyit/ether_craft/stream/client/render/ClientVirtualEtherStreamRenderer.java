@@ -40,6 +40,8 @@ public class ClientVirtualEtherStreamRenderer {
         poseStack.mulPose(camera.orientation);
 
         collector.order(1).submitCustomGeometry(poseStack, RENDER_TYPE, (pose, buffer) -> {
+            int targetCount = 0;
+            int particleCount = 0;
             Vector3f normal = pose.transformNormal(0, 1f, 0, new Vector3f());
             for (var posEntry : data.getEntries().entrySet()) {
                 ClientVESHData.ClientVESHEntry veshEntry = posEntry.getValue();
@@ -59,8 +61,12 @@ public class ClientVirtualEtherStreamRenderer {
                     Vec3 tailEnd = currentPos.add(baseStep.scale(5));
                     if (!camera.cullFrustum.isVisible(new AABB(currentPos, tailEnd).inflate(0.5))) continue;
 
+                    targetCount++;
                     for (int i = 0; i < 6; i++) {
                         Vec3 tailPos = currentPos.add(baseStep.scale(i));
+                        if (i != 0 && tailPos.distanceToSqr(camera.pos) > 55 * (5 - i))
+                            continue;
+                        particleCount++;
                         offsetVec.set(
                                 (float) (tailPos.x - camera.pos.x),
                                 (float) (tailPos.y - camera.pos.y),
@@ -81,6 +87,8 @@ public class ClientVirtualEtherStreamRenderer {
                     }
                 }
             }
+            data.lastTickParticleCount = particleCount;
+            data.lastTickRenderCount = targetCount;
         });
 
         poseStack.popPose();

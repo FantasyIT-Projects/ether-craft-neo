@@ -8,6 +8,7 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import studio.fantasyit.ether_craft.network.s2c.EtherStreamCreateS2C;
 import studio.fantasyit.ether_craft.stream.EtherConsumer;
+import studio.fantasyit.ether_craft.stream.EtherStreamBlockStateReadCache;
 import studio.fantasyit.ether_craft.stream.EtherStreamConsumeModifier;
 import studio.fantasyit.ether_craft.stream.client.extra.EtherStreamClientLogicManager;
 import studio.fantasyit.ether_craft.stream.data.IEtherStreamSyncedData;
@@ -66,7 +67,7 @@ public class ClientStreamEntry {
         this.consumer.fromState(consumerState);
     }
 
-    public void tick() {
+    public void tick(Level level, EtherStreamBlockStateReadCache cache) {
         if (isDying) {
             deathTick--;
             if (deathTick <= 0) {
@@ -79,7 +80,7 @@ public class ClientStreamEntry {
         tickCount++;
         int consumption = consumer.getTotalConsumption(ether, tickCount);
         Vec3 position = startPos.add(motion.scale(tickCount - startTickCount));
-        consumption = EtherStreamConsumeModifier.modify(consumption, ether, tickCount, Minecraft.getInstance().level, position);
+        consumption = EtherStreamConsumeModifier.modify(consumption, ether, tickCount, level, position, cache);
         ether = Math.max(0, ether - consumption);
         EtherStreamClientLogicManager.onTick(this);
     }
@@ -99,6 +100,7 @@ public class ClientStreamEntry {
     public void setSyncedData(IEtherStreamSyncedData data) {
         syncedData.put(data.getId(), data);
     }
+
     public void removeSyncedData(Identifier id) {
         syncedData.remove(id);
     }
