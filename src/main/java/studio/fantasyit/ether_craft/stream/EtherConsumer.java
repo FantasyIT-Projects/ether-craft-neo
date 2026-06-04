@@ -15,11 +15,15 @@ public class EtherConsumer {
     private double factorByTime;
     private int capConsumptionSum;
     private double globalFactor;
+    private boolean isInEtherGlass;
     private boolean dirty = true;
 
     public int getTotalConsumption(int ether, int tickCount) {
         double factor = baseFactor + factorByTime * tickCount;
-        return (int) Math.ceil(Math.ceil(Math.ceil(factor * ether) + capConsumptionSum) * globalFactor);
+        int amount = (int) Math.ceil(Math.ceil(Math.ceil(factor * ether) + capConsumptionSum) * globalFactor);
+        if (isInEtherGlass)
+            amount -= Config.etherGlassPreventConsume;
+        return Math.max(0, amount);
     }
 
     public void markDirty() {
@@ -58,7 +62,7 @@ public class EtherConsumer {
     }
 
     public State toState() {
-        return new State(baseFactor, factorByTime, capConsumptionSum, globalFactor);
+        return new State(baseFactor, factorByTime, capConsumptionSum, globalFactor, isInEtherGlass);
     }
 
     public void fromState(State s) {
@@ -66,15 +70,23 @@ public class EtherConsumer {
         this.factorByTime = s.factorByTime();
         this.capConsumptionSum = s.capConsumptionSum();
         this.globalFactor = s.globalFactor();
+        this.isInEtherGlass = s.isInEtherGlass();
         this.dirty = false;
     }
 
-    public record State(double baseFactor, double factorByTime, int capConsumptionSum, double globalFactor) {
+    public void setIsInEtherGlass(boolean isEtherGlass2) {
+        isInEtherGlass = isEtherGlass2;
+        this.dirty = true;
+    }
+
+    public record State(double baseFactor, double factorByTime, int capConsumptionSum, double globalFactor,
+                        boolean isInEtherGlass) {
         public static final Codec<State> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                 Codec.DOUBLE.fieldOf("baseFactor").forGetter(State::baseFactor),
                 Codec.DOUBLE.fieldOf("factorByTime").forGetter(State::factorByTime),
                 Codec.INT.fieldOf("capConsumptionSum").forGetter(State::capConsumptionSum),
-                Codec.DOUBLE.fieldOf("globalFactor").forGetter(State::globalFactor)
+                Codec.DOUBLE.fieldOf("globalFactor").forGetter(State::globalFactor),
+                Codec.BOOL.fieldOf("isInEtherGlass").forGetter(State::isInEtherGlass)
         ).apply(instance, State::new));
 
         public static final StreamCodec<RegistryFriendlyByteBuf, State> STREAM_CODEC = StreamCodec.composite(
@@ -82,6 +94,7 @@ public class EtherConsumer {
                 ByteBufCodecs.DOUBLE, State::factorByTime,
                 ByteBufCodecs.INT, State::capConsumptionSum,
                 ByteBufCodecs.DOUBLE, State::globalFactor,
+                ByteBufCodecs.BOOL, State::isInEtherGlass,
                 State::new
         );
     }

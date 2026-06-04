@@ -1,5 +1,6 @@
 package studio.fantasyit.ether_craft.stream.client.data;
 
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.level.Level;
 import studio.fantasyit.ether_craft.network.s2c.EtherStreamCreateS2C;
@@ -13,20 +14,23 @@ import studio.fantasyit.ether_craft.stream.client.extra.EtherStreamClientLogicMa
 import studio.fantasyit.ether_craft.stream.data.IEtherStreamSyncedData;
 
 import java.lang.ref.WeakReference;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.WeakHashMap;
 
 public class ClientVESHData {
     public static final ClientVESHData DUMMY = new ClientVESHData(null);
 
     public static class ClientVESHEntry {
-
-        public final Map<Integer, ClientStreamEntry> streams = new HashMap<>();
+        public final Map<Integer, ClientStreamEntry> streams = new Object2ObjectOpenHashMap<>();
     }
 
-    private final Map<PosDir, ClientVESHEntry> entries = new HashMap<>();
+    private final Map<PosDir, ClientVESHEntry> entries = new Object2ObjectOpenHashMap<>();
     private final WeakReference<Level> level;
     public int lastTickRenderCount = 0;
     public int lastTickParticleCount = 0;
+    public int nextFrameRenderDistanceLimit = 100;
 
     public ClientVESHData(Level level) {
         this.level = new WeakReference<>(level);

@@ -10,7 +10,11 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.register.AttachmentDataRegistry;
-import studio.fantasyit.ether_craft.stream.*;
+import studio.fantasyit.ether_craft.register.BlockRegistry;
+import studio.fantasyit.ether_craft.stream.EtherConsumer;
+import studio.fantasyit.ether_craft.stream.EtherStreamBlockStateReadCache;
+import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
+import studio.fantasyit.ether_craft.stream.PosDir;
 import studio.fantasyit.ether_craft.stream.cap.IStreamCapability;
 import studio.fantasyit.ether_craft.stream.data.IEtherStreamSyncedData;
 
@@ -30,6 +34,7 @@ public class VirtualEtherStream implements IEtherStreamLike {
     public boolean markToRemove = false;
     public boolean markToSyncData = false;
     public boolean needsEtherSync = false;
+    public boolean runIntoEtherGlass = false;
 
     List<IStreamCapability> capabilities = new ArrayList<>();
     public final EtherConsumer consumer = new EtherConsumer();
@@ -48,6 +53,7 @@ public class VirtualEtherStream implements IEtherStreamLike {
         this.startPos = this.pos = startPos;
         this.direction = posDir.dir();
         this.posDir = posDir;
+        this.runIntoEtherGlass = level.getBlockState(BlockPos.containing(startPos)).is(BlockRegistry.ETHER_GLASS);
     }
 
     @Override
@@ -152,10 +158,9 @@ public class VirtualEtherStream implements IEtherStreamLike {
         }
 
         int consumption = this.getConsumption();
-        consumption = EtherStreamConsumeModifier.modify(consumption, this.ether, this.tickCount, level, this.position(), data);
         this.consumeEtherInternal(consumption);
 
-        if (this.getEther() <= 0 && this.tickCount > Config.etherStreamMaxTick) {
+        if (this.getEther() <= 0 || this.tickCount > Config.etherStreamMaxTick) {
             this.markDead();
         }
     }
@@ -180,6 +185,13 @@ public class VirtualEtherStream implements IEtherStreamLike {
 
     public int getStreamId() {
         return streamId;
+    }
+
+    @Override
+    public void setRunIntoEtherGlass(boolean isEtherGlass2) {
+        runIntoEtherGlass = isEtherGlass2;
+        this.consumer.setIsInEtherGlass(isEtherGlass2);
+        needsEtherSync = true;
     }
 
     VirtualEtherStreamData toData() {

@@ -6,10 +6,12 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.*;
-import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 import studio.fantasyit.ether_craft.block.base.EtherContainer;
@@ -17,6 +19,7 @@ import studio.fantasyit.ether_craft.network.s2c.EtherStreamCreateS2C;
 import studio.fantasyit.ether_craft.network.s2c.EtherStreamSetDyingS2C;
 import studio.fantasyit.ether_craft.network.s2c.EtherStreamSyncDataS2C;
 import studio.fantasyit.ether_craft.network.s2c.EtherStreamUpdateS2C;
+import studio.fantasyit.ether_craft.register.BlockRegistry;
 import studio.fantasyit.ether_craft.register.Tags;
 import studio.fantasyit.ether_craft.stream.PosDir;
 import studio.fantasyit.ether_craft.stream.cap.IStreamCapability;
@@ -76,6 +79,7 @@ public class VirtualEtherStreamHolder {
     }
 
     private void tickCollideAll() {
+        if (streams.isEmpty()) return;
         Vec3 emitterBlockCenter = pos.getCenter();
         double maxLen = 0;
         double minLen = Double.MAX_VALUE;
@@ -88,30 +92,43 @@ public class VirtualEtherStreamHolder {
         Vec3 queryVec = direction.getUnitVec3().scale(maxLen - minLen + 0.5);
         List<Entity> entities = level.getEntities(null, new AABB(pos).expandTowards(queryVec).inflate(1.0));
         entities.removeIf(entity -> entity == null || entity.is(EntityType.ITEM));
+        int maxClipDist = (int) Math.ceil(maxLen);
+        List<BlockState> blockStates = new ArrayList<>(maxClipDist);
+        List<BlockPos> blockPoses = new ArrayList<>(maxClipDist);
+        List<VoxelShape> shapes = new ArrayList<>(maxClipDist);
 
+        BlockPos.MutableBlockPos blockScanPos = pos.mutable();
+        for (int i = 0; i <= maxClipDist; i++) {
+            BlockState blockState = level.getBlockState(blockScanPos);
+            blockStates.add(blockState);
+            blockPoses.add(blockScanPos.immutable());
+            shapes.add(blockState.getCollisionShape(level, blockScanPos));
+            blockScanPos.move(direction);
+        }
 
         for (VirtualEtherStream ves : streams) {
             Vec3 oldPos = ves.pos;
             Vec3 newPos = oldPos.add(ves.motion);
 
+            int clipStart = BlockPos.containing(oldPos).distManhattan(pos);
+            int clipEnd = BlockPos.containing(newPos).distManhattan(pos);
             //获取最近的方块碰撞
-            BlockHitResult blockHit = level.clipIncludingBorder(new ClipContext(oldPos, newPos, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, CollisionContext.empty()));
-            boolean hasBlockHit = blockHit.getType() != HitResult.Type.MISS;
-            if (hasBlockHit) {
-                BlockPos bp = blockHit.getBlockPos();
-                BlockState bs = level.getBlockState(bp);
-                if (bs.is(Tags.ETHER_STREAM_PASS_THROUGH)) {
-                    hasBlockHit = false;
-                } else {
-                    for (IStreamCapability cap : ves.capabilities) {
-                        if (cap.shouldPassThrough(bs, level, bp)) {
-                            hasBlockHit = false;
-                            break;
-                        }
-                    }
+            BlockHitResult blockHit = null;
+            for (int i = clipStart; i <= clipEnd; i++) {
+                BlockState blockState = blockStates.get(i);
+                BlockPos pos = blockPoses.get(i);
+                if (blockState.is(Tags.ETHER_STREAM_PASS_THROUGH))
+                    continue;
+                if (ves.capabilities.stream().anyMatch(cap -> cap.shouldPassThrough(blockState, level, pos)))
+                    continue;
+                VoxelShape shape = shapes.get(i);
+                BlockHitResult hit = shape.clip(oldPos, newPos, pos);
+                if (hit != null) {
+                    blockHit = hit;
+                    break;
                 }
             }
-            double blockDist = hasBlockHit ? oldPos.distanceToSqr(blockHit.getLocation()) : Double.MAX_VALUE;
+            double blockDist = blockHit != null ? oldPos.distanceToSqr(blockHit.getLocation()) : Double.MAX_VALUE;
 
             //判断必方块更近的实体碰撞
             Entity hitEntity = null;
@@ -149,7 +166,7 @@ public class VirtualEtherStreamHolder {
                     handled |= cap.hitEntity(level, ves, hit, hitEntity);
                 }
                 if (!handled) ves.markDead();
-            } else if (hasBlockHit) {
+            } else if (blockHit != null) {
                 boolean handled = false;
                 for (IStreamCapability cap : ves.capabilities) {
                     handled |= cap.hitBlock(level, ves, blockHit, level.getBlockState(blockHit.getBlockPos()));
@@ -162,6 +179,19 @@ public class VirtualEtherStreamHolder {
                 }
             }
         }
+
+        for (VirtualEtherStream ves : streams) {
+            BlockPos oldPos = BlockPos.containing(ves.pos);
+            BlockPos newPos = BlockPos.containing(ves.pos.add(ves.motion));
+            if (oldPos.equals(newPos)) continue;
+            int id1 = oldPos.distManhattan(pos);
+            int id2 = newPos.distManhattan(pos);
+            boolean isEtherGlass1 = blockStates.get(id1).is(BlockRegistry.ETHER_GLASS);
+            boolean isEtherGlass2 = blockStates.get(id2).is(BlockRegistry.ETHER_GLASS);
+            if (isEtherGlass1 != isEtherGlass2) {
+                ves.setRunIntoEtherGlass(isEtherGlass2);
+            }
+        }
     }
 
     private void syncAll() {
@@ -172,16 +202,19 @@ public class VirtualEtherStreamHolder {
         for (VirtualEtherStream ves : streams) {
             if (ves.markToRemove)
                 collectedToRemove.add(ves.streamId);
-            if (ves.markToSyncCreation) {
+            else if (ves.markToSyncCreation) {
                 collectedToCreate.add(ves.streamId);
                 ves.markToSyncCreation = false;
                 ves.markToSyncData = false;
-            } else if (ves.markToSyncData) {
-                collectedToSyncData.add(ves.streamId);
-                ves.markToSyncData = false;
-            } else if (ves.needsEtherSync) {
-                collectedToSyncEtherConsume.add(ves.streamId);
-                ves.needsEtherSync = false;
+            } else {
+                if (ves.markToSyncData) {
+                    collectedToSyncData.add(ves.streamId);
+                    ves.markToSyncData = false;
+                }
+                if (ves.needsEtherSync) {
+                    collectedToSyncEtherConsume.add(ves.streamId);
+                    ves.needsEtherSync = false;
+                }
             }
         }
 
@@ -235,7 +268,7 @@ public class VirtualEtherStreamHolder {
         if (!collectedToSyncEtherConsume.isEmpty()) {
             //同步消耗对象
             List<EtherStreamUpdateS2C.StreamEntry> updateEntries = new ArrayList<>();
-            for (int id : collectedToSyncData) {
+            for (int id : collectedToSyncEtherConsume) {
                 VirtualEtherStream ves = findStreamById(id);
                 if (ves == null) continue;
                 EtherStreamUpdateS2C.StreamEntry streamEntry = new EtherStreamUpdateS2C.StreamEntry(
@@ -245,8 +278,10 @@ public class VirtualEtherStreamHolder {
                 );
                 updateEntries.add(streamEntry);
             }
-            EtherStreamUpdateS2C payload = new EtherStreamUpdateS2C(posDir, updateEntries);
-            PacketDistributor.sendToPlayersInDimension(level, payload);
+            if (!updateEntries.isEmpty()) {
+                EtherStreamUpdateS2C payload = new EtherStreamUpdateS2C(posDir, updateEntries);
+                PacketDistributor.sendToPlayersInDimension(level, payload);
+            }
         }
     }
 

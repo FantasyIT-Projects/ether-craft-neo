@@ -34,7 +34,7 @@ public class DebugAddEvent {
             sb.append(totalSize);
             sb.append(" ticking;");
             sb.append("R:");
-            sb.append(clientVESHData.lastTickRenderCount).append("|").append(clientVESHData.lastTickRenderCount);
+            sb.append(clientVESHData.lastTickRenderCount).append("|").append(clientVESHData.lastTickParticleCount);
 
             debugScreenDisplayer.addLine(sb.toString());
         }

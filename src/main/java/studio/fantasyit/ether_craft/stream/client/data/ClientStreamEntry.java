@@ -1,6 +1,7 @@
 package studio.fantasyit.ether_craft.stream.client.data;
 
 
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.Level;
@@ -9,11 +10,9 @@ import org.jetbrains.annotations.Nullable;
 import studio.fantasyit.ether_craft.network.s2c.EtherStreamCreateS2C;
 import studio.fantasyit.ether_craft.stream.EtherConsumer;
 import studio.fantasyit.ether_craft.stream.EtherStreamBlockStateReadCache;
-import studio.fantasyit.ether_craft.stream.EtherStreamConsumeModifier;
 import studio.fantasyit.ether_craft.stream.client.extra.EtherStreamClientLogicManager;
 import studio.fantasyit.ether_craft.stream.data.IEtherStreamSyncedData;
 
-import java.util.HashMap;
 import java.util.Map;
 
 public class ClientStreamEntry {
@@ -28,8 +27,9 @@ public class ClientStreamEntry {
     public int deathTick;
     public boolean isDying;
     public boolean removed;
+    public int noEtherTicks = 0;
     public final EtherConsumer consumer = new EtherConsumer();
-    public Map<Identifier, IEtherStreamSyncedData> syncedData = new HashMap<>();
+    public Map<Identifier, IEtherStreamSyncedData> syncedData = new Object2ObjectOpenHashMap<>();
 
     public void setDying() {
         if (!this.isDying) {
@@ -54,7 +54,7 @@ public class ClientStreamEntry {
             this.tickCount = entry.tickCount();
             this.ether = entry.ether();
             this.consumer.fromState(entry.consumerState());
-            this.syncedData = new HashMap<>();
+            this.syncedData = new Object2ObjectOpenHashMap<>();
             for (IEtherStreamSyncedData data : entry.syncedData())
                 this.syncedData.put(data.getId(), data);
         }
@@ -79,10 +79,16 @@ public class ClientStreamEntry {
 
         tickCount++;
         int consumption = consumer.getTotalConsumption(ether, tickCount);
-        Vec3 position = startPos.add(motion.scale(tickCount - startTickCount));
-        consumption = EtherStreamConsumeModifier.modify(consumption, ether, tickCount, level, position, cache);
         ether = Math.max(0, ether - consumption);
         EtherStreamClientLogicManager.onTick(this);
+        if (ether <= 0) {
+            noEtherTicks++;
+            if (noEtherTicks >= 60) {
+                removed = true;
+            }
+        } else {
+            noEtherTicks = 0;
+        }
     }
 
     public boolean isDying() {

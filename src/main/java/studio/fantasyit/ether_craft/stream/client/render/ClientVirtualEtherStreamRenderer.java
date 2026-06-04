@@ -9,7 +9,6 @@ import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.Identifier;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
@@ -39,9 +38,14 @@ public class ClientVirtualEtherStreamRenderer {
         poseStack.pushPose();
         poseStack.mulPose(camera.orientation);
 
+        Vector3f cameraForward = new Vector3f(0, 0, -1);
+        camera.orientation.transform(cameraForward);
+        float fx = cameraForward.x(), fy = cameraForward.y(), fz = cameraForward.z();
+
         collector.order(1).submitCustomGeometry(poseStack, RENDER_TYPE, (pose, buffer) -> {
             int targetCount = 0;
             int particleCount = 0;
+
             Vector3f normal = pose.transformNormal(0, 1f, 0, new Vector3f());
             for (var posEntry : data.getEntries().entrySet()) {
                 ClientVESHData.ClientVESHEntry veshEntry = posEntry.getValue();
@@ -49,22 +53,37 @@ public class ClientVirtualEtherStreamRenderer {
                     ClientStreamEntry stream = streamEntry.getValue();
                     if (stream.isRemoved() || stream.isDying() || !EtherStreamClientLogicManager.shouldRender(stream))
                         continue;
+                    double speed = stream.motion.length();
+                    if (speed <= 0.0001) continue;
 
                     long elapsed = mc.level.getGameTime() - stream.receivedAtTick;
                     Vec3 currentPos = stream.startPos.add(
                             stream.motion.scale(stream.startTickCount + elapsed));//这里不加pt；
+                    double dx = currentPos.x - camera.pos.x;
+                    double dy = currentPos.y - camera.pos.y;
+                    double dz = currentPos.z - camera.pos.z;
+                    double distance = dx * dx + dy * dy + dz * dz;
 
-                    double speed = stream.motion.length();
-                    if (speed <= 0.0001) continue;
+                    double dot = dx * fx + dy * fy + dz * fz;
+                    if (dot < -10.0) continue;
+
+                    if (distance > 9000) {
+                        if (streamEntry.getKey() % 4 != 0) continue;
+                    } else if (distance > 1600) {
+                        if (streamEntry.getKey() % 2 != 0) continue;
+                    }
+
 
                     Vec3 baseStep = stream.motion.reverse();
                     Vec3 tailEnd = currentPos.add(baseStep.scale(5));
-                    if (!camera.cullFrustum.isVisible(new AABB(currentPos, tailEnd).inflate(0.5))) continue;
+                    if (!camera.cullFrustum.pointInFrustum(currentPos.x, currentPos.y, currentPos.z)
+                            && !camera.cullFrustum.pointInFrustum(tailEnd.x, tailEnd.y, tailEnd.z))
+                        continue;
 
                     targetCount++;
                     for (int i = 0; i < 6; i++) {
                         Vec3 tailPos = currentPos.add(baseStep.scale(i));
-                        if (i != 0 && tailPos.distanceToSqr(camera.pos) > 55 * (5 - i))
+                        if (i != 0 && tailPos.distanceToSqr(camera.pos) > 225 * (5 - i))
                             continue;
                         particleCount++;
                         offsetVec.set(
@@ -104,12 +123,24 @@ public class ClientVirtualEtherStreamRenderer {
                 Vec3 currentPos = stream.startPos.add(
                         stream.motion.scale(stream.startTickCount + elapsed));
 
+                double dx = currentPos.x - camera.pos.x;
+                double dy = currentPos.y - camera.pos.y;
+                double dz = currentPos.z - camera.pos.z;
+                double distance = dx * dx + dy * dy + dz * dz;
+
+                double dot = dx * fx + dy * fy + dz * fz;
+                if (dot < -10.0) continue;
+
+                if (distance > 9000) {
+                    continue;
+                }
+
                 double speed = stream.motion.length();
                 if (speed > 0.0001) {
                     Vec3 tailEnd = currentPos.add(stream.motion.reverse().scale(5));
-                    if (!camera.cullFrustum.isVisible(new AABB(currentPos, tailEnd).inflate(0.5))) continue;
-                } else {
-                    if (!camera.cullFrustum.isVisible(new AABB(currentPos, currentPos).inflate(0.5))) continue;
+                    if (!camera.cullFrustum.pointInFrustum(currentPos.x, currentPos.y, currentPos.z)
+                            && !camera.cullFrustum.pointInFrustum(tailEnd.x, tailEnd.y, tailEnd.z))
+                        continue;
                 }
 
 
