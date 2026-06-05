@@ -6,6 +6,8 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
@@ -19,6 +21,7 @@ import studio.fantasyit.ether_craft.network.s2c.EtherStreamCreateS2C;
 import studio.fantasyit.ether_craft.network.s2c.EtherStreamSetDyingS2C;
 import studio.fantasyit.ether_craft.network.s2c.EtherStreamSyncDataS2C;
 import studio.fantasyit.ether_craft.network.s2c.EtherStreamUpdateS2C;
+import studio.fantasyit.ether_craft.plating.PlatingUtil;
 import studio.fantasyit.ether_craft.register.BlockRegistry;
 import studio.fantasyit.ether_craft.register.Tags;
 import studio.fantasyit.ether_craft.stream.PosDir;
@@ -91,7 +94,7 @@ public class VirtualEtherStreamHolder {
         }
         Vec3 queryVec = direction.getUnitVec3().scale(maxLen - minLen + 0.5);
         List<Entity> entities = level.getEntities(null, new AABB(pos).expandTowards(queryVec).inflate(1.0));
-        entities.removeIf(entity -> entity == null || entity.is(EntityType.ITEM));
+        entities.removeIf(entity -> entity == null || (entity.is(EntityType.ITEM) && !isPlatedItem((ItemEntity) entity)));
         int maxClipDist = (int) Math.ceil(maxLen);
         List<BlockState> blockStates = new ArrayList<>(maxClipDist);
         List<BlockPos> blockPoses = new ArrayList<>(maxClipDist);
@@ -161,9 +164,13 @@ public class VirtualEtherStreamHolder {
 
             if (hitEntity != null) {
                 boolean handled = false;
-                EntityHitResult hit = new EntityHitResult(hitEntity, entityHitAt);
-                for (IStreamCapability cap : ves.capabilities) {
-                    handled |= cap.hitEntity(level, ves, hit, hitEntity);
+                if (hitEntity instanceof ItemEntity ie && isPlatedItem(ie)) {
+                    addEtherToPlatedItem(ves, ie);
+                } else {
+                    EntityHitResult hit = new EntityHitResult(hitEntity, entityHitAt);
+                    for (IStreamCapability cap : ves.capabilities) {
+                        handled |= cap.hitEntity(level, ves, hit, hitEntity);
+                    }
                 }
                 if (!handled) ves.markDead();
             } else if (blockHit != null) {
@@ -317,6 +324,20 @@ public class VirtualEtherStreamHolder {
 
     public boolean isDead() {
         return streams.isEmpty();
+    }
+
+    private static boolean isPlatedItem(ItemEntity ie) {
+        ItemStack stack = ie.getItem();
+        return PlatingUtil.isPlatingInProgress(stack) || PlatingUtil.hasPlating(stack);
+    }
+
+    private static void addEtherToPlatedItem(VirtualEtherStream ves, ItemEntity ie) {
+        ItemStack stack = ie.getItem();
+        int ether = ves.getEther();
+        if (ether <= 0) return;
+        PlatingUtil.addEther(stack, ether);
+        ves.consumeEther(ether);
+        ie.setItem(stack);
     }
 
     VirtualEtherStreamHolderData toData() {

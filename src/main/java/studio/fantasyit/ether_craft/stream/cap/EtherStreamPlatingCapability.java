@@ -48,59 +48,58 @@ public class EtherStreamPlatingCapability implements IStreamCapability {
             ItemStack stack = itemEntity.getItem();
             if (stack.isEmpty()) continue;
 
+            boolean success;
             if (PlatingUtil.isPlatingInProgress(stack)) {
-                handleInProgress(streamEntity, level, itemEntity, stack, storage);
-            } else if (PlatingUtil.hasPlating(stack)) {
-                handleCompleted(streamEntity, itemEntity, stack);
+                success = handleInProgress(streamEntity, level, itemEntity, stack, storage);
             } else if (PlatingUtil.canPlate(stack) && matchesAnyFilter(stack, level)) {
-                handleNewPlating(streamEntity, level, itemEntity, stack, storage);
+                success = handleNewPlating(streamEntity, level, itemEntity, stack, storage);
+            } else success = false;
+            if (success) {
+                int ether = streamEntity.getEther();
+                PlatingUtil.addEther(stack, ether);
+                streamEntity.consumeEther(ether);
+                itemEntity.setItem(stack);
             }
         }
     }
 
-    private void handleInProgress(IEtherStreamLike streamEntity, ServerLevel level, ItemEntity itemEntity, ItemStack stack, EtherStreamStorageCapability storage) {
-        if (storage == null) return;
+    private boolean handleInProgress(IEtherStreamLike streamEntity, ServerLevel level, ItemEntity itemEntity, ItemStack stack, EtherStreamStorageCapability storage) {
+        if (storage == null) return false;
         List<PlatingRecipe> recipes = getSortedRecipes(level);
         List<ItemStack> availableItems = getStorageItems(storage);
-        if (availableItems.stream().allMatch(ItemStack::isEmpty)) return;
+        if (availableItems.stream().allMatch(ItemStack::isEmpty)) return false;
 
         Set<Identifier> existingEffects = new HashSet<>(PlatingUtil.getInProgress(stack));
         List<PlatingRecipe> matched = matchExactCover(availableItems, existingEffects, recipes);
         if (matched == null) {
             streamEntity.consumeEtherInternal(streamEntity.getEther());
-            return;
+            return false;
         }
 
         consumeStorageItems(storage, availableItems, matched);
         List<Identifier> effectIds = matched.stream().map(r -> r.effectId).toList();
         PlatingUtil.overwritePlating(stack, effectIds, level.getGameTime());
         itemEntity.setItem(stack);
+        return true;
     }
 
-    private void handleCompleted(IEtherStreamLike streamEntity, ItemEntity itemEntity, ItemStack stack) {
-        int ether = streamEntity.getEther();
-        if (ether <= 0) return;
-        PlatingUtil.addEther(stack, ether);
-        streamEntity.consumeEther(ether);
-        itemEntity.setItem(stack);
-    }
-
-    private void handleNewPlating(IEtherStreamLike streamEntity, ServerLevel level, ItemEntity itemEntity, ItemStack stack, EtherStreamStorageCapability storage) {
-        if (storage == null) return;
+    private boolean handleNewPlating(IEtherStreamLike streamEntity, ServerLevel level, ItemEntity itemEntity, ItemStack stack, EtherStreamStorageCapability storage) {
+        if (storage == null) return false;
         List<PlatingRecipe> recipes = getSortedRecipes(level);
         List<ItemStack> availableItems = getStorageItems(storage);
-        if (availableItems.stream().allMatch(ItemStack::isEmpty)) return;
+        if (availableItems.stream().allMatch(ItemStack::isEmpty)) return false;
 
         List<PlatingRecipe> matched = matchExactCover(availableItems, Set.of(), recipes);
         if (matched == null) {
             streamEntity.consumeEtherInternal(streamEntity.getEther());
-            return;
+            return false;
         }
 
         consumeStorageItems(storage, availableItems, matched);
         List<Identifier> effectIds = matched.stream().map(r -> r.effectId).toList();
         PlatingUtil.startPlating(stack, effectIds, level.getGameTime());
         itemEntity.setItem(stack);
+        return true;
     }
 
     private List<PlatingRecipe> getSortedRecipes(ServerLevel level) {
