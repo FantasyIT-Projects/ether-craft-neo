@@ -7,6 +7,8 @@ import net.minecraft.world.phys.Vec3;
 import studio.fantasyit.ether_craft.stream.client.data.ClientStreamEntry;
 
 public interface IEtherStreamExtraClientLogic {
+    boolean shouldAttach(ClientStreamEntry entry);
+
     default boolean shouldDelayDeath(ClientStreamEntry entry) {
         return false;
     }

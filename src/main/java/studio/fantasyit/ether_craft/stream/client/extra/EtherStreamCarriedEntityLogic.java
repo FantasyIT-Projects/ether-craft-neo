@@ -20,8 +20,15 @@ import studio.fantasyit.ether_craft.register.Tags;
 import studio.fantasyit.ether_craft.stream.cap.EtherStreamCarryEntityCapability;
 import studio.fantasyit.ether_craft.stream.client.data.ClientStreamEntry;
 import studio.fantasyit.ether_craft.stream.data.EtherStreamCarryingEntityData;
+import studio.fantasyit.ether_craft.stream.data.IEtherStreamSyncedData;
 
 public class EtherStreamCarriedEntityLogic implements IEtherStreamExtraClientLogic {
+    @Override
+    public boolean shouldAttach(ClientStreamEntry entry) {
+        IEtherStreamSyncedData syncedData = entry.getSyncedData(EtherStreamCarryingEntityData.ID);
+        return syncedData != null;
+    }
+
     @Override
     public void onTick(ClientStreamEntry entry) {
         EtherStreamCarryingEntityData data = (EtherStreamCarryingEntityData)

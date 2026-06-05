@@ -8,7 +8,6 @@ import studio.fantasyit.ether_craft.network.s2c.EtherStreamSetDyingS2C;
 import studio.fantasyit.ether_craft.network.s2c.EtherStreamSyncDataS2C;
 import studio.fantasyit.ether_craft.network.s2c.EtherStreamUpdateS2C;
 import studio.fantasyit.ether_craft.stream.PosDir;
-import studio.fantasyit.ether_craft.stream.client.extra.EtherStreamClientLogicManager;
 import studio.fantasyit.ether_craft.stream.data.IEtherStreamSyncedData;
 
 import java.lang.ref.WeakReference;
@@ -60,7 +59,7 @@ public class ClientVESHData {
             ClientStreamEntry current = entry.streams.get(se.streamId());
             if (current == null || current.isDying || current.removed) continue;
             current.updateFromServer(se.ether(), se.consumerState());
-            current.rePredicateRender();
+            current.updateDynamic();
         }
     }
 
@@ -72,10 +71,10 @@ public class ClientVESHData {
             ClientStreamEntry current = entry.streams.get(sid);
             if (current == null) continue;
 
-            if (EtherStreamClientLogicManager.shouldDelayDeath(current)) {
+            if (current.attachedLogic.stream().anyMatch(t -> t.shouldDelayDeath(current))) {
                 current.setDying();
                 current.deathAtTick = levelTime;
-                current.rePredicateRender();
+                current.updateDynamic();
             } else {
                 current.setRemoved();
             }
@@ -91,7 +90,7 @@ public class ClientVESHData {
             entry.syncedData.clear();
             for (IEtherStreamSyncedData data : etherStreamSyncDataS2C.data())
                 entry.syncedData.put(data.getId(), data);
-            entry.rePredicateRender();
+            entry.updateDynamic();
         }
     }
 

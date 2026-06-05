@@ -16,12 +16,13 @@ public class EtherStreamLabelLogic implements IEtherStreamExtraClientLogic {
     private static final float LABEL_SCALE = 0.010416667F;
 
     @Override
-    public boolean shouldDelayDeath(ClientStreamEntry entry) {
-        return true;
+    public boolean shouldAttach(ClientStreamEntry entry) {
+        return entry.getSyncedData(EtherStreamLabelData.ID) != null;
     }
 
     @Override
-    public void onTick(ClientStreamEntry entry) {
+    public boolean shouldDelayDeath(ClientStreamEntry entry) {
+        return true;
     }
 
     @Override
