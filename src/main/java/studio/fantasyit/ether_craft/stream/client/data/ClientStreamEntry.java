@@ -9,7 +9,6 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import studio.fantasyit.ether_craft.network.s2c.EtherStreamCreateS2C;
 import studio.fantasyit.ether_craft.stream.EtherConsumer;
-import studio.fantasyit.ether_craft.stream.EtherStreamBlockStateReadCache;
 import studio.fantasyit.ether_craft.stream.client.extra.EtherStreamClientLogicManager;
 import studio.fantasyit.ether_craft.stream.data.IEtherStreamSyncedData;
 
@@ -19,6 +18,8 @@ public class ClientStreamEntry {
     public Vec3 startPos = Vec3.ZERO;
     public Vec3 motion = Vec3.ZERO;
     public int startTickCount;
+
+    public final int id;
 
     public int tickCount;
     public int ether;
@@ -49,6 +50,7 @@ public class ClientStreamEntry {
 
     public ClientStreamEntry(@Nullable EtherStreamCreateS2C.StreamEntry entry) {
         if (entry != null) {
+            this.id = entry.streamId();
             this.startPos = entry.startPos();
             this.motion = entry.motion();
             this.startTickCount = entry.tickCount();
@@ -58,6 +60,8 @@ public class ClientStreamEntry {
             this.syncedData = new Object2ObjectOpenHashMap<>();
             for (IEtherStreamSyncedData data : entry.syncedData())
                 this.syncedData.put(data.getId(), data);
+        } else {
+            this.id = -1;
         }
         Level level = Minecraft.getInstance().level;
         this.receivedAtTick = level != null ? level.getGameTime() : 0;
@@ -69,7 +73,7 @@ public class ClientStreamEntry {
         this.consumer.fromState(consumerState);
     }
 
-    public void tick(Level level, EtherStreamBlockStateReadCache cache) {
+    public void tick(Level level) {
         if (isDying) {
             deathTick--;
             if (deathTick <= 0) {

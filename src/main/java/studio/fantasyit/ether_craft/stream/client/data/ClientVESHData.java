@@ -7,8 +7,6 @@ import studio.fantasyit.ether_craft.network.s2c.EtherStreamCreateS2C;
 import studio.fantasyit.ether_craft.network.s2c.EtherStreamSetDyingS2C;
 import studio.fantasyit.ether_craft.network.s2c.EtherStreamSyncDataS2C;
 import studio.fantasyit.ether_craft.network.s2c.EtherStreamUpdateS2C;
-import studio.fantasyit.ether_craft.register.AttachmentDataRegistry;
-import studio.fantasyit.ether_craft.stream.EtherStreamBlockStateReadCache;
 import studio.fantasyit.ether_craft.stream.PosDir;
 import studio.fantasyit.ether_craft.stream.client.extra.EtherStreamClientLogicManager;
 import studio.fantasyit.ether_craft.stream.data.IEtherStreamSyncedData;
@@ -20,9 +18,12 @@ import java.util.Map;
 import java.util.WeakHashMap;
 
 public class ClientVESHData {
-    public static final ClientVESHData DUMMY = new ClientVESHData(null);
     private final Object2ObjectOpenHashMap<PosDir, ClientVESHEntry> entries = new Object2ObjectOpenHashMap<>();
+    private final List<ClientVESHEntry> entriesIterable = new ArrayList<>();
+
     private final WeakReference<Level> level;
+
+    //profilers
     public int lastTickRenderCount = 0;
     public int lastTickParticleCount = 0;
     public int[] lastRenderCost = new int[10];
@@ -33,19 +34,28 @@ public class ClientVESHData {
         this.level = new WeakReference<>(level);
     }
 
+    public ClientVESHEntry createOrGet(PosDir posDir) {
+        if (entries.containsKey(posDir))
+            return entries.get(posDir);
+        ClientVESHEntry entry = new ClientVESHEntry(posDir);
+        entries.put(posDir, entry);
+        entriesIterable.add(entry);
+        return entry;
+    }
+
     public void handleCreate(EtherStreamCreateS2C msg) {
         if (level.get() == null) return;
-        ClientVESHEntry entry = entries.computeIfAbsent(msg.posDir(), k -> new ClientVESHEntry());
+        ClientVESHEntry entry = createOrGet(msg.posDir());
         for (EtherStreamCreateS2C.StreamEntry se : msg.entries()) {
             if (!entry.streams.containsKey(se.streamId())) {
-                entry.streams.put(se.streamId(), new ClientStreamEntry(se));
+                entry.addStream(se.streamId(), new ClientStreamEntry(se));
             }
         }
     }
 
     public void handleUpdate(EtherStreamUpdateS2C msg) {
         if (level.get() == null) return;
-        ClientVESHEntry entry = entries.computeIfAbsent(msg.posDir(), k -> new ClientVESHEntry());
+        ClientVESHEntry entry = createOrGet(msg.posDir());
         for (EtherStreamUpdateS2C.StreamEntry se : msg.entries()) {
             ClientStreamEntry current = entry.streams.get(se.streamId());
             if (current == null || current.isDying || current.removed) continue;
@@ -56,7 +66,7 @@ public class ClientVESHData {
 
     public void handleDying(EtherStreamSetDyingS2C msg) {
         if (level.get() == null) return;
-        ClientVESHEntry entry = entries.computeIfAbsent(msg.posDir(), k -> new ClientVESHEntry());
+        ClientVESHEntry entry = createOrGet(msg.posDir());
         long levelTime = Minecraft.getInstance().level.getGameTime();
         for (int sid : msg.entries()) {
             ClientStreamEntry current = entry.streams.get(sid);
@@ -74,7 +84,7 @@ public class ClientVESHData {
 
     public void handleSync(EtherStreamSyncDataS2C etherStreamSyncDataS2C) {
         if (level.get() == null) return;
-        ClientVESHEntry ent = entries.get(etherStreamSyncDataS2C.posDir());
+        ClientVESHEntry ent = createOrGet(etherStreamSyncDataS2C.posDir());
         if (ent == null) return;
         if (ent.streams.containsKey(etherStreamSyncDataS2C.streamId())) {
             ClientStreamEntry entry = ent.streams.get(etherStreamSyncDataS2C.streamId());
@@ -90,21 +100,16 @@ public class ClientVESHData {
         if (lv == null) {
             return;
         }
-        EtherStreamBlockStateReadCache data = lv.getData(AttachmentDataRegistry.ESBS_CACHE);
-        data.clearCache();
-        List<PosDir> toRemove = new ArrayList<>();
-        for (var entry : entries.entrySet()) {
-            ClientVESHEntry vesh = entry.getValue();
-            vesh.streams.values().forEach(t -> t.tick(lv, data));
-            vesh.streams.values().stream().filter(e -> e.removed).forEach(EtherStreamClientLogicManager::onDestroy);
-            vesh.streams.values().removeIf(e -> e.removed);
+        for (var vesh : entriesIterable) {
+            vesh.tick(lv);
             if (vesh.streams.isEmpty()) {
-                toRemove.add(entry.getKey());
+                entries.remove(vesh.posDir);
             }
         }
-        toRemove.forEach(entries::remove);
+        entriesIterable.removeIf(vesh -> vesh.streams.isEmpty());
     }
 
+    // ==== Render Profilers ====
     public void startRenderStamp() {
         lastNanos = System.nanoTime();
         for (int i = 0; i < 10; i++) {
@@ -132,4 +137,8 @@ public class ClientVESHData {
     }
 
     private static final Map<Level, ClientVESHData> CACHE = new WeakHashMap<>();
+
+    public List<ClientVESHEntry> getEntriesIterable() {
+        return entriesIterable;
+    }
 }
