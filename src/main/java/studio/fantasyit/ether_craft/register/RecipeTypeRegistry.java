@@ -9,6 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import studio.fantasyit.ether_craft.recipe.factory.EtherProcessFactoryRecipe;
 import studio.fantasyit.ether_craft.recipe.grid.EtherProcessFactoryGrid;
 import studio.fantasyit.ether_craft.recipe.node.NodeProcessRecipe;
+import studio.fantasyit.ether_craft.recipe.plating.PlatingRecipe;
 
 public class RecipeTypeRegistry {
     static DeferredRegister<RecipeType<?>> recipeTypes = DeferredRegister.create(BuiltInRegistries.RECIPE_TYPE, "ether_craft");
@@ -17,6 +18,8 @@ public class RecipeTypeRegistry {
     public static final DeferredHolder<RecipeType<?>, @NotNull RecipeType<@NotNull NodeProcessRecipe>> NODE_PROCESS_RECIPE = recipeTypes.register("node_process", () -> new RecipeType<>() {
     });
     public static final DeferredHolder<RecipeType<?>, @NotNull RecipeType<@NotNull EtherProcessFactoryGrid>> ETHER_PROCESS_FACTORY_GRID = recipeTypes.register("ether_process_factory_grid", () -> new RecipeType<>() {
+    });
+    public static final DeferredHolder<RecipeType<?>, @NotNull RecipeType<@NotNull PlatingRecipe>> PLATING_RECIPE = recipeTypes.register("plating", () -> new RecipeType<>() {
     });
 
     public static void register(IEventBus eventBus) {

@@ -5,8 +5,8 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import studio.fantasyit.ether_craft.factory.EtherProcessRecipeManager;
 import studio.fantasyit.ether_craft.node.NodePluginManager;
+import studio.fantasyit.ether_craft.plating.PlatingManager;
 import studio.fantasyit.ether_craft.stream.CapabilityFactoryManager;
-import studio.fantasyit.ether_craft.stream.client.extra.EtherStreamClientLogicManager;
 import studio.fantasyit.ether_craft.stream.data.SyncedEtherStreamDataManager;
 
 @EventBusSubscriber
@@ -17,5 +17,6 @@ public class ServerStartUpEvent {
         EtherProcessRecipeManager.collectProvider();
         CapabilityFactoryManager.init();
         SyncedEtherStreamDataManager.collect();
+        PlatingManager.init();
     }
 }

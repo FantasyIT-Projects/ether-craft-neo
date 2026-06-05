@@ -190,6 +190,12 @@ public class Config {
             .comment("The ether consumed per tick before the node process upgrade is matched")
             .defineInRange("node.process.ether_consume_pre_unmatched", 1, 0, Integer.MAX_VALUE);
 
+    // ===== plating =====
+
+    private static final ModConfigSpec.IntValue PLATING_DURATION_TICKS = BUILDER
+            .comment("Duration in ticks for plating to complete (20 ticks = 1 second)")
+            .defineInRange("plating.duration_ticks", 100, 1, 12000);
+
 
     static final ModConfigSpec SPEC = BUILDER.build();
 
@@ -226,6 +232,7 @@ public class Config {
     public static double etherStorageMultiplier;
     public static int etherGlassPreventConsume;
     public static int nodeProcessEtherConsumePreUnmatched;
+    public static int platingDurationTicks;
 
     @SubscribeEvent
     static void onLoad(final ModConfigEvent event) {
@@ -262,5 +269,6 @@ public class Config {
         etherStorageMultiplier = ETHER_STORAGE_MULTIPLIER.get();
         etherGlassPreventConsume = ETHER_GLASS_PREVENT_CONSUME.get();
         nodeProcessEtherConsumePreUnmatched = ETHER_PROCESS_ETHER_CONSUME_PRE_UNMATCHED.get();
+        platingDurationTicks = PLATING_DURATION_TICKS.get();
     }
 }

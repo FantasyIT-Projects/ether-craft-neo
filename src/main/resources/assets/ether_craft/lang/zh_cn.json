@@ -189,5 +189,11 @@
   "ether_craft.gui.node.redstone_signal.mode_ether": "以太检测",
   "ether_craft.gui.node.redstone_signal.mode_inventory": "物品检测",
   "ether_craft.gui.node.redstone_signal.disabled": "禁用",
-  "ether_craft.gui.node.redstone_signal.enabled": "启用"
+  "ether_craft.gui.node.redstone_signal.enabled": "启用",
+
+  "tooltip.ether_craft.plating.in_progress": "镀层进行中...",
+  "tooltip.ether_craft.plating.title": "镀层:",
+  "tooltip.ether_craft.plating.ether": "以太: %s",
+  "tooltip.ether_craft.plating.remaining": "剩余: %s秒",
+  "tooltip.ether_craft.plating.effect.ether_craft.damage": "伤害 +%s"
 }

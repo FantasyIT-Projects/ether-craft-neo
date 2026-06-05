@@ -12,6 +12,7 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import org.jetbrains.annotations.NotNull;
 import studio.fantasyit.ether_craft.EtherCraft;
+import studio.fantasyit.ether_craft.plating.PlatingData;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,6 +36,22 @@ public class DataComponentRegistry {
     );
     public static final DeferredHolder<DataComponentType<?>, @NotNull DataComponentType<ItemStackTemplate>> TARGET = DATA_COMPONENT.register("ether_process_recipe_target",
             () -> DataComponentType.<ItemStackTemplate>builder().persistent(ItemStackTemplate.CODEC).networkSynchronized(ItemStackTemplate.STREAM_CODEC).build()
+    );
+
+    public static final DeferredHolder<DataComponentType<?>, @NotNull DataComponentType<List<PlatingData>>> PLATING_DATA = DATA_COMPONENT.register("plating_data",
+            () -> DataComponentType.<List<PlatingData>>builder().persistent(PlatingData.CODEC.listOf()).networkSynchronized(PlatingData.STREAM_CODEC.apply(ByteBufCodecs.list())).build()
+    );
+
+    public static final DeferredHolder<DataComponentType<?>, @NotNull DataComponentType<Integer>> PLATING_ETHER = DATA_COMPONENT.register("plating_ether",
+            () -> DataComponentType.<Integer>builder().persistent(Codec.INT).networkSynchronized(ByteBufCodecs.INT).build()
+    );
+
+    public static final DeferredHolder<DataComponentType<?>, @NotNull DataComponentType<List<Identifier>>> PLATING_IN_PROGRESS = DATA_COMPONENT.register("plating_in_progress",
+            () -> DataComponentType.<List<Identifier>>builder().persistent(Identifier.CODEC.listOf()).networkSynchronized(Identifier.STREAM_CODEC.apply(ByteBufCodecs.list())).build()
+    );
+
+    public static final DeferredHolder<DataComponentType<?>, @NotNull DataComponentType<Long>> PLATING_START_TIME = DATA_COMPONENT.register("plating_start_time",
+            () -> DataComponentType.<Long>builder().persistent(Codec.LONG).networkSynchronized(ByteBufCodecs.LONG).build()
     );
 
     public static void register(IEventBus modbus) {

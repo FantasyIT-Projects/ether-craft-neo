@@ -10,6 +10,7 @@ import studio.fantasyit.ether_craft.recipe.crafting.UpgradeShapedRecipe;
 import studio.fantasyit.ether_craft.recipe.factory.EtherProcessFactoryRecipe;
 import studio.fantasyit.ether_craft.recipe.grid.EtherProcessFactoryGrid;
 import studio.fantasyit.ether_craft.recipe.node.NodeProcessRecipe;
+import studio.fantasyit.ether_craft.recipe.plating.PlatingRecipe;
 
 public class RecipeSerializerRegistry {
     static DeferredRegister<RecipeSerializer<?>> recipeSerializerIDeferredHolder = DeferredRegister.create(BuiltInRegistries.RECIPE_SERIALIZER, "ether_craft");
@@ -32,6 +33,11 @@ public class RecipeSerializerRegistry {
             recipeSerializerIDeferredHolder.register("upgrade_shaped", () -> new RecipeSerializer<>(
                     UpgradeShapedRecipe.CODEC,
                     UpgradeShapedRecipe.STREAM_CODEC
+            ));
+    public static final DeferredHolder<RecipeSerializer<?>, @NotNull RecipeSerializer<@NotNull PlatingRecipe>> PLATING_RECIPE_SERIALIZER =
+            recipeSerializerIDeferredHolder.register("plating", () -> new RecipeSerializer<>(
+                    PlatingRecipe.CODEC,
+                    PlatingRecipe.STREAM_CODEC
             ));
 
     public static void register(IEventBus eventBus) {
