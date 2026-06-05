@@ -61,7 +61,7 @@ public class NodePluginTipManager {
         registerTip(EtherStorageUpgrade.ID,
                 new TipInfo(List.of(Ingredient.of(ItemRegistry.ETHERPHILIC_BOWL.get())), List.of(), Set.of(TipConcept.ETHER_STORAGE)));
         registerTip(StorageUpgrade.ID,
-                new TipInfo(List.of(Ingredient.of(Items.CHEST), Ingredient.of(Items.COPPER_CHEST)), List.of(), Set.of(TipConcept.LOGISTICS)));
+                new TipInfo(List.of(Ingredient.of(Items.CHEST), Ingredient.of(BuiltInRegistries.ITEM.getOrThrow(ItemTags.COPPER_CHESTS))), List.of(), Set.of(TipConcept.LOGISTICS)));
         registerTip(EtherStreamStorageUpgrade.ID,
                 new TipInfo(List.of(
                         Ingredient.of(BuiltInRegistries.ITEM.getOrThrow(ItemTags.BOATS)), Ingredient.of(Items.SPRUCE_CHEST_BOAT)

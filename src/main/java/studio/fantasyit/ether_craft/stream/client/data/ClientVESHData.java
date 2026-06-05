@@ -30,6 +30,9 @@ public class ClientVESHData {
     private final WeakReference<Level> level;
     public int lastTickRenderCount = 0;
     public int lastTickParticleCount = 0;
+    public int[] lastRenderCost = new int[10];
+    public int[] renderCost = new int[10];
+    public long lastNanos = 0;
     public int nextFrameRenderDistanceLimit = 100;
 
     public ClientVESHData(Level level) {
@@ -53,6 +56,7 @@ public class ClientVESHData {
             ClientStreamEntry current = entry.streams.get(se.streamId());
             if (current == null || current.isDying || current.removed) continue;
             current.updateFromServer(se.ether(), se.consumerState());
+            current.rePredicateRender();
         }
     }
 
@@ -67,6 +71,7 @@ public class ClientVESHData {
             if (EtherStreamClientLogicManager.shouldDelayDeath(current)) {
                 current.setDying();
                 current.deathAtTick = levelTime;
+                current.rePredicateRender();
             } else {
                 current.setRemoved();
             }
@@ -82,6 +87,7 @@ public class ClientVESHData {
             entry.syncedData.clear();
             for (IEtherStreamSyncedData data : etherStreamSyncDataS2C.data())
                 entry.syncedData.put(data.getId(), data);
+            entry.rePredicateRender();
         }
     }
 
@@ -103,6 +109,24 @@ public class ClientVESHData {
             }
         }
         toRemove.forEach(entries::remove);
+    }
+
+    public void startRenderStamp() {
+        lastNanos = System.nanoTime();
+        for (int i = 0; i < 10; i++) {
+            lastRenderCost[i] = renderCost[i];
+            renderCost[i] = 0;
+        }
+    }
+
+    public void renderStamp() {
+        lastNanos = System.nanoTime();
+    }
+
+    public void renderStamp(int target) {
+        long l = System.nanoTime();
+        renderCost[target] += (int) (l - lastNanos);
+        lastNanos = l;
     }
 
     public Map<PosDir, ClientVESHEntry> getEntries() {

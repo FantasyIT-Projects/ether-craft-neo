@@ -12,7 +12,7 @@ public class TreeLayout {
     static final int SLOT_SIZE = 18;
     static final int SLOT_SIZE_OUTPUT = 22;
     static final int CHIP_GAP = 1;
-    static final int NODE_GAP = 6;
+    static final int NODE_GAP = 15;
     static final int PADDING = 4;
     static final int WIDTH = 140;
     static final int HEIGHT = 90;

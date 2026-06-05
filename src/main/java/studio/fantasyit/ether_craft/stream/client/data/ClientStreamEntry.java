@@ -28,6 +28,7 @@ public class ClientStreamEntry {
     public boolean isDying;
     public boolean removed;
     public int noEtherTicks = 0;
+    public boolean shouldRender = true;
     public final EtherConsumer consumer = new EtherConsumer();
     public Map<Identifier, IEtherStreamSyncedData> syncedData = new Object2ObjectOpenHashMap<>();
 
@@ -60,6 +61,7 @@ public class ClientStreamEntry {
         }
         Level level = Minecraft.getInstance().level;
         this.receivedAtTick = level != null ? level.getGameTime() : 0;
+        rePredicateRender();
     }
 
     public void updateFromServer(int ether, EtherConsumer.State consumerState) {
@@ -109,5 +111,9 @@ public class ClientStreamEntry {
 
     public void removeSyncedData(Identifier id) {
         syncedData.remove(id);
+    }
+
+    public void rePredicateRender() {
+        shouldRender = EtherStreamClientLogicManager.shouldRender(this);
     }
 }

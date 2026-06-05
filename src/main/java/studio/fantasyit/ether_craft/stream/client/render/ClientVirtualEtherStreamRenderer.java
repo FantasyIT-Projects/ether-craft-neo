@@ -41,20 +41,23 @@ public class ClientVirtualEtherStreamRenderer {
         Vector3f cameraForward = new Vector3f(0, 0, -1);
         camera.orientation.transform(cameraForward);
         float fx = cameraForward.x(), fy = cameraForward.y(), fz = cameraForward.z();
+        data.startRenderStamp();
 
         collector.order(1).submitCustomGeometry(poseStack, RENDER_TYPE, (pose, buffer) -> {
             int targetCount = 0;
             int particleCount = 0;
+            float[] sizeFactor = new float[6];
+            for (var i = 0; i < 6; i++) sizeFactor[i] = (float) Math.pow(1.5, i);
 
             Vector3f normal = pose.transformNormal(0, 1f, 0, new Vector3f());
             for (var posEntry : data.getEntries().entrySet()) {
                 ClientVESHData.ClientVESHEntry veshEntry = posEntry.getValue();
                 for (var streamEntry : veshEntry.streams.entrySet()) {
+                    data.renderStamp(0);
                     ClientStreamEntry stream = streamEntry.getValue();
-                    if (stream.isRemoved() || stream.isDying() || !EtherStreamClientLogicManager.shouldRender(stream))
+                    if (stream.isDying() || !stream.shouldRender)
                         continue;
-                    double speed = stream.motion.length();
-                    if (speed <= 0.0001) continue;
+                    data.renderStamp(5);
 
                     long elapsed = mc.level.getGameTime() - stream.receivedAtTick;
                     Vec3 currentPos = stream.startPos.add(
@@ -72,19 +75,22 @@ public class ClientVirtualEtherStreamRenderer {
                     } else if (distance > 1600) {
                         if (streamEntry.getKey() % 2 != 0) continue;
                     }
-
+                    data.renderStamp(1);
 
                     Vec3 baseStep = stream.motion.reverse();
                     Vec3 tailEnd = currentPos.add(baseStep.scale(5));
                     if (!camera.cullFrustum.pointInFrustum(currentPos.x, currentPos.y, currentPos.z)
                             && !camera.cullFrustum.pointInFrustum(tailEnd.x, tailEnd.y, tailEnd.z))
                         continue;
-
+                    data.renderStamp(2);
                     targetCount++;
                     for (int i = 0; i < 6; i++) {
+                        data.renderStamp(3);
                         Vec3 tailPos = currentPos.add(baseStep.scale(i));
-                        if (i != 0 && tailPos.distanceToSqr(camera.pos) > 225 * (5 - i))
-                            continue;
+                        if (i != 0 && tailPos.distanceToSqr(camera.pos) > 225 * (5 - i)) {
+                            data.renderStamp(4);
+                            break;
+                        }
                         particleCount++;
                         offsetVec.set(
                                 (float) (tailPos.x - camera.pos.x),
@@ -95,14 +101,15 @@ public class ClientVirtualEtherStreamRenderer {
                         float alpha = 1f - (float) i / 6.1f;
                         float szFact = (float) (0.03f * Math.log10(stream.ether));
 
-                        float halfWidth = szFact * 0.5f / (float) Math.pow(1.5, i);
+                        float halfWidth = szFact * 0.5f / sizeFactor[i];
                         int a = (int) (alpha * 255);
                         int light = 0xF000F0;
-
+                        data.renderStamp(4);
                         vertex(buffer, pose, -halfWidth + offsetVec.x, -halfWidth + offsetVec.y, offsetVec.z, a, 1, 1, light, normal);
                         vertex(buffer, pose, halfWidth + offsetVec.x, -halfWidth + offsetVec.y, offsetVec.z, a, 0, 1, light, normal);
                         vertex(buffer, pose, halfWidth + offsetVec.x, halfWidth + offsetVec.y, offsetVec.z, a, 0, 0, light, normal);
                         vertex(buffer, pose, -halfWidth + offsetVec.x, halfWidth + offsetVec.y, offsetVec.z, a, 1, 0, light, normal);
+                        data.renderStamp(9);
                     }
                 }
             }

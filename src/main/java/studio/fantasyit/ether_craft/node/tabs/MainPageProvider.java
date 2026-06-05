@@ -131,10 +131,10 @@ public class MainPageProvider extends BaseEtherNodeTabWidgetProvider<MainPageDum
         }
         RangeLimitPlaceContainer normalStorage = screen.getMenu().entity.normalStorage;
         int accessibleCount = normalStorage.getAccessibleCount();
-        if (accessibleCount < normalStorage.getContainerSize() - 7) {
-            EtherAdaptNodeAsset.LOCK.blit(graphics, lx(83), ly(78) + 18 * Math.ceilDiv(accessibleCount, 7));
-        } else {
-            int lastX = 7 + (accessibleCount % 7) * 18;
+        if (accessibleCount <= normalStorage.getContainerSize() - 9) {
+            EtherAdaptNodeAsset.LOCK.blit(graphics, lx(83), ly(78) + 18 * Math.ceilDiv(accessibleCount, 9));
+        } else if (accessibleCount < normalStorage.getContainerSize()) {
+            int lastX = 9 + (accessibleCount % 9) * 18;
             EtherAdaptNodeAsset.LOCK.blit(graphics, lx(lastX + 186 - EtherAdaptNodeAsset.LOCK.w / 2), ly(114));
         }
     }
