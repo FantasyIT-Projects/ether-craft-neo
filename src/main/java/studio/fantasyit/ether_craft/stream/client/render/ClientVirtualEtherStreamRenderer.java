@@ -1,7 +1,6 @@
 package studio.fantasyit.ether_craft.stream.client.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.rendertype.RenderSetup;
@@ -9,14 +8,12 @@ import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.ARGB;
 import net.minecraft.world.phys.Vec3;
-import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import studio.fantasyit.ether_craft.EtherCraft;
-import studio.fantasyit.ether_craft.stream.client.data.ClientStreamEntry;
 import studio.fantasyit.ether_craft.stream.client.data.ClientVESHData;
 import studio.fantasyit.ether_craft.stream.client.data.ClientVESHDataGetter;
-import studio.fantasyit.ether_craft.stream.client.data.ClientVESHEntry;
 import studio.fantasyit.ether_craft.stream.client.extra.EtherStreamClientLogicManager;
 
 public class ClientVirtualEtherStreamRenderer {
@@ -32,31 +29,28 @@ public class ClientVirtualEtherStreamRenderer {
 
     public static void onRender(Minecraft mc, PoseStack poseStack, SubmitNodeCollector collector, CameraRenderState camera) {
         ClientVESHData data = ClientVESHDataGetter.get();
+        data.startRenderStamp();
         float partialTick = mc.getDeltaTracker().getGameTimeDeltaPartialTick(false);
-        Quaternionf invOrientation = camera.orientation.conjugate(new Quaternionf());
-        Vector3f offsetVec = new Vector3f();
-
-        poseStack.pushPose();
-        poseStack.mulPose(camera.orientation);
 
         Vector3f cameraForward = new Vector3f(0, 0, -1);
         camera.orientation.transform(cameraForward);
         float fx = cameraForward.x(), fy = cameraForward.y(), fz = cameraForward.z();
 
+        Vector3f cameraRight = new Vector3f(1, 0, 0);
+        camera.orientation.transform(cameraRight);
+        Vector3f cameraUp = new Vector3f(0, 1, 0);
+        camera.orientation.transform(cameraUp);
+        data.renderStamp(0);
         collector.order(1).submitCustomGeometry(poseStack, RENDER_TYPE, (pose, buffer) -> {
-            data.startRenderStamp();
             int targetCount = 0;
             int particleCount = 0;
             float[] sizeFactor = new float[6];
             for (var i = 0; i < 6; i++) sizeFactor[i] = (float) Math.pow(1.5, i);
-            Vector3f normal = pose.transformNormal(0, 1f, 0, new Vector3f());
-            data.renderStamp(0);
 
             for (var veshEntry : data.getEntriesIterable()) {
                 for (var stream : veshEntry.steamsIterable) {
                     if (stream.isDying() || !stream.shouldRender)
                         continue;
-                    data.renderStamp(1);
 
                     long elapsed = mc.level.getGameTime() - stream.receivedAtTick;
                     Vec3 currentPos = stream.startPos.add(
@@ -67,7 +61,6 @@ public class ClientVirtualEtherStreamRenderer {
                     double distance = dx * dx + dy * dy + dz * dz;
 
                     double dot = dx * fx + dy * fy + dz * fz;
-                    data.renderStamp(2);
                     if (dot < -10.0) {
                         continue;
                     }
@@ -77,28 +70,21 @@ public class ClientVirtualEtherStreamRenderer {
                     } else if (distance > 1600) {
                         if (stream.id % 2 != 0) continue;
                     }
-                    data.renderStamp(3);
 
                     Vec3 baseStep = stream.motion.reverse();
                     Vec3 tailEnd = currentPos.add(baseStep.scale(5));
                     if (!camera.cullFrustum.pointInFrustum(currentPos.x, currentPos.y, currentPos.z)
                             && !camera.cullFrustum.pointInFrustum(tailEnd.x, tailEnd.y, tailEnd.z))
                         continue;
-                    data.renderStamp(4);
                     targetCount++;
                     for (int i = 0; i < 6; i++) {
-                        data.renderStamp(5);
                         Vec3 tailPos = currentPos.add(baseStep.scale(i));
-                        if (i != 0 && tailPos.distanceToSqr(camera.pos) > 225 * (5 - i)) {
-                            data.renderStamp(6);
-                            break;
-                        }
+                        if (i != 0 && tailPos.distanceToSqr(camera.pos) > 225 * (5 - i)) break;
                         particleCount++;
-                        offsetVec.set(
-                                (float) (tailPos.x - camera.pos.x),
-                                (float) (tailPos.y - camera.pos.y),
-                                (float) (tailPos.z - camera.pos.z));
-                        invOrientation.transform(offsetVec);
+
+                        float wx = (float) (tailPos.x - camera.pos.x);
+                        float wy = (float) (tailPos.y - camera.pos.y);
+                        float wz = (float) (tailPos.z - camera.pos.z);
 
                         float alpha = 1f - (float) i / 6.1f;
                         float szFact = (float) (0.03f * Math.log10(stream.ether));
@@ -106,12 +92,36 @@ public class ClientVirtualEtherStreamRenderer {
                         float halfWidth = szFact * 0.5f / sizeFactor[i];
                         int a = (int) (alpha * 255);
                         int light = 0xF000F0;
-                        data.renderStamp(6);
-                        vertex(buffer, pose, -halfWidth + offsetVec.x, -halfWidth + offsetVec.y, offsetVec.z, a, 1, 1, light, normal);
-                        vertex(buffer, pose, halfWidth + offsetVec.x, -halfWidth + offsetVec.y, offsetVec.z, a, 0, 1, light, normal);
-                        vertex(buffer, pose, halfWidth + offsetVec.x, halfWidth + offsetVec.y, offsetVec.z, a, 0, 0, light, normal);
-                        vertex(buffer, pose, -halfWidth + offsetVec.x, halfWidth + offsetVec.y, offsetVec.z, a, 1, 0, light, normal);
-                        data.renderStamp(7);
+                        int packedColor = ARGB.color(a, 255, 255, 255);
+
+                        float crx = cameraRight.x, cry = cameraRight.y, crz = cameraRight.z;
+                        float cux = cameraUp.x, cuy = cameraUp.y, cuz = cameraUp.z;
+
+
+                        buffer.addVertex(
+                                wx - halfWidth * crx - halfWidth * cux,
+                                wy - halfWidth * cry - halfWidth * cuy,
+                                wz - halfWidth * crz - halfWidth * cuz,
+                                packedColor, 1, 1, OverlayTexture.NO_OVERLAY, light,
+                                cux, cuy, cuz);
+                        buffer.addVertex(
+                                wx + halfWidth * crx - halfWidth * cux,
+                                wy + halfWidth * cry - halfWidth * cuy,
+                                wz + halfWidth * crz - halfWidth * cuz,
+                                packedColor, 0, 1, OverlayTexture.NO_OVERLAY, light,
+                                cux, cuy, cuz);
+                        buffer.addVertex(
+                                wx + halfWidth * crx + halfWidth * cux,
+                                wy + halfWidth * cry + halfWidth * cuy,
+                                wz + halfWidth * crz + halfWidth * cuz,
+                                packedColor, 0, 0, OverlayTexture.NO_OVERLAY, light,
+                                cux, cuy, cuz);
+                        buffer.addVertex(
+                                wx - halfWidth * crx + halfWidth * cux,
+                                wy - halfWidth * cry + halfWidth * cuy,
+                                wz - halfWidth * crz + halfWidth * cuz,
+                                packedColor, 1, 0, OverlayTexture.NO_OVERLAY, light,
+                                cux, cuy, cuz);
                     }
                 }
             }
@@ -119,14 +129,10 @@ public class ClientVirtualEtherStreamRenderer {
             data.lastTickRenderCount = targetCount;
         });
 
-        poseStack.popPose();
-
-        for (var posEntry : data.getEntries().entrySet()) {
-            ClientVESHEntry veshEntry = posEntry.getValue();
-            for (var streamEntry : veshEntry.streams.entrySet()) {
-                ClientStreamEntry stream = streamEntry.getValue();
-                if (stream.isRemoved()) continue;
-
+        data.renderStamp(1);
+        for (var veshEntry : data.getEntriesIterable()) {
+            for (var stream : veshEntry.steamsIterable) {
+                data.renderStamp(2);
                 float elapsed = mc.level.getGameTime() - stream.receivedAtTick + partialTick;
                 if (stream.isDying) elapsed = stream.deathAtTick - stream.receivedAtTick;
                 Vec3 currentPos = stream.startPos.add(
@@ -136,31 +142,20 @@ public class ClientVirtualEtherStreamRenderer {
                 double dy = currentPos.y - camera.pos.y;
                 double dz = currentPos.z - camera.pos.z;
                 double distance = dx * dx + dy * dy + dz * dz;
-
+                data.renderStamp(3);
+                if (distance > 9000) continue;
                 double dot = dx * fx + dy * fy + dz * fz;
                 if (dot < -10.0) continue;
 
-                if (distance > 9000) {
-                    continue;
-                }
 
-                Vec3 tailEnd = currentPos.add(stream.motion.reverse().scale(5));
-                if (!camera.cullFrustum.pointInFrustum(currentPos.x, currentPos.y, currentPos.z)
-                        && !camera.cullFrustum.pointInFrustum(tailEnd.x, tailEnd.y, tailEnd.z))
+                data.renderStamp(4);
+                if (!camera.cullFrustum.pointInFrustum(currentPos.x, currentPos.y, currentPos.z))
                     continue;
-
 
                 EtherStreamClientLogicManager.renderExtra(stream, currentPos, camera, poseStack, collector);
+                data.renderStamp(5);
             }
         }
     }
 
-    public static void vertex(VertexConsumer buffer, PoseStack.Pose pose, float x, float y, float z, int a, float u, float v, int light, Vector3f norm) {
-        buffer.addVertex(pose, x, y, z)
-                .setColor(255, 255, 255, a)
-                .setUv(u, v)
-                .setOverlay(OverlayTexture.NO_OVERLAY)
-                .setLight(light)
-                .setNormal(norm.x, norm.y, norm.z);
-    }
 }
