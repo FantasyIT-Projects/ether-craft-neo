@@ -12,6 +12,7 @@ import net.neoforged.neoforge.client.event.RegisterDebugEntriesEvent;
 import org.jspecify.annotations.Nullable;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.stream.client.data.ClientVESHData;
+import studio.fantasyit.ether_craft.stream.client.data.ClientVESHEntry;
 
 @EventBusSubscriber(modid = EtherCraft.MODID, value = Dist.CLIENT)
 public class DebugAddEvent {
@@ -26,7 +27,7 @@ public class DebugAddEvent {
             Level level = Minecraft.getInstance().level;
             int totalSize = 0;
             ClientVESHData clientVESHData = ClientVESHData.get(level);
-            for (ClientVESHData.ClientVESHEntry entry : clientVESHData.getEntries().values()) {
+            for (ClientVESHEntry entry : clientVESHData.getEntries().values()) {
                 totalSize += entry.streams.size();
             }
             StringBuilder sb = new StringBuilder();

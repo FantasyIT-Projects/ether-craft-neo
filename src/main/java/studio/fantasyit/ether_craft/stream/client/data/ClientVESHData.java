@@ -21,19 +21,13 @@ import java.util.WeakHashMap;
 
 public class ClientVESHData {
     public static final ClientVESHData DUMMY = new ClientVESHData(null);
-
-    public static class ClientVESHEntry {
-        public final Map<Integer, ClientStreamEntry> streams = new Object2ObjectOpenHashMap<>();
-    }
-
-    private final Map<PosDir, ClientVESHEntry> entries = new Object2ObjectOpenHashMap<>();
+    private final Object2ObjectOpenHashMap<PosDir, ClientVESHEntry> entries = new Object2ObjectOpenHashMap<>();
     private final WeakReference<Level> level;
     public int lastTickRenderCount = 0;
     public int lastTickParticleCount = 0;
     public int[] lastRenderCost = new int[10];
     public int[] renderCost = new int[10];
     public long lastNanos = 0;
-    public int nextFrameRenderDistanceLimit = 100;
 
     public ClientVESHData(Level level) {
         this.level = new WeakReference<>(level);
@@ -129,7 +123,7 @@ public class ClientVESHData {
         lastNanos = l;
     }
 
-    public Map<PosDir, ClientVESHEntry> getEntries() {
+    public Object2ObjectOpenHashMap<PosDir, ClientVESHEntry> getEntries() {
         return entries;
     }
 

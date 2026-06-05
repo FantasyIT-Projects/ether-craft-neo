@@ -2,6 +2,8 @@ package studio.fantasyit.ether_craft.stream.client.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
+import it.unimi.dsi.fastutil.objects.ObjectIterator;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.rendertype.RenderSetup;
@@ -13,9 +15,11 @@ import net.minecraft.world.phys.Vec3;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import studio.fantasyit.ether_craft.EtherCraft;
+import studio.fantasyit.ether_craft.stream.PosDir;
 import studio.fantasyit.ether_craft.stream.client.data.ClientStreamEntry;
 import studio.fantasyit.ether_craft.stream.client.data.ClientVESHData;
 import studio.fantasyit.ether_craft.stream.client.data.ClientVESHDataGetter;
+import studio.fantasyit.ether_craft.stream.client.data.ClientVESHEntry;
 import studio.fantasyit.ether_craft.stream.client.extra.EtherStreamClientLogicManager;
 
 public class ClientVirtualEtherStreamRenderer {
@@ -50,9 +54,11 @@ public class ClientVirtualEtherStreamRenderer {
             for (var i = 0; i < 6; i++) sizeFactor[i] = (float) Math.pow(1.5, i);
 
             Vector3f normal = pose.transformNormal(0, 1f, 0, new Vector3f());
-            for (var posEntry : data.getEntries().entrySet()) {
-                ClientVESHData.ClientVESHEntry veshEntry = posEntry.getValue();
-                for (var streamEntry : veshEntry.streams.entrySet()) {
+            for (ObjectIterator<Object2ObjectMap.Entry<PosDir, ClientVESHEntry>> it = data.getEntries().object2ObjectEntrySet().fastIterator(); it.hasNext(); ) {
+                var posEntry = it.next();
+                ClientVESHEntry veshEntry = posEntry.getValue();
+                for (ObjectIterator<Object2ObjectMap.Entry<Integer, ClientStreamEntry>> iter = veshEntry.streams.object2ObjectEntrySet().fastIterator(); iter.hasNext(); ) {
+                    var streamEntry = iter.next();
                     data.renderStamp(0);
                     ClientStreamEntry stream = streamEntry.getValue();
                     if (stream.isDying() || !stream.shouldRender)
@@ -120,7 +126,7 @@ public class ClientVirtualEtherStreamRenderer {
         poseStack.popPose();
 
         for (var posEntry : data.getEntries().entrySet()) {
-            ClientVESHData.ClientVESHEntry veshEntry = posEntry.getValue();
+            ClientVESHEntry veshEntry = posEntry.getValue();
             for (var streamEntry : veshEntry.streams.entrySet()) {
                 ClientStreamEntry stream = streamEntry.getValue();
                 if (stream.isRemoved()) continue;
