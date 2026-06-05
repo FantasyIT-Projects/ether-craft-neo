@@ -25,10 +25,10 @@ public class ClientVirtualEtherStreamRenderer {
                     .sortOnUpload()
                     .createRenderSetup()
     );
+    private static final int[] ALPHAS = new int[]{255, 213, 170, 128, 85, 42};
 
     public static void onRender(Minecraft mc, PoseStack poseStack, SubmitNodeCollector collector, CameraRenderState camera) {
         ClientVESHData data = ClientVESHDataGetter.get();
-        data.startRenderStamp();
         float partialTick = mc.getDeltaTracker().getGameTimeDeltaPartialTick(false);
 
         Vector3f cameraForward = new Vector3f(0, 0, -1);
@@ -39,26 +39,41 @@ public class ClientVirtualEtherStreamRenderer {
         camera.orientation.transform(cameraRight);
         Vector3f cameraUp = new Vector3f(0, 1, 0);
         camera.orientation.transform(cameraUp);
-        data.renderStamp(0);
         collector.order(1).submitCustomGeometry(poseStack, RENDER_TYPE, (pose, buffer) -> {
+            data.startRenderStamp();
             int targetCount = 0;
             int particleCount = 0;
             float[] sizeFactor = new float[6];
-            for (var i = 0; i < 6; i++) sizeFactor[i] = (float) Math.pow(1.5, i);
+            for (var i = 0; i < 6; i++) sizeFactor[i] = (float) (0.5f / Math.pow(1.5, i));
 
+            double camX = camera.pos.x;
+            double camY = camera.pos.y;
+            double camZ = camera.pos.z;
+
+            float camRightX = cameraRight.x;
+            float camRightY = cameraRight.y;
+            float camRightZ = cameraRight.z;
+
+            float camUpX = cameraUp.x;
+            float camUpY = cameraUp.y;
+            float camUpZ = cameraUp.z;
+
+
+            data.renderStamp(0);
             for (var veshEntry : data.getEntriesIterable()) {
                 for (var stream : veshEntry.steamsIterable) {
-                    if (stream.isDying() || !stream.shouldRender)
+                    if (stream.isDying() || !stream.shouldRender) {
                         continue;
+                    }
+                    data.renderStamp(1);
 
-                    long elapsed = mc.level.getGameTime() - stream.receivedAtTick;
                     Vec3 currentPos = stream.currentPos;
-                    double dx = currentPos.x - camera.pos.x;
-                    double dy = currentPos.y - camera.pos.y;
-                    double dz = currentPos.z - camera.pos.z;
+                    double dx = currentPos.x - camX;
+                    double dy = currentPos.y - camY;
+                    double dz = currentPos.z - camZ;
                     double distance = dx * dx + dy * dy + dz * dz;
-
                     double dot = dx * fx + dy * fy + dz * fz;
+                    data.renderStamp(2);
                     if (dot < -10.0) {
                         continue;
                     }
@@ -68,33 +83,35 @@ public class ClientVirtualEtherStreamRenderer {
                     } else if (distance > 1600) {
                         if (stream.id % 2 != 0) continue;
                     }
-
+                    data.renderStamp(3);
                     Vec3 tailEnd = currentPos.add(stream.reverseStepMotions[5]);
                     if (!camera.cullFrustum.pointInFrustum(currentPos.x, currentPos.y, currentPos.z)
-                            && !camera.cullFrustum.pointInFrustum(tailEnd.x, tailEnd.y, tailEnd.z))
+                            && !camera.cullFrustum.pointInFrustum(tailEnd.x, tailEnd.y, tailEnd.z)) {
+                        data.renderStamp(4);
                         continue;
+                    }
+                    data.renderStamp(4);
                     targetCount++;
+                    float szFact = (float) (0.03f * Math.log10(stream.ether));
                     for (int i = 0; i < 6; i++) {
                         Vec3 tailPos = currentPos.add(stream.reverseStepMotions[i]);
-                        if (i != 0 && tailPos.distanceToSqr(camera.pos) > 225 * (5 - i)) break;
+                        if (i != 0 && distance > 225 * (5 - i)) break;
+                        data.renderStamp();
                         particleCount++;
 
-                        float wx = (float) (tailPos.x - camera.pos.x);
-                        float wy = (float) (tailPos.y - camera.pos.y);
-                        float wz = (float) (tailPos.z - camera.pos.z);
+                        float wx = (float) (tailPos.x - camX);
+                        float wy = (float) (tailPos.y - camY);
+                        float wz = (float) (tailPos.z - camZ);
 
-                        float alpha = 1f - (float) i / 6.1f;
-                        float szFact = (float) (0.03f * Math.log10(stream.ether));
-
-                        float halfWidth = szFact * 0.5f / sizeFactor[i];
-                        int a = (int) (alpha * 255);
+                        data.renderStamp(5);
+                        float halfWidth = szFact * sizeFactor[i];
                         int light = 0xF000F0;
-                        int packedColor = ARGB.color(a, 255, 255, 255);
+                        int packedColor = ARGB.color(ALPHAS[i], 255, 255, 255);
 
-                        float crx = cameraRight.x, cry = cameraRight.y, crz = cameraRight.z;
-                        float cux = cameraUp.x, cuy = cameraUp.y, cuz = cameraUp.z;
+                        float crx = camRightX, cry = camRightY, crz = camRightZ;
+                        float cux = camUpX, cuy = camUpY, cuz = camUpZ;
 
-
+                        data.renderStamp(6);
                         buffer.addVertex(
                                 wx - halfWidth * crx - halfWidth * cux,
                                 wy - halfWidth * cry - halfWidth * cuy,
@@ -126,11 +143,9 @@ public class ClientVirtualEtherStreamRenderer {
             data.lastTickRenderCount = targetCount;
         });
 
-        data.renderStamp(1);
         for (var veshEntry : data.getEntriesIterable()) {
             for (var stream : veshEntry.steamsIterable) {
                 if (stream.attachedLogic.isEmpty()) continue;
-                data.renderStamp(2);
                 float elapsed = mc.level.getGameTime() - stream.receivedAtTick + partialTick;
                 if (stream.isDying) elapsed = stream.deathAtTick - stream.receivedAtTick;
                 Vec3 currentPos = stream.startPos.add(stream.motion.scale(stream.startTickCount + elapsed));
@@ -145,13 +160,11 @@ public class ClientVirtualEtherStreamRenderer {
                 if (dot < -10.0) continue;
 
 
-                data.renderStamp(4);
                 if (!camera.cullFrustum.pointInFrustum(currentPos.x, currentPos.y, currentPos.z))
                     continue;
 
                 for (var logic : stream.attachedLogic)
                     logic.onRender(stream, currentPos, camera, poseStack, collector);
-                data.renderStamp(5);
             }
         }
     }
