@@ -13,6 +13,21 @@ repositories {
     maven {
         url "https://maven.blamejared.com"
     }
+    maven {
+        name = "CaffeineMC"
+        url = "https://maven.caffeinemc.net/releases"
+    }
+    exclusiveContent {
+        forRepository {
+            maven {
+                name = "Modrinth"
+                url = "https://api.modrinth.com/maven"
+            }
+        }
+        filter {
+            includeGroup "maven.modrinth"
+        }
+    }
 }
 
 base {
@@ -96,6 +111,12 @@ dependencies {
     compileOnly "mezz.jei:jei-${minecraft_version}-common-api:${jei_version}"
     compileOnly "mezz.jei:jei-${minecraft_version}-neoforge-api:${jei_version}"
     runtimeOnly "mezz.jei:jei-${minecraft_version}-neoforge:${jei_version}"
+
+    runtimeOnly "maven.modrinth:sodium:mc26.1.2-0.8.12-neoforge"
+    runtimeOnly "maven.modrinth:iris:1.10.9+26.1-neoforge"
+
+    compileOnly "net.caffeinemc:sodium-neoforge-api:0.8.12+mc26.1.2"
+    compileOnly "maven.modrinth:iris:1.10.9+26.1-neoforge"
 
     // Example mod dependency using a mod jar from ./libs with a flat dir repository
     // This maps to ./libs/coolmod-${mc_version}-${coolmod_version}.jar

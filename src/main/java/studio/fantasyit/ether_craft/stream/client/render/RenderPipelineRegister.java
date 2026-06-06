@@ -1,5 +1,7 @@
 package studio.fantasyit.ether_craft.stream.client.render;
 
+import net.irisshaders.iris.api.v0.IrisApi;
+import net.irisshaders.iris.api.v0.IrisProgram;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -11,5 +13,9 @@ public class RenderPipelineRegister {
     public static void register(RegisterRenderPipelinesEvent event) {
         event.registerPipeline(EtherStreamRenderPipeline.ETHER_RENDER_PIPELINE);
         event.registerPipeline(EtherStreamRenderPipeline.ETHER_STREAM_ENTITY_PIPELINE);
+        IrisApi.getInstance().assignPipeline(
+                EtherStreamRenderPipeline.ETHER_STREAM_ENTITY_PIPELINE,
+                IrisProgram.ENTITIES_TRANSLUCENT
+        );
     }
 }

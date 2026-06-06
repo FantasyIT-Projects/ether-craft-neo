@@ -27,6 +27,8 @@ public class EtherStreamRenderPipeline {
             .withShaderDefine("NO_CARDINAL_LIGHTING")
             .withShaderDefine("ALPHA_CUTOUT", 0.1F)
             .withSampler("Sampler0")
+            .withSampler("Sampler1")
+            .withSampler("Sampler2")
             .withColorTargetState(new ColorTargetState(BlendFunction.ADDITIVE))
             .withCull(false)
             .withVertexFormat(DefaultVertexFormat.ENTITY, VertexFormat.Mode.QUADS)

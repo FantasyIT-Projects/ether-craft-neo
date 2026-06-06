@@ -23,6 +23,8 @@ public class ClientVirtualEtherStreamRenderer {
             "ether_stream_tail_custom",
             RenderSetup.builder(EtherStreamRenderPipeline.ETHER_STREAM_ENTITY_PIPELINE)
                     .withTexture("Sampler0", TEXTURE)
+                    .withTexture("Sampler1", TEXTURE)
+                    .withTexture("Sampler2", TEXTURE)
                     .sortOnUpload()
                     .createRenderSetup()
     );
