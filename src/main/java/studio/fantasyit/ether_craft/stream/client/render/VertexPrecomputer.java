@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -255,8 +256,8 @@ public class VertexPrecomputer {
     }
 
     public record StreamSnapshot(
-            float cx, float cy, float cz,
-            float[] rMx, float[] rMy, float[] rMz,
+            Vec3 currentPos,
+            Vec3[] reverseStepMotions,
             int id,
             int ether,
             boolean isDying,
