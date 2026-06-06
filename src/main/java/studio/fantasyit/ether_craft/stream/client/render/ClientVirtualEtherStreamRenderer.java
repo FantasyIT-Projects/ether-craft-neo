@@ -11,6 +11,7 @@ import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 import org.lwjgl.system.MemoryUtil;
 import studio.fantasyit.ether_craft.EtherCraft;
+import studio.fantasyit.ether_craft.integration.Integrations;
 import studio.fantasyit.ether_craft.mixin.BufferBuilderAccessor;
 import studio.fantasyit.ether_craft.stream.client.data.ClientVESHData;
 import studio.fantasyit.ether_craft.stream.client.data.ClientVESHDataGetter;
@@ -67,15 +68,17 @@ public class ClientVirtualEtherStreamRenderer {
 
             if (mesh != null) {
                 if (mesh.vertexCount() != 0) {
-                    int totalBytes = mesh.vertexCount() * VertexPrecomputer.VERTEX_SIZE;
-                    BufferBuilderAccessor accessor = (BufferBuilderAccessor) buffer;
-                    long ptr = accessor.ether_craft$getBufferBuilder().reserve(totalBytes);
-                    MemoryUtil.memCopy(
-                            MemoryUtil.memAddress(mesh.buffer()),
-                            ptr,
-                            totalBytes
-                    );
-                    accessor.ether_craft$setVertexCount(accessor.ether_craft$getVertexCount() + mesh.vertexCount());
+                    if (!Integrations.pushVertices(buffer, mesh.buffer(), mesh.vertexCount())) {
+                        int totalBytes = mesh.vertexCount() * VertexPrecomputer.VERTEX_SIZE;
+                        BufferBuilderAccessor accessor = (BufferBuilderAccessor) buffer;
+                        long ptr = accessor.ether_craft$getBufferBuilder().reserve(totalBytes);
+                        MemoryUtil.memCopy(
+                                MemoryUtil.memAddress(mesh.buffer()),
+                                ptr,
+                                totalBytes
+                        );
+                        accessor.ether_craft$setVertexCount(accessor.ether_craft$getVertexCount() + mesh.vertexCount());
+                    }
                 }
                 data.lastTickParticleCount = mesh.vertexCount() / 4;
                 data.lastTickRenderCount = mesh.renderTargetCount();
