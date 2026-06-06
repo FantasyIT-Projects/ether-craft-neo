@@ -12,13 +12,8 @@ import org.joml.Vector3f;
 import org.lwjgl.system.MemoryUtil;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.mixin.BufferBuilderAccessor;
-import studio.fantasyit.ether_craft.stream.client.data.ClientStreamEntry;
 import studio.fantasyit.ether_craft.stream.client.data.ClientVESHData;
 import studio.fantasyit.ether_craft.stream.client.data.ClientVESHDataGetter;
-import studio.fantasyit.ether_craft.stream.client.data.ClientVESHEntry;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class ClientVirtualEtherStreamRenderer {
 
@@ -30,7 +25,7 @@ public class ClientVirtualEtherStreamRenderer {
                     .sortOnUpload()
                     .createRenderSetup()
     );
-    private static final VertexPrecomputer PRECOMPUTER = new VertexPrecomputer();
+    public static final VertexPrecomputer PRECOMPUTER = new VertexPrecomputer();
 
     public static void onRender(Minecraft mc, PoseStack poseStack, SubmitNodeCollector collector, CameraRenderState camera) {
         ClientVESHData data = ClientVESHDataGetter.get();
@@ -57,13 +52,12 @@ public class ClientVirtualEtherStreamRenderer {
         float camUpY = cameraUp.y;
         float camUpZ = cameraUp.z;
 
-        VertexPrecomputer.SnapshotData snapshot = buildSnapshot(data,
+        VertexPrecomputer.SnapshotData snapshot = RenderDataUtil.makeSnapShot(
                 camX, camY, camZ,
                 camRightX, camRightY, camRightZ,
                 camUpX, camUpY, camUpZ,
                 fx, fy, fz,
                 camera.cullFrustum);
-
         PRECOMPUTER.submit(snapshot);
 
         collector.order(1).submitCustomGeometry(poseStack, RENDER_TYPE, (pose, buffer) -> {
@@ -73,7 +67,6 @@ public class ClientVirtualEtherStreamRenderer {
 
             if (mesh != null) {
                 if (mesh.vertexCount() != 0) {
-//                VertexPrecomputer.RenderStats stats = VertexPrecomputer.renderStreams(buffer, snapshot);
                     int totalBytes = mesh.vertexCount() * VertexPrecomputer.VERTEX_SIZE;
                     BufferBuilderAccessor accessor = (BufferBuilderAccessor) buffer;
                     long ptr = accessor.ether_craft$getBufferBuilder().reserve(totalBytes);
@@ -86,9 +79,6 @@ public class ClientVirtualEtherStreamRenderer {
                 }
                 data.lastTickParticleCount = mesh.vertexCount() / 4;
                 data.lastTickRenderCount = mesh.renderTargetCount();
-            } else {
-//                data.lastTickParticleCount = stats.vertexCount() / 4;
-//                data.lastTickRenderCount = stats.renderTargetCount();
             }
         });
 
@@ -115,42 +105,5 @@ public class ClientVirtualEtherStreamRenderer {
                     logic.onRender(stream, currentPos, camera, poseStack, collector);
             }
         }
-    }
-
-    private static VertexPrecomputer.SnapshotData buildSnapshot(ClientVESHData data,
-                                                                double camX, double camY, double camZ,
-                                                                float crx, float cry, float crz,
-                                                                float cux, float cuy, float cuz,
-                                                                float fx, float fy, float fz,
-                                                                net.minecraft.client.renderer.culling.Frustum cullFrustum) {
-        List<ClientVESHEntry> entries = data.getEntriesIterable();
-        List<VertexPrecomputer.EntrySnapshot> entrySnapshots = new ArrayList<>(entries.size());
-
-        for (var veshEntry : entries) {
-            List<ClientStreamEntry> streams = veshEntry.steamsIterable;
-            List<VertexPrecomputer.StreamSnapshot> streamSnapshots = new ArrayList<>(streams.size());
-
-            for (var stream : streams) {
-                streamSnapshots.add(new VertexPrecomputer.StreamSnapshot(
-                        stream.currentPos,
-                        stream.reverseStepMotions,
-                        stream.id,
-                        stream.ether,
-                        stream.isDying,
-                        stream.shouldRender
-                ));
-            }
-
-            entrySnapshots.add(new VertexPrecomputer.EntrySnapshot(streamSnapshots));
-        }
-
-        return new VertexPrecomputer.SnapshotData(
-                entrySnapshots,
-                camX, camY, camZ,
-                crx, cry, crz,
-                cux, cuy, cuz,
-                fx, fy, fz,
-                cullFrustum
-        );
     }
 }

@@ -8,6 +8,9 @@ import studio.fantasyit.ether_craft.network.s2c.EtherStreamSetDyingS2C;
 import studio.fantasyit.ether_craft.network.s2c.EtherStreamSyncDataS2C;
 import studio.fantasyit.ether_craft.network.s2c.EtherStreamUpdateS2C;
 import studio.fantasyit.ether_craft.stream.PosDir;
+import studio.fantasyit.ether_craft.stream.client.render.ClientVirtualEtherStreamRenderer;
+import studio.fantasyit.ether_craft.stream.client.render.RenderDataUtil;
+import studio.fantasyit.ether_craft.stream.client.render.VertexPrecomputer;
 import studio.fantasyit.ether_craft.stream.data.IEtherStreamSyncedData;
 
 import java.lang.ref.WeakReference;
@@ -106,6 +109,12 @@ public class ClientVESHData {
             }
         }
         entriesIterable.removeIf(vesh -> vesh.streams.isEmpty());
+
+        Level localLevel = Minecraft.getInstance().level;
+        if (lv == localLevel) {
+            List<VertexPrecomputer.EntrySnapshot> snap = RenderDataUtil.buildEntries(this);
+            ClientVirtualEtherStreamRenderer.PRECOMPUTER.submitEntries(snap);
+        }
     }
 
     // ==== Render Profilers ====

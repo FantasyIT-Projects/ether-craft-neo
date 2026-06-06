@@ -50,7 +50,7 @@ public class EtherProcessRecipeManager {
     }
 
     public static void onReload(RecipeManager manager) {
-        extraRecipes.clear();
+        extraRecipes = new ArrayList<>();
         for (ExtraRecipeProvider provider : extraRecipeProviders) {
             extraRecipes.addAll(provider.generate(manager));
         }

@@ -1,16 +1,15 @@
 package studio.fantasyit.ether_craft.stream.client.render;
 
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.minecraft.client.renderer.culling.Frustum;
+import net.minecraft.util.ARGB;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.List;
 import java.util.concurrent.locks.LockSupport;
-
-import net.minecraft.client.renderer.culling.Frustum;
-import net.minecraft.util.ARGB;
-import net.minecraft.util.Mth;
-import net.minecraft.world.phys.Vec3;
 
 public class VertexPrecomputer {
 
@@ -28,7 +27,8 @@ public class VertexPrecomputer {
     private volatile boolean hasWork;
     private volatile boolean running = true;
     private volatile SnapshotData snapshot;
-    private volatile PreComputedMesh result;
+    private volatile List<EntrySnapshot> entries;
+    public volatile PreComputedMesh result = null;
 
     public VertexPrecomputer() {
         this.worker = Thread.ofPlatform()
@@ -38,15 +38,17 @@ public class VertexPrecomputer {
     }
 
     public void submit(SnapshotData data) {
-        this.result = null;
         this.snapshot = data;
         this.hasWork = true;
     }
 
+    public void submitEntries(List<EntrySnapshot> entries) {
+        this.entries = entries;
+        this.hasWork = true;
+    }
+
     public PreComputedMesh tryTakeResult() {
-        PreComputedMesh r = this.result;
-        this.result = null;
-        return r;
+        return result;
     }
 
     public void shutdown() {
@@ -61,34 +63,32 @@ public class VertexPrecomputer {
                 continue;
             }
             SnapshotData data = this.snapshot;
+            List<EntrySnapshot> entries = this.entries;
             this.snapshot = null;
             this.hasWork = false;
-            if (data == null) continue;
-
-            PreComputedMesh mesh = compute(data);
-            this.result = mesh;
+            if (data == null || entries == null) continue;
+            this.result = compute(entries, data);
         }
     }
 
-    private static PreComputedMesh compute(SnapshotData data) {
-        RenderStats stats = renderStreams(null, data);
-        if (stats.vertexCount == 0) {
-            return new PreComputedMesh(null, 0, 0);
-        }
-
-        int bufferSize = stats.vertexCount * VERTEX_SIZE;
+    private PreComputedMesh compute(List<EntrySnapshot> entries, SnapshotData data) {
+        int totalSz = 0;
+        for (var e : entries)
+            totalSz += e.streams.size();
+        int bufferSize = totalSz * 24 * VERTEX_SIZE;
         ByteBuffer buf = ByteBuffer.allocateDirect(bufferSize).order(ByteOrder.LITTLE_ENDIAN);
         ByteBufferVertexConsumer writer = new ByteBufferVertexConsumer(buf);
-        renderStreams(writer, data);
+        RenderStats stats = renderStreams(writer, entries, data);
+        buf.flip();
 
         return new PreComputedMesh(buf, stats.vertexCount, stats.renderTargetCount);
     }
 
-    public static RenderStats renderStreams(VertexConsumer consumer, SnapshotData data) {
+    public static RenderStats renderStreams(VertexConsumer consumer, List<EntrySnapshot> entries, SnapshotData data) {
         int vertexCount = 0;
         int renderTargetCount = 0;
 
-        for (var entry : data.entries) {
+        for (var entry : entries) {
             for (var stream : entry.streams) {
                 if (stream.isDying || !stream.shouldRender) continue;
 
@@ -164,16 +164,11 @@ public class VertexPrecomputer {
         return new RenderStats(vertexCount, renderTargetCount);
     }
 
-    private static class ByteBufferVertexConsumer implements VertexConsumer {
-        private final ByteBuffer buf;
-
-        ByteBufferVertexConsumer(ByteBuffer buf) {
-            this.buf = buf;
-        }
+    private record ByteBufferVertexConsumer(ByteBuffer buf) implements VertexConsumer {
 
         @Override
         public void addVertex(float x, float y, float z, int color, float u, float v,
-                                        int overlay, int light, float nx, float ny, float nz) {
+                              int overlay, int light, float nx, float ny, float nz) {
             buf.putFloat(x);
             buf.putFloat(y);
             buf.putFloat(z);
@@ -185,6 +180,7 @@ public class VertexPrecomputer {
             buf.put(normalByte(nx));
             buf.put(normalByte(ny));
             buf.put(normalByte(nz));
+            buf.put((byte) 0);
         }
 
         @Override
@@ -242,7 +238,8 @@ public class VertexPrecomputer {
         }
     }
 
-    public record RenderStats(int vertexCount, int renderTargetCount) {}
+    public record RenderStats(int vertexCount, int renderTargetCount) {
+    }
 
     public record StreamSnapshot(
             Vec3 currentPos,
@@ -251,22 +248,25 @@ public class VertexPrecomputer {
             int ether,
             boolean isDying,
             boolean shouldRender
-    ) {}
+    ) {
+    }
 
-    public record EntrySnapshot(List<StreamSnapshot> streams) {}
+    public record EntrySnapshot(List<StreamSnapshot> streams) {
+    }
 
     public record SnapshotData(
-            List<EntrySnapshot> entries,
             double camX, double camY, double camZ,
             float crx, float cry, float crz,
             float cux, float cuy, float cuz,
             float fx, float fy, float fz,
             Frustum cullFrustum
-    ) {}
+    ) {
+    }
 
     public record PreComputedMesh(
             ByteBuffer buffer,
             int vertexCount,
             int renderTargetCount
-    ) {}
+    ) {
+    }
 }
