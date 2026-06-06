@@ -3,8 +3,8 @@ package studio.fantasyit.ether_craft.stream.client.render;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.SubmitNodeCollector;
-import net.minecraft.client.renderer.rendertype.RenderSetup;
 import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.phys.Vec3;
@@ -18,16 +18,9 @@ import studio.fantasyit.ether_craft.stream.client.data.ClientVESHDataGetter;
 
 public class ClientVirtualEtherStreamRenderer {
 
-    private static final Identifier TEXTURE = EtherCraft.id("textures/particle/ether_stream.png");
-    private static final RenderType RENDER_TYPE = RenderType.create(
-            "ether_stream_tail_custom",
-            RenderSetup.builder(EtherStreamRenderPipeline.ETHER_STREAM_ENTITY_PIPELINE)
-                    .withTexture("Sampler0", TEXTURE)
-                    .withTexture("Sampler1", TEXTURE)
-                    .withTexture("Sampler2", TEXTURE)
-                    .sortOnUpload()
-                    .createRenderSetup()
-    );
+    private static final Identifier TEXTURE = EtherCraft.id("textures/entity/ether_stream.png");
+    private static final RenderType RENDER_TYPE = RenderTypes.energySwirl(TEXTURE, 0, 0);
+
     public static final VertexPrecomputer PRECOMPUTER = new VertexPrecomputer();
 
     public static void onRender(Minecraft mc, PoseStack poseStack, SubmitNodeCollector collector, CameraRenderState camera) {
@@ -65,7 +58,6 @@ public class ClientVirtualEtherStreamRenderer {
 
         collector.order(1).submitCustomGeometry(poseStack, RENDER_TYPE, (pose, buffer) -> {
             data.startRenderStamp();
-
             VertexPrecomputer.PreComputedMesh mesh = PRECOMPUTER.tryTakeResult();
 
             if (mesh != null) {

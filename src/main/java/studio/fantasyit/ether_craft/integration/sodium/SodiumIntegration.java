@@ -13,7 +13,7 @@ public class SodiumIntegration {
         VertexBufferWriter writer = VertexBufferWriter.tryOf(consumer);
         if (writer == null) return false;
         try (MemoryStack stack = MemoryStack.stackPush()) {
-            VertexBufferWriter.copyInto(writer, stack,
+            writer.push(stack,
                     MemoryUtil.memAddress(data),
                     vertexCount,
                     DefaultVertexFormat.ENTITY);
