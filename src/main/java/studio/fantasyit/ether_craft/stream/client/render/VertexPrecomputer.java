@@ -4,7 +4,6 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.Mth;
-import net.minecraft.world.phys.Vec3;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -28,7 +27,10 @@ public class VertexPrecomputer {
     private volatile boolean running = true;
     private volatile SnapshotData snapshot;
     private volatile List<EntrySnapshot> entries;
-    public volatile PreComputedMesh result = null;
+    public volatile PreComputedMesh[] results = new PreComputedMesh[2];
+    public volatile ByteBuffer[] buffers = new ByteBuffer[2];
+    public volatile int readingBufIdx = 0;
+    public volatile int writingBufIdx = 0;
 
     public VertexPrecomputer() {
         this.worker = Thread.ofPlatform()
@@ -48,7 +50,10 @@ public class VertexPrecomputer {
     }
 
     public PreComputedMesh tryTakeResult() {
-        return result;
+        if (readingBufIdx != writingBufIdx) {
+            readingBufIdx = writingBufIdx;
+        }
+        return results[readingBufIdx];
     }
 
     public void shutdown() {
@@ -58,25 +63,33 @@ public class VertexPrecomputer {
 
     private void runLoop() {
         while (running) {
-            if (!hasWork) {
+            if (!hasWork || writingBufIdx != readingBufIdx) {
                 LockSupport.parkNanos(100_000);
                 continue;
             }
             SnapshotData data = this.snapshot;
             List<EntrySnapshot> entries = this.entries;
+            int next = (writingBufIdx + 1) % 2;
             this.snapshot = null;
             this.hasWork = false;
             if (data == null || entries == null) continue;
-            this.result = compute(entries, data);
+            this.results[next] = compute(entries, data, next);
+            writingBufIdx = next;
         }
     }
 
-    private PreComputedMesh compute(List<EntrySnapshot> entries, SnapshotData data) {
+    private PreComputedMesh compute(List<EntrySnapshot> entries, SnapshotData data, int next) {
         int totalSz = 0;
         for (var e : entries)
             totalSz += e.streams.size();
         int bufferSize = totalSz * 24 * VERTEX_SIZE;
-        ByteBuffer buf = ByteBuffer.allocateDirect(bufferSize).order(ByteOrder.LITTLE_ENDIAN);
+
+        ByteBuffer buf = buffers[next];
+        if (buf == null || buf.capacity() < bufferSize)
+            buf = buffers[next] = ByteBuffer.allocateDirect(bufferSize).order(ByteOrder.LITTLE_ENDIAN);
+        else
+            buf.clear();
+
         ByteBufferVertexConsumer writer = new ByteBufferVertexConsumer(buf);
         RenderStats stats = renderStreams(writer, entries, data);
         buf.flip();
@@ -242,8 +255,8 @@ public class VertexPrecomputer {
     }
 
     public record StreamSnapshot(
-            Vec3 currentPos,
-            Vec3[] reverseStepMotions,
+            float cx, float cy, float cz,
+            float[] rMx, float[] rMy, float[] rMz,
             int id,
             int ether,
             boolean isDying,

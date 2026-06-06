@@ -36,12 +36,6 @@ public class DebugAddEvent {
             sb.append(" ticking;");
             sb.append("R:");
             sb.append(clientVESHData.lastTickRenderCount).append("|").append(clientVESHData.lastTickParticleCount);
-            sb.append("[");
-            for (int i = 0; i < clientVESHData.lastRenderCost.length; i++) {
-                sb.append(String.format("%03d", clientVESHData.lastRenderCost[i] / 1000));
-                if (i != clientVESHData.lastRenderCost.length - 1) sb.append(",");
-            }
-            sb.append("]");
             debugScreenDisplayer.addLine(sb.toString());
         }
     }
