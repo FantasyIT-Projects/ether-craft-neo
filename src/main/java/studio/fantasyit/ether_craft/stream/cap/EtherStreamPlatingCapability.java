@@ -5,7 +5,6 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.entity.EntityTypeTest;
@@ -14,6 +13,7 @@ import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.plating.PlatingUtil;
@@ -22,7 +22,6 @@ import studio.fantasyit.ether_craft.register.RecipeTypeRegistry;
 import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class EtherStreamPlatingCapability implements IStreamCapability {
     public static final Identifier ID = EtherCraft.id("plating");
@@ -37,23 +36,24 @@ public class EtherStreamPlatingCapability implements IStreamCapability {
     public void tick(@UnknownNullability IEtherStreamLike streamEntity) {
         if (!(streamEntity.level() instanceof ServerLevel level)) return;
 
-        AABB currentBlockPos = new AABB(streamEntity.blockPosition());
-        List<ItemEntity> entities = level.getEntities(EntityTypeTest.forClass(ItemEntity.class), currentBlockPos, t -> t.isAlive() && !t.hasPickUpDelay());
+        List<PlatingRecipe> recipes = getSortedRecipes(level);
 
         Optional<IStreamCapability> optStorage = streamEntity.getCapability(EtherStreamStorageCapability.ID);
         EtherStreamStorageCapability storage = optStorage.filter(EtherStreamStorageCapability.class::isInstance)
                 .map(EtherStreamStorageCapability.class::cast).orElse(null);
 
+        AABB currentBlockPos = new AABB(streamEntity.blockPosition());
+        List<ItemEntity> entities = level.getEntities(EntityTypeTest.forClass(ItemEntity.class), currentBlockPos, t -> t.isAlive() && !t.hasPickUpDelay());
+
         for (ItemEntity itemEntity : entities) {
             ItemStack stack = itemEntity.getItem();
             if (stack.isEmpty()) continue;
 
-            boolean success;
-            if (PlatingUtil.isPlatingInProgress(stack)) {
-                success = handleInProgress(streamEntity, level, itemEntity, stack, storage);
-            } else if (PlatingUtil.canPlate(stack) && matchesAnyFilter(stack, level)) {
-                success = handleNewPlating(streamEntity, level, itemEntity, stack, storage);
-            } else success = false;
+            boolean canProcess = (PlatingUtil.isPlatingInProgress(stack) || PlatingUtil.canPlate(stack))
+                    && matchesAnyFilter(stack, recipes);
+            if (!canProcess) continue;
+
+            boolean success = handlePlating(streamEntity, level, itemEntity, stack, storage, recipes);
             if (success) {
                 int ether = streamEntity.getEther();
                 PlatingUtil.addEther(stack, ether);
@@ -63,29 +63,8 @@ public class EtherStreamPlatingCapability implements IStreamCapability {
         }
     }
 
-    private boolean handleInProgress(IEtherStreamLike streamEntity, ServerLevel level, ItemEntity itemEntity, ItemStack stack, EtherStreamStorageCapability storage) {
+    private boolean handlePlating(IEtherStreamLike streamEntity, ServerLevel level, ItemEntity itemEntity, ItemStack stack, EtherStreamStorageCapability storage, List<PlatingRecipe> recipes) {
         if (storage == null) return false;
-        List<PlatingRecipe> recipes = getSortedRecipes(level);
-        List<ItemStack> availableItems = getStorageItems(storage);
-        if (availableItems.stream().allMatch(ItemStack::isEmpty)) return false;
-
-        Set<Identifier> existingEffects = new HashSet<>(PlatingUtil.getInProgress(stack));
-        List<PlatingRecipe> matched = matchExactCover(availableItems, existingEffects, recipes);
-        if (matched == null) {
-            streamEntity.consumeEtherInternal(streamEntity.getEther());
-            return false;
-        }
-
-        consumeStorageItems(storage, availableItems, matched);
-        List<Identifier> effectIds = matched.stream().map(r -> r.effectId).toList();
-        PlatingUtil.overwritePlating(stack, effectIds, level.getGameTime());
-        itemEntity.setItem(stack);
-        return true;
-    }
-
-    private boolean handleNewPlating(IEtherStreamLike streamEntity, ServerLevel level, ItemEntity itemEntity, ItemStack stack, EtherStreamStorageCapability storage) {
-        if (storage == null) return false;
-        List<PlatingRecipe> recipes = getSortedRecipes(level);
         List<ItemStack> availableItems = getStorageItems(storage);
         if (availableItems.stream().allMatch(ItemStack::isEmpty)) return false;
 
@@ -95,10 +74,9 @@ public class EtherStreamPlatingCapability implements IStreamCapability {
             return false;
         }
 
-        consumeStorageItems(storage, availableItems, matched);
+        consumeStorageItems(storage, matched);
         List<Identifier> effectIds = matched.stream().map(r -> r.effectId).toList();
         PlatingUtil.startPlating(stack, effectIds, level.getGameTime());
-        itemEntity.setItem(stack);
         return true;
     }
 
@@ -121,27 +99,19 @@ public class EtherStreamPlatingCapability implements IStreamCapability {
         return items;
     }
 
-    @org.jetbrains.annotations.Nullable
+    @Nullable
     List<PlatingRecipe> matchExactCover(List<ItemStack> availableItems, Set<Identifier> usedEffects, List<PlatingRecipe> recipes) {
-        Map<Item, Long> itemCounts = availableItems.stream()
-                .filter(s -> !s.isEmpty())
-                .collect(Collectors.groupingBy(ItemStack::getItem, Collectors.summingLong(ItemStack::getCount)));
-        return solve(itemCounts, usedEffects, recipes);
-    }
-
-    @org.jetbrains.annotations.Nullable
-    private List<PlatingRecipe> solve(Map<Item, Long> remaining, Set<Identifier> usedEffects, List<PlatingRecipe> recipes) {
-        if (remaining.values().stream().allMatch(c -> c == 0)) return new ArrayList<>();
+        if (availableItems.stream().allMatch(ItemStack::isEmpty)) return new ArrayList<>();
 
         for (PlatingRecipe recipe : recipes) {
             if (usedEffects.contains(recipe.effectId)) continue;
-            Map<Item, Long> afterConsume = tryConsume(remaining, recipe);
-            if (afterConsume != null) {
-                Set<Identifier> newUsed = new HashSet<>(usedEffects);
-                newUsed.add(recipe.effectId);
-                List<PlatingRecipe> result = solve(afterConsume, newUsed, recipes);
+            List<ItemStack> remaining = tryConsumeRecipe(deepCopy(availableItems), recipe);
+            if (remaining != null) {
+                Set<Identifier> nextUsed = new HashSet<>(usedEffects);
+                nextUsed.add(recipe.effectId);
+                List<PlatingRecipe> result = matchExactCover(remaining, nextUsed, recipes);
                 if (result != null) {
-                    result.add(0, recipe);
+                    result.addFirst(recipe);
                     return result;
                 }
             }
@@ -149,29 +119,33 @@ public class EtherStreamPlatingCapability implements IStreamCapability {
         return null;
     }
 
-    @org.jetbrains.annotations.Nullable
-    private Map<Item, Long> tryConsume(Map<Item, Long> counts, PlatingRecipe recipe) {
-        Map<Item, Long> copy = new HashMap<>(counts);
+    @Nullable
+    private List<ItemStack> tryConsumeRecipe(List<ItemStack> stacks, PlatingRecipe recipe) {
         for (var ingredient : recipe.input) {
             int needed = ingredient.count();
-            var iter = copy.entrySet().iterator();
-            while (iter.hasNext()) {
-                var entry = iter.next();
-                if (entry.getValue() <= 0) continue;
-                if (ingredient.ingredient().test(new ItemStack(entry.getKey()))) {
-                    long take = Math.min(needed, entry.getValue());
-                    needed -= (int) take;
-                    entry.setValue(entry.getValue() - take);
-                    if (entry.getValue() <= 0) iter.remove();
+            for (ItemStack s : stacks) {
+                if (!s.isEmpty() && ingredient.ingredient().test(s)) {
+                    int take = Math.min(needed, s.getCount());
+                    s.shrink(take);
+                    needed -= take;
                     if (needed == 0) break;
                 }
             }
             if (needed > 0) return null;
         }
+        stacks.removeIf(ItemStack::isEmpty);
+        return stacks;
+    }
+
+    private List<ItemStack> deepCopy(List<ItemStack> stacks) {
+        List<ItemStack> copy = new ArrayList<>(stacks.size());
+        for (ItemStack s : stacks) {
+            copy.add(s.copy());
+        }
         return copy;
     }
 
-    private void consumeStorageItems(EtherStreamStorageCapability storage, List<ItemStack> available, List<PlatingRecipe> matched) {
+    private void consumeStorageItems(EtherStreamStorageCapability storage, List<PlatingRecipe> matched) {
         for (PlatingRecipe recipe : matched) {
             for (var ingredient : recipe.input) {
                 int needed = ingredient.count();
@@ -188,8 +162,8 @@ public class EtherStreamPlatingCapability implements IStreamCapability {
         }
     }
 
-    private boolean matchesAnyFilter(ItemStack stack, ServerLevel level) {
-        return getSortedRecipes(level).stream().anyMatch(r -> r.matchesFilter(stack));
+    private boolean matchesAnyFilter(ItemStack stack, List<PlatingRecipe> recipes) {
+        return recipes.stream().anyMatch(r -> r.matchesFilter(stack));
     }
 
     @Override
