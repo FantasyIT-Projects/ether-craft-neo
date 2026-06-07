@@ -1,0 +1,63 @@
+package studio.fantasyit.ether_craft.plating.client;
+
+import net.minecraft.client.Minecraft;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.phys.Vec3;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.client.event.ViewportEvent;
+import net.neoforged.neoforge.network.PacketDistributor;
+import studio.fantasyit.ether_craft.EtherCraft;
+import studio.fantasyit.ether_craft.network.c2s.PlatingTriggerC2S;
+import studio.fantasyit.ether_craft.network.s2c.PlatingSoulStateS2C;
+
+@EventBusSubscriber(modid = EtherCraft.MODID, value = Dist.CLIENT)
+public class PlatingClientEventHandler {
+
+    @SubscribeEvent
+    public static void onCameraSetup(ViewportEvent.ComputeCameraAngles event) {
+        if (!PlatingSoulStateS2C.isClientSoulActive()) return;
+        event.getCamera().setPosition(
+                PlatingSoulStateS2C.getClientSoulX(),
+                PlatingSoulStateS2C.getClientSoulY(),
+                PlatingSoulStateS2C.getClientSoulZ()
+        );
+        event.setCanceled(true);
+    }
+
+    @SubscribeEvent
+    public static void onClientTick(ClientTickEvent.Post event) {
+        if (!PlatingSoulStateS2C.isClientSoulActive()) return;
+        var mc = Minecraft.getInstance();
+        if (mc.player == null) return;
+
+        float speed = 0.5f;
+        var look = mc.player.getLookAngle();
+        Vec3 forward = new Vec3(look.x, 0, look.z).normalize();
+        if (forward.lengthSqr() < 0.001) forward = new Vec3(0, 0, 1);
+        Vec3 right = new Vec3(-forward.z, 0, forward.x);
+
+        float fwd = mc.player.input.forwardImpulse;
+        float str = mc.player.input.leftImpulse;
+
+        double x = PlatingSoulStateS2C.getClientSoulX();
+        double y = PlatingSoulStateS2C.getClientSoulY();
+        double z = PlatingSoulStateS2C.getClientSoulZ();
+
+        x += (forward.x * fwd + right.x * str) * speed;
+        z += (forward.z * fwd + right.z * str) * speed;
+
+        if (mc.options.keyJump.isDown()) y += speed;
+        if (mc.options.keyShift.isDown()) y -= speed;
+
+        PlatingSoulStateS2C.updateClientSoulPos(x, y, z);
+
+        while (mc.options.keyUse.wasPressed()) {
+            PacketDistributor.sendToServer(new PlatingTriggerC2S(
+                    Identifier.fromNamespaceAndPath(EtherCraft.MODID, "soul_projection")
+            ));
+        }
+    }
+}
