@@ -9,6 +9,7 @@ import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.rendertype.RenderSetup;
 import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.Identifier;
@@ -19,17 +20,9 @@ import org.joml.Vector3fc;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.entity.stream.EtherStreamEntity;
 
-@SuppressWarnings("deprecation")
-@Deprecated(forRemoval = true)
 public class EtherStreamEntityRenderer extends EntityRenderer<EtherStreamEntity, EtherStreamEntityRenderState> {
-    private static final Identifier TEXTURE = EtherCraft.id("textures/particle/ether_stream.png");
-    private static final RenderType RENDER_TYPE = RenderType.create(
-            "ether_stream_tail",
-            RenderSetup.builder(EtherStreamRenderPipeline.ETHER_STREAM_ENTITY_PIPELINE)
-                    .withTexture("Sampler0", TEXTURE)
-                    .sortOnUpload()
-                    .createRenderSetup()
-    );
+    private static final Identifier TEXTURE = EtherCraft.id("textures/entity/ether_stream.png");
+    private static final RenderType RENDER_TYPE = RenderTypes.energySwirl(TEXTURE, 0, 0);
 
     private static final float LABEL_SCALE = 0.010416667F;
 

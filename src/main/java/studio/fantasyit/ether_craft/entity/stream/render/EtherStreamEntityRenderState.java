@@ -6,7 +6,6 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import studio.fantasyit.ether_craft.entity.stream.EtherStreamEntity;
 
-@SuppressWarnings("deprecation")
 public class EtherStreamEntityRenderState extends EntityRenderState {
     public final double[] tailX;
     public final double[] tailY;

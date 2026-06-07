@@ -196,6 +196,40 @@ public class Config {
             .comment("Duration in ticks for plating to complete (20 ticks = 1 second)")
             .defineInRange("plating.duration_ticks", 100, 1, 12000);
 
+    // -- plating.dash --
+    private static final ModConfigSpec.IntValue PLATING_DASH_CD_TICKS = BUILDER
+            .comment("Cooldown ticks for Dash plating effect")
+            .defineInRange("plating.dash.cd_ticks", 20, 0, 12000);
+    private static final ModConfigSpec.IntValue PLATING_DASH_ETHER_COST = BUILDER
+            .comment("Ether cost for Dash plating effect")
+            .defineInRange("plating.dash.ether_cost", 5, 0, Integer.MAX_VALUE);
+
+    // -- plating.high_jump --
+    private static final ModConfigSpec.IntValue PLATING_HIGH_JUMP_CD_TICKS = BUILDER
+            .comment("Cooldown ticks for High Jump plating effect")
+            .defineInRange("plating.high_jump.cd_ticks", 20, 0, 12000);
+    private static final ModConfigSpec.IntValue PLATING_HIGH_JUMP_ETHER_COST = BUILDER
+            .comment("Ether cost for High Jump plating effect")
+            .defineInRange("plating.high_jump.ether_cost", 5, 0, Integer.MAX_VALUE);
+
+    // -- plating.soul --
+    private static final ModConfigSpec.IntValue PLATING_SOUL_ETHER_PER_TICK = BUILDER
+            .comment("Ether consumed per tick by Soul Projection plating effect")
+            .defineInRange("plating.soul.ether_per_tick", 1, 0, Integer.MAX_VALUE);
+    private static final ModConfigSpec.IntValue PLATING_SOUL_MAX_RANGE = BUILDER
+            .comment("Maximum range in blocks for Soul Projection camera")
+            .defineInRange("plating.soul.max_range", 64, 1, 512);
+
+    // -- plating.no_gravity --
+    private static final ModConfigSpec.IntValue PLATING_NO_GRAVITY_ETHER_PER_ARROW = BUILDER
+            .comment("Ether cost per arrow for No Gravity plating effect")
+            .defineInRange("plating.no_gravity.ether_per_arrow", 1, 0, Integer.MAX_VALUE);
+
+    // -- plating.coyote_time --
+    private static final ModConfigSpec.IntValue PLATING_COYOTE_TIME_ETHER_PER_JUMP = BUILDER
+            .comment("Ether cost per delayed jump for Coyote Time plating effect")
+            .defineInRange("plating.coyote_time.ether_per_jump", 1, 0, Integer.MAX_VALUE);
+
 
     static final ModConfigSpec SPEC = BUILDER.build();
 
@@ -233,6 +267,14 @@ public class Config {
     public static int etherGlassPreventConsume;
     public static int nodeProcessEtherConsumePreUnmatched;
     public static int platingDurationTicks;
+    public static int platingDashCdTicks;
+    public static int platingDashEtherCost;
+    public static int platingHighJumpCdTicks;
+    public static int platingHighJumpEtherCost;
+    public static int platingSoulEtherPerTick;
+    public static int platingSoulMaxRange;
+    public static int platingNoGravityEtherPerArrow;
+    public static int platingCoyoteTimeEtherPerJump;
 
     @SubscribeEvent
     static void onLoad(final ModConfigEvent event) {
@@ -270,5 +312,13 @@ public class Config {
         etherGlassPreventConsume = ETHER_GLASS_PREVENT_CONSUME.get();
         nodeProcessEtherConsumePreUnmatched = ETHER_PROCESS_ETHER_CONSUME_PRE_UNMATCHED.get();
         platingDurationTicks = PLATING_DURATION_TICKS.get();
+        platingDashCdTicks = PLATING_DASH_CD_TICKS.get();
+        platingDashEtherCost = PLATING_DASH_ETHER_COST.get();
+        platingHighJumpCdTicks = PLATING_HIGH_JUMP_CD_TICKS.get();
+        platingHighJumpEtherCost = PLATING_HIGH_JUMP_ETHER_COST.get();
+        platingSoulEtherPerTick = PLATING_SOUL_ETHER_PER_TICK.get();
+        platingSoulMaxRange = PLATING_SOUL_MAX_RANGE.get();
+        platingNoGravityEtherPerArrow = PLATING_NO_GRAVITY_ETHER_PER_ARROW.get();
+        platingCoyoteTimeEtherPerJump = PLATING_COYOTE_TIME_ETHER_PER_JUMP.get();
     }
 }

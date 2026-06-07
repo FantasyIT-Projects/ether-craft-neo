@@ -11,8 +11,10 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
@@ -21,24 +23,25 @@ import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.*;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
 import org.jspecify.annotations.NonNull;
 import studio.fantasyit.ether_craft.Config;
-import studio.fantasyit.ether_craft.attachment.ChainedEmitterEntityHitCache;
 import studio.fantasyit.ether_craft.block.base.EtherContainer;
-import studio.fantasyit.ether_craft.register.AttachmentDataRegistry;
 import studio.fantasyit.ether_craft.register.EntityRegistry;
 import studio.fantasyit.ether_craft.register.Tags;
+import studio.fantasyit.ether_craft.plating.PlatingUtil;
+import studio.fantasyit.ether_craft.register.BlockRegistry;
+import studio.fantasyit.ether_craft.stream.EtherConsumer;
 import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
-import studio.fantasyit.ether_craft.stream.IStreamCapability;
+import studio.fantasyit.ether_craft.stream.cap.IStreamCapability;
+import studio.fantasyit.ether_craft.stream.data.IEtherStreamSyncedData;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-@SuppressWarnings("deprecation")
-@Deprecated(forRemoval = true)
 public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
     static final EntityDataAccessor<Integer> ETHER_COUNT = SynchedEntityData.defineId(EtherStreamEntity.class, EntityDataSerializers.INT);
     public static final EntityDataAccessor<java.util.Optional<Component>> LABEL_DATA =
@@ -52,7 +55,6 @@ public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
     public static final EntityDataAccessor<Vector3fc> DEATH_POS =
             SynchedEntityData.defineId(EtherStreamEntity.class, EntityDataSerializers.VECTOR3);
     private int ether;
-    private int lowerConsumeFactor = 0;
     public static final int MAX_TAIL = 6;
     public final double[] tailX = new double[MAX_TAIL];
     public final double[] tailY = new double[MAX_TAIL];
@@ -65,8 +67,8 @@ public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
     private int deathTickStart;
     private static final int MAX_DEATH_TICKS = 60;
     private List<IStreamCapability> capabilities = new ArrayList<>();
-    private ChainedEmitterEntityHitCache ceec;
-    private ChainedEmitterEntityHitCache.PosDir posDir;
+    public final EtherConsumer consumer = new EtherConsumer();
+    private List<IEtherStreamSyncedData> toSyncData = new ArrayList<>();
 
     public static EtherStreamEntity create(Level level, int ether, Vec3 position, Vec3 motion) {
         EtherStreamEntity instance = new EtherStreamEntity(EntityRegistry.ETHER_STREAM_ENTITY.get(), level);
@@ -103,22 +105,30 @@ public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
         }
     }
 
-    public void setLowerConsumeFactor(int factor) {
-        lowerConsumeFactor = factor;
-    }
-
     public int getEther() {
         return ether;
     }
 
+    @Override
+    public Vec3 deltaMovement() {
+        return getDeltaMovement();
+    }
+
+    @Override
     public void consumeEther(int amount) {
-        this.ether -= (int) Math.ceil(amount / getLowerFactory());
+        consumeEtherInternal(amount);
         this.entityData.set(ETHER_COUNT, ether);
+    }
+
+    @Override
+    public void consumeEtherInternal(int amount) {
+        this.ether = Math.max(0, this.ether - amount);
     }
 
     @Override
     public void addCapability(IStreamCapability capability) {
         capabilities.add(capability);
+        capability.setConsumer(this.consumer);
     }
 
     public Optional<IStreamCapability> getCapability(Identifier id) {
@@ -132,11 +142,6 @@ public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
     @Override
     public void tick() {
         super.tick();
-        if (ceec == null) {
-            ceec = level().getData(AttachmentDataRegistry.CHAINED_EMITTER_ENTITY_HIT_CACHE);
-            Direction d = Direction.getApproximateNearest(getDeltaMovement());
-            posDir = new ChainedEmitterEntityHitCache.PosDir(this.blockPosition(), d);
-        }
         if (this.level().isClientSide()) {
             this.ether = this.entityData.get(ETHER_COUNT);
             if (entityData.get(DYING)) {
@@ -149,6 +154,9 @@ public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
             tailZ[tailHead] = this.getZ();
             tailSize[tailHead] = getSize();
         } else {
+            if (consumer.isDirty()) {
+                consumer.recompute(capabilities);
+            }
             if (!ticked)
                 firstTick();
             if (entityData.get(DYING)) {
@@ -163,7 +171,8 @@ public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
                 this.dropAndDiscard();
                 return;
             }
-            this.consumeEther(this.getConsumption());
+            int consumption = consumer.getTotalConsumption(ether, tickCount);
+            this.consumeEtherInternal(consumption);
             if (ether <= 0) {
                 this.dropAndDiscard();
                 return;
@@ -179,21 +188,50 @@ public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
         if (hitresult.getType() != HitResult.Type.MISS)
             this.onHit(hitresult);
         this.setPos(this.getX() + vec3.x, this.getY() + vec3.y, this.getZ() + vec3.z);
-    }
 
-
-    private int getConsumption() {
-        double factor = Config.etherStreamConsumptionFactor;
-        factor += Config.etherStreamConsumptionByTimeFactor * this.tickCount;
-        double value = Math.ceil(factor * ether);
-        for (IStreamCapability capability : capabilities) {
-            value += capability.getConsumption();
+        if (!this.level().isClientSide()) {
+            BlockPos oldBlock = BlockPos.containing(this.getX() - vec3.x, this.getY() - vec3.y, this.getZ() - vec3.z);
+            BlockPos newBlock = this.blockPosition();
+            boolean wasGlass = level().getBlockState(oldBlock).is(BlockRegistry.ETHER_GLASS);
+            boolean isGlass = level().getBlockState(newBlock).is(BlockRegistry.ETHER_GLASS);
+            if (wasGlass != isGlass) {
+                setRunIntoEtherGlass(isGlass);
+            }
         }
-        return (int) Math.ceil(value);
     }
 
-    public double getLowerFactory() {
-        return Math.pow(2, lowerConsumeFactor);
+
+    @Override
+    public boolean shouldPassThrough(Entity entity) {
+        for (IStreamCapability cap : capabilities)
+            if (cap.shouldPassThrough(entity))
+                return true;
+        return false;
+    }
+
+    @Override
+    public void setSyncedData(IEtherStreamSyncedData data) {
+        toSyncData.removeIf(d -> d.getId().equals(data.getId()));
+        toSyncData.add(data);
+    }
+
+    @Override
+    public void clearSyncedData(Identifier id) {
+        toSyncData.removeIf(d -> d.getId().equals(id));
+    }
+
+    @Override
+    public @Nullable IEtherStreamSyncedData getSyncedData(Identifier id) {
+        for (IEtherStreamSyncedData d : toSyncData) {
+            if (d.getId().equals(id))
+                return d;
+        }
+        return null;
+    }
+
+    @Override
+    public void setRunIntoEtherGlass(boolean isEtherGlass2) {
+        consumer.setIsInEtherGlass(isEtherGlass2);
     }
 
     @Override
@@ -248,6 +286,17 @@ public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
     protected void onHitEntity(EntityHitResult p_37259_) {
         if (this.level().isClientSide()) return;
         Entity entity = p_37259_.getEntity();
+        if (entity instanceof ItemEntity ie && (PlatingUtil.isPlatingInProgress(ie.getItem()) || PlatingUtil.hasPlating(ie.getItem()))) {
+            int remaining = this.ether;
+            if (remaining > 0) {
+                ItemStack stack = ie.getItem();
+                PlatingUtil.addEther(stack, remaining);
+                consumeEther(remaining);
+                ie.setItem(stack);
+            }
+            dropAndDiscard();
+            return;
+        }
         boolean handled = false;
         for (IStreamCapability capability : capabilities)
             if (capability.hitEntity((ServerLevel) level(), this, p_37259_, entity))
@@ -280,7 +329,7 @@ public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
 
     @Override
     public @NonNull Direction getDirection() {
-        return posDir.dir();
+        return Direction.getApproximateNearest(getDeltaMovement());
     }
 
     public void dropAndDiscard() {
@@ -318,11 +367,7 @@ public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
             to = hitResult.getLocation();
         }
 
-        List<Entity> entities = null;
-        if (ceec != null && posDir != null)
-            entities = ceec.getAllEntities(this, posDir, 1, 2);
-        if (entities == null)
-            entities = level.getEntities(this, getBoundingBox().expandTowards(movement).inflate(1.0F), this::canHitEntity);
+        List<Entity> entities = level.getEntities(this, getBoundingBox().expandTowards(movement).inflate(1.0F), this::canHitEntity);
 
         double nearest = Double.MAX_VALUE;
         double entityMargin = ProjectileUtil.computeMargin(this);
@@ -330,6 +375,8 @@ public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
         Entity hitEntity = null;
         for (Entity entity : entities) {
             if (!this.canHitEntity(entity))
+                continue;
+            if (shouldPassThrough(entity))
                 continue;
             AABB bb = entity.getBoundingBox().inflate(entityMargin);
             Optional<Vec3> location = bb.clip(from, to);

@@ -33,9 +33,10 @@ Each trigger interface extends `IPlatingEffect`.
 ```java
 public interface IPlatingEffect {
     double getEffectByEther(long ether);
-    default long getCdTicks() { return 0; }
 }
 ```
+
+Each effect reads its CD duration directly from `Config` when calling `PlatingData.copyWithCoolDown(level, Config.xxxCdTicks)`. No need to expose on the interface.
 
 #### Trigger Interfaces (`plating/trigger/`)
 
@@ -80,14 +81,14 @@ public record PlatingData(Identifier id, double effect, @Nullable Long coolDownU
 #### DashPlatingEffect
 - Implements: `IPlatingRightClickTrigger`
 - `onRightClick`: check CD + extract ether → `player.setDeltaMovement(look * effect * 0.5, 0.1, look * effect * 0.5)` → `copyWithCoolDown` → `updatePlatingData`
-- `getCdTicks()`: returns `Config.platingDashCdTicks`
+- CD duration: reads `Config.platingDashCdTicks` directly
 - Ether cost: `Config.platingDashEtherCost`
 
 #### HighJumpPlatingEffect
 - Implements: `IPlatingRightClickTrigger`
 - `onRightClick`: check CD + extract ether → `player.setDeltaMovement(0, effect * 1.0, 0)` → apply JumpBoost-style fall damage reduction → `copyWithCoolDown`
 - Fall damage reduction: give `JumpEffect` at amplifier 0 for 3 seconds (or configurable)
-- `getCdTicks()`: returns `Config.platingHighJumpCdTicks`
+- CD duration: reads `Config.platingHighJumpCdTicks` directly
 - Ether cost: `Config.platingHighJumpEtherCost`
 
 #### SoulProjectionPlatingEffect
@@ -126,7 +127,7 @@ plating/
 ├── PlatingManager.java                  (MODIFIED: init() registers 5 new effects)
 │
 ├── effects/
-│   ├── IPlatingEffect.java              (MODIFIED: only getEffectByEther + getCdTicks)
+│   ├── IPlatingEffect.java              (MODIFIED: only getEffectByEther)
 │   ├── DamagePlatingEffect.java         (MODIFIED: implements IPlatingAttackTrigger)
 │   ├── DashPlatingEffect.java           [NEW]
 │   ├── HighJumpPlatingEffect.java       [NEW]
@@ -291,7 +292,7 @@ All existing config entries remain unchanged.
 | `plating/PlatingData.java` | Add `coolDownUntil`, `copyWithCoolDown()`, `isCd()` |
 | `plating/PlatingUtil.java` | Add `updatePlatingData()` |
 | `plating/PlatingManager.java` | Register 5 new effects in `init()` |
-| `plating/effects/IPlatingEffect.java` | Strip to `getEffectByEther` + `getCdTicks` |
+| `plating/effects/IPlatingEffect.java` | Strip to `getEffectByEther` only |
 | `plating/effects/DamagePlatingEffect.java` | Change to `implements IPlatingAttackTrigger` |
 | `event/PlatingEventHandler.java` → `plating/event/PlatingEventHandler.java` | Move + rewrite dispatch logic; add new event listeners |
 | `event/PlatingTooltipHandler.java` → `plating/client/PlatingTooltipHandler.java` | Move file |
