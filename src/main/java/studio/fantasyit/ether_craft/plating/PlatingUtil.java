@@ -4,6 +4,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import studio.fantasyit.ether_craft.register.DataComponentRegistry;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class PlatingUtil {
@@ -69,5 +70,16 @@ public class PlatingUtil {
 
     public static List<PlatingData> getPlatingData(ItemStack stack) {
         return stack.getOrDefault(DataComponentRegistry.PLATING_DATA, List.of());
+    }
+
+    public static void updatePlatingData(ItemStack stack, PlatingData updated) {
+        List<PlatingData> list = new ArrayList<>(getPlatingData(stack));
+        for (int i = 0; i < list.size(); i++) {
+            if (list.get(i).id().equals(updated.id())) {
+                list.set(i, updated);
+                break;
+            }
+        }
+        stack.set(DataComponentRegistry.PLATING_DATA, List.copyOf(list));
     }
 }
