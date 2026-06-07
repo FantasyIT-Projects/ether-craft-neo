@@ -6,8 +6,9 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import studio.fantasyit.ether_craft.plating.PlatingData;
 import studio.fantasyit.ether_craft.plating.PlatingUtil;
+import studio.fantasyit.ether_craft.plating.trigger.IPlatingAttackTrigger;
 
-public class DamagePlatingEffect implements IPlatingEffect {
+public class DamagePlatingEffect implements IPlatingAttackTrigger {
     @Override
     public double getEffectByEther(long ether) {
         return Math.sqrt(ether) / 10.0;
