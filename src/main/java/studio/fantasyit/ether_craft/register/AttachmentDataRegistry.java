@@ -11,6 +11,7 @@ import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.stream.EtherStreamBlockStateReadCache;
 import studio.fantasyit.ether_craft.stream.client.data.ClientVESHData;
+import studio.fantasyit.ether_craft.plating.attachment.PlatingPlayerAttachment;
 import studio.fantasyit.ether_craft.stream.vholder.VirtualEtherStreamHolderManager;
 
 import java.util.Optional;
@@ -46,6 +47,10 @@ public class AttachmentDataRegistry {
     public static final Supplier<AttachmentType<EtherStreamBlockStateReadCache>> ESBS_CACHE = ATTACHMENT_TYPES.register(
             "esbs_cache", () -> AttachmentType.builder(EtherStreamBlockStateReadCache::new)
                     .build()
+    );
+
+    public static final Supplier<AttachmentType<PlatingPlayerAttachment>> PLATING_PLAYER = ATTACHMENT_TYPES.register(
+            "plating_player", () -> AttachmentType.builder(PlatingPlayerAttachment::new).build()
     );
 
     public static void register(IEventBus modbus) {
