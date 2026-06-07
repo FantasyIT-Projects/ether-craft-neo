@@ -14,11 +14,9 @@ import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
-import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.geometry.BakedQuad;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.phys.Vec3;
@@ -48,38 +46,16 @@ public class LightmapSubmitNodeCollector implements SubmitNodeCollector {
     }
 
     private List<BakedQuad> remapQuads(List<BakedQuad> quads) {
-        boolean needsRemap = false;
-        for (BakedQuad quad : quads) {
-            if (isItemQuad(quad)) {
-                needsRemap = true;
-                break;
-            }
-        }
-        if (!needsRemap) {
-            return quads;
-        }
-
         List<BakedQuad> remapped = new ArrayList<>(quads.size());
         MutableQuad mutable = new MutableQuad();
         for (BakedQuad quad : quads) {
-            if (isItemQuad(quad)) {
-                mutable.setFrom(quad);
-                RenderType renderType = quad.materialInfo().itemRenderType();
-                RenderType lightmapType = LightmapRenderTypes.resolve(
-                        quad.materialInfo().sprite().atlasLocation(),
-                        renderType.hasBlending());
-                mutable.setSprite(quad.materialInfo().sprite(), quad.materialInfo().layer(), lightmapType);
-                remapped.add(mutable.toBakedQuad());
-            } else {
-                remapped.add(quad);
+            mutable.setFrom(quad);
+            for (int i = 0; i < 4; i++) {
+                mutable.setNormal(i, 0, 0, 1);
             }
+            remapped.add(mutable.toBakedQuad());
         }
         return remapped;
-    }
-
-    private boolean isItemQuad(BakedQuad quad) {
-        Identifier atlas = quad.materialInfo().sprite().atlasLocation();
-        return atlas.equals(TextureAtlas.LOCATION_ITEMS) || atlas.equals(TextureAtlas.LOCATION_BLOCKS);
     }
 
     @Override
