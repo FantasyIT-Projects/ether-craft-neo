@@ -7,7 +7,8 @@
     "plating.LivingEntityJumpMixin"
   ],
   "client": [
-    "BufferBuilderAccessor"
+    "BufferBuilderAccessor",
+    "plating.CameraAccessor"
   ],
   "injectors": {
     "defaultRequire": 1

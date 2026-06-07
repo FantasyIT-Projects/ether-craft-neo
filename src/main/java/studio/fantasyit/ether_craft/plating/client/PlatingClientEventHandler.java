@@ -8,23 +8,25 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.ViewportEvent;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import studio.fantasyit.ether_craft.EtherCraft;
+import studio.fantasyit.ether_craft.mixin.plating.CameraAccessor;
 import studio.fantasyit.ether_craft.network.c2s.PlatingTriggerC2S;
 import studio.fantasyit.ether_craft.network.s2c.PlatingSoulStateS2C;
 
 @EventBusSubscriber(modid = EtherCraft.MODID, value = Dist.CLIENT)
 public class PlatingClientEventHandler {
 
+    private static boolean wasUsePressed = false;
+
     @SubscribeEvent
     public static void onCameraSetup(ViewportEvent.ComputeCameraAngles event) {
         if (!PlatingSoulStateS2C.isClientSoulActive()) return;
-        event.getCamera().setPosition(
+        ((CameraAccessor) (Object) event.getCamera()).ether_craft$setPosition(new Vec3(
                 PlatingSoulStateS2C.getClientSoulX(),
                 PlatingSoulStateS2C.getClientSoulY(),
                 PlatingSoulStateS2C.getClientSoulZ()
-        );
-        event.setCanceled(true);
+        ));
     }
 
     @SubscribeEvent
@@ -39,8 +41,9 @@ public class PlatingClientEventHandler {
         if (forward.lengthSqr() < 0.001) forward = new Vec3(0, 0, 1);
         Vec3 right = new Vec3(-forward.z, 0, forward.x);
 
-        float fwd = mc.player.input.forwardImpulse;
-        float str = mc.player.input.leftImpulse;
+        var move = mc.player.input.getMoveVector();
+        float fwd = move.y;
+        float str = move.x;
 
         double x = PlatingSoulStateS2C.getClientSoulX();
         double y = PlatingSoulStateS2C.getClientSoulY();
@@ -54,10 +57,12 @@ public class PlatingClientEventHandler {
 
         PlatingSoulStateS2C.updateClientSoulPos(x, y, z);
 
-        while (mc.options.keyUse.wasPressed()) {
-            PacketDistributor.sendToServer(new PlatingTriggerC2S(
+        boolean useNow = mc.options.keyUse.isDown();
+        if (useNow && !wasUsePressed) {
+            ClientPacketDistributor.sendToServer(new PlatingTriggerC2S(
                     Identifier.fromNamespaceAndPath(EtherCraft.MODID, "soul_projection")
             ));
         }
+        wasUsePressed = useNow;
     }
 }
