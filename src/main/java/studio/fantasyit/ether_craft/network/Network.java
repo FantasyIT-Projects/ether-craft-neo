@@ -107,6 +107,16 @@ public class Network {
                 UncarryC2S.CODEC,
                 wrapWithPlayer(UncarryC2S::handle)
         );
+        event.playToServer(
+                PlatingTriggerC2S.TYPE,
+                PlatingTriggerC2S.CODEC,
+                wrapWithPlayer(PlatingTriggerC2SHandler::handle)
+        );
+        event.playToClient(
+                PlatingSoulStateS2C.TYPE,
+                PlatingSoulStateS2C.CODEC,
+                PlatingSoulStateS2C::handle
+        );
     }
 
 
