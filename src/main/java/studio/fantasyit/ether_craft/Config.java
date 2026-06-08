@@ -230,6 +230,14 @@ public class Config {
             .comment("Ether cost per delayed jump for Coyote Time plating effect")
             .defineInRange("plating.coyote_time.ether_per_jump", 1, 0, Integer.MAX_VALUE);
 
+    // -- plating.camouflage --
+    private static final ModConfigSpec.IntValue PLATING_CAMOUFLAGE_STAND_DURATION = BUILDER
+            .comment("Ticks the player must stand still before Camouflage plating activates (20 ticks = 1 second)")
+            .defineInRange("plating.camouflage.stand_duration", 100, 1, 12000);
+    private static final ModConfigSpec.IntValue PLATING_CAMOUFLAGE_ETHER_PER_TICK = BUILDER
+            .comment("Ether consumed per tick by Camouflage plating while active")
+            .defineInRange("plating.camouflage.ether_per_tick", 1, 0, Integer.MAX_VALUE);
+
 
     static final ModConfigSpec SPEC = BUILDER.build();
 
@@ -275,6 +283,8 @@ public class Config {
     public static int platingSoulMaxRange;
     public static int platingNoGravityEtherPerArrow;
     public static int platingCoyoteTimeEtherPerJump;
+    public static int platingCamouflageStandDuration;
+    public static int platingCamouflageEtherPerTick;
 
     @SubscribeEvent
     static void onLoad(final ModConfigEvent event) {
@@ -320,5 +330,7 @@ public class Config {
         platingSoulMaxRange = PLATING_SOUL_MAX_RANGE.get();
         platingNoGravityEtherPerArrow = PLATING_NO_GRAVITY_ETHER_PER_ARROW.get();
         platingCoyoteTimeEtherPerJump = PLATING_COYOTE_TIME_ETHER_PER_JUMP.get();
+        platingCamouflageStandDuration = PLATING_CAMOUFLAGE_STAND_DURATION.get();
+        platingCamouflageEtherPerTick = PLATING_CAMOUFLAGE_ETHER_PER_TICK.get();
     }
 }

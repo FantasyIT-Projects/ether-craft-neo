@@ -1,0 +1,9 @@
+{
+  "type": "ether_craft:plating",
+  "input": [
+    {"ingredient": "minecraft:phantom_membrane", "count": 4},
+    {"ingredient": "minecraft:chest", "count": 1}
+  ],
+  "filter": "minecraft:iron_helmet",
+  "effect": "ether_craft:camouflage"
+}

@@ -10,7 +10,6 @@ import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.ViewportEvent;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import studio.fantasyit.ether_craft.EtherCraft;
-import studio.fantasyit.ether_craft.mixin.plating.CameraAccessor;
 import studio.fantasyit.ether_craft.network.c2s.PlatingTriggerC2S;
 import studio.fantasyit.ether_craft.network.s2c.PlatingSoulStateS2C;
 
@@ -18,16 +17,6 @@ import studio.fantasyit.ether_craft.network.s2c.PlatingSoulStateS2C;
 public class PlatingClientEventHandler {
 
     private static boolean wasUsePressed = false;
-
-    @SubscribeEvent
-    public static void onCameraSetup(ViewportEvent.ComputeCameraAngles event) {
-        if (!PlatingSoulStateS2C.isClientSoulActive()) return;
-        ((CameraAccessor) (Object) event.getCamera()).ether_craft$setPosition(new Vec3(
-                PlatingSoulStateS2C.getClientSoulX(),
-                PlatingSoulStateS2C.getClientSoulY(),
-                PlatingSoulStateS2C.getClientSoulZ()
-        ));
-    }
 
     @SubscribeEvent
     public static void onClientTick(ClientTickEvent.Post event) {

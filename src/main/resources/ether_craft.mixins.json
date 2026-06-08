@@ -4,12 +4,10 @@
   "package": "studio.fantasyit.ether_craft.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
-    "plating.LivingEntityJumpMixin",
     "plating.EntitySetOnGroundMixin"
   ],
   "client": [
-    "BufferBuilderAccessor",
-    "plating.CameraAccessor"
+    "BufferBuilderAccessor"
   ],
   "injectors": {
     "defaultRequire": 1

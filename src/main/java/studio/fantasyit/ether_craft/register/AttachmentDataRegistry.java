@@ -9,6 +9,7 @@ import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import studio.fantasyit.ether_craft.EtherCraft;
+import studio.fantasyit.ether_craft.plating.CamouflageState;
 import studio.fantasyit.ether_craft.stream.client.data.ClientVESHData;
 import studio.fantasyit.ether_craft.stream.vholder.VirtualEtherStreamHolderManager;
 
@@ -44,6 +45,12 @@ public class AttachmentDataRegistry {
 
     public static final Supplier<AttachmentType<Long>> PLATING_JUMP_CD_TO = ATTACHMENT_TYPES.register(
             "plating_jump_cd_from", () -> AttachmentType.builder(()->0L).build()
+    );
+
+    public static final Supplier<AttachmentType<CamouflageState>> CAMOUFLAGE_STATE = ATTACHMENT_TYPES.register(
+            "camouflage_state", () -> AttachmentType.builder(() -> CamouflageState.INACTIVE)
+                    .sync(CamouflageState.STREAM_CODEC)
+                    .build()
     );
 
     public static void register(IEventBus modbus) {

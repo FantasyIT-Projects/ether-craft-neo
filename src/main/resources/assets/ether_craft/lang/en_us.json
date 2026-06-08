@@ -120,6 +120,7 @@
   "jei.ether_craft.plating.effect.ether_craft.soul_projection": "Right-click to project soul, free camera movement",
   "jei.ether_craft.plating.effect.ether_craft.no_gravity": "Arrows fired have no gravity",
   "jei.ether_craft.plating.effect.ether_craft.coyote_time": "Allows jumping shortly after leaving a ledge",
+  "jei.ether_craft.plating.effect.ether_craft.camouflage": "Stand still to become invisible, spawn a decoy chest, and lose monster aggro",
   "jei.ether_craft.category.ether_craft.special.furnace": "Blasting",
 
   "jei.ether_craft.plugin_type.function": "[Function Plugin]",
@@ -211,5 +212,6 @@
   "tooltip.ether_craft.plating.title": "Plating:",
   "tooltip.ether_craft.plating.ether": "Ether: %s",
   "tooltip.ether_craft.plating.remaining": "Remaining: %ss",
-  "tooltip.ether_craft.plating.effect.ether_craft.damage": "Damage +%s"
+  "tooltip.ether_craft.plating.effect.ether_craft.damage": "Damage +%s",
+  "tooltip.ether_craft.plating.effect.ether_craft.camouflage": "Camouflage"
 }
