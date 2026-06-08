@@ -1,0 +1,6 @@
+{
+  "type": "ether_craft:plating",
+  "input": [{"ingredient": "minecraft:feather", "count": 2}],
+  "filter": "minecraft:iron_pickaxe",
+  "effect": "ether_craft:high_jump"
+}

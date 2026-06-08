@@ -68,7 +68,6 @@ public class VirtualEtherStreamHolderManager {
 
     public void tick(ServerLevel level) {
         ensureLazy(level);
-        level.getData(AttachmentDataRegistry.ESBS_CACHE).clearCache();
         HashSet<Map.Entry<PosDir, VirtualEtherStreamHolder>> keys = new HashSet<>(holders.entrySet());
         for (Map.Entry<PosDir, VirtualEtherStreamHolder> entry : keys) {
             PosDir posDir = entry.getKey();

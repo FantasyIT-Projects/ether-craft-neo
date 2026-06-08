@@ -6,7 +6,7 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
-import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
@@ -29,11 +29,19 @@ public record PlatingData(Identifier id, double effect, @Nullable Long coolDownU
             (id, effect, cd) -> new PlatingData(id, effect, cd.orElse(null))
     );
 
-    public PlatingData copyWithCoolDown(ServerLevel level, long cdTicks) {
-        return new PlatingData(id, effect, level.getGameTime() + cdTicks);
+    public PlatingData copyWithCoolDown(Level level, long cdTicks) {
+        return new PlatingData(id, effect, cdTicks == -1 ? null : (level.getGameTime() + cdTicks));
     }
 
-    public boolean isCd(ServerLevel level) {
-        return coolDownUntil != null && level.getGameTime() < coolDownUntil;
+    public PlatingData copyClearCoolDown() {
+        return new PlatingData(id, effect, null);
+    }
+
+    public boolean isCd(Level level) {
+        return hasCd() && level.getGameTime() < coolDownUntil;
+    }
+
+    public boolean hasCd() {
+        return coolDownUntil != null;
     }
 }

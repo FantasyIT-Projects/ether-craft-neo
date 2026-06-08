@@ -1,7 +1,8 @@
-package studio.fantasyit.ether_craft.plating;
+package studio.fantasyit.ether_craft.plating.helper;
 
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
+import studio.fantasyit.ether_craft.plating.PlatingData;
 import studio.fantasyit.ether_craft.register.DataComponentRegistry;
 
 import java.util.ArrayList;

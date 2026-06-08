@@ -1,17 +1,16 @@
 package studio.fantasyit.ether_craft.plating.effects;
 
-import net.minecraft.server.level.ServerLevel;
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.Nullable;
 import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.plating.PlatingData;
-import studio.fantasyit.ether_craft.plating.PlatingUtil;
-import studio.fantasyit.ether_craft.plating.trigger.IPlatingHoldTickTrigger;
-import studio.fantasyit.ether_craft.plating.trigger.IPlatingJumpTrigger;
-import studio.fantasyit.ether_craft.register.AttachmentDataRegistry;
+import studio.fantasyit.ether_craft.plating.helper.PlatingUtil;
+import studio.fantasyit.ether_craft.plating.trigger.IPlatingVirtualWalkableProvider;
 
-public class CoyoteTimePlatingEffect implements IPlatingJumpTrigger, IPlatingHoldTickTrigger {
-
+public class CoyoteTimePlatingEffect implements IPlatingVirtualWalkableProvider {
     private static final long COYOTE_WINDOW = 40L;
 
     @Override
@@ -20,24 +19,19 @@ public class CoyoteTimePlatingEffect implements IPlatingJumpTrigger, IPlatingHol
     }
 
     @Override
-    public void onHoldTick(PlatingData data, ItemStack stack, Player player) {
-        if (!(player.level() instanceof ServerLevel level)) return;
-        if (player.onGround()) {
-            var attachment = player.getData(AttachmentDataRegistry.PLATING_PLAYER);
-            attachment.lastOnGroundTick = level.getGameTime();
-        }
+    public int providerVirtualWalkableAt(PlatingData data, ItemStack stack, Level level, Player player, BlockPos pos, @Nullable BlockPos jumpStartAt) {
+        if (jumpStartAt == null) return Integer.MIN_VALUE;
+        if (data.hasCd() && !data.isCd(level)) return Integer.MIN_VALUE;
+        if (!PlatingUtil.canExtractEther(stack, Config.platingCoyoteTimeEtherPerJump)) return Integer.MIN_VALUE;
+        PlatingUtil.extractEther(stack, Config.platingCoyoteTimeEtherPerJump);
+        if (!data.hasCd())
+            PlatingUtil.updatePlatingData(stack, data.copyWithCoolDown(level, COYOTE_WINDOW));
+        return jumpStartAt.getY();
     }
 
     @Override
-    public boolean canJump(PlatingData data, ItemStack stack, Player player) {
-        if (!(player.level() instanceof ServerLevel level)) return false;
-
-        var attachment = player.getData(AttachmentDataRegistry.PLATING_PLAYER);
-        long now = level.getGameTime();
-        if (now - attachment.lastOnGroundTick > COYOTE_WINDOW) return false;
-
-        if (!PlatingUtil.canExtractEther(stack, Config.platingCoyoteTimeEtherPerJump)) return false;
-        PlatingUtil.extractEther(stack, Config.platingCoyoteTimeEtherPerJump);
-        return true;
+    public void tickOnBlock(PlatingData data, ItemStack stack, Level level, Player player, BlockPos pos) {
+        if (data.hasCd())
+            PlatingUtil.updatePlatingData(stack, data.copyClearCoolDown());
     }
 }

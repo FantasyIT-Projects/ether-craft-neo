@@ -5,7 +5,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import studio.fantasyit.ether_craft.plating.PlatingData;
-import studio.fantasyit.ether_craft.plating.PlatingUtil;
+import studio.fantasyit.ether_craft.plating.helper.PlatingUtil;
 import studio.fantasyit.ether_craft.plating.trigger.IPlatingAttackTrigger;
 
 public class DamagePlatingEffect implements IPlatingAttackTrigger {

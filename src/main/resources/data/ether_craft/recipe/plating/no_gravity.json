@@ -1,0 +1,6 @@
+{
+  "type": "ether_craft:plating",
+  "input": [{"ingredient": "minecraft:phantom_membrane", "count": 1}],
+  "filter": "minecraft:bow",
+  "effect": "ether_craft:no_gravity"
+}

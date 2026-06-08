@@ -1,0 +1,6 @@
+{
+  "type": "ether_craft:plating",
+  "input": [{"ingredient": "minecraft:slime_ball", "count": 2}],
+  "filter": "minecraft:iron_sword",
+  "effect": "ether_craft:dash"
+}

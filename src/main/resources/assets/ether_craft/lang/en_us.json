@@ -113,6 +113,13 @@
   "jei.ether_craft.node_plugin_info": "Node Plugin Info",
   "jei.ether_craft.node_process": "Node Process",
   "jei.ether_craft.node_process.ether_cost": "Ether: %d",
+  "jei.ether_craft.plating": "Ether Plating",
+  "jei.ether_craft.plating.effect.ether_craft.damage": "Increases melee attack damage",
+  "jei.ether_craft.plating.effect.ether_craft.dash": "Right-click to dash forward",
+  "jei.ether_craft.plating.effect.ether_craft.high_jump": "Right-click to perform a high jump",
+  "jei.ether_craft.plating.effect.ether_craft.soul_projection": "Right-click to project soul, free camera movement",
+  "jei.ether_craft.plating.effect.ether_craft.no_gravity": "Arrows fired have no gravity",
+  "jei.ether_craft.plating.effect.ether_craft.coyote_time": "Allows jumping shortly after leaving a ledge",
   "jei.ether_craft.category.ether_craft.special.furnace": "Blasting",
 
   "jei.ether_craft.plugin_type.function": "[Function Plugin]",

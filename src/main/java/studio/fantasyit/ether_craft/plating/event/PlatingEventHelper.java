@@ -7,7 +7,7 @@ import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 import studio.fantasyit.ether_craft.plating.PlatingData;
 import studio.fantasyit.ether_craft.plating.PlatingManager;
-import studio.fantasyit.ether_craft.plating.PlatingUtil;
+import studio.fantasyit.ether_craft.plating.helper.PlatingUtil;
 import studio.fantasyit.ether_craft.plating.effects.IPlatingEffect;
 
 import java.util.List;

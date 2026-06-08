@@ -9,7 +9,7 @@ import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import net.neoforged.neoforge.event.tick.LevelTickEvent;
 import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.attachment.EtherInactivateConvertData;
-import studio.fantasyit.ether_craft.plating.PlatingUtil;
+import studio.fantasyit.ether_craft.plating.helper.PlatingUtil;
 import studio.fantasyit.ether_craft.plating.event.PlatingItemEntityTicker;
 import studio.fantasyit.ether_craft.register.ItemRegistry;
 

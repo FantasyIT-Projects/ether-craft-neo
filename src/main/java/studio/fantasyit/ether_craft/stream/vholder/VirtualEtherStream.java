@@ -140,7 +140,6 @@ public class VirtualEtherStream implements IEtherStreamLike {
             return;
         }
 
-        EtherStreamBlockStateReadCache data = level.getData(AttachmentDataRegistry.ESBS_CACHE);
         if (this.consumer.isDirty()) {
             this.consumer.recompute(this.capabilities);
             this.needsEtherSync = true;

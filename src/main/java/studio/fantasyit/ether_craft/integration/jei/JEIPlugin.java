@@ -17,6 +17,7 @@ import studio.fantasyit.ether_craft.node.NodePluginManager;
 import studio.fantasyit.ether_craft.recipe.crafting.UpgradeShapedRecipe;
 import studio.fantasyit.ether_craft.recipe.factory.EtherProcessFactoryRecipe;
 import studio.fantasyit.ether_craft.recipe.node.NodeProcessRecipe;
+import studio.fantasyit.ether_craft.recipe.plating.PlatingRecipe;
 import studio.fantasyit.ether_craft.register.DataComponentRegistry;
 import studio.fantasyit.ether_craft.register.ItemRegistry;
 import studio.fantasyit.ether_craft.register.RecipeTypeRegistry;
@@ -32,6 +33,8 @@ public class JEIPlugin implements IModPlugin {
             IRecipeType.create(EtherCraft.MODID, "node_plugin_info", NodePluginInfoRecipe.class);
     public static final IRecipeType<NodeProcessRecipe> NODE_PROCESS_TYPE =
             IRecipeType.create(EtherCraft.MODID, "node_process", NodeProcessRecipe.class);
+    public static final IRecipeType<PlatingRecipe> PLATING_TYPE =
+            IRecipeType.create(EtherCraft.MODID, "plating", PlatingRecipe.class);
 
     private record DynamicCategory(
             IRecipeType<EtherProcessFactoryRecipe> type,
@@ -56,7 +59,8 @@ public class JEIPlugin implements IModPlugin {
                         Component.translatable("jei.ether_craft.ether_process"),
                         new ItemStack(ItemRegistry.ETHER_PROCESS_FACTORY_ITEM_LV_1.get())),
                 new NodePluginInfoCategory(guiHelper),
-                new NodeProcessCategory(guiHelper)
+                new NodeProcessCategory(guiHelper),
+                new PlatingCategory(guiHelper)
         );
 
         for (ExtraRecipeProvider provider : EtherProcessRecipeManager.extraRecipeProviders) {
@@ -86,6 +90,11 @@ public class JEIPlugin implements IModPlugin {
             registration.addRecipes(NODE_PROCESS_TYPE, nodeProcessRecipes);
         }
         registerNodePluginInfo(registration);
+
+        var platingRecipes = getPlatingRecipes();
+        if (!platingRecipes.isEmpty()) {
+            registration.addRecipes(PLATING_TYPE, platingRecipes);
+        }
 
         for (var dyn : dynamicCategories) {
             List<EtherProcessFactoryRecipe> catRecipes = EtherProcessRecipeManager.extraRecipes.stream()
@@ -134,6 +143,31 @@ public class JEIPlugin implements IModPlugin {
         return result;
     }
 
+    private static List<PlatingRecipe> getPlatingRecipes() {
+        List<PlatingRecipe> result = new ArrayList<>();
+        var syncedMap = ClientRecipeSyncEvent.getSyncedRecipeMap();
+        if (syncedMap != null) {
+            for (RecipeHolder<PlatingRecipe> holder : syncedMap.byType(RecipeTypeRegistry.PLATING_RECIPE.get())) {
+                result.add(holder.value());
+            }
+        }
+
+        if (!result.isEmpty()) {
+            return result;
+        }
+
+        var server = Minecraft.getInstance().getSingleplayerServer();
+        if (server != null) {
+            for (RecipeHolder<?> holder : server.getRecipeManager().getRecipes()) {
+                if (holder.value() instanceof PlatingRecipe recipe) {
+                    result.add(recipe);
+                }
+            }
+        }
+
+        return result;
+    }
+
     private static List<NodeProcessRecipe> getNodeProcessRecipes() {
         List<NodeProcessRecipe> result = new ArrayList<>();
         var syncedMap = ClientRecipeSyncEvent.getSyncedRecipeMap();
@@ -173,6 +207,12 @@ public class JEIPlugin implements IModPlugin {
                 new ItemStack(ItemRegistry.ETHER_ADAPT_NODE_ITEM_LV_3.get())
         );
         registration.addCraftingStation(NODE_PROCESS_TYPE,
+                new ItemStack(ItemRegistry.ETHER_ADAPT_NODE_ITEM_LV_1.get()),
+                new ItemStack(ItemRegistry.ETHER_ADAPT_NODE_ITEM_LV_2.get()),
+                new ItemStack(ItemRegistry.ETHER_ADAPT_NODE_ITEM_LV_3.get())
+        );
+        registration.addCraftingStation(PLATING_TYPE,
+                new ItemStack(ItemRegistry.ETHER_STREAM_EMITTER_ITEM.get()),
                 new ItemStack(ItemRegistry.ETHER_ADAPT_NODE_ITEM_LV_1.get()),
                 new ItemStack(ItemRegistry.ETHER_ADAPT_NODE_ITEM_LV_2.get()),
                 new ItemStack(ItemRegistry.ETHER_ADAPT_NODE_ITEM_LV_3.get())

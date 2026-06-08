@@ -5,7 +5,7 @@ import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
 import net.minecraft.world.item.ItemStack;
 import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.plating.PlatingData;
-import studio.fantasyit.ether_craft.plating.PlatingUtil;
+import studio.fantasyit.ether_craft.plating.helper.PlatingUtil;
 import studio.fantasyit.ether_craft.plating.trigger.IPlatingArrowShotTrigger;
 
 public class NoGravityPlatingEffect implements IPlatingArrowShotTrigger {
