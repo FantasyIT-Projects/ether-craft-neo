@@ -1,4 +1,4 @@
-package studio.fantasyit.ether_craft.plating.helper;
+package studio.fantasyit.ether_craft.plating.event;
 
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionResult;
@@ -18,7 +18,6 @@ import net.neoforged.neoforge.event.level.block.BreakBlockEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import org.jetbrains.annotations.Nullable;
 import studio.fantasyit.ether_craft.EtherCraft;
-import studio.fantasyit.ether_craft.plating.event.PlatingEventHelper;
 import studio.fantasyit.ether_craft.plating.trigger.*;
 
 @EventBusSubscriber(modid = EtherCraft.MODID)
