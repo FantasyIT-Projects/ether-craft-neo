@@ -18,7 +18,11 @@ import net.neoforged.neoforge.event.level.block.BreakBlockEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import org.jetbrains.annotations.Nullable;
 import studio.fantasyit.ether_craft.EtherCraft;
+import studio.fantasyit.ether_craft.plating.CamouflageState;
+import studio.fantasyit.ether_craft.plating.PlatingData;
+import studio.fantasyit.ether_craft.plating.helper.PlatingUtil;
 import studio.fantasyit.ether_craft.plating.trigger.*;
+import studio.fantasyit.ether_craft.register.AttachmentDataRegistry;
 
 @EventBusSubscriber(modid = EtherCraft.MODID)
 public class PlatingEventHandler {
@@ -33,6 +37,26 @@ public class PlatingEventHandler {
                 holdTick.onHoldTick(data, stack, player);
             }
         });
+
+        CamouflageState state = player.getExistingData(AttachmentDataRegistry.CAMOUFLAGE_STATE.get()).orElse(null);
+        if (state != null && state.isActive()) {
+            boolean hasPlating = false;
+            for (ItemStack s : PlatingEventHelper.getPlatedEquipment(player)) {
+                for (PlatingData d : PlatingUtil.getPlatingData(s)) {
+                    if (d.id().equals(EtherCraft.id("camouflage"))) {
+                        hasPlating = true;
+                        break;
+                    }
+                }
+                if (hasPlating) break;
+            }
+            if (!hasPlating) {
+                player.setInvisible(false);
+                player.setData(AttachmentDataRegistry.CAMOUFLAGE_STATE.get(), CamouflageState.INACTIVE);
+            } else {
+                player.setInvisible(true);
+            }
+        }
     }
 
     @SubscribeEvent

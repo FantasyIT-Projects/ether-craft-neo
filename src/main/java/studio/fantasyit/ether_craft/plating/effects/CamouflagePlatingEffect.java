@@ -1,8 +1,6 @@
 package studio.fantasyit.ether_craft.plating.effects;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -68,14 +66,14 @@ public class CamouflagePlatingEffect implements IPlatingEffect, IPlatingTickEqui
     }
 
     private void activate(Player player, BlockPos pos, float yaw, long posHash) {
-        player.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, -1, 0, false, false));
+        player.setInvisible(true);
         clearMobTargets(player);
         player.setData(AttachmentDataRegistry.CAMOUFLAGE_STATE.get(),
                 new CamouflageState(true, 0, pos, yaw, posHash));
     }
 
     private void deactivate(Player player) {
-        player.removeEffect(MobEffects.INVISIBILITY);
+        player.setInvisible(false);
         player.setData(AttachmentDataRegistry.CAMOUFLAGE_STATE.get(), CamouflageState.INACTIVE);
     }
 
