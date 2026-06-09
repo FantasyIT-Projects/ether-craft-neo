@@ -15,13 +15,13 @@ import net.minecraft.world.item.CrossbowItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDropsEvent;
 import net.neoforged.neoforge.event.entity.living.LivingEntityUseItemEvent;
-import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
-import net.neoforged.neoforge.event.entity.living.LivingKnockBackEvent;
+import net.neoforged.neoforge.event.entity.living.LivingShieldBlockEvent;
 import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
 import net.neoforged.neoforge.event.entity.player.CriticalHitEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
@@ -38,6 +38,7 @@ import studio.fantasyit.ether_craft.plating.TrackingData;
 import studio.fantasyit.ether_craft.plating.helper.PlatingUtil;
 import studio.fantasyit.ether_craft.plating.trigger.*;
 import studio.fantasyit.ether_craft.register.AttachmentDataRegistry;
+import studio.fantasyit.ether_craft.register.DataComponentRegistry;
 
 @EventBusSubscriber(modid = EtherCraft.MODID)
 public class PlatingEventHandler {
@@ -184,30 +185,6 @@ public class PlatingEventHandler {
     }
 
     @SubscribeEvent
-    public static void onLivingDamage(LivingIncomingDamageEvent event) {
-        if (!(event.getEntity() instanceof Player player)) return;
-        if (player.level().isClientSide()) return;
-
-        PlatingEventHelper.forEachPlatingOnEquipment(player, (effect, data, stack, p) -> {
-            if (effect instanceof IPlatingLivingHurtTrigger hurt) {
-                hurt.onLivingHurt(data, stack, player, event);
-            }
-        });
-    }
-
-    @SubscribeEvent
-    public static void onKnockBack(LivingKnockBackEvent event) {
-        if (!(event.getEntity() instanceof Player player)) return;
-        if (player.level().isClientSide()) return;
-
-        PlatingEventHelper.forEachPlatingOnEquipment(player, (effect, data, stack, p) -> {
-            if (effect instanceof IPlatingLivingHurtTrigger hurt) {
-                hurt.onKnockBack(data, stack, player, event);
-            }
-        });
-    }
-
-    @SubscribeEvent
     public static void onLivingDrops(LivingDropsEvent event) {
         if (!(event.getSource().getEntity() instanceof Player player)) return;
         if (player.level().isClientSide()) return;
@@ -287,6 +264,18 @@ public class PlatingEventHandler {
                 (containerId, inv, player) -> ChestMenu.threeRows(containerId, inv,
                         new BackpackContainer(targetInv)),
                 Component.translatable("container.chest")));
+    }
+
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    public static void onEntityShieldBlock(LivingShieldBlockEvent event) {
+        if (event.getBlocked() && event.getEntity() instanceof Player player) {
+            ItemStack stack = event.getEntity().getUseItem();
+            if (stack.isEmpty()) return;
+            if (stack.has(DataComponentRegistry.TEMP_BLOCKING))
+                PlatingEventHelper.forEachPlating(stack, player, (a, b, c, d) -> {
+                    if (a instanceof IPlatingBlockingTrigger p) p.blocked(b, d, c, event.getDamageContainer());
+                });
+        }
     }
 
     private static class BackpackContainer implements Container {

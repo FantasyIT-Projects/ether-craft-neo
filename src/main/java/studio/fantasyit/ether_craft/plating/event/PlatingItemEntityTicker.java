@@ -26,7 +26,7 @@ public class PlatingItemEntityTicker {
         for (var effectId : inProgress) {
             IPlatingEffect effect = PlatingManager.getEffect(effectId);
             if (effect != null) {
-                double value = effect.getEffectByEther(ether);
+                double value = 1;//TODO //effect.getEffectByEther(ether);
                 existing.add(new PlatingData(effectId, value));
             }
         }

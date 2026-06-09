@@ -1,0 +1,8 @@
+{
+  "type": "ether_craft:plating",
+  "input": [
+    {"ingredient": "minecraft:skeleton_skull", "count": 1}
+  ],
+  "filter": "minecraft:iron_axe",
+  "effect": "ether_craft:head_hunt"
+}

@@ -1,0 +1,8 @@
+{
+  "type": "ether_craft:plating",
+  "input": [
+    {"ingredient": "minecraft:hopper", "count": 2}
+  ],
+  "filter": "minecraft:iron_sword",
+  "effect": "ether_craft:kill_to_inv"
+}

@@ -1,0 +1,8 @@
+{
+  "type": "ether_craft:plating",
+  "input": [
+    {"ingredient": "minecraft:hopper", "count": 2}
+  ],
+  "filter": "minecraft:iron_pickaxe",
+  "effect": "ether_craft:break_to_inv"
+}

@@ -54,10 +54,6 @@ public class AttachmentDataRegistry {
                     .build()
     );
 
-    public static final Supplier<AttachmentType<Boolean>> PLATING_BLOCKING = ATTACHMENT_TYPES.register(
-            "plating_blocking", () -> AttachmentType.builder(() -> false).build()
-    );
-
     public static final Supplier<AttachmentType<TrackingData>> ARROW_TRACKING = ATTACHMENT_TYPES.register(
             "arrow_tracking", () -> AttachmentType.builder(() -> new TrackingData(0.0, 0.0)).build()
     );

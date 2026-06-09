@@ -54,6 +54,10 @@ public class DataComponentRegistry {
             () -> DataComponentType.<Long>builder().persistent(Codec.LONG).networkSynchronized(ByteBufCodecs.LONG).build()
     );
 
+    public static final DeferredHolder<DataComponentType<?>, @NotNull DataComponentType<Boolean>> TEMP_BLOCKING = DATA_COMPONENT.register("temp_blocking",
+            () -> DataComponentType.<Boolean>builder().build()
+    );
+
     public static void register(IEventBus modbus) {
         DATA_COMPONENT.register(modbus);
     }

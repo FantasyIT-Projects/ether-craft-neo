@@ -1,0 +1,8 @@
+{
+  "type": "ether_craft:plating",
+  "input": [
+    {"ingredient": "minecraft:iron_block", "count": 2}
+  ],
+  "filter": "minecraft:shield",
+  "effect": "ether_craft:block"
+}

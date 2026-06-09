@@ -1,0 +1,8 @@
+{
+  "type": "ether_craft:plating",
+  "input": [
+    {"ingredient": "minecraft:cobblestone", "count": 16}
+  ],
+  "filter": "minecraft:iron_pickaxe",
+  "effect": "ether_craft:stone_absorb"
+}

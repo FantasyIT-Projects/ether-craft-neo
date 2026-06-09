@@ -1,0 +1,8 @@
+{
+  "type": "ether_craft:plating",
+  "input": [
+    {"ingredient": "minecraft:blaze_powder", "count": 4}
+  ],
+  "filter": "minecraft:iron_sword",
+  "effect": "ether_craft:crit"
+}

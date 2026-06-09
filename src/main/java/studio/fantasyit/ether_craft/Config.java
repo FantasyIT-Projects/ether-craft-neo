@@ -242,9 +242,6 @@ public class Config {
     private static final ModConfigSpec.DoubleValue PLATING_BLOCK_DAMAGE_REDUCTION = BUILDER
             .comment("Fraction of frontal damage reduced while blocking (0~1)")
             .defineInRange("plating.block.damage_reduction", 0.5, 0, 1);
-    private static final ModConfigSpec.DoubleValue PLATING_BLOCK_KNOCKBACK_FACTOR = BUILDER
-            .comment("Knockback strength multiplier while blocking (lower = less knockback)")
-            .defineInRange("plating.block.knockback_factor", 0.3, 0, 1);
     private static final ModConfigSpec.IntValue PLATING_BLOCK_ETHER_PER_TICK = BUILDER
             .comment("Ether consumed per tick while blocking")
             .defineInRange("plating.block.ether_per_tick", 1, 0, Integer.MAX_VALUE);
@@ -338,7 +335,6 @@ public class Config {
     public static int platingCamouflageStandDuration;
     public static int platingCamouflageEtherCost;
     public static double platingBlockDamageReduction;
-    public static double platingBlockKnockbackFactor;
     public static int platingBlockEtherPerTick;
     public static int platingCritEtherPerAttack;
     public static int platingCritDamageEtherPerAttack;
@@ -397,7 +393,6 @@ public class Config {
         platingCamouflageStandDuration = PLATING_CAMOUFLAGE_STAND_DURATION.get();
         platingCamouflageEtherCost = PLATING_CAMOUFLAGE_ETHER_COST.get();
         platingBlockDamageReduction = PLATING_BLOCK_DAMAGE_REDUCTION.get();
-        platingBlockKnockbackFactor = PLATING_BLOCK_KNOCKBACK_FACTOR.get();
         platingBlockEtherPerTick = PLATING_BLOCK_ETHER_PER_TICK.get();
         platingCritEtherPerAttack = PLATING_CRIT_ETHER_PER_ATTACK.get();
         platingCritDamageEtherPerAttack = PLATING_CRIT_DAMAGE_ETHER_PER_ATTACK.get();

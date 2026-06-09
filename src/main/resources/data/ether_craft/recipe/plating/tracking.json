@@ -1,0 +1,8 @@
+{
+  "type": "ether_craft:plating",
+  "input": [
+    {"ingredient": "minecraft:ender_eye", "count": 4}
+  ],
+  "filter": "minecraft:bow",
+  "effect": "ether_craft:tracking"
+}

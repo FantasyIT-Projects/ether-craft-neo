@@ -1,0 +1,8 @@
+{
+  "type": "ether_craft:plating",
+  "input": [
+    {"ingredient": "minecraft:blaze_rod", "count": 4}
+  ],
+  "filter": "minecraft:diamond_sword",
+  "effect": "ether_craft:crit_damage"
+}
