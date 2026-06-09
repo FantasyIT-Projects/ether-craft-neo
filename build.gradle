@@ -14,6 +14,9 @@ repositories {
         url "https://maven.blamejared.com"
     }
     maven {
+        url "https://cursemaven.com"
+    }
+    maven {
         name = "CaffeineMC"
         url = "https://maven.caffeinemc.net/releases"
     }
@@ -71,7 +74,7 @@ neoForge {
         }
 
         data {
-                clientData()
+            clientData()
 
             // example of overriding the workingDirectory set in configureEach above, uncomment if you want to use it
             // gameDirectory = project.file('run-data')
@@ -122,7 +125,7 @@ dependencies {
 
     compileOnly "net.caffeinemc:sodium-neoforge-api:0.8.12+mc26.1.2"
     compileOnly "maven.modrinth:iris:1.10.9+26.1-neoforge"
-
+    runtimeOnly "curse.maven:jade-324717:8068368"
     // Example mod dependency using a mod jar from ./libs with a flat dir repository
     // This maps to ./libs/coolmod-${mc_version}-${coolmod_version}.jar
     // The group id is ignored when searching -- in this case, it is "blank"

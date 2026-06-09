@@ -121,6 +121,14 @@
   "jei.ether_craft.plating.effect.ether_craft.no_gravity": "Arrows fired have no gravity",
   "jei.ether_craft.plating.effect.ether_craft.coyote_time": "Allows jumping shortly after leaving a ledge",
   "jei.ether_craft.plating.effect.ether_craft.camouflage": "Stand still to become invisible, spawn a decoy chest, and lose monster aggro",
+  "jei.ether_craft.plating.effect.ether_craft.block": "Right-click to block, reduces frontal damage and knockback",
+  "jei.ether_craft.plating.effect.ether_craft.crit": "Chance to crit on non-jump attacks",
+  "jei.ether_craft.plating.effect.ether_craft.crit_damage": "Increases crit damage multiplier",
+  "jei.ether_craft.plating.effect.ether_craft.head_hunt": "Chance to drop mob head on kill",
+  "jei.ether_craft.plating.effect.ether_craft.tracking": "Arrows lightly track nearby mobs",
+  "jei.ether_craft.plating.effect.ether_craft.break_to_inv": "Broken block drops go directly to inventory",
+  "jei.ether_craft.plating.effect.ether_craft.kill_to_inv": "Mob kill drops go directly to inventory",
+  "jei.ether_craft.plating.effect.ether_craft.stone_absorb": "Breaking stone-type blocks converts to ether",
   "jei.ether_craft.category.ether_craft.special.furnace": "Blasting",
 
   "jei.ether_craft.plugin_type.function": "[Function Plugin]",
@@ -213,5 +221,13 @@
   "tooltip.ether_craft.plating.ether": "Ether: %s",
   "tooltip.ether_craft.plating.remaining": "Remaining: %ss",
   "tooltip.ether_craft.plating.effect.ether_craft.damage": "Damage +%s",
-  "tooltip.ether_craft.plating.effect.ether_craft.camouflage": "Camouflage"
+  "tooltip.ether_craft.plating.effect.ether_craft.camouflage": "Camouflage",
+  "tooltip.ether_craft.plating.effect.ether_craft.block": "Block %s",
+  "tooltip.ether_craft.plating.effect.ether_craft.crit": "Crit %s%%",
+  "tooltip.ether_craft.plating.effect.ether_craft.crit_damage": "Crit DMG +%s",
+  "tooltip.ether_craft.plating.effect.ether_craft.head_hunt": "Head Hunt %s%%",
+  "tooltip.ether_craft.plating.effect.ether_craft.tracking": "Tracking %s",
+  "tooltip.ether_craft.plating.effect.ether_craft.break_to_inv": "Break\u2192Inv %s",
+  "tooltip.ether_craft.plating.effect.ether_craft.kill_to_inv": "Kill\u2192Inv %s",
+  "tooltip.ether_craft.plating.effect.ether_craft.stone_absorb": "Stone Absorb %s"
 }

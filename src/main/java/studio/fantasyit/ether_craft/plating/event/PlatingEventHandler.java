@@ -5,28 +5,36 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Container;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.SimpleMenuProvider;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
-import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ChestMenu;
-import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.BowItem;
 import net.minecraft.world.item.CrossbowItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
+import net.neoforged.neoforge.event.entity.living.LivingDropsEvent;
 import net.neoforged.neoforge.event.entity.living.LivingEntityUseItemEvent;
+import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
+import net.neoforged.neoforge.event.entity.living.LivingKnockBackEvent;
 import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
+import net.neoforged.neoforge.event.entity.player.CriticalHitEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.entity.player.UseItemOnBlockEvent;
+import net.neoforged.neoforge.event.level.BlockDropsEvent;
 import net.neoforged.neoforge.event.level.block.BreakBlockEvent;
+import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import org.jetbrains.annotations.Nullable;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.plating.CamouflageState;
 import studio.fantasyit.ether_craft.plating.PlatingData;
+import studio.fantasyit.ether_craft.plating.TrackingData;
 import studio.fantasyit.ether_craft.plating.helper.PlatingUtil;
 import studio.fantasyit.ether_craft.plating.trigger.*;
 import studio.fantasyit.ether_craft.register.AttachmentDataRegistry;
@@ -152,6 +160,110 @@ public class PlatingEventHandler {
                 arrowShot.onArrowShot(data, stack, player, arrow);
             }
         });
+    }
+
+    @SubscribeEvent
+    public static void onCriticalHit(CriticalHitEvent event) {
+        if (!(event.getEntity() instanceof Player player)) return;
+        if (player.level().isClientSide()) return;
+        ItemStack stack = player.getMainHandItem();
+        PlatingEventHelper.forEachPlating(stack, player, (effect, data, s, p) -> {
+            if (effect instanceof IPlatingCritTrigger trigger) {
+                trigger.onCriticalHit(data, stack, player, event);
+            }
+        });
+        if (event.getDamageMultiplier() <= 1) {
+            event.setDamageMultiplier(1.5f);
+        }
+        PlatingEventHelper.forEachPlating(stack, player, (effect, data, s, p) -> {
+            if (effect instanceof IPlatingCritDamageModifier modifier) {
+                modifier.onCriticalHit(data, stack, player, event);
+            }
+        });
+
+    }
+
+    @SubscribeEvent
+    public static void onLivingDamage(LivingIncomingDamageEvent event) {
+        if (!(event.getEntity() instanceof Player player)) return;
+        if (player.level().isClientSide()) return;
+
+        PlatingEventHelper.forEachPlatingOnEquipment(player, (effect, data, stack, p) -> {
+            if (effect instanceof IPlatingLivingHurtTrigger hurt) {
+                hurt.onLivingHurt(data, stack, player, event);
+            }
+        });
+    }
+
+    @SubscribeEvent
+    public static void onKnockBack(LivingKnockBackEvent event) {
+        if (!(event.getEntity() instanceof Player player)) return;
+        if (player.level().isClientSide()) return;
+
+        PlatingEventHelper.forEachPlatingOnEquipment(player, (effect, data, stack, p) -> {
+            if (effect instanceof IPlatingLivingHurtTrigger hurt) {
+                hurt.onKnockBack(data, stack, player, event);
+            }
+        });
+    }
+
+    @SubscribeEvent
+    public static void onLivingDrops(LivingDropsEvent event) {
+        if (!(event.getSource().getEntity() instanceof Player player)) return;
+        if (player.level().isClientSide()) return;
+
+        PlatingEventHelper.forEachPlatingOnEquipment(player, (effect, data, stack, p) -> {
+            if (effect instanceof IPlatingKillTrigger kill) {
+                kill.onKill(data, stack, player, event.getEntity(), event);
+            }
+        });
+    }
+
+    @SubscribeEvent
+    public static void onBlockDrops(BlockDropsEvent event) {
+        if (!(event.getBreaker() instanceof Player player)) return;
+        if (event.getLevel().isClientSide()) return;
+
+        PlatingEventHelper.forEachPlatingOnEquipment(player, (effect, data, stack, p) -> {
+            if (effect instanceof IPlatingBlockDropsTrigger trigger) {
+                trigger.onBlockDrops(data, stack, player, event);
+            }
+        });
+    }
+
+    @SubscribeEvent
+    public static void onEntityTick(EntityTickEvent.Post event) {
+        if (!(event.getEntity() instanceof AbstractArrow arrow)) return;
+        if (arrow.level().isClientSide()) return;
+
+        TrackingData tracking = arrow.getExistingData(AttachmentDataRegistry.ARROW_TRACKING.get()).orElse(null);
+        if (tracking == null || tracking.range() <= 0) return;
+
+        if (!(arrow.getOwner() instanceof LivingEntity owner)) return;
+
+        Level level = arrow.level();
+        Vec3 arrowPos = arrow.position();
+        LivingEntity nearest = null;
+        double nearestDist = tracking.range();
+
+        for (LivingEntity entity : level.getEntitiesOfClass(LivingEntity.class,
+                arrow.getBoundingBox().inflate(tracking.range()))) {
+            if (entity == owner) continue;
+            if (!entity.isAlive()) continue;
+            double dist = entity.distanceToSqr(arrow);
+            if (dist < nearestDist * nearestDist) {
+                nearest = entity;
+                nearestDist = Math.sqrt(dist);
+            }
+        }
+
+        if (nearest == null) return;
+
+        Vec3 toTarget = nearest.getEyePosition().subtract(arrowPos).normalize();
+        Vec3 currentVel = arrow.getDeltaMovement();
+        double speed = currentVel.length();
+        Vec3 newVel = currentVel.add(toTarget.scale(tracking.strength())).normalize().scale(speed);
+        arrow.setDeltaMovement(newVel);
     }
 
     @SubscribeEvent

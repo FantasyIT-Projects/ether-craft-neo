@@ -234,9 +234,61 @@ public class Config {
     private static final ModConfigSpec.IntValue PLATING_CAMOUFLAGE_STAND_DURATION = BUILDER
             .comment("Ticks the player must stand still before Camouflage plating activates (20 ticks = 1 second)")
             .defineInRange("plating.camouflage.stand_duration", 100, 1, 12000);
-    private static final ModConfigSpec.IntValue PLATING_CAMOUFLAGE_ETHER_PER_TICK = BUILDER
-            .comment("Ether consumed per tick by Camouflage plating while active")
+    private static final ModConfigSpec.IntValue PLATING_CAMOUFLAGE_ETHER_COST = BUILDER
+            .comment("Ether consumed by Camouflage")
             .defineInRange("plating.camouflage.ether_per_tick", 1, 0, Integer.MAX_VALUE);
+
+    // -- plating.block --
+    private static final ModConfigSpec.DoubleValue PLATING_BLOCK_DAMAGE_REDUCTION = BUILDER
+            .comment("Fraction of frontal damage reduced while blocking (0~1)")
+            .defineInRange("plating.block.damage_reduction", 0.5, 0, 1);
+    private static final ModConfigSpec.DoubleValue PLATING_BLOCK_KNOCKBACK_FACTOR = BUILDER
+            .comment("Knockback strength multiplier while blocking (lower = less knockback)")
+            .defineInRange("plating.block.knockback_factor", 0.3, 0, 1);
+    private static final ModConfigSpec.IntValue PLATING_BLOCK_ETHER_PER_TICK = BUILDER
+            .comment("Ether consumed per tick while blocking")
+            .defineInRange("plating.block.ether_per_tick", 1, 0, Integer.MAX_VALUE);
+
+    // -- plating.crit --
+    private static final ModConfigSpec.IntValue PLATING_CRIT_ETHER_PER_ATTACK = BUILDER
+            .comment("Ether consumed per attack by Crit plating")
+            .defineInRange("plating.crit.ether_per_attack", 1, 0, Integer.MAX_VALUE);
+
+    // -- plating.crit_damage --
+    private static final ModConfigSpec.IntValue PLATING_CRIT_DAMAGE_ETHER_PER_ATTACK = BUILDER
+            .comment("Ether consumed per attack by Crit Damage plating")
+            .defineInRange("plating.crit_damage.ether_per_attack", 1, 0, Integer.MAX_VALUE);
+
+    // -- plating.head_hunt --
+    private static final ModConfigSpec.IntValue PLATING_HEAD_HUNT_ETHER_PER_KILL = BUILDER
+            .comment("Ether consumed per kill by Head Hunt plating")
+            .defineInRange("plating.head_hunt.ether_per_kill", 5, 0, Integer.MAX_VALUE);
+
+    // -- plating.tracking --
+    private static final ModConfigSpec.IntValue PLATING_TRACKING_ETHER_PER_ARROW = BUILDER
+            .comment("Ether consumed per arrow by Tracking plating")
+            .defineInRange("plating.tracking.ether_per_arrow", 2, 0, Integer.MAX_VALUE);
+    private static final ModConfigSpec.DoubleValue PLATING_TRACKING_RANGE = BUILDER
+            .comment("Search radius in blocks for arrow tracking")
+            .defineInRange("plating.tracking.range", 6.0, 0, 32);
+    private static final ModConfigSpec.DoubleValue PLATING_TRACKING_STRENGTH = BUILDER
+            .comment("Steering force per tick (0~1)")
+            .defineInRange("plating.tracking.strength", 0.05, 0, 1);
+
+    // -- plating.break_to_inv --
+    private static final ModConfigSpec.IntValue PLATING_BREAK_TO_INV_ETHER_PER_BLOCK = BUILDER
+            .comment("Ether consumed per block broken by Break to Inventory plating")
+            .defineInRange("plating.break_to_inv.ether_per_block", 1, 0, Integer.MAX_VALUE);
+
+    // -- plating.kill_to_inv --
+    private static final ModConfigSpec.IntValue PLATING_KILL_TO_INV_ETHER_PER_KILL = BUILDER
+            .comment("Ether consumed per kill by Kill to Inventory plating")
+            .defineInRange("plating.kill_to_inv.ether_per_kill", 1, 0, Integer.MAX_VALUE);
+
+    // -- plating.stone_absorb --
+    private static final ModConfigSpec.IntValue PLATING_STONE_ABSORB_ETHER_PER_BLOCK = BUILDER
+            .comment("Ether gained per stone-type block broken by Stone Absorb plating")
+            .defineInRange("plating.stone_absorb.ether_per_block", 5, 0, Integer.MAX_VALUE);
 
 
     static final ModConfigSpec SPEC = BUILDER.build();
@@ -284,7 +336,19 @@ public class Config {
     public static int platingNoGravityEtherPerArrow;
     public static int platingCoyoteTimeEtherPerJump;
     public static int platingCamouflageStandDuration;
-    public static int platingCamouflageEtherPerTick;
+    public static int platingCamouflageEtherCost;
+    public static double platingBlockDamageReduction;
+    public static double platingBlockKnockbackFactor;
+    public static int platingBlockEtherPerTick;
+    public static int platingCritEtherPerAttack;
+    public static int platingCritDamageEtherPerAttack;
+    public static int platingHeadHuntEtherPerKill;
+    public static int platingTrackingEtherPerArrow;
+    public static double platingTrackingRange;
+    public static double platingTrackingStrength;
+    public static int platingBreakToInvEtherPerBlock;
+    public static int platingKillToInvEtherPerKill;
+    public static int platingStoneAbsorbEtherPerBlock;
 
     @SubscribeEvent
     static void onLoad(final ModConfigEvent event) {
@@ -331,6 +395,18 @@ public class Config {
         platingNoGravityEtherPerArrow = PLATING_NO_GRAVITY_ETHER_PER_ARROW.get();
         platingCoyoteTimeEtherPerJump = PLATING_COYOTE_TIME_ETHER_PER_JUMP.get();
         platingCamouflageStandDuration = PLATING_CAMOUFLAGE_STAND_DURATION.get();
-        platingCamouflageEtherPerTick = PLATING_CAMOUFLAGE_ETHER_PER_TICK.get();
+        platingCamouflageEtherCost = PLATING_CAMOUFLAGE_ETHER_COST.get();
+        platingBlockDamageReduction = PLATING_BLOCK_DAMAGE_REDUCTION.get();
+        platingBlockKnockbackFactor = PLATING_BLOCK_KNOCKBACK_FACTOR.get();
+        platingBlockEtherPerTick = PLATING_BLOCK_ETHER_PER_TICK.get();
+        platingCritEtherPerAttack = PLATING_CRIT_ETHER_PER_ATTACK.get();
+        platingCritDamageEtherPerAttack = PLATING_CRIT_DAMAGE_ETHER_PER_ATTACK.get();
+        platingHeadHuntEtherPerKill = PLATING_HEAD_HUNT_ETHER_PER_KILL.get();
+        platingTrackingEtherPerArrow = PLATING_TRACKING_ETHER_PER_ARROW.get();
+        platingTrackingRange = PLATING_TRACKING_RANGE.get();
+        platingTrackingStrength = PLATING_TRACKING_STRENGTH.get();
+        platingBreakToInvEtherPerBlock = PLATING_BREAK_TO_INV_ETHER_PER_BLOCK.get();
+        platingKillToInvEtherPerKill = PLATING_KILL_TO_INV_ETHER_PER_KILL.get();
+        platingStoneAbsorbEtherPerBlock = PLATING_STONE_ABSORB_ETHER_PER_BLOCK.get();
     }
 }

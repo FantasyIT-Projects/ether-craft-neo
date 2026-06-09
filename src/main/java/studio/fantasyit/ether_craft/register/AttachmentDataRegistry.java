@@ -10,6 +10,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.plating.CamouflageState;
+import studio.fantasyit.ether_craft.plating.TrackingData;
 import studio.fantasyit.ether_craft.stream.client.data.ClientVESHData;
 import studio.fantasyit.ether_craft.stream.vholder.VirtualEtherStreamHolderManager;
 
@@ -51,6 +52,14 @@ public class AttachmentDataRegistry {
             "camouflage_state", () -> AttachmentType.builder(() -> CamouflageState.INACTIVE)
                     .sync(CamouflageState.STREAM_CODEC)
                     .build()
+    );
+
+    public static final Supplier<AttachmentType<Boolean>> PLATING_BLOCKING = ATTACHMENT_TYPES.register(
+            "plating_blocking", () -> AttachmentType.builder(() -> false).build()
+    );
+
+    public static final Supplier<AttachmentType<TrackingData>> ARROW_TRACKING = ATTACHMENT_TYPES.register(
+            "arrow_tracking", () -> AttachmentType.builder(() -> new TrackingData(0.0, 0.0)).build()
     );
 
     public static void register(IEventBus modbus) {
