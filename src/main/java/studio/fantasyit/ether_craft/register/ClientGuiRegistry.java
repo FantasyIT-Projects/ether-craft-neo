@@ -5,7 +5,6 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import studio.fantasyit.ether_craft.EtherCraft;
-import studio.fantasyit.ether_craft.menu.camouflage.CamouflageChestScreen;
 import studio.fantasyit.ether_craft.menu.grid.answer.AnswerFetchScreen;
 import studio.fantasyit.ether_craft.menu.factory.EtherProcessFactoryScreen;
 import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeScreen;
@@ -17,7 +16,6 @@ public class ClientGuiRegistry {
         event.register(GuiRegistry.ETHER_PROCESS_FACTORY_CONTAINER.get(), EtherProcessFactoryScreen::new);
         event.register(GuiRegistry.ETHER_ADAPT_NODE_CONTAINER.get(), EtherAdaptNodeScreen::new);
         event.register(GuiRegistry.ANSWER_FETCH.get(), AnswerFetchScreen::new);
-        event.register(GuiRegistry.CAMOUFLAGE_CHEST.get(), CamouflageChestScreen::new);
     }
 
 }

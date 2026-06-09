@@ -1,14 +1,16 @@
 package studio.fantasyit.ether_craft.plating.event;
 
-import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.Container;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.MenuProvider;
+import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ChestMenu;
+import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.BowItem;
 import net.minecraft.world.item.CrossbowItem;
 import net.minecraft.world.item.ItemStack;
@@ -23,7 +25,6 @@ import net.neoforged.neoforge.event.level.block.BreakBlockEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import org.jetbrains.annotations.Nullable;
 import studio.fantasyit.ether_craft.EtherCraft;
-import studio.fantasyit.ether_craft.menu.camouflage.CamouflageChestMenu;
 import studio.fantasyit.ether_craft.plating.CamouflageState;
 import studio.fantasyit.ether_craft.plating.PlatingData;
 import studio.fantasyit.ether_craft.plating.helper.PlatingUtil;
@@ -169,23 +170,66 @@ public class PlatingEventHandler {
         event.setCanceled(true);
         event.setCancellationResult(InteractionResult.SUCCESS);
 
-        event.getEntity().openMenu(new MenuProvider() {
-            @Override
-            public Component getDisplayName() {
-                return Component.translatable("container.chest");
-            }
+        Inventory targetInv = targetPlayer.getInventory();
+        event.getEntity().openMenu(new SimpleMenuProvider(
+                (containerId, inv, player) -> ChestMenu.threeRows(containerId, inv,
+                        new BackpackContainer(targetInv)),
+                Component.translatable("container.chest")));
+    }
 
-            @Override
-            public AbstractContainerMenu createMenu(int containerId, Inventory inv, Player player) {
-                return new CamouflageChestMenu(containerId, inv, targetPlayer);
-            }
+    private static class BackpackContainer implements Container {
+        private final Inventory playerInv;
 
-            @Override
-            public void writeClientSideData(AbstractContainerMenu menu, RegistryFriendlyByteBuf buffer) {
-                MenuProvider.super.writeClientSideData(menu, buffer);
-                buffer.writeVarInt(targetPlayer.getId());
+        BackpackContainer(Inventory playerInv) {
+            this.playerInv = playerInv;
+        }
+
+        @Override
+        public int getContainerSize() {
+            return 27;
+        }
+
+        @Override
+        public boolean isEmpty() {
+            for (int i = 0; i < 27; i++) {
+                if (!playerInv.getItem(i + 9).isEmpty()) return false;
             }
-        });
+            return true;
+        }
+
+        @Override
+        public ItemStack getItem(int slot) {
+            return playerInv.getItem(slot + 9);
+        }
+
+        @Override
+        public ItemStack removeItem(int slot, int amount) {
+            return playerInv.removeItem(slot + 9, amount);
+        }
+
+        @Override
+        public ItemStack removeItemNoUpdate(int slot) {
+            return playerInv.removeItemNoUpdate(slot + 9);
+        }
+
+        @Override
+        public void setItem(int slot, ItemStack stack) {
+            playerInv.setItem(slot + 9, stack);
+        }
+
+        @Override
+        public void setChanged() {
+            playerInv.setChanged();
+        }
+
+        @Override
+        public boolean stillValid(Player player) {
+            return playerInv.stillValid(player);
+        }
+
+        @Override
+        public void clearContent() {
+        }
     }
 
 }
