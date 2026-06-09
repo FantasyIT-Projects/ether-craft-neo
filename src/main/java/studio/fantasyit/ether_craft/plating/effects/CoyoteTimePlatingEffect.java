@@ -1,25 +1,28 @@
 package studio.fantasyit.ether_craft.plating.effects;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 import studio.fantasyit.ether_craft.Config;
+import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.plating.PlatingData;
 import studio.fantasyit.ether_craft.plating.helper.PlatingUtil;
 import studio.fantasyit.ether_craft.plating.trigger.IPlatingVirtualWalkableProvider;
 
-public class CoyoteTimePlatingEffect implements IPlatingVirtualWalkableProvider {
+public class CoyoteTimePlatingEffect implements IPlatingEffect, IPlatingVirtualWalkableProvider {
+    public static final Identifier ID = EtherCraft.id("coyote_time");
     private static final long COYOTE_WINDOW = 40L;
 
     @Override
-    public double getEffectByEther(long ether) {
-        return Math.sqrt(ether) / 10.0;
+    public Identifier getId() {
+        return ID;
     }
 
     @Override
-    public int providerVirtualWalkableAt(PlatingData data, ItemStack stack, Level level, Player player, BlockPos pos, @Nullable BlockPos jumpStartAt) {
+    public int providerVirtualWalkableAt(PlatingData data, ItemStack stack, Level level, LivingEntity entity, BlockPos pos, @Nullable BlockPos jumpStartAt) {
         if (jumpStartAt == null) return Integer.MIN_VALUE;
         if (data.hasCd() && !data.isCd(level)) return Integer.MIN_VALUE;
         if (!PlatingUtil.canExtractEther(stack, Config.platingCoyoteTimeEtherPerJump)) return Integer.MIN_VALUE;
@@ -30,7 +33,7 @@ public class CoyoteTimePlatingEffect implements IPlatingVirtualWalkableProvider 
     }
 
     @Override
-    public void tickOnBlock(PlatingData data, ItemStack stack, Level level, Player player, BlockPos pos) {
+    public void tickOnBlock(PlatingData data, ItemStack stack, Level level, LivingEntity entity, BlockPos pos) {
         if (data.hasCd())
             PlatingUtil.updatePlatingData(stack, data.copyClearCoolDown());
     }

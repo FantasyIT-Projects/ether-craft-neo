@@ -4,7 +4,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import studio.fantasyit.ether_craft.plating.PlatingData;
 import studio.fantasyit.ether_craft.plating.helper.PlatingUtil;
-import studio.fantasyit.ether_craft.plating.event.PlatingEventHelper;
+import studio.fantasyit.ether_craft.plating.helper.PlatingEventHelper;
 import studio.fantasyit.ether_craft.plating.effects.IPlatingEffect;
 import studio.fantasyit.ether_craft.plating.trigger.IPlatingRightClickTrigger;
 

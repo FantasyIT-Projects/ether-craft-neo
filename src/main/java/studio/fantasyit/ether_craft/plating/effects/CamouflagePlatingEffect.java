@@ -1,11 +1,14 @@
 package studio.fantasyit.ether_craft.plating.effects;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import studio.fantasyit.ether_craft.Config;
+import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.plating.CamouflageState;
 import studio.fantasyit.ether_craft.plating.PlatingData;
 import studio.fantasyit.ether_craft.plating.helper.PlatingUtil;
@@ -15,16 +18,19 @@ import studio.fantasyit.ether_craft.register.AttachmentDataRegistry;
 import java.util.List;
 
 public class CamouflagePlatingEffect implements IPlatingEffect, IPlatingTickEquippedTrigger {
+    public static final Identifier ID = EtherCraft.id("camouflage");
 
     private static final int MOB_CLEAR_INTERVAL = 20;
 
     @Override
-    public double getEffectByEther(long ether) {
-        return 1.0;
+    public Identifier getId() {
+        return ID;
     }
 
     @Override
-    public void onHoldTick(PlatingData data, ItemStack stack, Player player) {
+    public void onHoldTick(PlatingData data, ItemStack stack, LivingEntity entity) {
+        if (!(entity instanceof Player player)) return;
+
         CamouflageState state = player.getExistingData(AttachmentDataRegistry.CAMOUFLAGE_STATE.get())
                 .orElse(CamouflageState.INACTIVE);
 

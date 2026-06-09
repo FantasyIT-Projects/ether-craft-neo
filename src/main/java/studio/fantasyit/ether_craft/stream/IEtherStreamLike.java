@@ -26,6 +26,8 @@ public interface IEtherStreamLike {
 
     void consumeEtherInternal(int ether);
 
+    void dirtyConsumer();
+
     int getEther();
 
     Direction getDirection();

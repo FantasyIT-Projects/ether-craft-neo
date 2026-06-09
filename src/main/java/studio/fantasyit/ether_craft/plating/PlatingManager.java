@@ -2,7 +2,6 @@ package studio.fantasyit.ether_craft.plating;
 
 import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
-import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.plating.effects.BlockPlatingEffect;
 import studio.fantasyit.ether_craft.plating.effects.BreakToInventoryPlatingEffect;
 import studio.fantasyit.ether_craft.plating.effects.CamouflagePlatingEffect;
@@ -35,19 +34,19 @@ public class PlatingManager {
     }
 
     public static void init() {
-        register(EtherCraft.id("damage"), new DamagePlatingEffect());
-        register(EtherCraft.id("dash"), new DashPlatingEffect());
-        register(EtherCraft.id("high_jump"), new HighJumpPlatingEffect());
-        register(EtherCraft.id("no_gravity"), new NoGravityPlatingEffect());
-        register(EtherCraft.id("coyote_time"), new CoyoteTimePlatingEffect());
-        register(EtherCraft.id("camouflage"), new CamouflagePlatingEffect());
-        register(EtherCraft.id("block"), new BlockPlatingEffect());
-        register(EtherCraft.id("crit"), new CritPlatingEffect());
-        register(EtherCraft.id("crit_damage"), new CritDamagePlatingEffect());
-        register(EtherCraft.id("head_hunt"), new HeadHuntPlatingEffect());
-        register(EtherCraft.id("tracking"), new TrackingPlatingEffect());
-        register(EtherCraft.id("break_to_inv"), new BreakToInventoryPlatingEffect());
-        register(EtherCraft.id("kill_to_inv"), new KillToInventoryPlatingEffect());
-        register(EtherCraft.id("stone_absorb"), new StoneAbsorbPlatingEffect());
+        register(DamagePlatingEffect.ID, new DamagePlatingEffect());
+        register(DashPlatingEffect.ID, new DashPlatingEffect());
+        register(HighJumpPlatingEffect.ID, new HighJumpPlatingEffect());
+        register(NoGravityPlatingEffect.ID, new NoGravityPlatingEffect());
+        register(CoyoteTimePlatingEffect.ID, new CoyoteTimePlatingEffect());
+        register(CamouflagePlatingEffect.ID, new CamouflagePlatingEffect());
+        register(BlockPlatingEffect.ID, new BlockPlatingEffect());
+        register(CritPlatingEffect.ID, new CritPlatingEffect());
+        register(CritDamagePlatingEffect.ID, new CritDamagePlatingEffect());
+        register(HeadHuntPlatingEffect.ID, new HeadHuntPlatingEffect());
+        register(TrackingPlatingEffect.ID, new TrackingPlatingEffect());
+        register(BreakToInventoryPlatingEffect.ID, new BreakToInventoryPlatingEffect());
+        register(KillToInventoryPlatingEffect.ID, new KillToInventoryPlatingEffect());
+        register(StoneAbsorbPlatingEffect.ID, new StoneAbsorbPlatingEffect());
     }
 }

@@ -35,6 +35,7 @@ import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.plating.CamouflageState;
 import studio.fantasyit.ether_craft.plating.PlatingData;
 import studio.fantasyit.ether_craft.plating.TrackingData;
+import studio.fantasyit.ether_craft.plating.helper.PlatingEventHelper;
 import studio.fantasyit.ether_craft.plating.helper.PlatingUtil;
 import studio.fantasyit.ether_craft.plating.trigger.*;
 import studio.fantasyit.ether_craft.register.AttachmentDataRegistry;
@@ -48,7 +49,7 @@ public class PlatingEventHandler {
         Player player = event.getEntity();
         if (player.level().isClientSide()) return;
 
-        PlatingEventHelper.forEachPlatingOnEquipment(player, (effect, data, stack, p) -> {
+        PlatingEventHelper.forEachPlatingOnEquipment(player, (effect, data, stack, entity) -> {
             if (effect instanceof IPlatingTickEquippedTrigger holdTick) {
                 holdTick.onHoldTick(data, stack, player);
             }
@@ -81,8 +82,8 @@ public class PlatingEventHandler {
         if (player.level().isClientSide()) return;
 
         for (ItemStack stack : PlatingEventHelper.getPlatedEquipment(player)) {
-            PlatingEventHelper.forEachPlating(stack, player, (effect, data, s, p) -> {
-                if (effect instanceof IPlatingRightClickTrigger rt && rt.onRightClick(data, s, p)) {
+            PlatingEventHelper.forEachPlating(stack, player, (effect, data, s, entity) -> {
+                if (effect instanceof IPlatingRightClickTrigger rt && rt.onRightClick(data, s, entity)) {
                     event.setCanceled(true);
                 }
             });
@@ -94,9 +95,9 @@ public class PlatingEventHandler {
         if (!(event.getEntity() instanceof Player player)) return;
         if (player.level().isClientSide()) return;
         ItemStack stack = event.getItem();
-        PlatingEventHelper.forEachPlating(stack, player, (effect, data, s, p) -> {
+        PlatingEventHelper.forEachPlating(stack, player, (effect, data, s, entity) -> {
             if (effect instanceof IPlatingUseTrigger use) {
-                use.onUse(data, s, p);
+                use.onUse(data, s, entity);
             }
         });
     }
@@ -106,8 +107,8 @@ public class PlatingEventHandler {
         if (event.getEntity().level().isClientSide()) return;
         Player player = event.getEntity();
         ItemStack stack = player.getMainHandItem();
-        PlatingEventHelper.forEachPlating(stack, player, (effect, data, s, p) -> {
-            if (effect instanceof IPlatingAttackTrigger attack && attack.onAttack(data, s, p, event.getTarget())) {
+        PlatingEventHelper.forEachPlating(stack, player, (effect, data, s, entity) -> {
+            if (effect instanceof IPlatingAttackTrigger attack && attack.onAttack(data, s, entity, event.getTarget())) {
                 event.setCanceled(true);
             }
         });
@@ -118,9 +119,9 @@ public class PlatingEventHandler {
         if (event.getLevel().isClientSide()) return;
         Player player = event.getPlayer();
         ItemStack stack = player.getMainHandItem();
-        PlatingEventHelper.forEachPlating(stack, player, (effect, data, s, p) -> {
+        PlatingEventHelper.forEachPlating(stack, player, (effect, data, s, entity) -> {
             if (effect instanceof IPlatingBreakBlockTrigger breakBlock) {
-                if (breakBlock.onBreakBlock(data, s, p, event.getPos(), event.getState())) {
+                if (breakBlock.onBreakBlock(data, s, entity, event.getPos(), event.getState())) {
                     event.setCanceled(true);
                 }
             }
@@ -133,9 +134,9 @@ public class PlatingEventHandler {
         Player player = event.getPlayer();
         if (player == null) return;
         ItemStack stack = event.getItemStack();
-        PlatingEventHelper.forEachPlating(stack, player, (effect, data, s, p) -> {
+        PlatingEventHelper.forEachPlating(stack, player, (effect, data, s, entity) -> {
             if (effect instanceof IPlatingUseOnBlockTrigger useOnBlock) {
-                @Nullable InteractionResult result = useOnBlock.onUseOnBlock(data, s, p, event.getPos(), event.getLevel().getBlockState(event.getPos()));
+                @Nullable InteractionResult result = useOnBlock.onUseOnBlock(data, s, entity, event.getPos(), event.getLevel().getBlockState(event.getPos()));
                 if (result != null) {
                     event.cancelWithResult(result);
                 }
@@ -156,7 +157,7 @@ public class PlatingEventHandler {
             if (!(held.getItem() instanceof BowItem || held.getItem() instanceof CrossbowItem)) return;
         }
 
-        PlatingEventHelper.forEachPlating(held, player, (effect, data, stack, p) -> {
+        PlatingEventHelper.forEachPlating(held, player, (effect, data, stack, entity) -> {
             if (effect instanceof IPlatingArrowShotTrigger arrowShot) {
                 arrowShot.onArrowShot(data, stack, player, arrow);
             }
@@ -168,7 +169,7 @@ public class PlatingEventHandler {
         if (!(event.getEntity() instanceof Player player)) return;
         if (player.level().isClientSide()) return;
         ItemStack stack = player.getMainHandItem();
-        PlatingEventHelper.forEachPlating(stack, player, (effect, data, s, p) -> {
+        PlatingEventHelper.forEachPlating(stack, player, (effect, data, s, entity) -> {
             if (effect instanceof IPlatingCritTrigger trigger) {
                 trigger.onCriticalHit(data, stack, player, event);
             }
@@ -176,7 +177,7 @@ public class PlatingEventHandler {
         if (event.getDamageMultiplier() <= 1) {
             event.setDamageMultiplier(1.5f);
         }
-        PlatingEventHelper.forEachPlating(stack, player, (effect, data, s, p) -> {
+        PlatingEventHelper.forEachPlating(stack, player, (effect, data, s, entity) -> {
             if (effect instanceof IPlatingCritDamageModifier modifier) {
                 modifier.onCriticalHit(data, stack, player, event);
             }
@@ -189,7 +190,7 @@ public class PlatingEventHandler {
         if (!(event.getSource().getEntity() instanceof Player player)) return;
         if (player.level().isClientSide()) return;
 
-        PlatingEventHelper.forEachPlatingOnEquipment(player, (effect, data, stack, p) -> {
+        PlatingEventHelper.forEachPlatingOnEquipment(player, (effect, data, stack, entity) -> {
             if (effect instanceof IPlatingKillTrigger kill) {
                 kill.onKill(data, stack, player, event.getEntity(), event);
             }
@@ -201,7 +202,7 @@ public class PlatingEventHandler {
         if (!(event.getBreaker() instanceof Player player)) return;
         if (event.getLevel().isClientSide()) return;
 
-        PlatingEventHelper.forEachPlatingOnEquipment(player, (effect, data, stack, p) -> {
+        PlatingEventHelper.forEachPlatingOnEquipment(player, (effect, data, stack, entity) -> {
             if (effect instanceof IPlatingBlockDropsTrigger trigger) {
                 trigger.onBlockDrops(data, stack, player, event);
             }
@@ -268,12 +269,13 @@ public class PlatingEventHandler {
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onEntityShieldBlock(LivingShieldBlockEvent event) {
-        if (event.getBlocked() && event.getEntity() instanceof Player player) {
+        if (event.getBlocked()) {
             ItemStack stack = event.getEntity().getUseItem();
             if (stack.isEmpty()) return;
             if (stack.has(DataComponentRegistry.TEMP_BLOCKING))
-                PlatingEventHelper.forEachPlating(stack, player, (a, b, c, d) -> {
-                    if (a instanceof IPlatingBlockingTrigger p) p.blocked(b, d, c, event.getDamageContainer());
+                PlatingEventHelper.forEachPlating(stack, event.getEntity(), (effect, data, s, entity) -> {
+                    if (effect instanceof IPlatingBlockingTrigger blockingTrigger)
+                        blockingTrigger.blocked(data, entity, s, event.getDamageContainer());
                 });
         }
     }

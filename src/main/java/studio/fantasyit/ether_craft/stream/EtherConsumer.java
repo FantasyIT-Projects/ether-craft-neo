@@ -19,6 +19,8 @@ public class EtherConsumer {
     private boolean dirty = true;
 
     public int getTotalConsumption(int ether, int tickCount) {
+        if (isInEtherGlass)
+            tickCount = 0;
         double factor = baseFactor + factorByTime * tickCount;
         int amount = (int) Math.ceil(Math.ceil(Math.ceil(factor * ether) + capConsumptionSum) * globalFactor);
         if (isInEtherGlass)
@@ -34,13 +36,14 @@ public class EtherConsumer {
         return dirty;
     }
 
-    public void recompute(List<IStreamCapability> caps) {
+    public void recompute(IEtherStreamLike iEtherStreamLike, List<IStreamCapability> caps) {
         this.baseFactor = Config.etherStreamConsumptionFactor;
         this.factorByTime = Config.etherStreamConsumptionByTimeFactor;
+        this.factorByTime *= iEtherStreamLike.deltaMovement().length() / 0.055;
         this.capConsumptionSum = 0;
         this.globalFactor = 1.0;
         for (IStreamCapability cap : caps) {
-            cap.getConsumption(this);
+            cap.getConsumption(this, iEtherStreamLike);
         }
         this.dirty = false;
     }

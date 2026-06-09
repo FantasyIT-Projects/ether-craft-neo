@@ -29,10 +29,10 @@ import org.joml.Vector3fc;
 import org.jspecify.annotations.NonNull;
 import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.block.base.EtherContainer;
-import studio.fantasyit.ether_craft.register.EntityRegistry;
-import studio.fantasyit.ether_craft.register.Tags;
 import studio.fantasyit.ether_craft.plating.helper.PlatingUtil;
 import studio.fantasyit.ether_craft.register.BlockRegistry;
+import studio.fantasyit.ether_craft.register.EntityRegistry;
+import studio.fantasyit.ether_craft.register.Tags;
 import studio.fantasyit.ether_craft.stream.EtherConsumer;
 import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
 import studio.fantasyit.ether_craft.stream.cap.IStreamCapability;
@@ -126,6 +126,11 @@ public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
     }
 
     @Override
+    public void dirtyConsumer() {
+        consumer.markDirty();
+    }
+
+    @Override
     public void addCapability(IStreamCapability capability) {
         capabilities.add(capability);
         capability.setConsumer(this.consumer);
@@ -155,7 +160,7 @@ public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
             tailSize[tailHead] = getSize();
         } else {
             if (consumer.isDirty()) {
-                consumer.recompute(capabilities);
+                consumer.recompute(this, capabilities);
             }
             if (!ticked)
                 firstTick();

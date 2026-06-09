@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
-import studio.fantasyit.ether_craft.plating.event.PlatingEventHelper;
+import studio.fantasyit.ether_craft.plating.helper.PlatingEventHelper;
 import studio.fantasyit.ether_craft.plating.trigger.IPlatingVirtualWalkableProvider;
 
 @Mixin(Entity.class)

@@ -39,6 +39,13 @@ public class PlatingUtil {
         return stack.has(DataComponentRegistry.PLATING_DATA) || stack.has(DataComponentRegistry.PLATING_IN_PROGRESS);
     }
 
+    public static boolean hasPlating(ItemStack stack, Identifier id) {
+        for (PlatingData d : getPlatingData(stack)) {
+            if (d.id().equals(id)) return true;
+        }
+        return false;
+    }
+
     public static void clearPlating(ItemStack stack) {
         stack.remove(DataComponentRegistry.PLATING_DATA);
         stack.remove(DataComponentRegistry.PLATING_ETHER);

@@ -1,7 +1,7 @@
 package studio.fantasyit.ether_craft.plating.trigger;
 
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.LivingEntity;
 
 public interface IWithoutContextPlayerTicking {
-    void tickPlayer(Player player);
+    void tickPlayer(LivingEntity entity);
 }

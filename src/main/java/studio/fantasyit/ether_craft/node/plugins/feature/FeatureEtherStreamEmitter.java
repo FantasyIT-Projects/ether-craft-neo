@@ -65,7 +65,7 @@ public class FeatureEtherStreamEmitter extends AbstractDirectionalFilterFeature 
 
             VirtualEtherStreamHolderManager veshm = VirtualEtherStreamHolderManager.get(serverLevel);
             if (!veshm.canCreateStream(posDir)) return false;
-            Vec3 spd = dir.multiply(0.1f, 0.1f, 0.1f);
+            Vec3 spd = direction.getUnitVec3().multiply(0.055f, 0.055f, 0.055f);
             for (int i = 0; i < nodeEntity.featureUpgradeStorage.getContainerSize(); i++) {
                 @Nullable Identifier plugin = nodeEntity.featureUpgradeStorage.getPluginId(i);
                 if (EtherStreamSpeedUpUpgrade.ID.equals(plugin)) {

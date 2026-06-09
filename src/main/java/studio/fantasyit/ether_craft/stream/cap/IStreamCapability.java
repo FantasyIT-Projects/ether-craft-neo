@@ -14,7 +14,7 @@ import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
 public interface IStreamCapability extends ValueIOSerializable {
     Identifier getId();
 
-    default void getConsumption(EtherConsumer consumer) {}
+    default void getConsumption(EtherConsumer consumer, IEtherStreamLike entity) {}
 
     default void setConsumer(EtherConsumer consumer) {}
 

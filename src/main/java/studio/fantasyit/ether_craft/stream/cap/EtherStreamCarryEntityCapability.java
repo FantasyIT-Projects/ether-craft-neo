@@ -15,6 +15,7 @@ import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.register.AttachmentDataRegistry;
+import studio.fantasyit.ether_craft.stream.EtherConsumer;
 import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
 import studio.fantasyit.ether_craft.stream.data.EtherStreamCarryingEntityData;
 import studio.fantasyit.ether_craft.stream.vholder.VirtualEtherStream;
@@ -69,6 +70,13 @@ public class EtherStreamCarryEntityCapability implements IStreamCapability {
     }
 
     @Override
+    public void getConsumption(EtherConsumer consumer, IEtherStreamLike entity) {
+        EtherStreamCarryingEntityData data = getCarriedData(entity);
+        if (data != null)
+            consumer.addBaseFactor(0.005);
+    }
+
+    @Override
     public boolean hitEntity(ServerLevel level, IEtherStreamLike streamEntity, EntityHitResult hit, Entity entity) {
         EtherStreamCarryingEntityData data = getCarriedData(streamEntity);
 
@@ -86,6 +94,8 @@ public class EtherStreamCarryEntityCapability implements IStreamCapability {
                         entity.getUUID(), entity.getId(), ves.getPosDir(), ves.getStreamId()));
             }
             cachedEntity = entity;
+            streamEntity.dirtyConsumer();
+
             return true;
         }
 

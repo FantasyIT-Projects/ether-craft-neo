@@ -55,7 +55,7 @@ public class DataComponentRegistry {
     );
 
     public static final DeferredHolder<DataComponentType<?>, @NotNull DataComponentType<Boolean>> TEMP_BLOCKING = DATA_COMPONENT.register("temp_blocking",
-            () -> DataComponentType.<Boolean>builder().build()
+            () -> DataComponentType.<Boolean>builder().persistent(Codec.BOOL).build()
     );
 
     public static void register(IEventBus modbus) {

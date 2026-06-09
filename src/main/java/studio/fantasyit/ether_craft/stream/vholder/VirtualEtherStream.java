@@ -9,10 +9,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import studio.fantasyit.ether_craft.Config;
-import studio.fantasyit.ether_craft.register.AttachmentDataRegistry;
 import studio.fantasyit.ether_craft.register.BlockRegistry;
 import studio.fantasyit.ether_craft.stream.EtherConsumer;
-import studio.fantasyit.ether_craft.stream.EtherStreamBlockStateReadCache;
 import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
 import studio.fantasyit.ether_craft.stream.PosDir;
 import studio.fantasyit.ether_craft.stream.cap.IStreamCapability;
@@ -93,6 +91,10 @@ public class VirtualEtherStream implements IEtherStreamLike {
     }
 
     @Override
+    public void dirtyConsumer() {
+        consumer.markDirty();
+    }
+    @Override
     public Direction getDirection() {
         return direction;
     }
@@ -141,7 +143,7 @@ public class VirtualEtherStream implements IEtherStreamLike {
         }
 
         if (this.consumer.isDirty()) {
-            this.consumer.recompute(this.capabilities);
+            this.consumer.recompute(this, this.capabilities);
             this.needsEtherSync = true;
         }
 

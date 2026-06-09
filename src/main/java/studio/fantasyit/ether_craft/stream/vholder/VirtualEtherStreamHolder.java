@@ -232,7 +232,7 @@ public class VirtualEtherStreamHolder {
                 VirtualEtherStream ves = findStreamById(id);
                 if (ves != null) {
                     if (ves.consumer.isDirty()) {
-                        ves.consumer.recompute(ves.capabilities);
+                        ves.consumer.recompute(ves, ves.capabilities);
                     }
                     createEntries.add(new EtherStreamCreateS2C.StreamEntry(
                             ves.streamId,
@@ -304,7 +304,7 @@ public class VirtualEtherStreamHolder {
         for (VirtualEtherStream ves : streams) {
             if (ves.markToRemove) continue;
             if (ves.consumer.isDirty()) {
-                ves.consumer.recompute(ves.capabilities);
+                ves.consumer.recompute(ves, ves.capabilities);
             }
             entries.add(new EtherStreamCreateS2C.StreamEntry(
                     ves.streamId,
