@@ -1,9 +1,14 @@
 package studio.fantasyit.ether_craft.plating.event;
 
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.BowItem;
 import net.minecraft.world.item.CrossbowItem;
 import net.minecraft.world.item.ItemStack;
@@ -18,6 +23,7 @@ import net.neoforged.neoforge.event.level.block.BreakBlockEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import org.jetbrains.annotations.Nullable;
 import studio.fantasyit.ether_craft.EtherCraft;
+import studio.fantasyit.ether_craft.menu.camouflage.CamouflageChestMenu;
 import studio.fantasyit.ether_craft.plating.CamouflageState;
 import studio.fantasyit.ether_craft.plating.PlatingData;
 import studio.fantasyit.ether_craft.plating.helper.PlatingUtil;
@@ -143,6 +149,41 @@ public class PlatingEventHandler {
         PlatingEventHelper.forEachPlating(held, player, (effect, data, stack, p) -> {
             if (effect instanceof IPlatingArrowShotTrigger arrowShot) {
                 arrowShot.onArrowShot(data, stack, player, arrow);
+            }
+        });
+    }
+
+    @SubscribeEvent
+    public static void onEntityInteract(PlayerInteractEvent.EntityInteractSpecific event) {
+        if (event.getLevel().isClientSide()) return;
+
+        if (!(event.getTarget() instanceof Player targetPlayer)) return;
+        if (targetPlayer == event.getEntity()) return;
+
+        CamouflageState state = targetPlayer.getExistingData(
+                AttachmentDataRegistry.CAMOUFLAGE_STATE.get()).orElse(CamouflageState.INACTIVE);
+        if (!state.isActive()) return;
+
+        if (event.getLocalPos().y >= targetPlayer.getEyeHeight() / 2.0) return;
+
+        event.setCanceled(true);
+        event.setCancellationResult(InteractionResult.SUCCESS);
+
+        event.getEntity().openMenu(new MenuProvider() {
+            @Override
+            public Component getDisplayName() {
+                return Component.translatable("container.chest");
+            }
+
+            @Override
+            public AbstractContainerMenu createMenu(int containerId, Inventory inv, Player player) {
+                return new CamouflageChestMenu(containerId, inv, targetPlayer);
+            }
+
+            @Override
+            public void writeClientSideData(AbstractContainerMenu menu, RegistryFriendlyByteBuf buffer) {
+                MenuProvider.super.writeClientSideData(menu, buffer);
+                buffer.writeVarInt(targetPlayer.getId());
             }
         });
     }

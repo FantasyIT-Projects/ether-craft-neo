@@ -112,11 +112,6 @@ public class Network {
                 PlatingTriggerC2S.CODEC,
                 wrapWithPlayer(PlatingTriggerC2SHandler::handle)
         );
-        event.playToClient(
-                PlatingSoulStateS2C.TYPE,
-                PlatingSoulStateS2C.CODEC,
-                PlatingSoulStateS2C::handle
-        );
     }
 
 
