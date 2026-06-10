@@ -92,7 +92,7 @@ public class VirtualEtherStreamHolder {
             if (lenNext > maxLen) maxLen = lenNext;
             if (lenOld < minLen) minLen = lenOld;
         }
-        Vec3 queryVec = direction.getUnitVec3().scale(maxLen - minLen + 0.5);
+        Vec3 queryVec = direction.getUnitVec3().scale(maxLen + 0.5);
         List<Entity> entities = level.getEntities(null, new AABB(pos).expandTowards(queryVec).inflate(1.0));
         entities.removeIf(entity -> entity == null || (entity.is(EntityType.ITEM) && !isPlatedItem((ItemEntity) entity)));
         int maxClipDist = (int) Math.ceil(maxLen);

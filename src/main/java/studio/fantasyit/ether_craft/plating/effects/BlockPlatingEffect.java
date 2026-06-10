@@ -12,15 +12,15 @@ import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.plating.data.PlatingData;
 import studio.fantasyit.ether_craft.plating.helper.PlatingUtil;
-import studio.fantasyit.ether_craft.plating.trigger.inst.IInstanceTrigger;
 import studio.fantasyit.ether_craft.plating.trigger.event.IPlatingBlockingTrigger;
-import studio.fantasyit.ether_craft.plating.trigger.IWithoutContextPlayerTicking;
+import studio.fantasyit.ether_craft.plating.trigger.inst.IEffectStartAndEndTrigger;
+import studio.fantasyit.ether_craft.plating.trigger.inst.IInstanceTrigger;
 import studio.fantasyit.ether_craft.register.DataComponentRegistry;
 
 import java.util.List;
 import java.util.Optional;
 
-public class BlockPlatingEffect implements IPlatingEffect, IInstanceTrigger, IWithoutContextPlayerTicking, IPlatingBlockingTrigger {
+public class BlockPlatingEffect implements IPlatingEffect, IInstanceTrigger, IPlatingBlockingTrigger, IEffectStartAndEndTrigger {
     public static final Identifier ID = EtherCraft.id("block");
 
     @Override
@@ -53,13 +53,15 @@ public class BlockPlatingEffect implements IPlatingEffect, IInstanceTrigger, IWi
     }
 
     @Override
-    public void tickPlayer(LivingEntity entity) {
+    public void onEffectStarts(LivingEntity entity, PlatingData platingData) {
+    }
+
+    @Override
+    public void onEffectEnds(LivingEntity entity) {
         for (InteractionHand hand : InteractionHand.values()) {
             ItemStack stack = entity.getItemInHand(hand);
-            if (stack.has(DataComponents.BLOCKS_ATTACKS) && stack.has(DataComponentRegistry.TEMP_BLOCKING)) {
-                if (!PlatingUtil.hasPlating(stack, ID)) {
-                    removeBlocking(stack);
-                }
+            if (stack.has(DataComponentRegistry.TEMP_BLOCKING)) {
+                removeBlocking(stack);
             }
         }
     }

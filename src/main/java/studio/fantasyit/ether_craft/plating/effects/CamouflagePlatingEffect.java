@@ -14,11 +14,12 @@ import studio.fantasyit.ether_craft.plating.data.PlatingData;
 import studio.fantasyit.ether_craft.plating.helper.PlatingUtil;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import studio.fantasyit.ether_craft.plating.trigger.event.IPlatingTickEquippedTrigger;
+import studio.fantasyit.ether_craft.plating.trigger.inst.IEffectStartAndEndTrigger;
 import studio.fantasyit.ether_craft.register.AttachmentDataRegistry;
 
 import java.util.List;
 
-public class CamouflagePlatingEffect implements IPlatingEffect, IPlatingTickEquippedTrigger {
+public class CamouflagePlatingEffect implements IPlatingEffect, IPlatingTickEquippedTrigger, IEffectStartAndEndTrigger {
     public static final Identifier ID = EtherCraft.id("camouflage");
 
     private static final int MOB_CLEAR_INTERVAL = 20;
@@ -65,6 +66,24 @@ public class CamouflagePlatingEffect implements IPlatingEffect, IPlatingTickEqui
             player.setData(AttachmentDataRegistry.CAMOUFLAGE_STATE.get(),
                     new CamouflageState(true, newTicks, state.camouflagePos(), state.camouflageYaw(), posHash));
         }
+    }
+
+    @Override
+    public void onEffectStarts(LivingEntity entity, PlatingData platingData) {
+        if (!(entity instanceof Player player)) return;
+        long posHash = hashPosition(player.position());
+        player.setData(AttachmentDataRegistry.CAMOUFLAGE_STATE.get(),
+                new CamouflageState(false, 0, BlockPos.ZERO, 0f, posHash));
+    }
+
+    @Override
+    public void onEffectEnds(LivingEntity entity) {
+        if (!(entity instanceof Player player)) return;
+        CamouflageState state = player.getExistingData(AttachmentDataRegistry.CAMOUFLAGE_STATE.get()).orElse(null);
+        if (state != null && state.isActive()) {
+            player.setInvisible(false);
+        }
+        player.setData(AttachmentDataRegistry.CAMOUFLAGE_STATE.get(), CamouflageState.INACTIVE);
     }
 
     private void activate(Player player, BlockPos pos, float yaw, long posHash) {

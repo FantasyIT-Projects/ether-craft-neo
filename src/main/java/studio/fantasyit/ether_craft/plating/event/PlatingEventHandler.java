@@ -60,26 +60,6 @@ public class PlatingEventHandler {
         if (player.level().isClientSide()) return;
 
         PlatingEventHelper.doEventTrigger(player, event, IPlatingTickEquippedTrigger.class);
-
-        CamouflageState state = player.getExistingData(AttachmentDataRegistry.CAMOUFLAGE_STATE.get()).orElse(null);
-        if (state != null && state.isActive()) {
-            boolean hasPlating = false;
-            for (ItemStack s : PlatingEventHelper.getPlatedEquipment(player)) {
-                for (PlatingData d : PlatingUtil.getPlatingData(s)) {
-                    if (d.id().equals(EtherCraft.id("camouflage"))) {
-                        hasPlating = true;
-                        break;
-                    }
-                }
-                if (hasPlating) break;
-            }
-            if (!hasPlating) {
-                player.setInvisible(false);
-                player.setData(AttachmentDataRegistry.CAMOUFLAGE_STATE.get(), CamouflageState.INACTIVE);
-            } else {
-                player.setInvisible(true);
-            }
-        }
     }
 
     @SubscribeEvent
@@ -203,6 +183,13 @@ public class PlatingEventHandler {
         double speed = currentVel.length();
         Vec3 newVel = currentVel.add(toTarget.scale(tracking.strength())).normalize().scale(speed);
         arrow.setDeltaMovement(newVel);
+    }
+
+    @SubscribeEvent
+    public static void onLivingEntityTickForStartEnd(EntityTickEvent.Post event) {
+        if (!(event.getEntity() instanceof LivingEntity entity)) return;
+        if (entity.level().isClientSide()) return;
+        PlatingEventHelper.doEffectStartEndTrigger(entity);
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
