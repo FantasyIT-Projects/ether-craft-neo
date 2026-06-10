@@ -53,7 +53,8 @@ public class VirtualEtherStreamHolder {
                 pos,
                 posDir,
                 motion,
-                level
+                level,
+                this
         );
         streams.add(ves);
         return ves;
@@ -71,7 +72,7 @@ public class VirtualEtherStreamHolder {
     }
 
     public void tick() {
-        for (VirtualEtherStream ves : streams) ves.tick();
+        for (int i = 0, size = streams.size(); i < size; i++) streams.get(i).tick();
         tickCollideAll();
         for (VirtualEtherStream ves : streams) {
             if (!ves.markToRemove)
@@ -109,7 +110,8 @@ public class VirtualEtherStreamHolder {
             blockScanPos.move(direction);
         }
 
-        for (VirtualEtherStream ves : streams) {
+        for (int i = 0, size = streams.size(); i < size; i++) {
+            VirtualEtherStream ves = streams.get(i);
             Vec3 oldPos = ves.pos;
             Vec3 newPos = oldPos.add(ves.motion);
 
@@ -117,14 +119,14 @@ public class VirtualEtherStreamHolder {
             int clipEnd = BlockPos.containing(newPos).distManhattan(pos);
             //获取最近的方块碰撞
             BlockHitResult blockHit = null;
-            for (int i = clipStart; i <= clipEnd; i++) {
-                BlockState blockState = blockStates.get(i);
-                BlockPos pos = blockPoses.get(i);
+            for (int j = clipStart; j <= clipEnd; j++) {
+                BlockState blockState = blockStates.get(j);
+                BlockPos pos = blockPoses.get(j);
                 if (blockState.is(Tags.ETHER_STREAM_PASS_THROUGH))
                     continue;
                 if (ves.capabilities.stream().anyMatch(cap -> cap.shouldPassThrough(blockState, level, pos)))
                     continue;
-                VoxelShape shape = shapes.get(i);
+                VoxelShape shape = shapes.get(j);
                 BlockHitResult hit = shape.clip(oldPos, newPos, pos);
                 if (hit != null) {
                     blockHit = hit;
@@ -187,7 +189,8 @@ public class VirtualEtherStreamHolder {
             }
         }
 
-        for (VirtualEtherStream ves : streams) {
+        for (int i = 0, size = streams.size(); i < size; i++) {
+            VirtualEtherStream ves = streams.get(i);
             BlockPos oldPos = BlockPos.containing(ves.pos);
             BlockPos newPos = BlockPos.containing(ves.pos.add(ves.motion));
             if (oldPos.equals(newPos)) continue;
@@ -301,7 +304,8 @@ public class VirtualEtherStreamHolder {
 
     void syncToPlayer(ServerPlayer player) {
         List<EtherStreamCreateS2C.StreamEntry> entries = new ArrayList<>();
-        for (VirtualEtherStream ves : streams) {
+        for (int i = 0, size = streams.size(); i < size; i++) {
+            VirtualEtherStream ves = streams.get(i);
             if (ves.markToRemove) continue;
             if (ves.consumer.isDirty()) {
                 ves.consumer.recompute(ves, ves.capabilities);
@@ -342,7 +346,8 @@ public class VirtualEtherStreamHolder {
 
     VirtualEtherStreamHolderData toData() {
         List<VirtualEtherStreamData> streamDataList = new ArrayList<>();
-        for (VirtualEtherStream ves : streams) {
+        for (int i = 0, size = streams.size(); i < size; i++) {
+            VirtualEtherStream ves = streams.get(i);
             if (!ves.markToRemove) {
                 streamDataList.add(ves.toData());
             }
@@ -354,7 +359,7 @@ public class VirtualEtherStreamHolder {
     public void loadFromData(VirtualEtherStreamHolderData holderData) {
         nextId = holderData.nextId();
         for (VirtualEtherStreamData data : holderData.streams()) {
-            VirtualEtherStream ves = VirtualEtherStream.fromData(level, data);
+            VirtualEtherStream ves = VirtualEtherStream.fromData(level, data, this);
             streams.add(ves);
         }
     }

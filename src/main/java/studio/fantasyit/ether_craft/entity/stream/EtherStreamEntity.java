@@ -337,6 +337,25 @@ public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
         return Direction.getApproximateNearest(getDeltaMovement());
     }
 
+    @Override
+    public IEtherStreamLike recreate(Vec3 newMotion) {
+        EtherStreamEntity newEntity = create(level(), this.ether, position(), newMotion);
+        newEntity.consumer.fromState(this.consumer.toState());
+        newEntity.capabilities = this.capabilities;
+        newEntity.toSyncData = new ArrayList<>(this.toSyncData);
+        this.capabilities = new ArrayList<>();
+        for (IStreamCapability cap : newEntity.capabilities) {
+            cap.setConsumer(newEntity.consumer);
+            cap.onRecreate(newEntity);
+        }
+        if (level() instanceof ServerLevel serverLevel) {
+            serverLevel.addFreshEntity(newEntity);
+        }
+        this.ether = 0;
+        dropAndDiscard();
+        return newEntity;
+    }
+
     public void dropAndDiscard() {
         if (entityData.get(DYING)) return;
         for (IStreamCapability capability : capabilities) {

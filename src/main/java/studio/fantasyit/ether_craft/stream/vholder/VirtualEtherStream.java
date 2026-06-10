@@ -41,12 +41,14 @@ public class VirtualEtherStream implements IEtherStreamLike {
     int tickCount = 0;
 
     List<IEtherStreamSyncedData> toSyncData = new ArrayList<>();
+    final VirtualEtherStreamHolder holder;
 
-    public VirtualEtherStream(int streamId, int ether, Vec3 startPos, PosDir posDir, Vec3 motion, Level level) {
+    public VirtualEtherStream(int streamId, int ether, Vec3 startPos, PosDir posDir, Vec3 motion, Level level, VirtualEtherStreamHolder holder) {
         this.streamId = streamId;
         this.ether = ether;
         this.level = level;
         this.motion = motion;
+        this.holder = holder;
         this.markToSyncCreation = true;
         this.startPos = this.pos = startPos;
         this.direction = posDir.dir();
@@ -120,6 +122,10 @@ public class VirtualEtherStream implements IEtherStreamLike {
 
     public void markDead() {
         if (markToRemove) return;
+        if (ether > 0) {
+            recreate(deltaMovement().reverse());
+            return;
+        }
         for (IStreamCapability cap : capabilities) {
             cap.onDestroy(this);
         }
@@ -167,6 +173,30 @@ public class VirtualEtherStream implements IEtherStreamLike {
     }
 
     @Override
+    public IEtherStreamLike recreate(Vec3 newMotion) {
+        PosDir newPosDir = new PosDir(BlockPos.containing(pos), Direction.getApproximateNearest(newMotion));
+        VirtualEtherStream newStream = new VirtualEtherStream(
+                holder.nextId++, ether, pos, newPosDir, newMotion, level, holder
+        );
+        newStream.capabilities = this.capabilities;
+        this.capabilities = new ArrayList<>();
+        for (IStreamCapability cap : newStream.capabilities) {
+            cap.setConsumer(newStream.consumer);
+        }
+        newStream.consumer.fromState(this.consumer.toState());
+        newStream.toSyncData = new ArrayList<>(this.toSyncData);
+        newStream.tickCount = 0;
+        for (IStreamCapability cap : newStream.capabilities) {
+            cap.onRecreate(newStream);
+        }
+        newStream.markToSyncCreation = true;
+        holder.streams.add(newStream);
+        this.ether = 0;
+        this.markDead();
+        return newStream;
+    }
+
+    @Override
     public void clearSyncedData(Identifier id) {
         toSyncData.removeIf(d -> d.getId().equals(id));
         markToSyncData = true;
@@ -210,14 +240,15 @@ public class VirtualEtherStream implements IEtherStreamLike {
         );
     }
 
-    static VirtualEtherStream fromData(ServerLevel level, VirtualEtherStreamData data) {
+    static VirtualEtherStream fromData(ServerLevel level, VirtualEtherStreamData data, VirtualEtherStreamHolder holder) {
         VirtualEtherStream ves = new VirtualEtherStream(
                 data.streamId(),
                 data.ether(),
                 data.startPos(),
                 data.posDir(),
                 data.motion(),
-                level
+                level,
+                holder
         );
         ves.pos = data.pos();
         ves.tickCount = data.tickCount();
