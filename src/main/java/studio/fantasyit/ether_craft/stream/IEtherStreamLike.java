@@ -46,4 +46,6 @@ public interface IEtherStreamLike {
     IEtherStreamSyncedData getSyncedData(Identifier id);
 
     void setRunIntoEtherGlass(boolean isEtherGlass2);
+
+    IEtherStreamLike recreate(Vec3 newMotion);
 }

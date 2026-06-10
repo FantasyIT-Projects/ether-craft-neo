@@ -37,4 +37,7 @@ public interface IStreamCapability extends ValueIOSerializable {
     default boolean shouldPassThrough(Entity entity) {
         return false;
     }
+
+    default void onRecreate(IEtherStreamLike newStream) {
+    }
 }
