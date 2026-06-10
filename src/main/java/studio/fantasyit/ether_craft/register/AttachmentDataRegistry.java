@@ -3,7 +3,6 @@ package studio.fantasyit.ether_craft.register;
 import com.mojang.serialization.Codec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.world.level.Level;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -12,9 +11,9 @@ import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.plating.data.CamouflageState;
 import studio.fantasyit.ether_craft.plating.data.TrackingData;
 import studio.fantasyit.ether_craft.plating.trigger.data.TriggerOnNotExistRecord;
-import studio.fantasyit.ether_craft.stream.client.data.ClientVESHData;
 import studio.fantasyit.ether_craft.stream.vholder.VirtualEtherStreamHolderManager;
 
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -43,8 +42,9 @@ public class AttachmentDataRegistry {
     );
 
     public static final Supplier<AttachmentType<TriggerOnNotExistRecord>> TRIGGER_ON_NOT_EXIST_RECORD = ATTACHMENT_TYPES.register(
-            "trigger_on_not_exist_plating_tracker", () -> AttachmentType.builder(() -> CamouflageState.INACTIVE)
-                    .sync(CamouflageState.STREAM_CODEC)
+            "trigger_on_not_exist_plating_tracker", () -> AttachmentType.builder(() -> new TriggerOnNotExistRecord(new HashSet<>()))
+                    .sync(TriggerOnNotExistRecord.STREAM_CODEC)
+                    .serialize(TriggerOnNotExistRecord.CODEC.fieldOf("data"))
                     .build()
     );
 
