@@ -8,9 +8,9 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.event.entity.living.LivingDropsEvent;
 import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.EtherCraft;
-import studio.fantasyit.ether_craft.plating.PlatingData;
+import studio.fantasyit.ether_craft.plating.data.PlatingData;
 import studio.fantasyit.ether_craft.plating.helper.PlatingUtil;
-import studio.fantasyit.ether_craft.plating.trigger.IPlatingKillTrigger;
+import studio.fantasyit.ether_craft.plating.trigger.event.IPlatingKillTrigger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +24,7 @@ public class KillToInventoryPlatingEffect implements IPlatingEffect, IPlatingKil
     }
 
     @Override
-    public void onKill(PlatingData data, ItemStack stack, LivingEntity entity, LivingEntity target, LivingDropsEvent event) {
+    public void apply(IPlatingEffect effect, PlatingData data, ItemStack stack, LivingEntity entity, LivingDropsEvent event) {
         if (event.getDrops().isEmpty()) return;
         if (!(entity instanceof Player player)) return;
         if (!PlatingUtil.canExtractEther(stack, Config.platingKillToInvEtherPerKill)) return;

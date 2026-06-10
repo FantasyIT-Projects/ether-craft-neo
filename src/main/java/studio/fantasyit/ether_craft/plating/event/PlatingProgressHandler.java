@@ -1,19 +1,19 @@
 package studio.fantasyit.ether_craft.plating.event;
 
-import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
 import studio.fantasyit.ether_craft.Config;
-import studio.fantasyit.ether_craft.plating.PlatingData;
 import studio.fantasyit.ether_craft.plating.PlatingManager;
-import studio.fantasyit.ether_craft.plating.helper.PlatingUtil;
+import studio.fantasyit.ether_craft.plating.data.PlatingData;
+import studio.fantasyit.ether_craft.plating.data.ProgressingPlatingData;
 import studio.fantasyit.ether_craft.plating.effects.IPlatingEffect;
+import studio.fantasyit.ether_craft.plating.helper.PlatingUtil;
 import studio.fantasyit.ether_craft.register.DataComponentRegistry;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class PlatingItemEntityTicker {
+public class PlatingProgressHandler {
     public static void tick(ItemStack stack, ServerLevel level) {
         long startTime = stack.getOrDefault(DataComponentRegistry.PLATING_START_TIME, 0L);
         long elapsed = level.getGameTime() - startTime;
@@ -21,13 +21,13 @@ public class PlatingItemEntityTicker {
 
         List<PlatingData> existing = new ArrayList<>(PlatingUtil.getPlatingData(stack));
         int ether = PlatingUtil.getEther(stack);
-        List<Identifier> inProgress = PlatingUtil.getInProgress(stack);
+        List<ProgressingPlatingData> inProgress = PlatingUtil.getInProgress(stack);
 
-        for (var effectId : inProgress) {
-            IPlatingEffect effect = PlatingManager.getEffect(effectId);
+        for (var eff : inProgress) {
+            IPlatingEffect effect = PlatingManager.getEffect(eff.id());
             if (effect != null) {
-                double value = 1;//TODO //effect.getEffectByEther(ether);
-                existing.add(new PlatingData(effectId, value));
+                double value = eff.formula().getEffect(ether);
+                existing.add(new PlatingData(eff.id(), value));
             }
         }
 

@@ -9,8 +9,9 @@ import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import studio.fantasyit.ether_craft.EtherCraft;
-import studio.fantasyit.ether_craft.plating.CamouflageState;
-import studio.fantasyit.ether_craft.plating.TrackingData;
+import studio.fantasyit.ether_craft.plating.data.CamouflageState;
+import studio.fantasyit.ether_craft.plating.data.TrackingData;
+import studio.fantasyit.ether_craft.plating.trigger.data.TriggerOnNotExistRecord;
 import studio.fantasyit.ether_craft.stream.client.data.ClientVESHData;
 import studio.fantasyit.ether_craft.stream.vholder.VirtualEtherStreamHolderManager;
 
@@ -30,9 +31,6 @@ public class AttachmentDataRegistry {
                     .serialize(VirtualEtherStreamHolderManager.CODEC.fieldOf("data"))
                     .build()
     );
-    public static final Supplier<AttachmentType<ClientVESHData>> CLIENT_VESH_DATA = ATTACHMENT_TYPES.register(
-            "client_vesh_data", () -> AttachmentType.builder(t -> ClientVESHData.get((Level) t)).build()
-    );
     public static final Supplier<AttachmentType<Long>> CARRY_COOLDOWN = ATTACHMENT_TYPES.register(
             "carry_cooldown", () -> AttachmentType.builder(() -> -40L)
                     .serialize(Codec.LONG.fieldOf("carry_cooldown"))
@@ -44,8 +42,10 @@ public class AttachmentDataRegistry {
                     .build()
     );
 
-    public static final Supplier<AttachmentType<Long>> PLATING_JUMP_CD_TO = ATTACHMENT_TYPES.register(
-            "plating_jump_cd_from", () -> AttachmentType.builder(()->0L).build()
+    public static final Supplier<AttachmentType<TriggerOnNotExistRecord>> TRIGGER_ON_NOT_EXIST_RECORD = ATTACHMENT_TYPES.register(
+            "trigger_on_not_exist_plating_tracker", () -> AttachmentType.builder(() -> CamouflageState.INACTIVE)
+                    .sync(CamouflageState.STREAM_CODEC)
+                    .build()
     );
 
     public static final Supplier<AttachmentType<CamouflageState>> CAMOUFLAGE_STATE = ATTACHMENT_TYPES.register(

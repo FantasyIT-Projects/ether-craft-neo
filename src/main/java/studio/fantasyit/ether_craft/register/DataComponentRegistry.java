@@ -12,7 +12,8 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import org.jetbrains.annotations.NotNull;
 import studio.fantasyit.ether_craft.EtherCraft;
-import studio.fantasyit.ether_craft.plating.PlatingData;
+import studio.fantasyit.ether_craft.plating.data.PlatingData;
+import studio.fantasyit.ether_craft.plating.data.ProgressingPlatingData;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,8 +47,8 @@ public class DataComponentRegistry {
             () -> DataComponentType.<Integer>builder().persistent(Codec.INT).networkSynchronized(ByteBufCodecs.INT).build()
     );
 
-    public static final DeferredHolder<DataComponentType<?>, @NotNull DataComponentType<List<Identifier>>> PLATING_IN_PROGRESS = DATA_COMPONENT.register("plating_in_progress",
-            () -> DataComponentType.<List<Identifier>>builder().persistent(Identifier.CODEC.listOf()).networkSynchronized(Identifier.STREAM_CODEC.apply(ByteBufCodecs.list())).build()
+    public static final DeferredHolder<DataComponentType<?>, @NotNull DataComponentType<List<ProgressingPlatingData>>> PLATING_IN_PROGRESS = DATA_COMPONENT.register("plating_in_progress",
+            () -> DataComponentType.<List<ProgressingPlatingData>>builder().persistent(ProgressingPlatingData.CODEC.listOf()).networkSynchronized(ProgressingPlatingData.STREAM_CODEC.apply(ByteBufCodecs.list())).build()
     );
 
     public static final DeferredHolder<DataComponentType<?>, @NotNull DataComponentType<Long>> PLATING_START_TIME = DATA_COMPONENT.register("plating_start_time",

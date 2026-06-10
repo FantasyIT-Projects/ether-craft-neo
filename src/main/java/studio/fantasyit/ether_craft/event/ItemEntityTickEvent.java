@@ -10,7 +10,7 @@ import net.neoforged.neoforge.event.tick.LevelTickEvent;
 import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.attachment.EtherInactivateConvertData;
 import studio.fantasyit.ether_craft.plating.helper.PlatingUtil;
-import studio.fantasyit.ether_craft.plating.event.PlatingItemEntityTicker;
+import studio.fantasyit.ether_craft.plating.event.PlatingProgressHandler;
 import studio.fantasyit.ether_craft.register.ItemRegistry;
 
 @EventBusSubscriber
@@ -30,7 +30,7 @@ public class ItemEntityTickEvent {
                 }
             }
             if (PlatingUtil.isPlatingInProgress(stack)) {
-                PlatingItemEntityTicker.tick(stack, (ServerLevel) event.getEntity().level());
+                PlatingProgressHandler.tick(stack, (ServerLevel) event.getEntity().level());
                 ie.setItem(stack);
             }
         }

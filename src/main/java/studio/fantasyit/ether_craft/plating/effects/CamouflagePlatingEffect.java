@@ -9,10 +9,11 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.EtherCraft;
-import studio.fantasyit.ether_craft.plating.CamouflageState;
-import studio.fantasyit.ether_craft.plating.PlatingData;
+import studio.fantasyit.ether_craft.plating.data.CamouflageState;
+import studio.fantasyit.ether_craft.plating.data.PlatingData;
 import studio.fantasyit.ether_craft.plating.helper.PlatingUtil;
-import studio.fantasyit.ether_craft.plating.trigger.IPlatingTickEquippedTrigger;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import studio.fantasyit.ether_craft.plating.trigger.event.IPlatingTickEquippedTrigger;
 import studio.fantasyit.ether_craft.register.AttachmentDataRegistry;
 
 import java.util.List;
@@ -28,7 +29,7 @@ public class CamouflagePlatingEffect implements IPlatingEffect, IPlatingTickEqui
     }
 
     @Override
-    public void onHoldTick(PlatingData data, ItemStack stack, LivingEntity entity) {
+    public void apply(IPlatingEffect effect, PlatingData data, ItemStack stack, LivingEntity entity, PlayerTickEvent.Post event) {
         if (!(entity instanceof Player player)) return;
 
         CamouflageState state = player.getExistingData(AttachmentDataRegistry.CAMOUFLAGE_STATE.get())

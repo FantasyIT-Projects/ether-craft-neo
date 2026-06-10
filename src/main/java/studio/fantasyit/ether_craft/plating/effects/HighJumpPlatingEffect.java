@@ -8,9 +8,10 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.EtherCraft;
-import studio.fantasyit.ether_craft.plating.PlatingData;
+import studio.fantasyit.ether_craft.plating.data.PlatingData;
 import studio.fantasyit.ether_craft.plating.helper.PlatingUtil;
-import studio.fantasyit.ether_craft.plating.trigger.IPlatingRightClickTrigger;
+import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
+import studio.fantasyit.ether_craft.plating.trigger.event.IPlatingRightClickTrigger;
 
 public class HighJumpPlatingEffect implements IPlatingEffect, IPlatingRightClickTrigger {
     public static final Identifier ID = EtherCraft.id("high_jump");
@@ -21,11 +22,11 @@ public class HighJumpPlatingEffect implements IPlatingEffect, IPlatingRightClick
     }
 
     @Override
-    public boolean onRightClick(PlatingData data, ItemStack stack, LivingEntity entity) {
-        if (!(entity.level() instanceof ServerLevel level)) return false;
-        if (data.isCd(level)) return false;
+    public void apply(IPlatingEffect effect, PlatingData data, ItemStack stack, LivingEntity entity, PlayerInteractEvent.RightClickItem event) {
+        if (!(entity.level() instanceof ServerLevel level)) return;
+        if (data.isCd(level)) return;
 
-        if (!PlatingUtil.canExtractEther(stack, Config.platingHighJumpEtherCost)) return false;
+        if (!PlatingUtil.canExtractEther(stack, Config.platingHighJumpEtherCost)) return;
         PlatingUtil.extractEther(stack, Config.platingHighJumpEtherCost);
 
         double height = data.effect() * 1.0;
@@ -37,6 +38,6 @@ public class HighJumpPlatingEffect implements IPlatingEffect, IPlatingRightClick
         PlatingData updated = data.copyWithCoolDown(level, Config.platingHighJumpCdTicks);
         PlatingUtil.updatePlatingData(stack, updated);
 
-        return true;
+        event.setCanceled(true);
     }
 }

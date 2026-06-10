@@ -7,13 +7,13 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.BlocksAttacks;
-import net.neoforged.neoforge.common.damagesource.DamageContainer;
+import net.neoforged.neoforge.event.entity.living.LivingShieldBlockEvent;
 import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.EtherCraft;
-import studio.fantasyit.ether_craft.plating.PlatingData;
+import studio.fantasyit.ether_craft.plating.data.PlatingData;
 import studio.fantasyit.ether_craft.plating.helper.PlatingUtil;
 import studio.fantasyit.ether_craft.plating.trigger.inst.IInstanceTrigger;
-import studio.fantasyit.ether_craft.plating.trigger.IPlatingBlockingTrigger;
+import studio.fantasyit.ether_craft.plating.trigger.event.IPlatingBlockingTrigger;
 import studio.fantasyit.ether_craft.plating.trigger.IWithoutContextPlayerTicking;
 import studio.fantasyit.ether_craft.register.DataComponentRegistry;
 
@@ -65,7 +65,8 @@ public class BlockPlatingEffect implements IPlatingEffect, IInstanceTrigger, IWi
     }
 
     @Override
-    public void blocked(PlatingData data, LivingEntity entity, ItemStack stack, DamageContainer damage) {
+    public void apply(IPlatingEffect effect, PlatingData data, ItemStack stack, LivingEntity entity, LivingShieldBlockEvent event) {
+        if (!event.getBlocked()) return;
         PlatingUtil.extractEther(stack, Config.platingBlockEtherPerTick);
         if (!PlatingUtil.canExtractEther(stack, Config.platingBlockEtherPerTick)) {
             removeBlocking(stack);

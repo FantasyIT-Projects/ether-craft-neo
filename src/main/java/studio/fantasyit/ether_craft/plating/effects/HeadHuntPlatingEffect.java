@@ -5,8 +5,8 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.event.entity.living.LivingDropsEvent;
 import studio.fantasyit.ether_craft.EtherCraft;
-import studio.fantasyit.ether_craft.plating.PlatingData;
-import studio.fantasyit.ether_craft.plating.trigger.IPlatingKillTrigger;
+import studio.fantasyit.ether_craft.plating.data.PlatingData;
+import studio.fantasyit.ether_craft.plating.trigger.event.IPlatingKillTrigger;
 
 public class HeadHuntPlatingEffect implements IPlatingEffect, IPlatingKillTrigger {
     public static final Identifier ID = EtherCraft.id("head_hunt");
@@ -17,7 +17,7 @@ public class HeadHuntPlatingEffect implements IPlatingEffect, IPlatingKillTrigge
     }
 
     @Override
-    public void onKill(PlatingData data, ItemStack stack, LivingEntity entity, LivingEntity target, LivingDropsEvent event) {
+    public void apply(IPlatingEffect effect, PlatingData data, ItemStack stack, LivingEntity entity, LivingDropsEvent event) {
 //        if (!PlatingUtil.canExtractEther(stack, Config.platingHeadHuntEtherPerKill)) return;
 //
 //        double chance = data.effect();

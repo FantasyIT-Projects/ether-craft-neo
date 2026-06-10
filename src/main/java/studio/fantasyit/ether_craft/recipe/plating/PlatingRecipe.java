@@ -9,6 +9,8 @@ import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.common.crafting.SizedIngredient;
 import org.jetbrains.annotations.NotNull;
+import studio.fantasyit.ether_craft.plating.data.PlatingEffectFormula;
+import studio.fantasyit.ether_craft.plating.data.ProgressingPlatingData;
 import studio.fantasyit.ether_craft.register.RecipeSerializerRegistry;
 import studio.fantasyit.ether_craft.register.RecipeTypeRegistry;
 
@@ -21,26 +23,22 @@ import java.util.stream.Collectors;
 public class PlatingRecipe implements Recipe<PlatingRecipeInput> {
     public final List<SizedIngredient> input;
     public final Identifier effectId;
+    public final PlatingEffectFormula values;
     public final Ingredient filter;
 
     public static final MapCodec<PlatingRecipe> CODEC = PlatingRecipeJson.CODEC.xmap(
             PlatingRecipe::new,
-            r -> new PlatingRecipeJson(r.input, r.effectId, r.filter)
+            r -> new PlatingRecipeJson(r.input, r.effectId, r.filter, r.values)
     );
 
     public static final StreamCodec<RegistryFriendlyByteBuf, PlatingRecipe> STREAM_CODEC =
-            PlatingRecipeJson.STREAM_CODEC.map(PlatingRecipe::new, r -> new PlatingRecipeJson(r.input, r.effectId, r.filter));
+            PlatingRecipeJson.STREAM_CODEC.map(PlatingRecipe::new, r -> new PlatingRecipeJson(r.input, r.effectId, r.filter, r.values));
 
     public PlatingRecipe(PlatingRecipeJson json) {
         this.input = json.input();
         this.effectId = json.effect();
         this.filter = json.filter();
-    }
-
-    public PlatingRecipe(List<SizedIngredient> input, Identifier effectId, Ingredient filter) {
-        this.input = input;
-        this.effectId = effectId;
-        this.filter = filter;
+        this.values = json.values();
     }
 
     public boolean matchesFilter(ItemStack stack) {
@@ -115,5 +113,9 @@ public class PlatingRecipe implements Recipe<PlatingRecipeInput> {
     @Override
     public @NotNull RecipeBookCategory recipeBookCategory() {
         return RecipeBookCategories.CRAFTING_MISC;
+    }
+
+    public ProgressingPlatingData makeProcessing() {
+        return new ProgressingPlatingData(effectId, values);
     }
 }

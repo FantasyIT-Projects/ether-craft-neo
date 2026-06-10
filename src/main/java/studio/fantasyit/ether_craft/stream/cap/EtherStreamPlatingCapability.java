@@ -16,6 +16,7 @@ import net.minecraft.world.phys.EntityHitResult;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 import studio.fantasyit.ether_craft.EtherCraft;
+import studio.fantasyit.ether_craft.plating.data.ProgressingPlatingData;
 import studio.fantasyit.ether_craft.plating.helper.PlatingUtil;
 import studio.fantasyit.ether_craft.recipe.plating.PlatingRecipe;
 import studio.fantasyit.ether_craft.register.RecipeTypeRegistry;
@@ -75,7 +76,7 @@ public class EtherStreamPlatingCapability implements IStreamCapability {
         }
 
         consumeStorageItems(storage, matched);
-        List<Identifier> effectIds = matched.stream().map(r -> r.effectId).toList();
+        List<ProgressingPlatingData> effectIds = matched.stream().map(PlatingRecipe::makeProcessing).toList();
         PlatingUtil.startPlating(stack, effectIds, level.getGameTime());
         return true;
     }

@@ -10,7 +10,8 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
 import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.EtherCraft;
-import studio.fantasyit.ether_craft.plating.PlatingData;
+import studio.fantasyit.ether_craft.plating.data.PlatingData;
+import studio.fantasyit.ether_craft.plating.data.ProgressingPlatingData;
 import studio.fantasyit.ether_craft.plating.helper.PlatingUtil;
 import studio.fantasyit.ether_craft.register.DataComponentRegistry;
 
@@ -32,7 +33,7 @@ public class PlatingTooltipHandler {
     }
 
     private static void addInProgressTooltip(ItemStack stack, List<Component> tooltip) {
-        List<Identifier> inProgress = PlatingUtil.getInProgress(stack);
+        List<ProgressingPlatingData> inProgress = PlatingUtil.getInProgress(stack);
         int ether = PlatingUtil.getEther(stack);
         long startTime = stack.getOrDefault(DataComponentRegistry.PLATING_START_TIME, 0L);
 
@@ -40,7 +41,8 @@ public class PlatingTooltipHandler {
         tooltip.add(Component.translatable("tooltip.ether_craft.plating.in_progress")
                 .withStyle(net.minecraft.ChatFormatting.YELLOW));
 
-        for (Identifier id : inProgress) {
+        for (ProgressingPlatingData p : inProgress) {
+            Identifier id = p.id();
             tooltip.add(Component.literal("  ").append(Component.translatable("tooltip.ether_craft.plating.effect." + id.toLanguageKey()))
                     .withStyle(net.minecraft.ChatFormatting.GRAY));
         }

@@ -1,4 +1,4 @@
-package studio.fantasyit.ether_craft.plating;
+package studio.fantasyit.ether_craft.plating.data;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;

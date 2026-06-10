@@ -7,9 +7,10 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.EtherCraft;
-import studio.fantasyit.ether_craft.plating.PlatingData;
+import studio.fantasyit.ether_craft.plating.data.PlatingData;
 import studio.fantasyit.ether_craft.plating.helper.PlatingUtil;
-import studio.fantasyit.ether_craft.plating.trigger.IPlatingRightClickTrigger;
+import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
+import studio.fantasyit.ether_craft.plating.trigger.event.IPlatingRightClickTrigger;
 
 public class DashPlatingEffect implements IPlatingEffect, IPlatingRightClickTrigger {
     public static final Identifier ID = EtherCraft.id("dash");
@@ -20,11 +21,11 @@ public class DashPlatingEffect implements IPlatingEffect, IPlatingRightClickTrig
     }
 
     @Override
-    public boolean onRightClick(PlatingData data, ItemStack stack, LivingEntity entity) {
-        if (!(entity.level() instanceof ServerLevel level)) return false;
-        if (data.isCd(level)) return false;
+    public void apply(IPlatingEffect effect, PlatingData data, ItemStack stack, LivingEntity entity, PlayerInteractEvent.RightClickItem event) {
+        if (!(entity.level() instanceof ServerLevel level)) return;
+        if (data.isCd(level)) return;
 
-        if (!PlatingUtil.canExtractEther(stack, Config.platingDashEtherCost)) return false;
+        if (!PlatingUtil.canExtractEther(stack, Config.platingDashEtherCost)) return;
         PlatingUtil.extractEther(stack, Config.platingDashEtherCost);
 
         Vec3 look = entity.getLookAngle();
@@ -35,6 +36,6 @@ public class DashPlatingEffect implements IPlatingEffect, IPlatingRightClickTrig
         PlatingData updated = data.copyWithCoolDown(level, Config.platingDashCdTicks);
         PlatingUtil.updatePlatingData(stack, updated);
 
-        return true;
+        event.setCanceled(true);
     }
 }

@@ -7,7 +7,7 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.Event;
 import org.apache.logging.log4j.util.TriConsumer;
 import org.jetbrains.annotations.Nullable;
-import studio.fantasyit.ether_craft.plating.PlatingData;
+import studio.fantasyit.ether_craft.plating.data.PlatingData;
 import studio.fantasyit.ether_craft.plating.PlatingManager;
 import studio.fantasyit.ether_craft.plating.effects.IPlatingEffect;
 import studio.fantasyit.ether_craft.plating.trigger.event.IPlatingEventTrigger;

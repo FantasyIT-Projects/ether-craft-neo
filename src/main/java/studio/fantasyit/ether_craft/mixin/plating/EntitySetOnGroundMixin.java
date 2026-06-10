@@ -35,9 +35,9 @@ public abstract class EntitySetOnGroundMixin {
         if (player.getAbilities().flying) return result;
         if (movement.y > 0) return result;
         if (result.y > movement.y) {
-            PlatingEventHelper.forEachPlatingOnEquipment(player, (a, b, c, d) -> {
+            PlatingEventHelper.forEachPlatingOnEquipment(player, (a, b, c) -> {
                 if (a instanceof IPlatingVirtualWalkableProvider vwp)
-                    vwp.tickOnBlock(b, c, d.level(), d, blockPosition());
+                    vwp.tickOnBlock(b, c, player.level(), player, blockPosition());
             });
             Vec3 fPos = position().add(movement);
             ether_craft$lastOnGroundPos = BlockPos.containing(fPos);
@@ -45,9 +45,9 @@ public abstract class EntitySetOnGroundMixin {
         }
         double ey = getY();
         double[] provided = {result.y};
-        PlatingEventHelper.forEachPlatingOnEquipment(player, (a, b, c, d) -> {
+        PlatingEventHelper.forEachPlatingOnEquipment(player, (a, b, c) -> {
             if (a instanceof IPlatingVirtualWalkableProvider vwp) {
-                int i = vwp.providerVirtualWalkableAt(b, c, d.level(), d, player.blockPosition().below(), ether_craft$lastOnGroundPos);
+                int i = vwp.providerVirtualWalkableAt(b, c, player.level(), player, player.blockPosition().below(), ether_craft$lastOnGroundPos);
                 double df = (i + 1) - ey;
                 if (provided[0] < df) provided[0] = df;
             }

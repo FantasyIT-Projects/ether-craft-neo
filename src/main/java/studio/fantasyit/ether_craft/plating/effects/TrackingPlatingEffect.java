@@ -6,10 +6,11 @@ import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
 import net.minecraft.world.item.ItemStack;
 import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.EtherCraft;
-import studio.fantasyit.ether_craft.plating.PlatingData;
-import studio.fantasyit.ether_craft.plating.TrackingData;
+import studio.fantasyit.ether_craft.plating.data.PlatingData;
+import studio.fantasyit.ether_craft.plating.data.TrackingData;
 import studio.fantasyit.ether_craft.plating.helper.PlatingUtil;
-import studio.fantasyit.ether_craft.plating.trigger.IPlatingArrowShotTrigger;
+import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
+import studio.fantasyit.ether_craft.plating.trigger.event.IPlatingArrowShotTrigger;
 import studio.fantasyit.ether_craft.register.AttachmentDataRegistry;
 
 public class TrackingPlatingEffect implements IPlatingEffect, IPlatingArrowShotTrigger {
@@ -21,7 +22,8 @@ public class TrackingPlatingEffect implements IPlatingEffect, IPlatingArrowShotT
     }
 
     @Override
-    public void onArrowShot(PlatingData data, ItemStack stack, LivingEntity entity, AbstractArrow arrow) {
+    public void apply(IPlatingEffect effect, PlatingData data, ItemStack stack, LivingEntity entity, EntityJoinLevelEvent event) {
+        if (!(event.getEntity() instanceof AbstractArrow arrow)) return;
         if (!PlatingUtil.canExtractEther(stack, Config.platingTrackingEtherPerArrow)) return;
 
         PlatingUtil.extractEther(stack, Config.platingTrackingEtherPerArrow);

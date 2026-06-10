@@ -8,9 +8,9 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.event.level.BlockDropsEvent;
 import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.EtherCraft;
-import studio.fantasyit.ether_craft.plating.PlatingData;
+import studio.fantasyit.ether_craft.plating.data.PlatingData;
 import studio.fantasyit.ether_craft.plating.helper.PlatingUtil;
-import studio.fantasyit.ether_craft.plating.trigger.IPlatingBlockDropsTrigger;
+import studio.fantasyit.ether_craft.plating.trigger.event.IPlatingBlockDropsTrigger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +24,7 @@ public class BreakToInventoryPlatingEffect implements IPlatingEffect, IPlatingBl
     }
 
     @Override
-    public void onBlockDrops(PlatingData data, ItemStack stack, LivingEntity entity, BlockDropsEvent event) {
+    public void apply(IPlatingEffect effect, PlatingData data, ItemStack stack, LivingEntity entity, BlockDropsEvent event) {
         if (event.getDrops().isEmpty()) return;
         if (!(entity instanceof Player player)) return;
         if (!PlatingUtil.canExtractEther(stack, Config.platingBreakToInvEtherPerBlock)) return;

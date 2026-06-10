@@ -2,7 +2,8 @@ package studio.fantasyit.ether_craft.plating.helper;
 
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
-import studio.fantasyit.ether_craft.plating.PlatingData;
+import studio.fantasyit.ether_craft.plating.data.PlatingData;
+import studio.fantasyit.ether_craft.plating.data.ProgressingPlatingData;
 import studio.fantasyit.ether_craft.register.DataComponentRegistry;
 
 import java.util.ArrayList;
@@ -62,17 +63,13 @@ public class PlatingUtil {
         return stack.has(DataComponentRegistry.PLATING_IN_PROGRESS);
     }
 
-    public static void startPlating(ItemStack stack, List<Identifier> effectIds, long gameTime) {
+    public static void startPlating(ItemStack stack, List<ProgressingPlatingData> effectIds, long gameTime) {
         stack.set(DataComponentRegistry.PLATING_IN_PROGRESS, effectIds);
         stack.set(DataComponentRegistry.PLATING_START_TIME, gameTime);
         stack.set(DataComponentRegistry.PLATING_ETHER, 0);
     }
 
-    public static void overwritePlating(ItemStack stack, List<Identifier> effectIds, long gameTime) {
-        startPlating(stack, effectIds, gameTime);
-    }
-
-    public static List<Identifier> getInProgress(ItemStack stack) {
+    public static List<ProgressingPlatingData> getInProgress(ItemStack stack) {
         return stack.getOrDefault(DataComponentRegistry.PLATING_IN_PROGRESS, List.of());
     }
 

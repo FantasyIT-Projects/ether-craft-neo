@@ -32,7 +32,7 @@ import net.neoforged.neoforge.client.event.RenderPlayerEvent;
 import net.neoforged.neoforge.client.renderstate.AvatarRenderStateModifier;
 import net.neoforged.neoforge.client.renderstate.RegisterRenderStateModifiersEvent;
 import studio.fantasyit.ether_craft.EtherCraft;
-import studio.fantasyit.ether_craft.plating.CamouflageState;
+import studio.fantasyit.ether_craft.plating.data.CamouflageState;
 import studio.fantasyit.ether_craft.register.AttachmentDataRegistry;
 
 @EventBusSubscriber(modid = EtherCraft.MODID, value = Dist.CLIENT)

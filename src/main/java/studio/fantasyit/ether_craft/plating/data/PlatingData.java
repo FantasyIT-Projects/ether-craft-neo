@@ -1,4 +1,4 @@
-package studio.fantasyit.ether_craft.plating;
+package studio.fantasyit.ether_craft.plating.data;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
