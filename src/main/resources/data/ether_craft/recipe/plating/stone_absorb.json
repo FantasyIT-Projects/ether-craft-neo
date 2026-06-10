@@ -4,5 +4,6 @@
     {"ingredient": "minecraft:cobblestone", "count": 16}
   ],
   "filter": "minecraft:iron_pickaxe",
-  "effect": "ether_craft:stone_absorb"
+  "effect": "ether_craft:stone_absorb",
+  "values": {"a1": 0.0, "a2": 0.0, "a3": 0.0, "a4": 0.0}
 }

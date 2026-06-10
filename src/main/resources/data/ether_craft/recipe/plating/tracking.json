@@ -4,5 +4,6 @@
     {"ingredient": "minecraft:ender_eye", "count": 4}
   ],
   "filter": "minecraft:bow",
-  "effect": "ether_craft:tracking"
+  "effect": "ether_craft:tracking",
+  "values": {"a1": 0.0, "a2": 0.0, "a3": 0.0, "a4": 0.0}
 }

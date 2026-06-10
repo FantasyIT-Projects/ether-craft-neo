@@ -22,6 +22,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.display.SlotDisplayContext;
 import net.neoforged.neoforge.common.crafting.SizedIngredient;
 import org.jetbrains.annotations.Nullable;
+import studio.fantasyit.ether_craft.plating.data.PlatingEffectFormula;
 import studio.fantasyit.ether_craft.recipe.plating.PlatingRecipe;
 import studio.fantasyit.ether_craft.register.ItemRegistry;
 
@@ -29,7 +30,7 @@ import java.util.List;
 
 public class PlatingCategory implements IRecipeCategory<PlatingRecipe> {
     private static final int WIDTH = 130;
-    private static final int HEIGHT = 42;
+    private static final int HEIGHT = 58;
     private static final int SLOT_SIZE = 18;
     private static final int INPUT_START_X = 1;
     private static final int INPUT_Y = 1;
@@ -38,6 +39,7 @@ public class PlatingCategory implements IRecipeCategory<PlatingRecipe> {
     private static final int OUTPUT_Y = 1;
     private static final int TEXT_X = 4;
     private static final int TEXT_Y = 24;
+    private static final int FORMULA_Y = 38;
     private static final int LINE_COLOR = 0xFFAAAAAA;
 
     private final IDrawable icon;
@@ -114,6 +116,15 @@ public class PlatingCategory implements IRecipeCategory<PlatingRecipe> {
         Component text = Component.translatable(effectKey).withStyle(ChatFormatting.DARK_AQUA);
         int availableTextWidth = WIDTH - TEXT_X - 4;
         graphics.textWithWordWrap(font, text, TEXT_X, TEXT_Y, availableTextWidth, 0xFFFFFFFF);
+
+        PlatingEffectFormula formula = recipe.values;
+        Component formulaText = Component.translatable("jei.ether_craft.plating.formula",
+                String.format("%.0f", formula.a1()),
+                String.format("%.0f", formula.a2()),
+                String.format("%.2f", formula.a3()),
+                String.format("%.2f", formula.a4())
+        ).withStyle(ChatFormatting.GRAY);
+        graphics.textWithWordWrap(font, formulaText, TEXT_X, FORMULA_Y, availableTextWidth, 0xFFAAAAAA);
     }
 
     @Override

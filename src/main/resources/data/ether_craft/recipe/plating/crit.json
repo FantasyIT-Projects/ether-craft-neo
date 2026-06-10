@@ -4,5 +4,6 @@
     {"ingredient": "minecraft:blaze_powder", "count": 4}
   ],
   "filter": "minecraft:iron_sword",
-  "effect": "ether_craft:crit"
+  "effect": "ether_craft:crit",
+  "values": {"a1": 10.0, "a2": 200.0, "a3": 0.05, "a4": 0.25}
 }

@@ -4,5 +4,6 @@
     {"ingredient": "minecraft:blaze_rod", "count": 4}
   ],
   "filter": "minecraft:diamond_sword",
-  "effect": "ether_craft:crit_damage"
+  "effect": "ether_craft:crit_damage",
+  "values": {"a1": 10.0, "a2": 200.0, "a3": 0.0, "a4": 1.0}
 }

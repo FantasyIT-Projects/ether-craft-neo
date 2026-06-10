@@ -110,6 +110,7 @@
   "jei.ether_craft.node_process": "节点处理",
   "jei.ether_craft.node_process.ether_cost": "以太: %d",
   "jei.ether_craft.plating": "以太镀层",
+  "jei.ether_craft.plating.formula": "以太 %s → %s → 效果 %s → %s",
   "jei.ether_craft.plating.effect.ether_craft.damage": "提升近战攻击伤害",
   "jei.ether_craft.plating.effect.ether_craft.dash": "右键向前冲刺",
   "jei.ether_craft.plating.effect.ether_craft.high_jump": "右键进行高跳",

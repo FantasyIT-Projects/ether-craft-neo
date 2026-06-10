@@ -4,5 +4,6 @@
     {"ingredient": "minecraft:iron_block", "count": 2}
   ],
   "filter": "minecraft:shield",
-  "effect": "ether_craft:block"
+  "effect": "ether_craft:block",
+  "values": {"a1": 0.0, "a2": 0.0, "a3": 0.0, "a4": 0.0}
 }

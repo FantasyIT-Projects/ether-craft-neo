@@ -2,5 +2,6 @@
   "type": "ether_craft:plating",
   "input": [{"ingredient": "minecraft:diamond", "count": 2}],
   "filter": "minecraft:diamond_sword",
-  "effect": "ether_craft:damage"
+  "effect": "ether_craft:damage",
+  "values": {"a1": 10.0, "a2": 200.0, "a3": 1.0, "a4": 6.0}
 }

@@ -2,5 +2,6 @@
   "type": "ether_craft:plating",
   "input": [{"ingredient": "minecraft:rabbit_foot", "count": 1}],
   "filter": "minecraft:leather_boots",
-  "effect": "ether_craft:coyote_time"
+  "effect": "ether_craft:coyote_time",
+  "values": {"a1": 0.0, "a2": 0.0, "a3": 0.0, "a4": 0.0}
 }
