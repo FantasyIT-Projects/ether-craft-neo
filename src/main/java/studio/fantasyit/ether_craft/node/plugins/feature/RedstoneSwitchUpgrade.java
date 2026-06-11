@@ -13,12 +13,13 @@ import studio.fantasyit.ether_craft.node.plugins.base.AbstractNodePlugin;
 
 public class RedstoneSwitchUpgrade extends AbstractNodePlugin {
     public static final Identifier ID = EtherCraft.id("redstone_switch");
-    public static final Identifier SYNC_MODE = EtherCraft.id("redstone_switch/mode");
+    public static final Identifier ID_REVERT = EtherCraft.id("redstone_switch_revert");
 
-    public boolean workWithSignal = true;
+    public final boolean workWithSignal;
 
-    public RedstoneSwitchUpgrade(EtherAdaptNodeEntity nodeEntity, InstalledPlugin installedId) {
+    public RedstoneSwitchUpgrade(EtherAdaptNodeEntity nodeEntity, InstalledPlugin installedId, boolean workWithSignal) {
         super(nodeEntity, installedId);
+        this.workWithSignal = workWithSignal;
     }
 
     @Override
@@ -26,28 +27,5 @@ public class RedstoneSwitchUpgrade extends AbstractNodePlugin {
         if (nodeEntity.getLevel() == null) return true;
         boolean hasSignal = nodeEntity.getLevel().hasNeighborSignal(nodeEntity.getBlockPos());
         return workWithSignal ? hasSignal : !hasSignal;
-    }
-
-    @Override
-    public void saveAdditional(ValueOutput output) {
-        output.putBoolean("rswWorkWithSignal", workWithSignal);
-    }
-
-    @Override
-    public void loadAdditional(ValueInput input) {
-        workWithSignal = input.getBooleanOr("rswWorkWithSignal", true);
-    }
-
-    @Override
-    public void syncScreenData(SyncScreenDataC2S message) {
-        if (message.id().equals(SYNC_MODE)) {
-            workWithSignal = message.data() == 1;
-            nodeEntity.pluginUpdate();
-        }
-    }
-
-    @Override
-    public void registerSlots(EtherAdaptNodeContainerMenu menu) {
-        menu.addDataSlot(new BaseDataSlot(() -> workWithSignal ? 1 : 0, t -> workWithSignal = t == 1));
     }
 }

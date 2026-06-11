@@ -2,6 +2,7 @@ package studio.fantasyit.ether_craft.menu.node;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;
@@ -27,6 +28,7 @@ import studio.fantasyit.ether_craft.network.c2s.SyncScreenDataC2S;
 import studio.fantasyit.ether_craft.network.s2c.SyncEtherAdaptNodeExtraS2C;
 import studio.fantasyit.ether_craft.node.NodePluginManager;
 import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
+import studio.fantasyit.ether_craft.node.plugins.MainPageDummyPlugin;
 import studio.fantasyit.ether_craft.node.plugins.base.AbstractNodePlugin;
 import studio.fantasyit.ether_craft.node.plugins.base.PluginMenuContext;
 import studio.fantasyit.ether_craft.register.ItemRegistry;
@@ -81,6 +83,23 @@ public class EtherAdaptNodeContainerMenu extends BaseMenu<EtherAdaptNodeEntity> 
                                 fs.set(stack.copyWithCount(1));
                         } else if (target.mayPlace(stack) && !skipNormalSlots && target.isActive())
                             this.moveItemStackTo(stack, i, i + 1, false);
+                    }
+                }
+                if (!stack.isEmpty() && context instanceof MainPageDummyPlugin.MainPageContext mpc) {
+                    if (!mpc.functionStorage.hasItem()) {
+                        Identifier matchingPluginId = NodePluginManager.Instance.getMatchingPluginId(NodePluginManager.FUNCTION_TYPE, stack);
+                        if (matchingPluginId != null) {
+                            this.moveItemStackTo(stack, mpc.functionStorage.index, mpc.functionStorage.index + 1, false);
+                        }
+                    }
+                    for (int i = 0; i < mpc.normalStorage.size() && !stack.isEmpty(); i++) {
+                        Slot target = mpc.normalStorage.get(i);
+                        if (!target.hasItem()) {
+                            Identifier matchingPluginId = NodePluginManager.Instance.getMatchingPluginId(NodePluginManager.FEATURE_UPGRADE_TYPE, stack);
+                            if (matchingPluginId != null) {
+                                this.moveItemStackTo(stack, target.index, target.index + 1, false);
+                            }
+                        }
                     }
                 }
             }

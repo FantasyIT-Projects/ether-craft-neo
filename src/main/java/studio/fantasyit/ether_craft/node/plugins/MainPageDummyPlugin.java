@@ -35,7 +35,6 @@ public class MainPageDummyPlugin extends AbstractNodePlugin {
 
     }
 
-    
 
     @Override
     public void saveAdditional(ValueOutput output) {
@@ -63,11 +62,13 @@ public class MainPageDummyPlugin extends AbstractNodePlugin {
 
     public void registerSlotsWithContext(EtherAdaptNodeContainerMenu menu, MainPageContext ctx) {
         menu.addSlot(new OversizedEtherSlot(nodeEntity.etherStorage, 0, 28, 19));
-        menu.addSlot(new SingleStackSlot(nodeEntity.functionStorage, 0, 28, 45));
+        ctx.functionStorage = (SingleStackSlot) menu.addSlot(new SingleStackSlot(nodeEntity.functionStorage, 0, 28, 45));
 
         int slots = nodeEntity.getUpgradeCount();
+        ctx.normalStorage = new ArrayList<>(slots);
         for (int i = 0; i < slots; i++) {
-            menu.addSlotDraw(new SingleStackSlot(nodeEntity.featureUpgradeStorage, i, SLOT_POS[i][0], SLOT_POS[i][1]));
+            SingleStackSlot slot = (SingleStackSlot) menu.addSlotDraw(new SingleStackSlot(nodeEntity.featureUpgradeStorage, i, SLOT_POS[i][0], SLOT_POS[i][1]));
+            ctx.normalStorage.add(slot);
         }
 
         menu.addSlotArea(nodeEntity.normalStorage, 0, 9, 76, 9, 18, 3, 18,
@@ -94,6 +95,8 @@ public class MainPageDummyPlugin extends AbstractNodePlugin {
     public static class MainPageContext extends PluginMenuContext<MainPageDummyPlugin> implements IFilterSwitchable {
         public List<FilterSlot> filterSlots = new ArrayList<>();
         public List<RangeLimitFilterSlot> mainSlots = new ArrayList<>();
+        public SingleStackSlot functionStorage;
+        public List<SingleStackSlot> normalStorage;
         public boolean filterActive = false;
 
         public MainPageContext(EtherAdaptNodeContainerMenu menu, MainPageDummyPlugin plugin) {

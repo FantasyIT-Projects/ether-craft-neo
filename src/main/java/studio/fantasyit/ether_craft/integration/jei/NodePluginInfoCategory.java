@@ -93,7 +93,7 @@ public class NodePluginInfoCategory implements IRecipeCategory<NodePluginInfoRec
         } else {
             int itemY = (HEIGHT - 18) / 2;
             builder.addInputSlot(ITEM_X, itemY)
-                    .add(new ItemStack(recipe.icon()))
+                    .add(recipe.icon().create())
                     .setStandardSlotBackground();
         }
     }
