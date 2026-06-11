@@ -32,6 +32,10 @@ public class EtherAdaptNodeAsset {
     public static final ImageAsset BTN_ICON_E = ImageAsset.gridOffset(BTN_BLANK_DOWN, 1, 3);
     public static final ImageAsset BTN_ICON_EXTRACT = ImageAsset.gridOffset(BTN_BLANK_DOWN, 0, 4);
     public static final ImageAsset BTN_ICON_INSERT = ImageAsset.gridOffset(BTN_BLANK_DOWN, 1, 4);
+    public static final ImageAsset BTN_ICON_ETHER = ImageAsset.gridOffset(BTN_BLANK_DOWN, 0, 5);
+    public static final ImageAsset BTN_ICON_CONTAINER = ImageAsset.gridOffset(BTN_BLANK_DOWN, 1, 5);
+    public static final ImageAsset BTN_ICON_REDSTONE_INVERT = ImageAsset.gridOffset(BTN_BLANK_DOWN, 0, 6);
+    public static final ImageAsset BTN_ICON_REDSTONE = ImageAsset.gridOffset(BTN_BLANK_DOWN, 1, 6);
     public static final ImageAsset ICON_UPGRADE = ImageAsset.from4Point(BACKGROUND, 212, 31, 223, 42);
     public static final ImageAsset SCROLL_BLOCK = ImageAsset.from4Point(BACKGROUND, 208, 92, 217, 104);
     public static final ImageAsset SCROLL_BLOCK_HOVER = ImageAsset.from4Point(BACKGROUND, 208, 156, 217, 168);

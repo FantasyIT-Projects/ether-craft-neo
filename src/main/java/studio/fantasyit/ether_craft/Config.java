@@ -353,6 +353,11 @@ public class Config {
             .comment("Ether consumed per tick when suppressing vibration events")
             .defineInRange("plating.silent_step.ether_per_tick", 1, 0, Integer.MAX_VALUE);
 
+    // -- plating.durability_absorption --
+    private static final ModConfigSpec.IntValue PLATING_DURABILITY_ABSORPTION_ETHER_PER_DURABILITY = BUILDER
+            .comment("Ether consumed per durability point absorbed. Minimum 1.")
+            .defineInRange("plating.durability_absorption.ether_per_durability", 1, 1, Integer.MAX_VALUE);
+
 
     static final ModConfigSpec SPEC = BUILDER.build();
 
@@ -427,6 +432,7 @@ public class Config {
     public static int platingEthicEtherPerUse;
     public static int platingAntiSonicBoomEtherPerBlock;
     public static int platingSilentStepEtherPerTick;
+    public static int platingDurabilityAbsorptionEtherPerDurability;
 
     @SubscribeEvent
     static void onLoad(final ModConfigEvent event) {
@@ -501,5 +507,6 @@ public class Config {
         platingEthicEtherPerUse = PLATING_ETHIC_ETHER_PER_USE.get();
         platingAntiSonicBoomEtherPerBlock = PLATING_ANTI_SONIC_BOOM_ETHER_PER_BLOCK.get();
         platingSilentStepEtherPerTick = PLATING_SILENT_STEP_ETHER_PER_TICK.get();
+        platingDurabilityAbsorptionEtherPerDurability = PLATING_DURABILITY_ABSORPTION_ETHER_PER_DURABILITY.get();
     }
 }

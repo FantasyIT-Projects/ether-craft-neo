@@ -1,0 +1,6 @@
+{
+  "type": "ether_craft:node_process",
+  "ingredients": ["minecraft:brown_mushroom","minecraft:red_mushroom","minecraft:crimson_fungus","minecraft:warped_fungus","minecraft:mud"],
+  "result": "minecraft:mycelium",
+  "etherCost": 6400
+}

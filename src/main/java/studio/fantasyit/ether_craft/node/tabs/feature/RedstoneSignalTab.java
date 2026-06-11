@@ -5,8 +5,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
-import org.joml.Vector2i;
-import studio.fantasyit.ether_craft.menu.base.ImageAsset;
 import studio.fantasyit.ether_craft.menu.base.widget.IASwitchButton;
 import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeAsset;
 import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeScreen;
@@ -28,7 +26,7 @@ import static studio.fantasyit.ether_craft.node.tabs.feature.DirectionalFilterSc
 public class RedstoneSignalTab extends BaseEtherNodeTabWidgetProvider<FeatureRedstoneSignal> {
     private Map<Direction, IASwitchButton> directionButton;
     private IASwitchButton modeButton;
-    private IASwitchButton enabledButton;
+    private IASwitchButton revertButton;
 
     public RedstoneSignalTab(PluginMenuContext<FeatureRedstoneSignal> context, EtherAdaptNodeScreen screen) {
         super(context, screen);
@@ -71,7 +69,7 @@ public class RedstoneSignalTab extends BaseEtherNodeTabWidgetProvider<FeatureRed
         }
 
         modeButton = new IASwitchButton(
-                lx(90), ly(12),
+                lx(8), ly(69),
                 EtherAdaptNodeAsset.BTN_BLANK,
                 EtherAdaptNodeAsset.BTN_BLANK_HOVER,
                 EtherAdaptNodeAsset.BTN_BLANK_DOWN,
@@ -93,8 +91,8 @@ public class RedstoneSignalTab extends BaseEtherNodeTabWidgetProvider<FeatureRed
                 () -> plugin.mode == FeatureRedstoneSignal.SignalMode.INVENTORY,
                 modeButton::setDown));
 
-        enabledButton = new IASwitchButton(
-                lx(90), ly(32),
+        revertButton = new IASwitchButton(
+                lx(28), ly(69),
                 EtherAdaptNodeAsset.BTN_BLANK,
                 EtherAdaptNodeAsset.BTN_BLANK_HOVER,
                 EtherAdaptNodeAsset.BTN_BLANK_DOWN,
@@ -110,9 +108,9 @@ public class RedstoneSignalTab extends BaseEtherNodeTabWidgetProvider<FeatureRed
                     return true;
                 }
         );
-        enabledButton.setDown(plugin.enabled);
-        screen.addRenderableWidget(enabledButton);
-        screen.registerMenuSyncer(new ScreenMenuSyncer<>(() -> plugin.enabled, enabledButton::setDown));
+        revertButton.setDown(plugin.revert);
+        screen.addRenderableWidget(revertButton);
+        screen.registerMenuSyncer(new ScreenMenuSyncer<>(() -> plugin.revert, revertButton::setDown));
     }
 
     @Override
@@ -125,6 +123,16 @@ public class RedstoneSignalTab extends BaseEtherNodeTabWidgetProvider<FeatureRed
             } else {
                 DIRECTION_ICON.get(direction).blit(graphics, lx(DIRECTION_POSITION.get(direction).x), ly(DIRECTION_POSITION.get(direction).y));
             }
+        }
+        if (revertButton.isDown()) {
+            EtherAdaptNodeAsset.BTN_ICON_REDSTONE_INVERT.blit(graphics, revertButton.getX(), revertButton.getY());
+        } else {
+            EtherAdaptNodeAsset.BTN_ICON_REDSTONE.blit(graphics, revertButton.getX(), revertButton.getY());
+        }
+        if (modeButton.isDown()) {
+            EtherAdaptNodeAsset.BTN_ICON_ETHER.blit(graphics, modeButton.getX(), modeButton.getY());
+        } else {
+            EtherAdaptNodeAsset.BTN_ICON_CONTAINER.blit(graphics, modeButton.getX(), modeButton.getY());
         }
     }
 

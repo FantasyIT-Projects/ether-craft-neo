@@ -4,7 +4,8 @@
   "package": "studio.fantasyit.ether_craft.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
-    "plating.EntitySetOnGroundMixin"
+    "plating.EntitySetOnGroundMixin",
+    "plating.ItemStackMixin"
   ],
   "client": [
     "BufferBuilderAccessor"

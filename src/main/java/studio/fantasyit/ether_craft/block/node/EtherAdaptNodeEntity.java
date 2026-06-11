@@ -539,7 +539,7 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
 
     public int getAnalogOutputSignal(Direction direction) {
         for (AbstractNodePlugin plugin : getPlugins()) {
-            if (plugin instanceof FeatureRedstoneSignal rss && rss.enabled) {
+            if (plugin instanceof FeatureRedstoneSignal rss && rss.revert) {
                 if (rss.direction == direction) {
                     return rss.getSignal();
                 }

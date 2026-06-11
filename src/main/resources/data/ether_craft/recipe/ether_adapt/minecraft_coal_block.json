@@ -1,0 +1,6 @@
+{
+  "type": "ether_craft:node_process",
+  "ingredients": ["minecraft:charcoal::9"],
+  "result": "ether_craft:ether_glass",
+  "etherCost": 6400
+}

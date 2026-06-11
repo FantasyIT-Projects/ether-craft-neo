@@ -94,7 +94,7 @@ public class PlatingCategory implements IRecipeCategory<PlatingRecipe> {
         }
 
         builder.addOutputSlot(OUTPUT_X, OUTPUT_Y)
-                .add(recipe.filter.display().resolveForFirstStack(ctx))
+                .add(recipe.filter)
                 .setOutputSlotBackground();
     }
 

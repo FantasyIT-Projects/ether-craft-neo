@@ -25,28 +25,34 @@ public class FeatureRedstoneSignal extends AbstractDirectionalFeature {
     }
 
     public SignalMode mode = SignalMode.ETHER;
-    public boolean enabled = true;
+    public boolean revert = true;
 
     public FeatureRedstoneSignal(EtherAdaptNodeEntity nodeEntity, InstalledPlugin installedId) {
         super(nodeEntity, installedId);
     }
 
     public int getSignal() {
-        if (!enabled || direction == null) return 0;
+        if (direction == null) return 0;
         if (mode == SignalMode.ETHER) {
             long ether = nodeEntity.getEther();
             long maxEther = nodeEntity.getMaxEther();
-            if (maxEther <= 0) return 0;
-            return (int) (ether * 15 / maxEther);
+            if (maxEther <= 0) return revert ? 15 : 0;
+            if (revert)
+                return 15 - (int) (ether * 15 / maxEther);
+            else
+                return (int) (ether * 15 / maxEther);
         } else {
             int unlocked = nodeEntity.nodeProperty.slotUnlock;
-            if (unlocked <= 0) return 0;
+            if (unlocked <= 0) return revert ? 15 : 0;
             int filled = 0;
             for (int i = 0; i < unlocked; i++) {
                 if (!nodeEntity.normalStorage.getItem(i).isEmpty())
                     filled++;
             }
-            return filled * 15 / unlocked;
+            if (revert)
+                return 15 - filled * 15 / unlocked;
+            else
+                return filled * 15 / unlocked;
         }
     }
 
@@ -54,14 +60,14 @@ public class FeatureRedstoneSignal extends AbstractDirectionalFeature {
     public void saveAdditional(ValueOutput output) {
         super.saveAdditional(output);
         output.store("rssMode", SignalMode.CODEC, mode);
-        output.putBoolean("rssEnabled", enabled);
+        output.putBoolean("rssEnabled", revert);
     }
 
     @Override
     public void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
         mode = input.read("rssMode", SignalMode.CODEC).orElse(SignalMode.ETHER);
-        enabled = input.getBooleanOr("rssEnabled", true);
+        revert = input.getBooleanOr("rssEnabled", true);
     }
 
     @Override
@@ -72,7 +78,7 @@ public class FeatureRedstoneSignal extends AbstractDirectionalFeature {
             nodeEntity.pluginUpdate();
         }
         if (message.id().equals(SYNC_ENABLED)) {
-            enabled = message.data() == 1;
+            revert = message.data() == 1;
             nodeEntity.pluginUpdate();
         }
     }
@@ -81,6 +87,6 @@ public class FeatureRedstoneSignal extends AbstractDirectionalFeature {
     public void registerSlots(EtherAdaptNodeContainerMenu menu) {
         super.registerSlots(menu);
         menu.addDataSlot(new BaseDataSlot(() -> mode == SignalMode.INVENTORY ? 1 : 0, t -> mode = (t == 1 ? SignalMode.INVENTORY : SignalMode.ETHER)));
-        menu.addDataSlot(new BaseDataSlot(() -> enabled ? 1 : 0, t -> enabled = t == 1));
+        menu.addDataSlot(new BaseDataSlot(() -> revert ? 1 : 0, t -> revert = t == 1));
     }
 }
