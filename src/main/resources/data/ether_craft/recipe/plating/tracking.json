@@ -5,5 +5,5 @@
   ],
   "filter": "minecraft:bow",
   "effect": "ether_craft:tracking",
-  "values": {"a1": 0.0, "a2": 0.0, "a3": 0.0, "a4": 0.0}
+  "values": {"a1": 0.0, "a2": 10000.0, "a3": 1.0, "a4": 2.0}
 }

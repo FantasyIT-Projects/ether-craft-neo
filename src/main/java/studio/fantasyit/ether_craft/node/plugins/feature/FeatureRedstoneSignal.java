@@ -32,7 +32,7 @@ public class FeatureRedstoneSignal extends AbstractDirectionalFeature {
     }
 
     public int getSignal() {
-        if (!enabled) return 0;
+        if (!enabled || direction == null) return 0;
         if (mode == SignalMode.ETHER) {
             long ether = nodeEntity.getEther();
             long maxEther = nodeEntity.getMaxEther();

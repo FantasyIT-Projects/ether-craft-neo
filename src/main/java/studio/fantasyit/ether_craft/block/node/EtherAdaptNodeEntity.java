@@ -95,6 +95,12 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
         super.setChanged();
     }
 
+    @Override
+    public void syncClient() {
+        if (level != null && !level.isClientSide())
+            level.updateNeighbourForOutputSignal(worldPosition, getBlockState().getBlock());
+    }
+
     public void updatePluginInfos() {
         featureAttachedDirection.clear();
         for (int i = 0; i < featureUpgradeStorage.getContainerSize(); i++) {
@@ -524,14 +530,18 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
 
     public void pluginUpdate() {
         setChanged();
-        if (level != null && !level.isClientSide())
+        if (level != null && !level.isClientSide()) {
             markUpdate = true;
+            level.updateNeighbourForOutputSignal(worldPosition, getBlockState().getBlock());
+        }
     }
 
-    public int getAnalogOutputSignal() {
+    public int getAnalogOutputSignal(Direction direction) {
         for (AbstractNodePlugin plugin : getPlugins()) {
             if (plugin instanceof FeatureRedstoneSignal rss && rss.enabled) {
-                return rss.getSignal();
+                if (rss.direction == direction) {
+                    return rss.getSignal();
+                }
             }
         }
         return 0;

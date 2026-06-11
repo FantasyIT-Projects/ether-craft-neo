@@ -38,29 +38,30 @@ public class EtherStreamPlatingCapability implements IStreamCapability {
     public void tick(@UnknownNullability IEtherStreamLike streamEntity) {
         if (!(streamEntity.level() instanceof ServerLevel level)) return;
 
-        List<PlatingRecipe> recipes = getSortedRecipes(level);
 
         Optional<IStreamCapability> optStorage = streamEntity.getCapability(EtherStreamStorageCapability.ID);
         EtherStreamStorageCapability storage = optStorage.filter(EtherStreamStorageCapability.class::isInstance)
                 .map(EtherStreamStorageCapability.class::cast).orElse(null);
 
         AABB currentBlockPos = new AABB(streamEntity.blockPosition());
-        List<ItemEntity> entities = level.getEntities(EntityTypeTest.forClass(ItemEntity.class), currentBlockPos, t -> t.isAlive() && !t.hasPickUpDelay());
+        List<ItemEntity> entities = level.getEntities(EntityTypeTest.forClass(ItemEntity.class), currentBlockPos, Entity::isAlive);
+
+        if (entities.isEmpty()) return;
 
         for (ItemEntity itemEntity : entities) {
             ItemStack stack = itemEntity.getItem();
             if (stack.isEmpty()) continue;
-
-            boolean canProcess = (PlatingUtil.isPlatingInProgress(stack) || PlatingUtil.canPlate(stack))
-                    && matchesAnyFilter(stack, recipes);
+            boolean canProcess = PlatingUtil.isPlatingInProgress(stack) || PlatingUtil.canPlate(stack);
             if (!canProcess) continue;
 
+            List<PlatingRecipe> recipes = getSortedRecipes(level, stack);
             boolean success = handlePlating(streamEntity, level, itemEntity, stack, storage, recipes);
             if (success) {
                 int ether = streamEntity.getEther();
                 PlatingUtil.addEther(stack, ether);
                 streamEntity.consumeEther(ether);
                 itemEntity.setItem(stack);
+                break;
             }
         }
     }
@@ -82,10 +83,11 @@ public class EtherStreamPlatingCapability implements IStreamCapability {
         return true;
     }
 
-    private List<PlatingRecipe> getSortedRecipes(ServerLevel level) {
+    private List<PlatingRecipe> getSortedRecipes(ServerLevel level, ItemStack stack) {
         return level.getServer().getRecipeManager().getRecipes().stream()
                 .filter(h -> h.value().getType() == RecipeTypeRegistry.PLATING_RECIPE.get())
                 .map(h -> (PlatingRecipe) h.value())
+                .filter(r -> r.matchesFilter(stack))
                 .sorted(Comparator.comparingInt(PlatingRecipe::inputSize).reversed())
                 .toList();
     }

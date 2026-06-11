@@ -1,0 +1,10 @@
+{
+  "type": "ether_craft:plating",
+  "input": [
+    {"ingredient": "minecraft:white_wool", "count": 4},
+    {"ingredient": "minecraft:obsidian", "count": 1}
+  ],
+  "filter": "minecraft:iron_chestplate",
+  "effect": "ether_craft:anti_sonic_boom",
+  "values": {"a1": 0.0, "a2": 0.0, "a3": 0.0, "a4": 0.0}
+}

@@ -68,7 +68,7 @@ public class EtherAdaptNodeBlock extends BaseBlock {
     @Override
     protected int getAnalogOutputSignal(@NotNull BlockState state, Level level, @NotNull BlockPos pos, @NotNull Direction direction) {
         if (level.getBlockEntity(pos) instanceof EtherAdaptNodeEntity eane)
-            return eane.getAnalogOutputSignal();
+            return eane.getAnalogOutputSignal(direction);
         return 0;
     }
 

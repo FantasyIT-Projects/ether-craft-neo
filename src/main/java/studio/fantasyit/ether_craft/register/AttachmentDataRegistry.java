@@ -55,7 +55,7 @@ public class AttachmentDataRegistry {
     );
 
     public static final Supplier<AttachmentType<TrackingData>> ARROW_TRACKING = ATTACHMENT_TYPES.register(
-            "arrow_tracking", () -> AttachmentType.builder(() -> new TrackingData(0.0, 0.0)).build()
+            "arrow_tracking", () -> AttachmentType.builder(() -> new TrackingData(0.0, 0.0)).sync(TrackingData.STREAM_CODEC).build()
     );
 
     public static void register(IEventBus modbus) {

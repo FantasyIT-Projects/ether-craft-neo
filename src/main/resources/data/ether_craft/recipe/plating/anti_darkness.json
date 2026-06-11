@@ -1,0 +1,10 @@
+{
+  "type": "ether_craft:plating",
+  "input": [
+    {"ingredient": "minecraft:glowstone_dust", "count": 4},
+    {"ingredient": "minecraft:golden_carrot", "count": 1}
+  ],
+  "filter": "minecraft:iron_helmet",
+  "effect": "ether_craft:anti_darkness",
+  "values": {"a1": 0.0, "a2": 0.0, "a3": 0.0, "a4": 0.0}
+}

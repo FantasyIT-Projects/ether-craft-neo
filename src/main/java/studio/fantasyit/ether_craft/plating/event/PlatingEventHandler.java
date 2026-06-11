@@ -1,15 +1,9 @@
 package studio.fantasyit.ether_craft.plating.event;
 
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.Container;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
-import net.minecraft.world.inventory.ChestMenu;
 import net.minecraft.world.item.BowItem;
 import net.minecraft.world.item.CrossbowItem;
 import net.minecraft.world.item.ItemStack;
@@ -20,11 +14,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.VanillaGameEvent;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
-import net.neoforged.neoforge.event.entity.living.LivingDropsEvent;
-import net.neoforged.neoforge.event.entity.living.LivingEntityUseItemEvent;
-import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
-import net.neoforged.neoforge.event.entity.living.LivingShieldBlockEvent;
-import net.neoforged.neoforge.event.entity.living.MobEffectEvent;
+import net.neoforged.neoforge.event.entity.living.*;
 import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
 import net.neoforged.neoforge.event.entity.player.CriticalHitEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
@@ -34,26 +24,9 @@ import net.neoforged.neoforge.event.level.block.BreakBlockEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import studio.fantasyit.ether_craft.EtherCraft;
-import studio.fantasyit.ether_craft.plating.data.CamouflageState;
-import studio.fantasyit.ether_craft.plating.data.PlatingData;
 import studio.fantasyit.ether_craft.plating.data.TrackingData;
 import studio.fantasyit.ether_craft.plating.helper.PlatingEventHelper;
-import studio.fantasyit.ether_craft.plating.helper.PlatingUtil;
-import studio.fantasyit.ether_craft.plating.trigger.event.IPlatingArrowShotTrigger;
-import studio.fantasyit.ether_craft.plating.trigger.event.IPlatingAttackTrigger;
-import studio.fantasyit.ether_craft.plating.trigger.event.IPlatingBlockDropsTrigger;
-import studio.fantasyit.ether_craft.plating.trigger.event.IPlatingBlockingTrigger;
-import studio.fantasyit.ether_craft.plating.trigger.event.IPlatingBreakBlockTrigger;
-import studio.fantasyit.ether_craft.plating.trigger.event.IPlatingCritDamageModifier;
-import studio.fantasyit.ether_craft.plating.trigger.event.IPlatingCritTrigger;
-import studio.fantasyit.ether_craft.plating.trigger.event.IPlatingGameEventTrigger;
-import studio.fantasyit.ether_craft.plating.trigger.event.IPlatingKillTrigger;
-import studio.fantasyit.ether_craft.plating.trigger.event.IPlatingLivingIncomingDamageTrigger;
-import studio.fantasyit.ether_craft.plating.trigger.event.IPlatingMobEffectApplicableTrigger;
-import studio.fantasyit.ether_craft.plating.trigger.event.IPlatingRightClickTrigger;
-import studio.fantasyit.ether_craft.plating.trigger.event.IPlatingTickEquippedTrigger;
-import studio.fantasyit.ether_craft.plating.trigger.event.IPlatingUseOnBlockTrigger;
-import studio.fantasyit.ether_craft.plating.trigger.event.IPlatingUseTrigger;
+import studio.fantasyit.ether_craft.plating.trigger.event.*;
 import studio.fantasyit.ether_craft.register.AttachmentDataRegistry;
 import studio.fantasyit.ether_craft.register.DataComponentRegistry;
 
@@ -159,7 +132,6 @@ public class PlatingEventHandler {
     @SubscribeEvent
     public static void onEntityTick(EntityTickEvent.Post event) {
         if (!(event.getEntity() instanceof AbstractArrow arrow)) return;
-        if (arrow.level().isClientSide()) return;
 
         TrackingData tracking = arrow.getExistingData(AttachmentDataRegistry.ARROW_TRACKING.get()).orElse(null);
         if (tracking == null || tracking.range() <= 0) return;
