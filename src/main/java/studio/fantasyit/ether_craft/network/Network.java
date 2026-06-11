@@ -112,6 +112,11 @@ public class Network {
                 PlatingTriggerC2S.CODEC,
                 wrapWithPlayer(PlatingTriggerC2SHandler::handle)
         );
+        event.playToServer(
+                PlatingKeyTriggerC2S.TYPE,
+                PlatingKeyTriggerC2S.CODEC,
+                wrapWithPlayer(PlatingKeyTriggerC2SHandler::handle)
+        );
     }
 
 

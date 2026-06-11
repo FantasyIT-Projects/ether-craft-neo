@@ -17,7 +17,7 @@ public class EtherGlassKeyHandler {
             KeyConflictContext.IN_GAME,
             InputConstants.Type.KEYSYM,
             GLFW.GLFW_KEY_LEFT_ALT,
-            KeyMapping.Category.MISC
+            PlatingTriggerKeyHandler.ETHER_CRAFT_CATEGORY
     );
 
     @SubscribeEvent
