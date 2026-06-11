@@ -80,49 +80,4 @@ public class TreeLayout {
                 .toList();
     }
 
-    private static int nodeMidY(boolean isInput, int h) {
-        return isInput ? SLOT_SIZE / 2 : h / 2;
-    }
-
-    private static Map<String, Integer> computeLevels(EtherProcessRecipeJson json, Set<String> allIds) {
-        Map<String, Integer> levels = new HashMap<>();
-        Map<String, List<String>> predecessors = new HashMap<>();
-        Deque<String> queue = new ArrayDeque<>();
-
-        for (var in : json.input()) {
-            String next = in.next();
-            if (next != null && allIds.contains(next))
-                predecessors.computeIfAbsent(next, k -> new ArrayList<>()).add(in.id());
-            else {
-                levels.put(in.id(), 1);
-                queue.add(in.id());
-            }
-        }
-        for (var proc : json.process()) {
-            String next = proc.next();
-            if (next != null && allIds.contains(next))
-                predecessors.computeIfAbsent(next, k -> new ArrayList<>()).add(proc.id());
-            else {
-                levels.put(proc.id(), 1);
-                queue.add(proc.id());
-            }
-        }
-
-        while (!queue.isEmpty()) {
-            String id = queue.poll();
-            int level = levels.get(id);
-            for (String pred : predecessors.getOrDefault(id, List.of())) {
-                if (!levels.containsKey(pred)) {
-                    levels.put(pred, level + 1);
-                    queue.add(pred);
-                }
-            }
-        }
-
-        for (String id : allIds) {
-            levels.putIfAbsent(id, 1);
-        }
-
-        return levels;
-    }
 }
