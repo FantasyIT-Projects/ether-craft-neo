@@ -24,6 +24,10 @@ public interface IStreamCapability extends ValueIOSerializable {
 
     boolean hitBlock(ServerLevel level, IEtherStreamLike streamEntity, BlockHitResult hit, BlockState blockState);
 
+    default boolean onBeforeDestroy(IEtherStreamLike streamEntity) {
+        return true;
+    }
+
     void onDestroy(IEtherStreamLike streamEntity);
 
     default void firstTick(IEtherStreamLike etherStreamEntity) {

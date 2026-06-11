@@ -358,9 +358,8 @@ public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
 
     public void dropAndDiscard() {
         if (entityData.get(DYING)) return;
-        if (ether > 0) {
-            recreate(deltaMovement().reverse());
-            return;
+        for (IStreamCapability cap : capabilities) {
+            if (!cap.onBeforeDestroy(this)) return;
         }
         for (IStreamCapability capability : capabilities) {
             capability.onDestroy(this);

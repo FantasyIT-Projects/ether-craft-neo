@@ -122,9 +122,8 @@ public class VirtualEtherStream implements IEtherStreamLike {
 
     public void markDead() {
         if (markToRemove) return;
-        if (ether > 0) {
-            recreate(deltaMovement().reverse());
-            return;
+        for (IStreamCapability cap : capabilities) {
+            if (!cap.onBeforeDestroy(this)) return;
         }
         for (IStreamCapability cap : capabilities) {
             cap.onDestroy(this);
