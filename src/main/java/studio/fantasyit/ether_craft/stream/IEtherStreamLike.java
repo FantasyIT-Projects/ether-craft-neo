@@ -8,7 +8,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import studio.fantasyit.ether_craft.stream.cap.IStreamCapability;
-import studio.fantasyit.ether_craft.stream.data.EtherStreamLabelData;
 import studio.fantasyit.ether_craft.stream.data.IEtherStreamSyncedData;
 
 import java.util.Optional;
@@ -48,4 +47,6 @@ public interface IEtherStreamLike {
     void setRunIntoEtherGlass(boolean isEtherGlass2);
 
     IEtherStreamLike recreate(Vec3 newMotion);
+
+    void removeInstantly();
 }

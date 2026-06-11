@@ -25,6 +25,7 @@ public class JEITreeSlottedWidget implements ISlottedRecipeWidget, IJeiInputHand
     private final ViewportInputHandler inputHandler;
     private final TreeDiagramLayout layout;
     private final List<IRecipeSlotDrawable> allSlots;
+    private final List<IRecipeSlotDrawable> proxiedSlots;
     private final Map<String, IRecipeSlotDrawable> slotById = new HashMap<>();
 
     public JEITreeSlottedWidget(TreeDiagramLayout layout,
@@ -33,14 +34,21 @@ public class JEITreeSlottedWidget implements ISlottedRecipeWidget, IJeiInputHand
         this.allSlots = new ArrayList<>(allSlots);
         this.viewport = new TreeDiagramViewport(layout.canvasWidth, layout.canvasHeight, VIEW_W, VIEW_H);
         this.inputHandler = new ViewportInputHandler(viewport);
+        this.proxiedSlots = new ArrayList<>(allSlots.size());
+        for (var slot : allSlots) {
+            this.proxiedSlots.add(new ViewportSlotProxy(slot, viewport));
+        }
     }
 
     public void registerSlot(String nodeId, IRecipeSlotDrawable slot) {
-        slotById.put(nodeId, slot);
+        int idx = allSlots.indexOf(slot);
+        if (idx >= 0 && idx < proxiedSlots.size()) {
+            slotById.put(nodeId, proxiedSlots.get(idx));
+        }
     }
 
     public List<IRecipeSlotDrawable> getAllSlots() {
-        return allSlots;
+        return proxiedSlots;
     }
 
     @Override
@@ -62,7 +70,7 @@ public class JEITreeSlottedWidget implements ISlottedRecipeWidget, IJeiInputHand
 
         EdgeBatchRenderer.render(graphics, layout.edges);
 
-        for (var slot : allSlots) {
+        for (var slot : proxiedSlots) {
             slot.draw(graphics);
         }
 

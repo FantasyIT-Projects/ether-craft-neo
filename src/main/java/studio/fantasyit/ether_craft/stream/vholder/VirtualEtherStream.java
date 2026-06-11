@@ -211,6 +211,11 @@ public class VirtualEtherStream implements IEtherStreamLike {
         return null;
     }
 
+    @Override
+    public void removeInstantly() {
+        markDead(null);
+    }
+
     public PosDir getPosDir() {
         return posDir;
     }

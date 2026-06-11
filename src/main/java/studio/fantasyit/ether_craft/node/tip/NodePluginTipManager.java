@@ -99,6 +99,8 @@ public class NodePluginTipManager {
                 new TipInfo(List.of(
                         Ingredient.of(BuiltInRegistries.ITEM.getOrThrow(ItemTags.BOATS))
                 ), List.of(), Set.of(TipConcept.ETHER_FLOW, TipConcept.WORLD_INTERACTION)));
+        registerTip(EtherStreamBounceBackUpgrade.ID,
+                new TipInfo(List.of(Ingredient.of(Items.SLIME_BALL)), List.of(), Set.of(TipConcept.ETHER_FLOW)));
 
         scanNodeProcessRecipes(recipeManager);
     }

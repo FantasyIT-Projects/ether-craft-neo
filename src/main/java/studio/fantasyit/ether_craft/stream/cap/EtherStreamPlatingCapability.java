@@ -64,6 +64,7 @@ public class EtherStreamPlatingCapability implements IStreamCapability {
                 break;
             }
         }
+        streamEntity.removeInstantly();
     }
 
     private boolean handlePlating(IEtherStreamLike streamEntity, ServerLevel level, ItemEntity itemEntity, ItemStack stack, EtherStreamStorageCapability storage, List<PlatingRecipe> recipes) {

@@ -113,15 +113,33 @@ public class EtherProcessCategory implements IRecipeCategory<EtherProcessFactory
 
         TreeDiagramSpec spec = TreeDiagramSpec.fromJson(recipe.json);
         TreeDiagramLayout layout = TreeLayoutCalculator.compute(spec);
+        TreeLayout treeLayout = TreeLayout.compute(recipe.json);
 
         JEITreeSlottedWidget widget = new JEITreeSlottedWidget(layout, allSlots);
 
         int idx = 0;
-        for (var node : layout.nodes) {
+        for (TreeLayout.Entry e : treeLayout.inputs) {
             if (idx < allSlots.size()) {
                 IRecipeSlotDrawable slot = allSlots.get(idx);
-                slot.setPosition(node.x(), node.y());
-                widget.registerSlot(node.id(), slot);
+                slot.setPosition(e.x(), e.y());
+                widget.registerSlot(e.id(), slot);
+                idx++;
+            }
+        }
+        for (TreeLayout.ChipEntry c : treeLayout.chips) {
+            if (idx < allSlots.size()) {
+                IRecipeSlotDrawable slot = allSlots.get(idx);
+                slot.setPosition(c.x(), c.y());
+                widget.registerSlot(c.parentId(), slot);
+                idx++;
+            }
+        }
+        int outX = treeLayout.outputX;
+        for (int j = 0; j < recipe.json.output().item().size(); j++) {
+            if (idx < allSlots.size()) {
+                IRecipeSlotDrawable slot = allSlots.get(idx);
+                slot.setPosition(outX, treeLayout.outputY + j * (TreeLayout.SLOT_SIZE_OUTPUT + 2));
+                widget.registerSlot("output_" + j, slot);
                 idx++;
             }
         }
