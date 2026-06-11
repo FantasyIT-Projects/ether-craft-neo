@@ -99,6 +99,7 @@ public class NodePluginManager {
         ALL_PLUGINS.add(new PluginInfo(PluginType.UPGRADE, EtherStreamCarryEntityUpgrade.ID, EtherStreamCarryEntityUpgrade::new, t -> t.is(ItemTags.BOATS), Items.OAK_BOAT));
         ALL_PLUGINS.add(new PluginInfo(PluginType.UPGRADE, EtherStreamSpeedUpUpgrade.ID, EtherStreamSpeedUpUpgrade::new, t -> t.is(Items.POWERED_RAIL), Items.POWERED_RAIL));
         ALL_PLUGINS.add(new PluginInfo(PluginType.UPGRADE, EtherStreamPlatingUpgrade.ID, EtherStreamPlatingUpgrade::new, t -> t.is(Items.ANVIL), Items.ANVIL));
+        ALL_PLUGINS.add(new PluginInfo(PluginType.UPGRADE, EtherAutoSupplyUpgrade.ID, EtherAutoSupplyUpgrade::new, t -> t.is(ItemRegistry.ETHER_CRYSTAL.get()), ItemRegistry.ETHER_CRYSTAL.get()));
     }
 
     public NodePluginManager() {

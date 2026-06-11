@@ -190,6 +190,16 @@ public class Config {
             .comment("The ether consumed per tick before the node process upgrade is matched")
             .defineInRange("node.process.ether_consume_pre_unmatched", 1, 0, Integer.MAX_VALUE);
 
+    // -- node.auto_supply --
+
+    private static final ModConfigSpec.IntValue NODE_AUTO_SUPPLY_THRESHOLD = BUILDER
+            .comment("Ether level below which the auto supply upgrade activates and starts providing ether")
+            .defineInRange("node.auto_supply.threshold", 1000, 0, Integer.MAX_VALUE);
+
+    private static final ModConfigSpec.IntValue NODE_AUTO_SUPPLY_ETHER_PER_TICK = BUILDER
+            .comment("Ether provided per tick by a single auto supply upgrade")
+            .defineInRange("node.auto_supply.ether_per_tick", 5, 1, Integer.MAX_VALUE);
+
     // ===== plating =====
 
     private static final ModConfigSpec.IntValue PLATING_DURATION_TICKS = BUILDER
@@ -323,6 +333,8 @@ public class Config {
     public static double etherStorageMultiplier;
     public static int etherGlassPreventConsume;
     public static int nodeProcessEtherConsumePreUnmatched;
+    public static int etherAutoSupplyThreshold;
+    public static int etherAutoSupplyEtherPerTick;
     public static int platingDurationTicks;
     public static int platingDashCdTicks;
     public static int platingDashEtherCost;
@@ -381,6 +393,8 @@ public class Config {
         etherStorageMultiplier = ETHER_STORAGE_MULTIPLIER.get();
         etherGlassPreventConsume = ETHER_GLASS_PREVENT_CONSUME.get();
         nodeProcessEtherConsumePreUnmatched = ETHER_PROCESS_ETHER_CONSUME_PRE_UNMATCHED.get();
+        etherAutoSupplyThreshold = NODE_AUTO_SUPPLY_THRESHOLD.get();
+        etherAutoSupplyEtherPerTick = NODE_AUTO_SUPPLY_ETHER_PER_TICK.get();
         platingDurationTicks = PLATING_DURATION_TICKS.get();
         platingDashCdTicks = PLATING_DASH_CD_TICKS.get();
         platingDashEtherCost = PLATING_DASH_ETHER_COST.get();
