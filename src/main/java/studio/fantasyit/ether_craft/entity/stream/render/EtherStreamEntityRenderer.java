@@ -19,6 +19,10 @@ import org.joml.Quaternionf;
 import org.joml.Vector3fc;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.entity.stream.EtherStreamEntity;
+import studio.fantasyit.ether_craft.stream.data.EtherStreamLabelData;
+import studio.fantasyit.ether_craft.stream.data.IEtherStreamSyncedData;
+
+import java.util.List;
 
 public class EtherStreamEntityRenderer extends EntityRenderer<EtherStreamEntity, EtherStreamEntityRenderState> {
     private static final Identifier TEXTURE = EtherCraft.id("textures/entity/ether_stream.png");
@@ -47,13 +51,16 @@ public class EtherStreamEntityRenderer extends EntityRenderer<EtherStreamEntity,
             state.tailSize[i] = entity.tailSize[idx];
         }
         // --- Label extraction ---
-        java.util.Optional<net.minecraft.network.chat.Component> labelData = entity.getEntityData().get(EtherStreamEntity.LABEL_DATA);
-        labelData.ifPresent(label -> state.label = label);
-        if (labelData.isPresent()) {
-            Vector3fc sp = entity.getEntityData().get(EtherStreamEntity.START_POS);
-            state.startPos = new Vec3(sp.x(), sp.y(), sp.z());
+        List<IEtherStreamSyncedData> syncedData = entity.getEntityData().get(EtherStreamEntity.SYNCED_DATA);
+        if (syncedData != null) {
+            for (IEtherStreamSyncedData data : syncedData) {
+                if (data instanceof EtherStreamLabelData labelData) {
+                    state.label = labelData.label;
+                    state.labelColor = labelData.labelColor;
+                    break;
+                }
+            }
         }
-        state.labelColor = entity.getEntityData().get(EtherStreamEntity.LABEL_COLOR);
         state.motion = entity.getDeltaMovement();
         state.dying = entity.getEntityData().get(EtherStreamEntity.DYING);
         if (state.dying) {
@@ -113,7 +120,6 @@ public class EtherStreamEntityRenderer extends EntityRenderer<EtherStreamEntity,
         int visibleTextWidth;
 
         if (state.dying) {
-            // Death: consume characters from the right as text continues moving
             int consumedRight = Math.round(state.deathTick * state.speed / LABEL_SCALE);
             int remainingWidth = fullTextWidth - consumedRight;
             if (remainingWidth <= 0) return;
@@ -121,19 +127,8 @@ public class EtherStreamEntityRenderer extends EntityRenderer<EtherStreamEntity,
             if (visibleText.isEmpty()) return;
             visibleTextWidth = font.width(visibleText);
         } else {
-            // Alive: clip from the left at start position
-            if (state.startPos == null) return;
-            double worldDist = state.startPos.distanceTo(new Vec3(state.x, state.y, state.z));
-            float fontUnitsAvail = (float) (worldDist / LABEL_SCALE);
-            int visibleWidth = Math.round(fontUnitsAvail);
-            if (visibleWidth <= 0) return;
-            if (visibleWidth >= fullTextWidth) {
-                visibleText = fullText;
-            } else {
-                visibleText = font.plainSubstrByWidth(fullText, visibleWidth, true);
-            }
-            if (visibleText.isEmpty()) return;
-            visibleTextWidth = font.width(visibleText);
+            visibleText = fullText;
+            visibleTextWidth = fullTextWidth;
         }
 
         // Compute normal once

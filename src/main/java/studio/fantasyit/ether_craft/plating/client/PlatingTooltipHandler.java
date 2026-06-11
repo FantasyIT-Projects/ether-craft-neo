@@ -63,8 +63,6 @@ public class PlatingTooltipHandler {
         List<PlatingData> data = PlatingUtil.getPlatingData(stack);
         int ether = PlatingUtil.getEther(stack);
 
-        if (data.isEmpty()) return;
-
         tooltip.add(Component.empty());
         tooltip.add(Component.translatable("tooltip.ether_craft.plating.title")
                 .withStyle(net.minecraft.ChatFormatting.GOLD));

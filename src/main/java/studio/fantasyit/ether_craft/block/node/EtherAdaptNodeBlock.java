@@ -73,15 +73,13 @@ public class EtherAdaptNodeBlock extends BaseBlock {
     @Override
     protected int getSignal(@NotNull BlockState state, @NotNull net.minecraft.world.level.BlockGetter level, @NotNull BlockPos pos, @NotNull Direction direction) {
         if (level.getBlockEntity(pos) instanceof EtherAdaptNodeEntity eane)
-            return eane.getMaxRedstoneSignal();
+            return eane.getAnalogOutputSignal(direction.getOpposite());
         return 0;
     }
 
     @Override
     protected int getDirectSignal(@NotNull BlockState state, @NotNull net.minecraft.world.level.BlockGetter level, @NotNull BlockPos pos, @NotNull Direction direction) {
-        if (level.getBlockEntity(pos) instanceof EtherAdaptNodeEntity eane)
-            return eane.getAnalogOutputSignal(direction);
-        return 0;
+        return getSignal(state, level, pos, direction);
     }
 
     @Override

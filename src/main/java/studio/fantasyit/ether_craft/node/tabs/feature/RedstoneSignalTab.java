@@ -22,23 +22,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import static studio.fantasyit.ether_craft.node.tabs.feature.DirectionalFilterScreen.DIRECTION_ICON;
+import static studio.fantasyit.ether_craft.node.tabs.feature.DirectionalFilterScreen.DIRECTION_POSITION;
+
 public class RedstoneSignalTab extends BaseEtherNodeTabWidgetProvider<FeatureRedstoneSignal> {
-    private static final Map<Direction, Vector2i> DIRECTION_POSITION = Map.of(
-            Direction.UP, new Vector2i(28, 31),
-            Direction.NORTH, new Vector2i(28, 12),
-            Direction.SOUTH, new Vector2i(28, 50),
-            Direction.EAST, new Vector2i(48, 31),
-            Direction.WEST, new Vector2i(8, 31),
-            Direction.DOWN, new Vector2i(68, 31)
-    );
-    private static final Map<Direction, ImageAsset> DIRECTION_ICON = Map.of(
-            Direction.UP, EtherAdaptNodeAsset.BTN_ICON_U,
-            Direction.NORTH, EtherAdaptNodeAsset.BTN_ICON_N,
-            Direction.SOUTH, EtherAdaptNodeAsset.BTN_ICON_S,
-            Direction.EAST, EtherAdaptNodeAsset.BTN_ICON_E,
-            Direction.WEST, EtherAdaptNodeAsset.BTN_ICON_W,
-            Direction.DOWN, EtherAdaptNodeAsset.BTN_ICON_D
-    );
     private Map<Direction, IASwitchButton> directionButton;
     private IASwitchButton modeButton;
     private IASwitchButton enabledButton;
@@ -85,10 +72,10 @@ public class RedstoneSignalTab extends BaseEtherNodeTabWidgetProvider<FeatureRed
 
         modeButton = new IASwitchButton(
                 lx(90), ly(12),
-                EtherAdaptNodeAsset.BTN_BLACK,
-                EtherAdaptNodeAsset.BTN_BLACK_HOVER,
-                EtherAdaptNodeAsset.BTN_WHITE,
-                EtherAdaptNodeAsset.BTN_WHITE_HOVER,
+                EtherAdaptNodeAsset.BTN_BLANK,
+                EtherAdaptNodeAsset.BTN_BLANK_HOVER,
+                EtherAdaptNodeAsset.BTN_BLANK_DOWN,
+                EtherAdaptNodeAsset.BTN_BLANK_DOWN_HOVER,
                 null,
                 Component.translatable("ether_craft.gui.node.redstone_signal.mode_ether"),
                 Component.translatable("ether_craft.gui.node.redstone_signal.mode_inventory"),
@@ -108,10 +95,10 @@ public class RedstoneSignalTab extends BaseEtherNodeTabWidgetProvider<FeatureRed
 
         enabledButton = new IASwitchButton(
                 lx(90), ly(32),
-                EtherAdaptNodeAsset.BTN_BLACK,
-                EtherAdaptNodeAsset.BTN_BLACK_HOVER,
-                EtherAdaptNodeAsset.BTN_WHITE,
-                EtherAdaptNodeAsset.BTN_WHITE_HOVER,
+                EtherAdaptNodeAsset.BTN_BLANK,
+                EtherAdaptNodeAsset.BTN_BLANK_HOVER,
+                EtherAdaptNodeAsset.BTN_BLANK_DOWN,
+                EtherAdaptNodeAsset.BTN_BLANK_DOWN_HOVER,
                 null,
                 Component.translatable("ether_craft.gui.node.redstone_signal.disabled"),
                 Component.translatable("ether_craft.gui.node.redstone_signal.enabled"),
@@ -119,7 +106,7 @@ public class RedstoneSignalTab extends BaseEtherNodeTabWidgetProvider<FeatureRed
                     ClientPacketDistributor.sendToServer(new SyncScreenDataC2S(
                             plugin.installedId,
                             FeatureRedstoneSignal.SYNC_ENABLED,
-                            0, t ? 1 : 0));
+                            0, (!t) ? 1 : 0));
                     return true;
                 }
         );

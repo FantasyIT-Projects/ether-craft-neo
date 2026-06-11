@@ -72,7 +72,8 @@ public class EtherStreamDamageCapability implements IStreamCapability {
         fakePlayer.setPos(streamEntity.position());
         fakePlayer.resetAttackStrengthTicker();
         fakePlayer.setItemInHand(InteractionHand.MAIN_HAND, bestWeapon.copy());
-        fakePlayer.attackStrengthTicker = 5.;
+        fakePlayer.detectEquipmentUpdates();
+        fakePlayer.attackStrengthTicker = 9999;
         fakePlayer.attack(entity);
         fakePlayer.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
 

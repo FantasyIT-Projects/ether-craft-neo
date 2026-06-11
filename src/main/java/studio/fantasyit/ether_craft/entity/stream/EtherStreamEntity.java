@@ -2,7 +2,6 @@ package studio.fantasyit.ether_craft.entity.stream;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -31,12 +30,15 @@ import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.block.base.EtherContainer;
 import studio.fantasyit.ether_craft.plating.helper.PlatingUtil;
 import studio.fantasyit.ether_craft.register.BlockRegistry;
+import studio.fantasyit.ether_craft.register.EntityDataSerializerRegistry;
 import studio.fantasyit.ether_craft.register.EntityRegistry;
 import studio.fantasyit.ether_craft.register.Tags;
 import studio.fantasyit.ether_craft.stream.EtherConsumer;
 import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
 import studio.fantasyit.ether_craft.stream.cap.IStreamCapability;
+import studio.fantasyit.ether_craft.stream.data.EtherStreamLabelData;
 import studio.fantasyit.ether_craft.stream.data.IEtherStreamSyncedData;
+import studio.fantasyit.ether_craft.stream.data.SyncedEtherStreamDataManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,12 +46,8 @@ import java.util.Optional;
 
 public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
     static final EntityDataAccessor<Integer> ETHER_COUNT = SynchedEntityData.defineId(EtherStreamEntity.class, EntityDataSerializers.INT);
-    public static final EntityDataAccessor<java.util.Optional<Component>> LABEL_DATA =
-            SynchedEntityData.defineId(EtherStreamEntity.class, EntityDataSerializers.OPTIONAL_COMPONENT);
-    public static final EntityDataAccessor<Vector3fc> START_POS =
-            SynchedEntityData.defineId(EtherStreamEntity.class, EntityDataSerializers.VECTOR3);
-    public static final EntityDataAccessor<Integer> LABEL_COLOR =
-            SynchedEntityData.defineId(EtherStreamEntity.class, EntityDataSerializers.INT);
+    public static final EntityDataAccessor<List<IEtherStreamSyncedData>> SYNCED_DATA =
+            SynchedEntityData.defineId(EtherStreamEntity.class, EntityDataSerializerRegistry.SYNCED_DATA_LIST.get());
     public static final EntityDataAccessor<Boolean> DYING =
             SynchedEntityData.defineId(EtherStreamEntity.class, EntityDataSerializers.BOOLEAN);
     public static final EntityDataAccessor<Vector3fc> DEATH_POS =
@@ -62,7 +60,6 @@ public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
     public final float[] tailSize = new float[MAX_TAIL];
     public int tailHead = -1;
     public int tailCount;
-    public boolean ticked = false;
     public int clientDeathTick;
     private int deathTickStart;
     private static final int MAX_DEATH_TICKS = 60;
@@ -73,6 +70,7 @@ public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
     public static EtherStreamEntity create(Level level, int ether, Vec3 position, Vec3 motion) {
         EtherStreamEntity instance = new EtherStreamEntity(EntityRegistry.ETHER_STREAM_ENTITY.get(), level);
         instance.ether = ether;
+        instance.entityData.set(ETHER_COUNT, ether);
         instance.setPos(position);
         instance.setDeltaMovement(motion);
         return instance;
@@ -91,15 +89,12 @@ public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         builder.define(ETHER_COUNT, ether);
-        builder.define(LABEL_DATA, java.util.Optional.empty());
-        builder.define(START_POS, new Vector3f());
-        builder.define(LABEL_COLOR, 0xFFFFFFFF);
+        builder.define(SYNCED_DATA, new ArrayList<>());
         builder.define(DYING, false);
         builder.define(DEATH_POS, new Vector3f());
     }
 
     public void firstTick() {
-        this.ticked = true;
         for (IStreamCapability capability : capabilities) {
             capability.firstTick(this);
         }
@@ -149,6 +144,10 @@ public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
         super.tick();
         if (this.level().isClientSide()) {
             this.ether = this.entityData.get(ETHER_COUNT);
+            List<IEtherStreamSyncedData> synced = this.entityData.get(SYNCED_DATA);
+            if (synced != null) {
+                this.toSyncData = new ArrayList<>(synced);
+            }
             if (entityData.get(DYING)) {
                 clientDeathTick++;
             }
@@ -159,11 +158,21 @@ public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
             tailZ[tailHead] = this.getZ();
             tailSize[tailHead] = getSize();
         } else {
+            if (!level().isLoaded(this.blockPosition())) {
+                return;
+            }
+
             if (consumer.isDirty()) {
                 consumer.recompute(this, capabilities);
             }
-            if (!ticked)
+
+            if (this.tickCount == 0)
                 firstTick();
+
+            for (IStreamCapability capability : capabilities) {
+                capability.tick(this);
+            }
+
             if (entityData.get(DYING)) {
                 Vec3 vec3 = this.getDeltaMovement();
                 this.setPos(this.getX() + vec3.x, this.getY() + vec3.y, this.getZ() + vec3.z);
@@ -172,20 +181,14 @@ public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
                 }
                 return;
             }
-            if (this.tickCount >= Config.etherStreamMaxTick) {
-                this.dropAndDiscard(null);
-                return;
-            }
+
             int consumption = consumer.getTotalConsumption(ether, tickCount);
             this.consumeEtherInternal(consumption);
-            if (ether <= 0) {
+
+            if (ether <= 0 || this.tickCount >= Config.etherStreamMaxTick) {
                 this.dropAndDiscard(null);
                 return;
             }
-        }
-
-        for (IStreamCapability capability : capabilities) {
-            capability.tick(this);
         }
 
         Vec3 vec3 = this.getDeltaMovement();
@@ -218,11 +221,13 @@ public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
     public void setSyncedData(IEtherStreamSyncedData data) {
         toSyncData.removeIf(d -> d.getId().equals(data.getId()));
         toSyncData.add(data);
+        this.entityData.set(SYNCED_DATA, new ArrayList<>(toSyncData));
     }
 
     @Override
     public void clearSyncedData(Identifier id) {
         toSyncData.removeIf(d -> d.getId().equals(id));
+        this.entityData.set(SYNCED_DATA, new ArrayList<>(toSyncData));
     }
 
     @Override
@@ -340,12 +345,15 @@ public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
     @Override
     public IEtherStreamLike recreate(Vec3 newMotion) {
         EtherStreamEntity newEntity = create(level(), this.ether, position(), newMotion);
-        newEntity.consumer.fromState(this.consumer.toState());
         newEntity.capabilities = this.capabilities;
-        newEntity.toSyncData = new ArrayList<>(this.toSyncData);
         this.capabilities = new ArrayList<>();
         for (IStreamCapability cap : newEntity.capabilities) {
             cap.setConsumer(newEntity.consumer);
+        }
+        newEntity.consumer.fromState(this.consumer.toState());
+        newEntity.toSyncData = new ArrayList<>(this.toSyncData);
+        newEntity.entityData.set(SYNCED_DATA, new ArrayList<>(this.toSyncData));
+        for (IStreamCapability cap : newEntity.capabilities) {
             cap.onRecreate(newEntity);
         }
         if (level() instanceof ServerLevel serverLevel) {
@@ -369,7 +377,7 @@ public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
         for (IStreamCapability capability : capabilities) {
             capability.onDestroy(this, hitResult);
         }
-        if (entityData.get(LABEL_DATA).isPresent()) {
+        if (getSyncedData(EtherStreamLabelData.ID) != null) {
             deathTickStart = this.tickCount;
             entityData.set(DEATH_POS, new Vector3f((float) this.getX(), (float) this.getY(), (float) this.getZ()));
             entityData.set(DYING, true);
@@ -381,11 +389,13 @@ public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
     @Override
     protected void addAdditionalSaveData(ValueOutput output) {
         super.addAdditionalSaveData(output);
+        output.store("toSyncData", SyncedEtherStreamDataManager.CODEC.listOf(), toSyncData);
     }
 
     @Override
     protected void readAdditionalSaveData(ValueInput input) {
         super.readAdditionalSaveData(input);
+        toSyncData = new ArrayList<>(input.read("toSyncData", SyncedEtherStreamDataManager.CODEC.listOf()).orElse(List.of()));
     }
 
 

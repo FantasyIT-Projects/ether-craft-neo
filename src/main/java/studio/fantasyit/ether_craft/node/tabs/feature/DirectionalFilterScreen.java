@@ -24,16 +24,15 @@ import java.util.Map;
 import java.util.Objects;
 
 public class DirectionalFilterScreen extends BaseEtherNodeTabWidgetProvider<AbstractDirectionalFilterFeature> {
-
-    private static final Map<Direction, Vector2i> DIRECTION_POSITION = Map.of(
-            Direction.UP, new Vector2i(28, 31),
+    public static final Map<Direction, Vector2i> DIRECTION_POSITION = Map.of(
+            Direction.UP, new Vector2i(48, 12),
             Direction.NORTH, new Vector2i(28, 12),
             Direction.SOUTH, new Vector2i(28, 50),
             Direction.EAST, new Vector2i(48, 31),
             Direction.WEST, new Vector2i(8, 31),
-            Direction.DOWN, new Vector2i(68, 31)
+            Direction.DOWN, new Vector2i(8, 50)
     );
-    private static final Map<Direction, ImageAsset> DIRECTION_ICON = Map.of(
+    public static final Map<Direction, ImageAsset> DIRECTION_ICON = Map.of(
             Direction.UP, EtherAdaptNodeAsset.BTN_ICON_U,
             Direction.NORTH, EtherAdaptNodeAsset.BTN_ICON_N,
             Direction.SOUTH, EtherAdaptNodeAsset.BTN_ICON_S,
