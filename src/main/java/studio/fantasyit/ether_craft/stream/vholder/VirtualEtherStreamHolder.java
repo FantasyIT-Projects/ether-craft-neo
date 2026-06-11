@@ -166,15 +166,15 @@ public class VirtualEtherStreamHolder {
 
             if (hitEntity != null) {
                 boolean handled = false;
+                EntityHitResult hit = new EntityHitResult(hitEntity, entityHitAt);
                 if (hitEntity instanceof ItemEntity ie && isPlatedItem(ie)) {
                     addEtherToPlatedItem(ves, ie);
                 } else {
-                    EntityHitResult hit = new EntityHitResult(hitEntity, entityHitAt);
                     for (IStreamCapability cap : ves.capabilities) {
                         handled |= cap.hitEntity(level, ves, hit, hitEntity);
                     }
                 }
-                if (!handled) ves.markDead();
+                if (!handled) ves.markDead(hit);
             } else if (blockHit != null) {
                 boolean handled = false;
                 for (IStreamCapability cap : ves.capabilities) {
@@ -184,7 +184,7 @@ public class VirtualEtherStreamHolder {
                     EtherContainer capability = level.getCapability(EtherContainer.ETHER_CONTAINER, blockHit.getBlockPos());
                     if (capability != null)
                         capability.receiveEther(ves.getEther());
-                    ves.markDead();
+                    ves.markDead(blockHit);
                 }
             }
         }

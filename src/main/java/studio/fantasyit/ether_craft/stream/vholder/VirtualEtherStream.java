@@ -6,6 +6,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import studio.fantasyit.ether_craft.Config;
@@ -96,6 +97,7 @@ public class VirtualEtherStream implements IEtherStreamLike {
     public void dirtyConsumer() {
         consumer.markDirty();
     }
+
     @Override
     public Direction getDirection() {
         return direction;
@@ -120,13 +122,13 @@ public class VirtualEtherStream implements IEtherStreamLike {
         return false;
     }
 
-    public void markDead() {
+    public void markDead(@Nullable HitResult hitResult) {
         if (markToRemove) return;
         for (IStreamCapability cap : capabilities) {
-            if (!cap.onBeforeDestroy(this)) return;
+            if (!cap.onBeforeDestroy(this, hitResult)) return;
         }
         for (IStreamCapability cap : capabilities) {
-            cap.onDestroy(this);
+            cap.onDestroy(this, hitResult);
         }
         markToRemove = true;
     }
@@ -167,7 +169,7 @@ public class VirtualEtherStream implements IEtherStreamLike {
         this.consumeEtherInternal(consumption);
 
         if (this.getEther() <= 0 || this.tickCount > Config.etherStreamMaxTick) {
-            this.markDead();
+            this.markDead(null);
         }
     }
 
@@ -191,7 +193,7 @@ public class VirtualEtherStream implements IEtherStreamLike {
         newStream.markToSyncCreation = true;
         holder.streams.add(newStream);
         this.ether = 0;
-        this.markDead();
+        this.markDead(null);
         return newStream;
     }
 

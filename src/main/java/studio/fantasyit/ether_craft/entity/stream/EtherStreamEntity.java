@@ -173,13 +173,13 @@ public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
                 return;
             }
             if (this.tickCount >= Config.etherStreamMaxTick) {
-                this.dropAndDiscard();
+                this.dropAndDiscard(null);
                 return;
             }
             int consumption = consumer.getTotalConsumption(ether, tickCount);
             this.consumeEtherInternal(consumption);
             if (ether <= 0) {
-                this.dropAndDiscard();
+                this.dropAndDiscard(null);
                 return;
             }
         }
@@ -283,7 +283,7 @@ public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
             if (e != null)
                 e.receiveEther(this.ether);
             if (!handled)
-                dropAndDiscard();
+                dropAndDiscard(p_37258_);
         }
     }
 
@@ -299,7 +299,7 @@ public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
                 consumeEther(remaining);
                 ie.setItem(stack);
             }
-            dropAndDiscard();
+            dropAndDiscard(p_37259_);
             return;
         }
         boolean handled = false;
@@ -307,7 +307,7 @@ public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
             if (capability.hitEntity((ServerLevel) level(), this, p_37259_, entity))
                 handled = true;
         if (!handled)
-            dropAndDiscard();
+            dropAndDiscard(p_37259_);
     }
 
     @Override
@@ -352,17 +352,17 @@ public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
             serverLevel.addFreshEntity(newEntity);
         }
         this.ether = 0;
-        dropAndDiscard();
+        dropAndDiscard(null);
         return newEntity;
     }
 
-    public void dropAndDiscard() {
+    public void dropAndDiscard(@Nullable HitResult hitResult) {
         if (entityData.get(DYING)) return;
         for (IStreamCapability cap : capabilities) {
-            if (!cap.onBeforeDestroy(this)) return;
+            if (!cap.onBeforeDestroy(this, hitResult)) return;
         }
         for (IStreamCapability capability : capabilities) {
-            capability.onDestroy(this);
+            capability.onDestroy(this, hitResult);
         }
         if (entityData.get(LABEL_DATA).isPresent()) {
             deathTickStart = this.tickCount;

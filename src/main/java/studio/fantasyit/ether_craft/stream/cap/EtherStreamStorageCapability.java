@@ -20,6 +20,7 @@ import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
@@ -145,7 +146,7 @@ public class EtherStreamStorageCapability implements IStreamCapability, Containe
     }
 
     @Override
-    public void onDestroy(IEtherStreamLike streamEntity) {
+    public void onDestroy(IEtherStreamLike streamEntity, @Nullable HitResult hitResult) {
         Containers.dropContents(streamEntity.level(), streamEntity.blockPosition(), this);
     }
 

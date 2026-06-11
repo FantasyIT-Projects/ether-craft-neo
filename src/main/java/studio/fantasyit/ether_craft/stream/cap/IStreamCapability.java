@@ -7,7 +7,9 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.neoforged.neoforge.common.util.ValueIOSerializable;
+import org.jetbrains.annotations.Nullable;
 import studio.fantasyit.ether_craft.stream.EtherConsumer;
 import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
 
@@ -24,11 +26,11 @@ public interface IStreamCapability extends ValueIOSerializable {
 
     boolean hitBlock(ServerLevel level, IEtherStreamLike streamEntity, BlockHitResult hit, BlockState blockState);
 
-    default boolean onBeforeDestroy(IEtherStreamLike streamEntity) {
+    default boolean onBeforeDestroy(IEtherStreamLike streamEntity, @Nullable HitResult hitResult) {
         return true;
     }
 
-    void onDestroy(IEtherStreamLike streamEntity);
+    void onDestroy(IEtherStreamLike streamEntity, @Nullable HitResult hitResult);
 
     default void firstTick(IEtherStreamLike etherStreamEntity) {
 

@@ -12,7 +12,9 @@ import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.Nullable;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.register.AttachmentDataRegistry;
 import studio.fantasyit.ether_craft.stream.EtherConsumer;
@@ -28,7 +30,7 @@ public class EtherStreamCarryEntityCapability implements IStreamCapability {
             BlockPos.CODEC.fieldOf("source").forGetter(t -> t.source)
     ).apply(instance, EtherStreamCarryEntityCapability::new));
 
-    private transient Entity cachedEntity;
+    private Entity cachedEntity;
 
     private BlockPos source;
 
@@ -108,7 +110,7 @@ public class EtherStreamCarryEntityCapability implements IStreamCapability {
     }
 
     @Override
-    public void onDestroy(IEtherStreamLike streamEntity) {
+    public void onDestroy(IEtherStreamLike streamEntity, @Nullable HitResult hitResult) {
         EtherStreamCarryingEntityData data = getCarriedData(streamEntity);
         if (data == null) return;
 
@@ -124,6 +126,9 @@ public class EtherStreamCarryEntityCapability implements IStreamCapability {
             entity.noPhysics = false;
             entity.setDeltaMovement(Vec3.ZERO);
             Vec3 dropPlayerPos = streamEntity.position();
+            if (hitResult != null && hitResult.getType() != HitResult.Type.MISS) {
+                dropPlayerPos = hitResult.getLocation();
+            }
             Vec3 motion = streamEntity.deltaMovement();
             dropEntityTo(streamEntity.level(), dropPlayerPos, motion, entity);
             entity.setData(AttachmentDataRegistry.CARRY_COOLDOWN.get(), entity.level().getGameTime());
