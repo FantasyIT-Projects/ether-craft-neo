@@ -5,6 +5,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.display.DisplayContentsFactory;
 import net.neoforged.neoforge.common.crafting.SizedIngredient;
 import studio.fantasyit.ether_craft.recipe.factory.EtherProcessRecipeJson;
+import studio.fantasyit.ether_craft.recipe.factory.render.data.TreeDiagramSpec;
+import studio.fantasyit.ether_craft.recipe.factory.render.data.TreeDiagramLayout;
+import studio.fantasyit.ether_craft.recipe.factory.render.data.TreeLayoutCalculator;
 
 import java.util.*;
 
@@ -18,14 +21,9 @@ public class TreeLayout {
     static final int HEIGHT = 90;
     static final int MIN_SPACING = 26;
 
-    record Entry(String id, int x, int y, SizedIngredient ingredient) {
-    }
-
-    record ChipEntry(String parentId, int x, int y, SizedIngredient ingredient) {
-    }
-
-    record Edge(int fromX, int fromY, int toX, int toY) {
-    }
+    record Entry(String id, int x, int y, SizedIngredient ingredient) {}
+    record ChipEntry(String parentId, int x, int y, SizedIngredient ingredient) {}
+    record Edge(int fromX, int fromY, int toX, int toY) {}
 
     final List<Entry> inputs = new ArrayList<>();
     final List<ChipEntry> chips = new ArrayList<>();
@@ -35,128 +33,41 @@ public class TreeLayout {
     int canvasHeight;
 
     static TreeLayout compute(EtherProcessRecipeJson json) {
+        TreeDiagramSpec spec = TreeDiagramSpec.fromJson(json);
+        TreeDiagramLayout computed = TreeLayoutCalculator.compute(spec);
+
         TreeLayout layout = new TreeLayout();
+        layout.canvasWidth = computed.canvasWidth;
+        layout.canvasHeight = computed.canvasHeight;
+        layout.outputX = computed.output.x();
+        layout.outputY = computed.output.y();
 
-        Map<String, Boolean> isInput = new HashMap<>();
-        Set<String> allIds = new HashSet<>();
+        Map<String, SizedIngredient> inputIngredient = new HashMap<>();
         for (var in : json.input()) {
-            allIds.add(in.id());
-            isInput.put(in.id(), true);
+            inputIngredient.put(in.id(), in.item());
         }
-        for (var proc : json.process()) {
-            allIds.add(proc.id());
-            isInput.put(proc.id(), false);
-        }
-
-        Map<String, Integer> levels = computeLevels(json, allIds);
-        int maxLevel = levels.values().stream().max(Integer::compareTo).orElse(0);
-
-        Map<String, Integer> nodeH = new HashMap<>();
-        for (var in : json.input())
-            nodeH.put(in.id(), SLOT_SIZE);
-        for (var proc : json.process()) {
-            int cnt = proc.item().size();
-            nodeH.put(proc.id(), cnt * SLOT_SIZE + (cnt - 1) * CHIP_GAP - (cnt - 1) * 9);
-        }
-
-        Map<String, String> nextMap = new HashMap<>();
-        for (var in : json.input())
-            nextMap.put(in.id(), in.next());
-        for (var proc : json.process())
-            nextMap.put(proc.id(), proc.next());
-
-
-        int outCount = json.output().item().size();
-        int outHeight = outCount * SLOT_SIZE + Math.max(0, outCount - 1) * CHIP_GAP;  // 纵向总高度
-        int outWidth = SLOT_SIZE;  // 固定宽度（一个槽位宽度）
-        int usable = WIDTH - 2 * PADDING - outWidth;
-        int spacing = maxLevel > 0 ? Math.max(MIN_SPACING, usable / maxLevel) : 0;
-        layout.canvasWidth = PADDING + maxLevel * spacing + outWidth + PADDING;
-
-        Map<Integer, List<String>> byLevel = new TreeMap<>();
-        for (var e : levels.entrySet()) {
-            byLevel.computeIfAbsent(e.getValue(), k -> new ArrayList<>()).add(e.getKey());
-        }
-
-        Map<String, Integer> nodeX = new HashMap<>();
-        Map<String, Integer> nodeY = new HashMap<>();
-
-        for (var entry : byLevel.entrySet()) {
-            int level = entry.getKey();
-            int colX = PADDING + (maxLevel - level) * spacing;
-            List<String> ids = new ArrayList<>(entry.getValue());
-
-            if (level == 1) {
-                ids.sort(String::compareTo);
-            } else {
-                ids.sort((a, b) -> {
-                    String na = nextMap.get(a);
-                    String nb = nextMap.get(b);
-                    int ya = na != null && nodeY.containsKey(na) ? nodeY.get(na) : 0;
-                    int yb = nb != null && nodeY.containsKey(nb) ? nodeY.get(nb) : 0;
-                    if (ya != yb) return Integer.compare(ya, yb);
-                    return a.compareTo(b);
-                });
-            }
-
-            int totalH = 0;
-            for (String id : ids) {
-                totalH += nodeH.get(id) + NODE_GAP;
-            }
-            if (totalH > 0) totalH -= NODE_GAP;
-
-            int curY = PADDING + (HEIGHT - 2 * PADDING - totalH) / 2;
-            for (String id : ids) {
-                nodeX.put(id, colX);
-                nodeY.put(id, curY);
-                curY += nodeH.get(id) + NODE_GAP;
+        for (var pn : computed.nodes) {
+            SizedIngredient ing = inputIngredient.get(pn.id());
+            if (ing != null) {
+                layout.inputs.add(new Entry(pn.id(), pn.x(), pn.y(), ing));
             }
         }
 
-        layout.outputX = layout.canvasWidth - PADDING - outWidth;
-        layout.outputY = PADDING + (HEIGHT - 2 * PADDING - outHeight) / 2;
-
-        layout.canvasHeight = HEIGHT;
-
-        for (var in : json.input()) {
-            layout.inputs.add(new Entry(in.id(), nodeX.get(in.id()), nodeY.get(in.id()), in.item()));
-        }
         for (var proc : json.process()) {
-            int cx = nodeX.get(proc.id());
-            int cy = nodeY.get(proc.id());
+            String id = proc.id();
+            var positioned = computed.nodes.stream()
+                    .filter(n -> n.id().equals(id)).findFirst().orElse(null);
+            if (positioned == null) continue;
+            int cx = positioned.x();
+            int cy = positioned.y();
             for (var sized : proc.item()) {
-                layout.chips.add(new ChipEntry(proc.id(), cx, cy, sized));
+                layout.chips.add(new ChipEntry(id, cx, cy, sized));
                 cy += SLOT_SIZE + CHIP_GAP;
             }
         }
 
-        for (var in : json.input()) {
-            int fx = nodeX.get(in.id()) + SLOT_SIZE;
-            int fy = nodeY.get(in.id()) + SLOT_SIZE / 2;
-            String next = in.next();
-            int tx, ty;
-            if (next != null && allIds.contains(next)) {
-                tx = nodeX.get(next);
-                ty = nodeY.get(next) + nodeMidY(isInput.get(next), nodeH.get(next));
-            } else {
-                tx = layout.outputX;
-                ty = layout.outputY + outHeight / 2;
-            }
-            layout.edges.add(new Edge(fx, fy, tx, ty));
-        }
-        for (var proc : json.process()) {
-            int fx = nodeX.get(proc.id()) + SLOT_SIZE;
-            int fy = nodeY.get(proc.id()) + nodeMidY(false, nodeH.get(proc.id()));
-            String next = proc.next();
-            int tx, ty;
-            if (next != null && allIds.contains(next)) {
-                tx = nodeX.get(next);
-                ty = nodeY.get(next) + nodeMidY(isInput.get(next), nodeH.get(next));
-            } else {
-                tx = layout.outputX;
-                ty = layout.outputY + outHeight / 2;
-            }
-            layout.edges.add(new Edge(fx, fy, tx, ty));
+        for (var edge : computed.edges) {
+            layout.edges.add(new Edge(edge.fromX(), edge.fromY(), edge.toX(), edge.toY()));
         }
 
         return layout;
