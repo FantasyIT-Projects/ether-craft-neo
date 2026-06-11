@@ -24,6 +24,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.display.SlotDisplayContext;
 import org.jetbrains.annotations.Nullable;
 import studio.fantasyit.ether_craft.recipe.factory.EtherProcessFactoryRecipe;
+import studio.fantasyit.ether_craft.recipe.factory.render.data.TreeDiagramLayout;
+import studio.fantasyit.ether_craft.recipe.factory.render.data.TreeDiagramSpec;
+import studio.fantasyit.ether_craft.recipe.factory.render.data.TreeLayoutCalculator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -108,32 +111,23 @@ public class EtherProcessCategory implements IRecipeCategory<EtherProcessFactory
         allSlots.addAll(chipSlots);
         allSlots.addAll(outputSlots);
 
-        TreeLayout layout = TreeLayout.compute(recipe.json);
+        TreeDiagramSpec spec = TreeDiagramSpec.fromJson(recipe.json);
+        TreeDiagramLayout layout = TreeLayoutCalculator.compute(spec);
 
-        List<Integer> worldXs = new ArrayList<>();
-        List<Integer> worldYs = new ArrayList<>();
+        JEITreeSlottedWidget widget = new JEITreeSlottedWidget(layout, allSlots);
+
         int idx = 0;
-        for (TreeLayout.Entry e : layout.inputs) {
-            worldXs.add(e.x());
-            worldYs.add(e.y());
-            idx++;
-        }
-        for (TreeLayout.ChipEntry c : layout.chips) {
-            worldXs.add(c.x());
-            worldYs.add(c.y());
-            idx++;
-        }
-        int outCount = recipe.json.output().item().size();
-        for (int j = 0; j < outCount; j++) {
-            worldXs.add(layout.outputX);
-            worldYs.add(layout.outputY + j * (TreeLayout.SLOT_SIZE_OUTPUT + 2));
+        for (var node : layout.nodes) {
+            if (idx < allSlots.size()) {
+                IRecipeSlotDrawable slot = allSlots.get(idx);
+                slot.setPosition(node.x(), node.y());
+                widget.registerSlot(node.id(), slot);
+                idx++;
+            }
         }
 
-        ViewportTransform vt = new ViewportTransform(
-                layout.canvasWidth, layout.canvasHeight,
-                allSlots, worldXs, worldYs, layout.edges);
-        builder.addSlottedWidget(vt, allSlots);
-        builder.addInputHandler(vt);
+        builder.addSlottedWidget(widget, allSlots);
+        builder.addInputHandler(widget);
     }
 
     @Override
