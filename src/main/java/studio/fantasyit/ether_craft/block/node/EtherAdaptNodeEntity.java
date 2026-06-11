@@ -163,6 +163,8 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
             updatePluginInfos();
             if (!name.isEmpty() && level instanceof ServerLevel sl)
                 PacketDistributor.sendToPlayersInDimension(sl, new SyncBlockNameS2C(getBlockPos(), name));
+            level.updateNeighbourForOutputSignal(worldPosition, getBlockState().getBlock());
+            level.updateNeighborsAt(worldPosition, getBlockState().getBlock());
         }
     }
 
@@ -532,7 +534,6 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
         setChanged();
         if (level != null && !level.isClientSide()) {
             markUpdate = true;
-            level.updateNeighbourForOutputSignal(worldPosition, getBlockState().getBlock());
         }
     }
 
@@ -545,6 +546,16 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
             }
         }
         return 0;
+    }
+
+    public int getMaxRedstoneSignal() {
+        int max = 0;
+        for (AbstractNodePlugin plugin : getPlugins()) {
+            if (plugin instanceof FeatureRedstoneSignal rss && rss.enabled) {
+                max = Math.max(max, rss.getSignal());
+            }
+        }
+        return max;
     }
 
     public void setSyncedPluginData(InstalledPlugin plugin, Identifier actionId, int value) {

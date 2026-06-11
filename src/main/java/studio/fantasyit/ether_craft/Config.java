@@ -311,7 +311,7 @@ public class Config {
     // -- plating.ether_stream_damage --
     private static final ModConfigSpec.IntValue PLATING_ETHER_STREAM_DAMAGE_CD_TICKS = BUILDER
             .comment("Cooldown ticks for Ether Stream Damage plating effect")
-            .defineInRange("plating.ether_stream_damage.cd_ticks", 20, 0, 12000);
+            .defineInRange("plating.ether_stream_damage.cd_ticks", 2, 0, 12000);
     private static final ModConfigSpec.IntValue PLATING_ETHER_STREAM_DAMAGE_ETHER_COST = BUILDER
             .comment("Ether cost for Ether Stream Damage plating effect")
             .defineInRange("plating.ether_stream_damage.ether_cost", 50, 0, Integer.MAX_VALUE);
@@ -322,7 +322,7 @@ public class Config {
     // -- plating.ether_stream_break --
     private static final ModConfigSpec.IntValue PLATING_ETHER_STREAM_BREAK_CD_TICKS = BUILDER
             .comment("Cooldown ticks for Ether Stream Break plating effect")
-            .defineInRange("plating.ether_stream_break.cd_ticks", 30, 0, 12000);
+            .defineInRange("plating.ether_stream_break.cd_ticks", 2, 0, 12000);
     private static final ModConfigSpec.IntValue PLATING_ETHER_STREAM_BREAK_ETHER_COST = BUILDER
             .comment("Ether cost for Ether Stream Break plating effect")
             .defineInRange("plating.ether_stream_break.ether_cost", 50, 0, Integer.MAX_VALUE);

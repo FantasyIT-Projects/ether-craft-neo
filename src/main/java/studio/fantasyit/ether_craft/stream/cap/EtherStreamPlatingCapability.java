@@ -70,7 +70,6 @@ public class EtherStreamPlatingCapability implements IStreamCapability {
     private boolean handlePlating(IEtherStreamLike streamEntity, ServerLevel level, ItemEntity itemEntity, ItemStack stack, EtherStreamStorageCapability storage, List<PlatingRecipe> recipes) {
         if (storage == null) return false;
         List<ItemStack> availableItems = getStorageItems(storage);
-        if (availableItems.stream().allMatch(ItemStack::isEmpty)) return false;
 
         List<PlatingRecipe> matched = matchExactCover(availableItems, Set.of(), recipes);
         if (matched == null) {

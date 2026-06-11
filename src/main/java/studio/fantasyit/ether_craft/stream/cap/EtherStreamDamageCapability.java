@@ -5,7 +5,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.Weapon;
@@ -15,6 +15,8 @@ import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
+import net.neoforged.neoforge.common.util.FakePlayer;
+import net.neoforged.neoforge.common.util.FakePlayerFactory;
 import org.jetbrains.annotations.Nullable;
 import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.EtherCraft;
@@ -66,11 +68,15 @@ public class EtherStreamDamageCapability implements IStreamCapability {
         int damage = weapon.itemDamagePerAttack();
         int cost = Math.max(1, damage * Config.etherStreamDamageEtherMultiplier + Config.etherStreamDamageConstantCost);
 
-        streamEntity.consumeEther(cost);
+        FakePlayer fakePlayer = FakePlayerFactory.getMinecraft(level);
+        fakePlayer.setPos(streamEntity.position());
+        fakePlayer.resetAttackStrengthTicker();
+        fakePlayer.setItemInHand(InteractionHand.MAIN_HAND, bestWeapon.copy());
+        fakePlayer.attackStrengthTicker = 5.;
+        fakePlayer.attack(entity);
+        fakePlayer.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
 
-        Entity sourceEntity = streamEntity instanceof Entity e ? e : null;
-        DamageSource source = level.damageSources().indirectMagic(sourceEntity, null);
-        entity.hurtServer(level, source, damage);
+        streamEntity.consumeEther(cost);
 
         return true;
     }
