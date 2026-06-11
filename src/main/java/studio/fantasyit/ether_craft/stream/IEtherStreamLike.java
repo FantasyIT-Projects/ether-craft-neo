@@ -49,4 +49,8 @@ public interface IEtherStreamLike {
     IEtherStreamLike recreate(Vec3 newMotion);
 
     void removeInstantly();
+
+    int getStreamId();
+
+    PosDir getPosDir();
 }

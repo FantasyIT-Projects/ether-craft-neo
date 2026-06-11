@@ -35,6 +35,7 @@ import studio.fantasyit.ether_craft.register.EntityRegistry;
 import studio.fantasyit.ether_craft.register.Tags;
 import studio.fantasyit.ether_craft.stream.EtherConsumer;
 import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
+import studio.fantasyit.ether_craft.stream.PosDir;
 import studio.fantasyit.ether_craft.stream.cap.IStreamCapability;
 import studio.fantasyit.ether_craft.stream.data.EtherStreamLabelData;
 import studio.fantasyit.ether_craft.stream.data.IEtherStreamSyncedData;
@@ -45,6 +46,7 @@ import java.util.List;
 import java.util.Optional;
 
 public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
+    static int internalEtherId = 0;
     static final EntityDataAccessor<Integer> ETHER_COUNT = SynchedEntityData.defineId(EtherStreamEntity.class, EntityDataSerializers.INT);
     public static final EntityDataAccessor<List<IEtherStreamSyncedData>> SYNCED_DATA =
             SynchedEntityData.defineId(EtherStreamEntity.class, EntityDataSerializerRegistry.SYNCED_DATA_LIST.get());
@@ -63,6 +65,7 @@ public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
     public int clientDeathTick;
     private int deathTickStart;
     private static final int MAX_DEATH_TICKS = 60;
+    private PosDir posDir;
     private List<IStreamCapability> capabilities = new ArrayList<>();
     public final EtherConsumer consumer = new EtherConsumer();
     private List<IEtherStreamSyncedData> toSyncData = new ArrayList<>();
@@ -73,6 +76,8 @@ public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
         instance.entityData.set(ETHER_COUNT, ether);
         instance.setPos(position);
         instance.setDeltaMovement(motion);
+        Direction approximateNearest = Direction.getApproximateNearest(motion);
+        instance.posDir = new PosDir(BlockPos.containing(position), approximateNearest);
         return instance;
     }
 
@@ -367,6 +372,16 @@ public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
     @Override
     public void removeInstantly() {
         dropAndDiscard(null);
+    }
+
+    @Override
+    public int getStreamId() {
+        return internalEtherId;
+    }
+
+    @Override
+    public PosDir getPosDir() {
+        return posDir;
     }
 
     public void dropAndDiscard(@Nullable HitResult hitResult) {

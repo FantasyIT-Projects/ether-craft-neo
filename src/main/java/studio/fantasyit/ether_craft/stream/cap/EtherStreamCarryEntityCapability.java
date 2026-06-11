@@ -91,10 +91,8 @@ public class EtherStreamCarryEntityCapability implements IStreamCapability {
             }
             if (entity.noPhysics)
                 return false;
-            if (streamEntity instanceof VirtualEtherStream ves) {
-                streamEntity.setSyncedData(new EtherStreamCarryingEntityData(
-                        entity.getUUID(), entity.getId(), ves.getPosDir(), ves.getStreamId()));
-            }
+            streamEntity.setSyncedData(new EtherStreamCarryingEntityData(
+                    entity.getUUID(), entity.getId(), streamEntity.getPosDir(), streamEntity.getStreamId()));
             cachedEntity = entity;
             streamEntity.dirtyConsumer();
 
@@ -102,6 +100,12 @@ public class EtherStreamCarryEntityCapability implements IStreamCapability {
         }
 
         return data.entityUUID().equals(entity.getUUID());
+    }
+    public void forceTakeEntity(IEtherStreamLike streamEntity,Entity entity) {
+        streamEntity.setSyncedData(new EtherStreamCarryingEntityData(
+                entity.getUUID(), entity.getId(), streamEntity.getPosDir(), streamEntity.getStreamId()));
+        cachedEntity = entity;
+        streamEntity.dirtyConsumer();
     }
 
     @Override
