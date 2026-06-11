@@ -297,6 +297,62 @@ public class Config {
             .comment("Ether gained per stone-type block broken by Stone Absorb plating")
             .defineInRange("plating.stone_absorb.ether_per_block", 5, 0, Integer.MAX_VALUE);
 
+    // -- plating.ether_stream_dash --
+    private static final ModConfigSpec.IntValue PLATING_ETHER_STREAM_DASH_CD_TICKS = BUILDER
+            .comment("Cooldown ticks for Ether Stream Dash plating effect")
+            .defineInRange("plating.ether_stream_dash.cd_ticks", 40, 0, 12000);
+    private static final ModConfigSpec.IntValue PLATING_ETHER_STREAM_DASH_ETHER_COST = BUILDER
+            .comment("Ether cost for Ether Stream Dash plating effect")
+            .defineInRange("plating.ether_stream_dash.ether_cost", 50, 0, Integer.MAX_VALUE);
+    private static final ModConfigSpec.DoubleValue PLATING_ETHER_STREAM_DASH_SPEED = BUILDER
+            .comment("Speed multiplier for Ether Stream Dash")
+            .defineInRange("plating.ether_stream_dash.speed", 1.5, 0.1, 10.0);
+
+    // -- plating.ether_stream_damage --
+    private static final ModConfigSpec.IntValue PLATING_ETHER_STREAM_DAMAGE_CD_TICKS = BUILDER
+            .comment("Cooldown ticks for Ether Stream Damage plating effect")
+            .defineInRange("plating.ether_stream_damage.cd_ticks", 20, 0, 12000);
+    private static final ModConfigSpec.IntValue PLATING_ETHER_STREAM_DAMAGE_ETHER_COST = BUILDER
+            .comment("Ether cost for Ether Stream Damage plating effect")
+            .defineInRange("plating.ether_stream_damage.ether_cost", 50, 0, Integer.MAX_VALUE);
+    private static final ModConfigSpec.DoubleValue PLATING_ETHER_STREAM_DAMAGE_SPEED = BUILDER
+            .comment("Speed multiplier for Ether Stream Damage")
+            .defineInRange("plating.ether_stream_damage.speed", 1.0, 0.1, 10.0);
+
+    // -- plating.ether_stream_break --
+    private static final ModConfigSpec.IntValue PLATING_ETHER_STREAM_BREAK_CD_TICKS = BUILDER
+            .comment("Cooldown ticks for Ether Stream Break plating effect")
+            .defineInRange("plating.ether_stream_break.cd_ticks", 30, 0, 12000);
+    private static final ModConfigSpec.IntValue PLATING_ETHER_STREAM_BREAK_ETHER_COST = BUILDER
+            .comment("Ether cost for Ether Stream Break plating effect")
+            .defineInRange("plating.ether_stream_break.ether_cost", 50, 0, Integer.MAX_VALUE);
+    private static final ModConfigSpec.DoubleValue PLATING_ETHER_STREAM_BREAK_SPEED = BUILDER
+            .comment("Speed multiplier for Ether Stream Break")
+            .defineInRange("plating.ether_stream_break.speed", 1.0, 0.1, 10.0);
+
+    // -- plating.anti_darkness --
+    private static final ModConfigSpec.IntValue PLATING_ANTI_DARKNESS_ETHER_PER_BLOCK = BUILDER
+            .comment("Ether consumed when blocking Darkness or Blindness effect")
+            .defineInRange("plating.anti_darkness.ether_per_block", 10, 0, Integer.MAX_VALUE);
+    private static final ModConfigSpec.IntValue PLATING_ANTI_DARKNESS_ETHER_PER_TICK = BUILDER
+            .comment("Ether consumed per tick for Night Vision")
+            .defineInRange("plating.anti_darkness.ether_per_tick", 1, 0, Integer.MAX_VALUE);
+
+    // -- plating.ethic --
+    private static final ModConfigSpec.IntValue PLATING_ETHIC_ETHER_PER_USE = BUILDER
+            .comment("Ether consumed per ethical action")
+            .defineInRange("plating.ethic.ether_per_use", 5, 0, Integer.MAX_VALUE);
+
+    // -- plating.anti_sonic_boom --
+    private static final ModConfigSpec.IntValue PLATING_ANTI_SONIC_BOOM_ETHER_PER_BLOCK = BUILDER
+            .comment("Ether consumed when blocking sonic boom damage")
+            .defineInRange("plating.anti_sonic_boom.ether_per_block", 10, 0, Integer.MAX_VALUE);
+
+    // -- plating.silent_step --
+    private static final ModConfigSpec.IntValue PLATING_SILENT_STEP_ETHER_PER_TICK = BUILDER
+            .comment("Ether consumed per tick when suppressing vibration events")
+            .defineInRange("plating.silent_step.ether_per_tick", 1, 0, Integer.MAX_VALUE);
+
 
     static final ModConfigSpec SPEC = BUILDER.build();
 
@@ -357,6 +413,20 @@ public class Config {
     public static int platingBreakToInvEtherPerBlock;
     public static int platingKillToInvEtherPerKill;
     public static int platingStoneAbsorbEtherPerBlock;
+    public static int platingEtherStreamDashCdTicks;
+    public static int platingEtherStreamDashEtherCost;
+    public static double platingEtherStreamDashSpeed;
+    public static int platingEtherStreamDamageCdTicks;
+    public static int platingEtherStreamDamageEtherCost;
+    public static double platingEtherStreamDamageSpeed;
+    public static int platingEtherStreamBreakCdTicks;
+    public static int platingEtherStreamBreakEtherCost;
+    public static double platingEtherStreamBreakSpeed;
+    public static int platingAntiDarknessEtherPerBlock;
+    public static int platingAntiDarknessEtherPerTick;
+    public static int platingEthicEtherPerUse;
+    public static int platingAntiSonicBoomEtherPerBlock;
+    public static int platingSilentStepEtherPerTick;
 
     @SubscribeEvent
     static void onLoad(final ModConfigEvent event) {
@@ -417,5 +487,19 @@ public class Config {
         platingBreakToInvEtherPerBlock = PLATING_BREAK_TO_INV_ETHER_PER_BLOCK.get();
         platingKillToInvEtherPerKill = PLATING_KILL_TO_INV_ETHER_PER_KILL.get();
         platingStoneAbsorbEtherPerBlock = PLATING_STONE_ABSORB_ETHER_PER_BLOCK.get();
+        platingEtherStreamDashCdTicks = PLATING_ETHER_STREAM_DASH_CD_TICKS.get();
+        platingEtherStreamDashEtherCost = PLATING_ETHER_STREAM_DASH_ETHER_COST.get();
+        platingEtherStreamDashSpeed = PLATING_ETHER_STREAM_DASH_SPEED.get();
+        platingEtherStreamDamageCdTicks = PLATING_ETHER_STREAM_DAMAGE_CD_TICKS.get();
+        platingEtherStreamDamageEtherCost = PLATING_ETHER_STREAM_DAMAGE_ETHER_COST.get();
+        platingEtherStreamDamageSpeed = PLATING_ETHER_STREAM_DAMAGE_SPEED.get();
+        platingEtherStreamBreakCdTicks = PLATING_ETHER_STREAM_BREAK_CD_TICKS.get();
+        platingEtherStreamBreakEtherCost = PLATING_ETHER_STREAM_BREAK_ETHER_COST.get();
+        platingEtherStreamBreakSpeed = PLATING_ETHER_STREAM_BREAK_SPEED.get();
+        platingAntiDarknessEtherPerBlock = PLATING_ANTI_DARKNESS_ETHER_PER_BLOCK.get();
+        platingAntiDarknessEtherPerTick = PLATING_ANTI_DARKNESS_ETHER_PER_TICK.get();
+        platingEthicEtherPerUse = PLATING_ETHIC_ETHER_PER_USE.get();
+        platingAntiSonicBoomEtherPerBlock = PLATING_ANTI_SONIC_BOOM_ETHER_PER_BLOCK.get();
+        platingSilentStepEtherPerTick = PLATING_SILENT_STEP_ETHER_PER_TICK.get();
     }
 }

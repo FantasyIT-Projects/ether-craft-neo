@@ -130,6 +130,13 @@
   "jei.ether_craft.plating.effect.ether_craft.break_to_inv": "Broken block drops go directly to inventory",
   "jei.ether_craft.plating.effect.ether_craft.kill_to_inv": "Mob kill drops go directly to inventory",
   "jei.ether_craft.plating.effect.ether_craft.stone_absorb": "Breaking stone-type blocks converts to ether",
+  "jei.ether_craft.plating.effect.ether_craft.ether_stream_dash": "Right-click to dash along look direction, passing through entities",
+  "jei.ether_craft.plating.effect.ether_craft.ether_stream_damage": "Fires an ether stream that deals weapon damage to entities",
+  "jei.ether_craft.plating.effect.ether_craft.ether_stream_break": "Fires an ether stream ray that breaks blocks ahead",
+  "jei.ether_craft.plating.effect.ether_craft.anti_darkness": "Immune to Darkness and Blindness, maintains visible vision in low light",
+  "jei.ether_craft.plating.effect.ether_craft.ethic": "Attacking passive mobs drops products without killing; clears neutral mob aggro",
+  "jei.ether_craft.plating.effect.ether_craft.anti_sonic_boom": "Immune to sonic boom damage (e.g. Warden's sonic attack)",
+  "jei.ether_craft.plating.effect.ether_craft.silent_step": "Running, jumping, and landing produce no vibrations, does not alert Wardens",
   "jei.ether_craft.category.ether_craft.special.furnace": "Blasting",
 
   "jei.ether_craft.plugin_type.function": "[Function Plugin]",
@@ -230,5 +237,13 @@
   "tooltip.ether_craft.plating.effect.ether_craft.tracking": "Tracking %s",
   "tooltip.ether_craft.plating.effect.ether_craft.break_to_inv": "Break\u2192Inv %s",
   "tooltip.ether_craft.plating.effect.ether_craft.kill_to_inv": "Kill\u2192Inv %s",
-  "tooltip.ether_craft.plating.effect.ether_craft.stone_absorb": "Stone Absorb %s"
+  "tooltip.ether_craft.plating.effect.ether_craft.stone_absorb": "Stone Absorb %s",
+  "tooltip.ether_craft.plating.effect.ether_craft.ether_stream_dash": "Ether Dash %s",
+  "tooltip.ether_craft.plating.effect.ether_craft.ether_stream_damage": "Ether Damage %s",
+  "tooltip.ether_craft.plating.effect.ether_craft.ether_stream_break": "Ether Break %s",
+  "tooltip.ether_craft.plating.effect.ether_craft.anti_darkness": "Anti-Darkness",
+  "tooltip.ether_craft.plating.effect.ether_craft.ethic": "Ethic",
+  "tooltip.ether_craft.plating.effect.ether_craft.anti_sonic_boom": "Anti-Sonic Boom",
+  "tooltip.ether_craft.plating.effect.ether_craft.silent_step": "Silent Step"
+}
 }

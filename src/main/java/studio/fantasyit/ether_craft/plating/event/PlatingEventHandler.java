@@ -18,10 +18,13 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.VanillaGameEvent;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDropsEvent;
 import net.neoforged.neoforge.event.entity.living.LivingEntityUseItemEvent;
+import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.LivingShieldBlockEvent;
+import net.neoforged.neoforge.event.entity.living.MobEffectEvent;
 import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
 import net.neoforged.neoforge.event.entity.player.CriticalHitEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
@@ -43,7 +46,10 @@ import studio.fantasyit.ether_craft.plating.trigger.event.IPlatingBlockingTrigge
 import studio.fantasyit.ether_craft.plating.trigger.event.IPlatingBreakBlockTrigger;
 import studio.fantasyit.ether_craft.plating.trigger.event.IPlatingCritDamageModifier;
 import studio.fantasyit.ether_craft.plating.trigger.event.IPlatingCritTrigger;
+import studio.fantasyit.ether_craft.plating.trigger.event.IPlatingGameEventTrigger;
 import studio.fantasyit.ether_craft.plating.trigger.event.IPlatingKillTrigger;
+import studio.fantasyit.ether_craft.plating.trigger.event.IPlatingLivingIncomingDamageTrigger;
+import studio.fantasyit.ether_craft.plating.trigger.event.IPlatingMobEffectApplicableTrigger;
 import studio.fantasyit.ether_craft.plating.trigger.event.IPlatingRightClickTrigger;
 import studio.fantasyit.ether_craft.plating.trigger.event.IPlatingTickEquippedTrigger;
 import studio.fantasyit.ether_craft.plating.trigger.event.IPlatingUseOnBlockTrigger;
@@ -200,5 +206,30 @@ public class PlatingEventHandler {
             if (stack.has(DataComponentRegistry.TEMP_BLOCKING))
                 PlatingEventHelper.doEventTrigger(event.getEntity(), stack, event, IPlatingBlockingTrigger.class);
         }
+    }
+
+    @SubscribeEvent
+    public static void onMobEffectApplicable(MobEffectEvent.Applicable event) {
+        if (!(event.getEntity() instanceof Player player)) return;
+        if (player.level().isClientSide()) return;
+        PlatingEventHelper.forEachPlatingOnEquipment(player, (effect, data, stack) -> {
+            if (effect instanceof IPlatingMobEffectApplicableTrigger trigger) {
+                trigger.apply(effect, data, stack, player, event);
+            }
+        });
+    }
+
+    @SubscribeEvent
+    public static void onLivingIncomingDamage(LivingIncomingDamageEvent event) {
+        if (!(event.getEntity() instanceof Player player)) return;
+        if (player.level().isClientSide()) return;
+        PlatingEventHelper.doEventTrigger(player, event, IPlatingLivingIncomingDamageTrigger.class);
+    }
+
+    @SubscribeEvent
+    public static void onVanillaGameEvent(VanillaGameEvent event) {
+        if (event.getLevel().isClientSide()) return;
+        if (!(event.getContext().sourceEntity() instanceof Player player)) return;
+        PlatingEventHelper.doEventTrigger(player, event, IPlatingGameEventTrigger.class);
     }
 }

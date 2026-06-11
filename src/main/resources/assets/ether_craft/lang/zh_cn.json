@@ -126,6 +126,13 @@
   "jei.ether_craft.plating.effect.ether_craft.break_to_inv": "破坏方块掉落物直接进入背包",
   "jei.ether_craft.plating.effect.ether_craft.kill_to_inv": "击杀生物掉落物直接进入背包",
   "jei.ether_craft.plating.effect.ether_craft.stone_absorb": "破坏石质方块转化为以太",
+  "jei.ether_craft.plating.effect.ether_craft.ether_stream_dash": "右键沿视线方向高速冲刺，穿透实体",
+  "jei.ether_craft.plating.effect.ether_craft.ether_stream_damage": "发射以太流，命中实体造成武器伤害",
+  "jei.ether_craft.plating.effect.ether_craft.ether_stream_break": "发射以太流射线，破坏前方方块",
+  "jei.ether_craft.plating.effect.ether_craft.anti_darkness": "免疫黑暗与失明效果，低光下保持可见视野",
+  "jei.ether_craft.plating.effect.ether_craft.ethic": "攻击被动生物不掉血直接掉落产物；攻击中立生物取消仇恨",
+  "jei.ether_craft.plating.effect.ether_craft.anti_sonic_boom": "免疫音爆类伤害（如循声守卫声波）",
+  "jei.ether_craft.plating.effect.ether_craft.silent_step": "跑步、跳跃、落地不产生振动，不惊动循声守卫",
   "jei.ether_craft.category.ether_craft.special.furnace": "高炉熔炼",
   "jei.ether_craft.plugin_type.function": "[功能插件]",
   "jei.ether_craft.plugin_type.feature": "[特性插件]",
@@ -221,5 +228,12 @@
   "tooltip.ether_craft.plating.effect.ether_craft.tracking": "追踪 %s",
   "tooltip.ether_craft.plating.effect.ether_craft.break_to_inv": "破坏进包 %s",
   "tooltip.ether_craft.plating.effect.ether_craft.kill_to_inv": "击杀进包 %s",
-  "tooltip.ether_craft.plating.effect.ether_craft.stone_absorb": "吃废石 %s"
+  "tooltip.ether_craft.plating.effect.ether_craft.stone_absorb": "吃废石 %s",
+  "tooltip.ether_craft.plating.effect.ether_craft.ether_stream_dash": "以太穿行 %s",
+  "tooltip.ether_craft.plating.effect.ether_craft.ether_stream_damage": "以太伤害 %s",
+  "tooltip.ether_craft.plating.effect.ether_craft.ether_stream_break": "以太破坏 %s",
+  "tooltip.ether_craft.plating.effect.ether_craft.anti_darkness": "抗黑暗",
+  "tooltip.ether_craft.plating.effect.ether_craft.ethic": "伦理",
+  "tooltip.ether_craft.plating.effect.ether_craft.anti_sonic_boom": "抗音爆",
+  "tooltip.ether_craft.plating.effect.ether_craft.silent_step": "静步"
 }
