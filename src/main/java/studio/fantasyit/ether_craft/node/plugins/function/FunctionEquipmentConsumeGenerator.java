@@ -49,7 +49,7 @@ public class FunctionEquipmentConsumeGenerator extends AbstractItemConsumeFuncti
                 enchantBonus += (1 << level);
         }
         etherToGenerate = enchantBonus * Config.nodeEquipmentGeneratorCoefficient + Config.nodeEquipmentGeneratorBaseAmount;
-        remainBurnTicks = 1;
+        remainBurnTicks = Config.nodeEquipmentGeneratorBurnTick;
         nodeEntity.setSyncedPluginData(installedId, WORKING_MATERIAL, WorkingMaterial.ANY.ordinal());
         return ItemStack.EMPTY;
     }

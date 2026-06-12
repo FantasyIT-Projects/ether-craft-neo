@@ -88,6 +88,9 @@ public class Config {
 
     // -- node.equipment_generator --
 
+    private static final ModConfigSpec.IntValue NODE_EQUIPMENT_GENERATOR_BURN_TICK = BUILDER
+            .comment("Burn tick provided by each equipment in Equipment Generator plugin")
+            .defineInRange("node.equipment_generator.burn_tick", 100, 1, Integer.MAX_VALUE);
     private static final ModConfigSpec.IntValue NODE_EQUIPMENT_GENERATOR_COEFFICIENT = BUILDER
             .comment("Coefficient for ether generation from equipment consumption in Equipment Generator plugin")
             .defineInRange("node.equipment_generator.coefficient", 10, 1, 10000);
@@ -374,6 +377,7 @@ public class Config {
     public static int nodeDropperThrowerEtherPerItem;
     public static int nodeProcessMaxProgress;
     public static int nodeEtherConverterCoefficient;
+    public static int nodeEquipmentGeneratorBurnTick;
     public static int nodeEquipmentGeneratorCoefficient;
     public static int nodeEquipmentGeneratorBaseAmount;
     public static int nodeGrowthAcceleratorEtherCost;
@@ -449,6 +453,7 @@ public class Config {
         nodeDropperThrowerEtherPerItem = NODE_DROPPER_THROWER_ETHER_PER_ITEM.get();
         nodeProcessMaxProgress = NODE_PROCESS_MAX_PROGRESS.get();
         nodeEtherConverterCoefficient = NODE_ETHER_CONVERTER_COEFFICIENT.get();
+        nodeEquipmentGeneratorBurnTick = NODE_EQUIPMENT_GENERATOR_BURN_TICK.get();
         nodeEquipmentGeneratorCoefficient = NODE_EQUIPMENT_GENERATOR_COEFFICIENT.get();
         nodeEquipmentGeneratorBaseAmount = NODE_EQUIPMENT_GENERATOR_BASE_AMOUNT.get();
         nodeGrowthAcceleratorEtherCost = NODE_GROWTH_ACCELERATOR_ETHER_COST.get();
