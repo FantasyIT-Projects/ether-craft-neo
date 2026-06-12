@@ -20,6 +20,7 @@ public class CapabilityFactoryManager {
         register(EtherStreamStorageCapability.ID, () -> new EtherStreamStorageCapability(1), EtherStreamStorageCapability.CODEC);
         register(EtherStreamDamageCapability.ID, EtherStreamDamageCapability::new, EtherStreamDamageCapability.CODEC);
         register(EtherStreamCarryEntityCapability.ID, () -> new EtherStreamCarryEntityCapability(BlockPos.ZERO), EtherStreamCarryEntityCapability.CODEC);
+        register(EtherStreamCarryEntityCapability.ID_PLAYER, () -> new EtherStreamCarryEntityCapability(BlockPos.ZERO, true), EtherStreamCarryEntityCapability.CODEC_PLAYER);
         register(EtherStreamCostReducerCapability.ID, EtherStreamCostReducerCapability::new, EtherStreamCostReducerCapability.CODEC);
         register(EtherStreamPlatingCapability.ID, EtherStreamPlatingCapability::new, EtherStreamPlatingCapability.CODEC);
         register(EtherStreamBounceBackCapability.ID, EtherStreamBounceBackCapability::new, EtherStreamBounceBackCapability.CODEC);

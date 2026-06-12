@@ -24,6 +24,11 @@ public class AntiSonicBoomPlatingEffect implements IPlatingEffect, IPlatingLivin
         if (!event.getSource().is(DamageTypes.SONIC_BOOM)) return;
         if (!PlatingUtil.canExtractEther(stack, Config.platingAntiSonicBoomEtherPerBlock)) return;
         PlatingUtil.extractEther(stack, Config.platingAntiSonicBoomEtherPerBlock);
-        event.setCanceled(true);
+        double reduction = data.effect();
+        if (reduction >= 1.0) {
+            event.setCanceled(true);
+        } else if (reduction > 0) {
+            event.setAmount(event.getAmount() * (float) (1.0 - reduction));
+        }
     }
 }

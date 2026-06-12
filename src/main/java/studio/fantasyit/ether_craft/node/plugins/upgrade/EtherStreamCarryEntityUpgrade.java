@@ -15,6 +15,7 @@ import java.util.Optional;
 
 public class EtherStreamCarryEntityUpgrade extends AbstractNodePlugin implements IEtherStreamCapabilityProviderPlugin {
     public static final Identifier ID = EtherCraft.id("carry_entity_upgrade");
+    public static final Identifier ID_PLAYER = EtherCraft.id("carry_player_upgrade");
 
     public EtherStreamCarryEntityUpgrade(EtherAdaptNodeEntity nodeEntity, InstalledPlugin installedId) {
         super(nodeEntity, installedId);
@@ -25,9 +26,11 @@ public class EtherStreamCarryEntityUpgrade extends AbstractNodePlugin implements
         ItemStack item = nodeEntity.featureUpgradeStorage.getItem(installedId.id());
         if (item.isEmpty()) return;
 
-        Optional<IStreamCapability> existing = entity.getCapability(EtherStreamCarryEntityCapability.ID);
+        boolean playerOnly = ID_PLAYER.equals(installedId.pluginId());
+        Identifier capId = playerOnly ? EtherStreamCarryEntityCapability.ID_PLAYER : EtherStreamCarryEntityCapability.ID;
+        Optional<IStreamCapability> existing = entity.getCapability(capId);
         if (existing.isEmpty()) {
-            entity.addCapability(new EtherStreamCarryEntityCapability(nodeEntity.getBlockPos()));
+            entity.addCapability(new EtherStreamCarryEntityCapability(nodeEntity.getBlockPos(), playerOnly));
         }
     }
 }

@@ -281,9 +281,6 @@ public class Config {
     private static final ModConfigSpec.DoubleValue PLATING_TRACKING_RANGE = BUILDER
             .comment("Search radius in blocks for arrow tracking")
             .defineInRange("plating.tracking.range", 6.0, 0, 32);
-    private static final ModConfigSpec.DoubleValue PLATING_TRACKING_STRENGTH = BUILDER
-            .comment("Steering force per tick (0~1)")
-            .defineInRange("plating.tracking.strength", 0.05, 0, 1);
 
     // -- plating.break_to_inv --
     private static final ModConfigSpec.IntValue PLATING_BREAK_TO_INV_ETHER_PER_BLOCK = BUILDER
@@ -418,7 +415,6 @@ public class Config {
     public static int platingHeadHuntEtherPerKill;
     public static int platingTrackingEtherPerArrow;
     public static double platingTrackingRange;
-    public static double platingTrackingStrength;
     public static int platingBreakToInvEtherPerBlock;
     public static int platingKillToInvEtherPerKill;
     public static int platingStoneAbsorbEtherPerBlock;
@@ -494,7 +490,6 @@ public class Config {
         platingHeadHuntEtherPerKill = PLATING_HEAD_HUNT_ETHER_PER_KILL.get();
         platingTrackingEtherPerArrow = PLATING_TRACKING_ETHER_PER_ARROW.get();
         platingTrackingRange = PLATING_TRACKING_RANGE.get();
-        platingTrackingStrength = PLATING_TRACKING_STRENGTH.get();
         platingBreakToInvEtherPerBlock = PLATING_BREAK_TO_INV_ETHER_PER_BLOCK.get();
         platingKillToInvEtherPerKill = PLATING_KILL_TO_INV_ETHER_PER_KILL.get();
         platingStoneAbsorbEtherPerBlock = PLATING_STONE_ABSORB_ETHER_PER_BLOCK.get();

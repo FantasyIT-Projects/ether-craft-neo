@@ -106,6 +106,7 @@ public class NodePluginManager {
         ALL_PLUGINS.add(new PluginInfo(PluginType.UPGRADE, EtherStreamGrowthAcceleratorUpgrade.ID, EtherStreamGrowthAcceleratorUpgrade::new, t -> t.is(Items.BONE_MEAL), Items.BONE_MEAL));
         ALL_PLUGINS.add(new PluginInfo(PluginType.UPGRADE, EtherStreamGrowthAcceleratorUpgrade.ID_ALL, EtherStreamGrowthAcceleratorUpgrade::new, t -> t.is(Items.SCULK_CATALYST), Items.SCULK_CATALYST));
         ALL_PLUGINS.add(new PluginInfo(PluginType.UPGRADE, EtherStreamCarryEntityUpgrade.ID, EtherStreamCarryEntityUpgrade::new, t -> t.is(ItemTags.BOATS), Items.OAK_BOAT));
+        ALL_PLUGINS.add(new PluginInfo(PluginType.UPGRADE, EtherStreamCarryEntityUpgrade.ID_PLAYER, EtherStreamCarryEntityUpgrade::new, t -> t.is(Items.MINECART), Items.MINECART));
         ALL_PLUGINS.add(new PluginInfo(PluginType.UPGRADE, EtherStreamSpeedUpUpgrade.ID, EtherStreamSpeedUpUpgrade::new, t -> t.is(Items.POWERED_RAIL), Items.POWERED_RAIL));
         ALL_PLUGINS.add(new PluginInfo(PluginType.UPGRADE, EtherStreamPlatingUpgrade.ID, EtherStreamPlatingUpgrade::new, t -> t.is(ItemRegistry.PROCESS_CHIP_ITEM) && EtherCraft.id("energizing_chip").equals(t.get(DataComponentRegistry.CHIP_ID)),
                 new ItemStackTemplate(ItemRegistry.PROCESS_CHIP_ITEM, DataComponentPatch.builder().set(DataComponentRegistry.CHIP_ID.get(), EtherCraft.id("energizing_chip")).set(DataComponents.ITEM_MODEL, EtherCraft.id("energizing_chip")).build())));

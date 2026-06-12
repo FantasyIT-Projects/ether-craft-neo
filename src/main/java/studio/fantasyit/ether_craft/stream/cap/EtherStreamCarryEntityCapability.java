@@ -26,21 +26,35 @@ import java.util.Optional;
 
 public class EtherStreamCarryEntityCapability implements IStreamCapability {
     public static final Identifier ID = EtherCraft.id("carry_entity");
+    public static final Identifier ID_PLAYER = EtherCraft.id("carry_player");
+
     public static final Codec<EtherStreamCarryEntityCapability> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            BlockPos.CODEC.fieldOf("source").forGetter(t -> t.source)
+            BlockPos.CODEC.fieldOf("source").forGetter(t -> t.source),
+            Codec.BOOL.optionalFieldOf("playerOnly", false).forGetter(t -> t.playerOnly)
+    ).apply(instance, EtherStreamCarryEntityCapability::new));
+
+    public static final Codec<EtherStreamCarryEntityCapability> CODEC_PLAYER = RecordCodecBuilder.create(instance -> instance.group(
+            BlockPos.CODEC.fieldOf("source").forGetter(t -> t.source),
+            Codec.BOOL.optionalFieldOf("playerOnly", true).forGetter(t -> t.playerOnly)
     ).apply(instance, EtherStreamCarryEntityCapability::new));
 
     private Entity cachedEntity;
 
     private BlockPos source;
+    private final boolean playerOnly;
 
     public EtherStreamCarryEntityCapability(BlockPos source) {
+        this(source, false);
+    }
+
+    public EtherStreamCarryEntityCapability(BlockPos source, boolean playerOnly) {
         this.source = source;
+        this.playerOnly = playerOnly;
     }
 
     @Override
     public Identifier getId() {
-        return ID;
+        return playerOnly ? ID_PLAYER : ID;
     }
 
     @Override
@@ -89,6 +103,9 @@ public class EtherStreamCarryEntityCapability implements IStreamCapability {
 
     @Override
     public boolean hitEntity(ServerLevel level, IEtherStreamLike streamEntity, EntityHitResult hit, Entity entity) {
+        if (playerOnly && !(entity instanceof ServerPlayer))
+            return false;
+
         EtherStreamCarryingEntityData data = getCarriedData(streamEntity);
 
         if (data == null) {

@@ -167,6 +167,7 @@
   "jei.ether_craft.plugin.ether_craft.growth_accelerator_upgrade": "允许以太流在接触时加速作物和树木生长。",
   "jei.ether_craft.plugin.ether_craft.growth_accelerator_upgrade_allow_all": "允许以太流在接触时加速所有方块类型（使用幽匿催发体）。",
   "jei.ether_craft.plugin.ether_craft.carry_entity_upgrade": "允许以太流在接触时拾取并携带实体。",
+  "jei.ether_craft.plugin.ether_craft.carry_player_upgrade": "允许以太流在接触时拾取并仅携带玩家。",
   "jei.ether_craft.plugin.ether_craft.redstone_signal": "根据节点的以太等级或物品栏填充比例输出比较器信号。",
   "jei.ether_craft.plugin.ether_craft.redstone_switch": "根据红石信号启用或禁用节点。",
   "jei.ether_craft.plugin.ether_craft.destruction": "销毁节点物品栏中匹配过滤器的物品（溢出模式或全部匹配物品）。",

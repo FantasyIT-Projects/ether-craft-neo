@@ -27,7 +27,8 @@ public class PlatingProgressHandler {
             IPlatingEffect effect = PlatingManager.getEffect(eff.id());
             if (effect != null) {
                 double value = eff.formula().getEffect(ether);
-                existing.add(new PlatingData(eff.id(), value));
+                if (value > 0)
+                    existing.add(new PlatingData(eff.id(), value));
             }
         }
 

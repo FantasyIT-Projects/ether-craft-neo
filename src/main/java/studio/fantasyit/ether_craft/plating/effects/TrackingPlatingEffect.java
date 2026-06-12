@@ -26,8 +26,11 @@ public class TrackingPlatingEffect implements IPlatingEffect, IPlatingArrowShotT
         if (!(event.getEntity() instanceof AbstractArrow arrow)) return;
         if (!PlatingUtil.canExtractEther(stack, Config.platingTrackingEtherPerArrow)) return;
 
+        double angle = data.effect();
+        if (angle <= 0) return;
+
         PlatingUtil.extractEther(stack, Config.platingTrackingEtherPerArrow);
         arrow.setData(AttachmentDataRegistry.ARROW_TRACKING.get(),
-                new TrackingData(Config.platingTrackingRange, Config.platingTrackingStrength));
+                new TrackingData(Config.platingTrackingRange, angle));
     }
 }

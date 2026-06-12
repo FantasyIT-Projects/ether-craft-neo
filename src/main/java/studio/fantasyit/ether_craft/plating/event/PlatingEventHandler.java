@@ -159,8 +159,27 @@ public class PlatingEventHandler {
         Vec3 toTarget = nearest.getEyePosition().subtract(arrowPos).normalize();
         Vec3 currentVel = arrow.getDeltaMovement();
         double speed = currentVel.length();
-        Vec3 newVel = currentVel.add(toTarget.scale(tracking.strength())).normalize().scale(speed);
-        arrow.setDeltaMovement(newVel);
+        Vec3 currentDir = currentVel.normalize();
+
+        double dot = Math.clamp(currentDir.dot(toTarget), -1.0, 1.0);
+        double currentAngle = Math.acos(dot);
+
+        if (currentAngle > 1e-6) {
+            double maxDeflect = Math.toRadians(tracking.strength());
+            double deflectAngle = Math.min(maxDeflect, currentAngle);
+
+            Vec3 axis = currentDir.cross(toTarget).normalize();
+            double cos = Math.cos(deflectAngle);
+            double sin = Math.sin(deflectAngle);
+            Vec3 kCrossV = axis.cross(currentDir);
+            double kDotV = axis.dot(currentDir);
+
+            Vec3 newDir = currentDir.scale(cos)
+                    .add(kCrossV.scale(sin))
+                    .add(axis.scale(kDotV * (1.0 - cos)));
+
+            arrow.setDeltaMovement(newDir.scale(speed));
+        }
     }
 
     @SubscribeEvent
