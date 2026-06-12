@@ -37,38 +37,36 @@ public class EtherStreamEntityRenderer extends EntityRenderer<EtherStreamEntity,
             state.tailZ[i] = entity.tailZ[idx];
             state.tailSize[i] = entity.tailSize[idx];
         }
-        state.dying = entity.getEntityData().get(EtherStreamEntity.DYING);
     }
 
     @Override
     public void submit(EtherStreamEntityRenderState state, PoseStack poseStack,
                        SubmitNodeCollector collector, CameraRenderState camera) {
-        if (!state.dying)
-            for (int i = 0; i < state.tailCount; i++) {
-                poseStack.pushPose();
-                float dx = (float) (state.tailX[i] - state.x);
-                float dy = (float) (state.tailY[i] - state.y);
-                float dz = (float) (state.tailZ[i] - state.z);
-                poseStack.translate(dx, dy, dz);
-                poseStack.mulPose(camera.orientation);
+        for (int i = 0; i < state.tailCount; i++) {
+            poseStack.pushPose();
+            float dx = (float) (state.tailX[i] - state.x);
+            float dy = (float) (state.tailY[i] - state.y);
+            float dz = (float) (state.tailZ[i] - state.z);
+            poseStack.translate(dx, dy, dz);
+            poseStack.mulPose(camera.orientation);
 
-                int age = i;
-                float alpha = 1f - (float) age / 6.1f;
-                float size = state.tailSize[i] / (float) Math.pow(1.5, age);
-                poseStack.scale(size, size, 1f);
+            int age = i;
+            float alpha = 1f - (float) age / 6.1f;
+            float size = state.tailSize[i] / (float) Math.pow(1.5, age);
+            poseStack.scale(size, size, 1f);
 
-                int a = (int) (alpha * 255);
-                int light = 0xF000F0;
+            int a = (int) (alpha * 255);
+            int light = 0xF000F0;
 
-                collector.submitCustomGeometry(poseStack, RENDER_TYPE, (pose, buffer) -> {
-                    vertex(buffer, pose, -0.5f, -0.5f, a, 1, 1, light);
-                    vertex(buffer, pose, 0.5f, -0.5f, a, 0, 1, light);
-                    vertex(buffer, pose, 0.5f, 0.5f, a, 0, 0, light);
-                    vertex(buffer, pose, -0.5f, 0.5f, a, 1, 0, light);
-                });
+            collector.submitCustomGeometry(poseStack, RENDER_TYPE, (pose, buffer) -> {
+                vertex(buffer, pose, -0.5f, -0.5f, a, 1, 1, light);
+                vertex(buffer, pose, 0.5f, -0.5f, a, 0, 1, light);
+                vertex(buffer, pose, 0.5f, 0.5f, a, 0, 0, light);
+                vertex(buffer, pose, -0.5f, 0.5f, a, 1, 0, light);
+            });
 
-                poseStack.popPose();
-            }
+            poseStack.popPose();
+        }
         super.submit(state, poseStack, collector, camera);
     }
 

@@ -97,6 +97,8 @@ public class EtherStreamStorageCapability implements IStreamCapability, Containe
 
     @Override
     public void tick(@UnknownNullability IEtherStreamLike streamEntity) {
+        if (streamEntity.getCapability(EtherStreamPlatingCapability.ID).isPresent())
+            return;
         AABB currentBlockPos = new AABB(streamEntity.blockPosition());
         List<ItemEntity> entities = streamEntity.level().getEntities(EntityTypeTest.forClass(ItemEntity.class), currentBlockPos, t -> t.isAlive() && !t.hasPickUpDelay());
         boolean changed = false;

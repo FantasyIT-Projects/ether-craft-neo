@@ -35,6 +35,7 @@ import studio.fantasyit.ether_craft.stream.EtherConsumer;
 import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
 import studio.fantasyit.ether_craft.stream.PosDir;
 import studio.fantasyit.ether_craft.stream.cap.IStreamCapability;
+import studio.fantasyit.ether_craft.stream.client.data.EntityStreamClientManager;
 import studio.fantasyit.ether_craft.stream.data.EtherStreamLabelData;
 import studio.fantasyit.ether_craft.stream.data.IEtherStreamSyncedData;
 import studio.fantasyit.ether_craft.stream.data.SyncedEtherStreamDataManager;
@@ -48,8 +49,6 @@ public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
     static final EntityDataAccessor<Integer> ETHER_COUNT = SynchedEntityData.defineId(EtherStreamEntity.class, EntityDataSerializers.INT);
     public static final EntityDataAccessor<List<IEtherStreamSyncedData>> SYNCED_DATA =
             SynchedEntityData.defineId(EtherStreamEntity.class, EntityDataSerializerRegistry.SYNCED_DATA_LIST.get());
-    public static final EntityDataAccessor<Boolean> DYING =
-            SynchedEntityData.defineId(EtherStreamEntity.class, EntityDataSerializers.BOOLEAN);
     private int ether;
     public static final int MAX_TAIL = 6;
     public final double[] tailX = new double[MAX_TAIL];
@@ -58,8 +57,6 @@ public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
     public final float[] tailSize = new float[MAX_TAIL];
     public int tailHead = -1;
     public int tailCount;
-    private int deathTickStart;
-    private static final int MAX_DEATH_TICKS = 60;
     private PosDir posDir;
     private List<IStreamCapability> capabilities = new ArrayList<>();
     public final EtherConsumer consumer = new EtherConsumer();
@@ -90,7 +87,6 @@ public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         builder.define(ETHER_COUNT, ether);
         builder.define(SYNCED_DATA, new ArrayList<>());
-        builder.define(DYING, false);
     }
 
     public void firstTick() {
@@ -168,16 +164,6 @@ public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
             for (IStreamCapability capability : capabilities) {
                 capability.tick(this);
             }
-
-            if (entityData.get(DYING)) {
-                Vec3 vec3 = this.getDeltaMovement();
-                this.setPos(this.getX() + vec3.x, this.getY() + vec3.y, this.getZ() + vec3.z);
-                if (this.tickCount - deathTickStart > MAX_DEATH_TICKS) {
-                    this.discard();
-                }
-                return;
-            }
-
             int consumption = consumer.getTotalConsumption(ether, tickCount);
             this.consumeEtherInternal(consumption);
 
@@ -188,9 +174,11 @@ public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
         }
 
         Vec3 vec3 = this.getDeltaMovement();
-        HitResult hitresult = fastHit();
-        if (hitresult.getType() != HitResult.Type.MISS)
-            this.onHit(hitresult);
+        if(!this.level().isClientSide()) {
+            HitResult hitresult = fastHit();
+            if (hitresult.getType() != HitResult.Type.MISS)
+                this.onHit(hitresult);
+        }
         this.setPos(this.getX() + vec3.x, this.getY() + vec3.y, this.getZ() + vec3.z);
 
         if (!this.level().isClientSide()) {
@@ -376,19 +364,15 @@ public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
     }
 
     public void dropAndDiscard(@Nullable HitResult hitResult) {
-        if (entityData.get(DYING)) return;
         for (IStreamCapability cap : capabilities) {
             if (!cap.onBeforeDestroy(this, hitResult)) return;
         }
         for (IStreamCapability capability : capabilities) {
             capability.onDestroy(this, hitResult);
         }
-        if (getSyncedData(EtherStreamLabelData.ID) != null) {
-            deathTickStart = this.tickCount;
-            entityData.set(DYING, true);
-        } else {
-            this.discard();
-        }
+        if(level().isClientSide())
+            EntityStreamClientManager.markDead(this);
+        this.discard();
     }
 
     @Override

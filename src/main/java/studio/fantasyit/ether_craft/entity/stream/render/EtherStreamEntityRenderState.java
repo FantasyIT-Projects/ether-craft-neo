@@ -9,7 +9,6 @@ public class EtherStreamEntityRenderState extends EntityRenderState {
     public final double[] tailZ;
     public final float[] tailSize;
     public int tailCount;
-    public boolean dying;
 
     public EtherStreamEntityRenderState() {
         tailX = new double[EtherStreamEntity.MAX_TAIL];

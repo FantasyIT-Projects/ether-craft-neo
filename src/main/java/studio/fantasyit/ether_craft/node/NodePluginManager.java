@@ -86,6 +86,8 @@ public class NodePluginManager {
         ALL_PLUGINS.add(new PluginInfo(PluginType.FUNCTION, FunctionGrowthAccelerator.ID, FunctionGrowthAccelerator::new, t -> t.is(Items.BONE_MEAL), Items.BONE_MEAL));
         ALL_PLUGINS.add(new PluginInfo(PluginType.FUNCTION, FunctionEnchanter.ID, FunctionEnchanter::new, t -> t.is(Items.ENCHANTING_TABLE), Items.ENCHANTING_TABLE));
         ALL_PLUGINS.add(new PluginInfo(PluginType.FUNCTION, FunctionCreativeEther.ID_FUNC, FunctionCreativeEther::new, t -> t.is(ItemRegistry.ETHER_CREATIVE), ItemRegistry.ETHER_CREATIVE.get()));
+        ALL_PLUGINS.add(new PluginInfo(PluginType.FUNCTION, EtherStreamPlatingUpgrade.ID, EtherStreamPlatingUpgrade::new, t -> t.is(ItemRegistry.PROCESS_CHIP_ITEM) && EtherCraft.id("energizing_chip").equals(t.get(DataComponentRegistry.CHIP_ID)),
+                new ItemStackTemplate(ItemRegistry.PROCESS_CHIP_ITEM, DataComponentPatch.builder().set(DataComponentRegistry.CHIP_ID.get(), EtherCraft.id("energizing_chip")).set(DataComponents.ITEM_MODEL, EtherCraft.id("energizing_chip")).build())));
         ALL_PLUGINS.add(new PluginInfo(PluginType.FEATURE, FeatureEtherStreamEmitter.ID, FeatureEtherStreamEmitter::new, t -> t.is(Items.DISPENSER), Items.DISPENSER));
         ALL_PLUGINS.add(new PluginInfo(PluginType.FEATURE, FeatureDropperThrower.ID, FeatureDropperThrower::new, t -> t.is(Items.DROPPER), Items.DROPPER));
         ALL_PLUGINS.add(new PluginInfo(PluginType.FEATURE, FeatureContainerInteract.ID, FeatureContainerInteract::new, t -> t.is(Items.HOPPER), Items.HOPPER));
@@ -108,8 +110,6 @@ public class NodePluginManager {
         ALL_PLUGINS.add(new PluginInfo(PluginType.UPGRADE, EtherStreamCarryEntityUpgrade.ID, EtherStreamCarryEntityUpgrade::new, t -> t.is(ItemTags.BOATS), Items.OAK_BOAT));
         ALL_PLUGINS.add(new PluginInfo(PluginType.UPGRADE, EtherStreamCarryEntityUpgrade.ID_PLAYER, EtherStreamCarryEntityUpgrade::new, t -> t.is(Items.MINECART), Items.MINECART));
         ALL_PLUGINS.add(new PluginInfo(PluginType.UPGRADE, EtherStreamSpeedUpUpgrade.ID, EtherStreamSpeedUpUpgrade::new, t -> t.is(Items.POWERED_RAIL), Items.POWERED_RAIL));
-        ALL_PLUGINS.add(new PluginInfo(PluginType.UPGRADE, EtherStreamPlatingUpgrade.ID, EtherStreamPlatingUpgrade::new, t -> t.is(ItemRegistry.PROCESS_CHIP_ITEM) && EtherCraft.id("energizing_chip").equals(t.get(DataComponentRegistry.CHIP_ID)),
-                new ItemStackTemplate(ItemRegistry.PROCESS_CHIP_ITEM, DataComponentPatch.builder().set(DataComponentRegistry.CHIP_ID.get(), EtherCraft.id("energizing_chip")).set(DataComponents.ITEM_MODEL, EtherCraft.id("energizing_chip")).build())));
         ALL_PLUGINS.add(new PluginInfo(PluginType.UPGRADE, EtherStreamBounceBackUpgrade.ID, EtherStreamBounceBackUpgrade::new, t -> t.is(Items.SLIME_BALL), Items.SLIME_BALL));
         ALL_PLUGINS.add(new PluginInfo(PluginType.UPGRADE, EtherAutoSupplyUpgrade.ID, EtherAutoSupplyUpgrade::new, t -> t.is(ItemRegistry.ETHER_CRYSTAL.get()), ItemRegistry.ETHER_CRYSTAL.get()));
         ALL_PLUGINS.add(new PluginInfo(PluginType.FEATURE, RedstoneSwitchUpgrade.ID, (a, b) -> new RedstoneSwitchUpgrade(a, b, true), t -> t.is(Items.REDSTONE), Items.REDSTONE));
