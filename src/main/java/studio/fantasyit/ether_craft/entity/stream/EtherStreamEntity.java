@@ -296,7 +296,7 @@ public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
             int remaining = this.ether;
             if (remaining > 0) {
                 ItemStack stack = ie.getItem();
-                PlatingUtil.addEther(stack, remaining);
+                PlatingUtil.addEther(stack, Math.min(remaining, Config.platingMaxEtherReceive));
                 consumeEther(remaining);
                 ie.setItem(stack);
             }

@@ -204,10 +204,12 @@ public class Config {
             .defineInRange("node.auto_supply.ether_per_tick", 5, 1, Integer.MAX_VALUE);
 
     // ===== plating =====
-
     private static final ModConfigSpec.IntValue PLATING_DURATION_TICKS = BUILDER
             .comment("Duration in ticks for plating to complete (20 ticks = 1 second)")
             .defineInRange("plating.duration_ticks", 100, 1, 12000);
+    private static final ModConfigSpec.IntValue PLATING_MAX_ETHER_RECEIVE = BUILDER
+            .comment("Max amount to receive from one ether stream")
+            .defineInRange("plating.max_ether_receive", 6400, 1, Integer.MAX_VALUE);
 
     // -- plating.dash --
     private static final ModConfigSpec.IntValue PLATING_DASH_CD_TICKS = BUILDER
@@ -404,6 +406,7 @@ public class Config {
     public static int etherAutoSupplyThreshold;
     public static int etherAutoSupplyEtherPerTick;
     public static int platingDurationTicks;
+    public static int platingMaxEtherReceive;
     public static int platingDashCdTicks;
     public static int platingDashEtherCost;
     public static int platingHighJumpCdTicks;
@@ -481,6 +484,7 @@ public class Config {
         etherAutoSupplyThreshold = NODE_AUTO_SUPPLY_THRESHOLD.get();
         etherAutoSupplyEtherPerTick = NODE_AUTO_SUPPLY_ETHER_PER_TICK.get();
         platingDurationTicks = PLATING_DURATION_TICKS.get();
+        platingMaxEtherReceive = PLATING_MAX_ETHER_RECEIVE.get();
         platingDashCdTicks = PLATING_DASH_CD_TICKS.get();
         platingDashEtherCost = PLATING_DASH_ETHER_COST.get();
         platingHighJumpCdTicks = PLATING_HIGH_JUMP_CD_TICKS.get();

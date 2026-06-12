@@ -29,8 +29,7 @@ public class EtherStreamDamagePlatingEffect implements IPlatingEffect, IPlatingR
         if (!PlatingUtil.canExtractEther(stack, Config.platingEtherStreamDamageEtherCost)) return;
 
         int ether = PlatingUtil.getEther(stack);
-        int streamEther = Math.max(1, (int) Math.min(data.effect() * 100, ether));
-        PlatingUtil.extractEther(stack, streamEther);
+        int streamEther = Math.max(1, (int) Math.min(data.effect(), ether));
 
         Vec3 pos = entity.getEyePosition();
         Vec3 motion = entity.getLookAngle().scale(Config.platingEtherStreamDamageSpeed);

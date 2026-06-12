@@ -16,6 +16,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
+import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.block.base.EtherContainer;
 import studio.fantasyit.ether_craft.network.s2c.EtherStreamCreateS2C;
 import studio.fantasyit.ether_craft.network.s2c.EtherStreamSetDyingS2C;
@@ -339,7 +340,7 @@ public class VirtualEtherStreamHolder {
         ItemStack stack = ie.getItem();
         int ether = ves.getEther();
         if (ether <= 0) return;
-        PlatingUtil.addEther(stack, ether);
+        PlatingUtil.addEther(stack, Math.min(ether, Config.platingMaxEtherReceive));
         ves.consumeEther(ether);
         ie.setItem(stack);
     }
