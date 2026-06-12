@@ -78,6 +78,9 @@ public class FeatureEtherStreamEmitter extends AbstractDirectionalFilterFeature 
                     spd
             );
 
+            @Nullable AbstractNodePlugin mainPlugin = nodeEntity.functionStorage.getPlugin(0);
+            if (mainPlugin instanceof IEtherStreamCapabilityProviderPlugin provider)
+                provider.provideCapabilities(stream);
             for (int i = 0; i < nodeEntity.featureUpgradeStorage.getContainerSize(); i++) {
                 AbstractNodePlugin plugin = nodeEntity.featureUpgradeStorage.getPlugin(i);
                 if (plugin instanceof IEtherStreamCapabilityProviderPlugin provider) {
