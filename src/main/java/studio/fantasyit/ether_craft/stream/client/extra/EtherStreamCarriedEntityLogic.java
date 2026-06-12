@@ -14,8 +14,6 @@ import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.*;
-import net.neoforged.neoforge.client.network.ClientPacketDistributor;
-import studio.fantasyit.ether_craft.network.c2s.UncarryC2S;
 import studio.fantasyit.ether_craft.register.Tags;
 import studio.fantasyit.ether_craft.stream.cap.EtherStreamCarryEntityCapability;
 import studio.fantasyit.ether_craft.stream.client.data.ClientStreamEntry;
@@ -70,14 +68,7 @@ public class EtherStreamCarriedEntityLogic implements IEtherStreamExtraClientLog
         if (hit) {
             EtherStreamCarryEntityCapability.dropEntityTo(level, currentPos, entry.motion, clientEntity);
             entry.setRemoved();
-            return;
         }
-
-        LocalPlayer player = Minecraft.getInstance().player;
-        if (player != null && player.getUUID().equals(data.entityUUID()))
-            if (player.isShiftKeyDown()) {
-                ClientPacketDistributor.sendToServer(new UncarryC2S(data.posDir(), data.streamId()));
-            }
     }
 
     @Override

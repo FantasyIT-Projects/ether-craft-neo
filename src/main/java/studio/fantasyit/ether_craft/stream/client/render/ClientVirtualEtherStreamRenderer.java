@@ -15,6 +15,7 @@ import studio.fantasyit.ether_craft.integration.Integrations;
 import studio.fantasyit.ether_craft.mixin.BufferBuilderAccessor;
 import studio.fantasyit.ether_craft.stream.client.data.ClientVESHData;
 import studio.fantasyit.ether_craft.stream.client.data.ClientVESHDataGetter;
+import studio.fantasyit.ether_craft.stream.client.data.EntityStreamClientManager;
 
 public class ClientVirtualEtherStreamRenderer {
 
@@ -101,6 +102,25 @@ public class ClientVirtualEtherStreamRenderer {
                 for (var logic : stream.attachedLogic)
                     logic.onRender(stream, currentPos, camera, poseStack, collector);
             }
+        }
+
+        for (var entry : EntityStreamClientManager.entries) {
+            if (entry.attachedLogic.isEmpty()) continue;
+            Vec3 currentPos = entry.getCurrentPosition();
+
+            double dx = currentPos.x - camX;
+            double dy = currentPos.y - camY;
+            double dz = currentPos.z - camZ;
+            double distance = dx * dx + dy * dy + dz * dz;
+            if (distance > 9000) continue;
+            double dot = dx * fx + dy * fy + dz * fz;
+            if (dot < -10.0) continue;
+
+            if (!camera.cullFrustum.pointInFrustum(currentPos.x, currentPos.y, currentPos.z))
+                continue;
+
+            for (var logic : entry.attachedLogic)
+                logic.onRender(entry, currentPos, camera, poseStack, collector);
         }
     }
 }

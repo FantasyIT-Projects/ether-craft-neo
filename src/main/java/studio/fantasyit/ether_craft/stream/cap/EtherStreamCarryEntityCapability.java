@@ -5,6 +5,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
@@ -20,7 +21,6 @@ import studio.fantasyit.ether_craft.register.AttachmentDataRegistry;
 import studio.fantasyit.ether_craft.stream.EtherConsumer;
 import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
 import studio.fantasyit.ether_craft.stream.data.EtherStreamCarryingEntityData;
-import studio.fantasyit.ether_craft.stream.vholder.VirtualEtherStream;
 
 import java.util.Optional;
 
@@ -51,6 +51,15 @@ public class EtherStreamCarryEntityCapability implements IStreamCapability {
             return;
         }
 
+        if (cachedEntity != null && cachedEntity.getUUID().equals(data.entityUUID())) {
+            if (cachedEntity instanceof ServerPlayer sp && sp.isShiftKeyDown()) {
+                EtherStreamCarryEntityCapability.dropEntityTo(sp.level(), streamEntity.position(), streamEntity.deltaMovement(), sp);
+                sp.setData(AttachmentDataRegistry.CARRY_COOLDOWN.get(), sp.level().getGameTime());
+                sp.setData(AttachmentDataRegistry.CARRY_COOLDOWN_SOURCE.get(), Optional.empty());
+                streamEntity.clearSyncedData(EtherStreamCarryingEntityData.ID);
+                return;
+            }
+        }
         if (cachedEntity == null || !cachedEntity.getUUID().equals(data.entityUUID())) {
             if (streamEntity.level() instanceof ServerLevel sl) {
                 cachedEntity = sl.getEntity(data.entityUUID());
@@ -101,7 +110,8 @@ public class EtherStreamCarryEntityCapability implements IStreamCapability {
 
         return data.entityUUID().equals(entity.getUUID());
     }
-    public void forceTakeEntity(IEtherStreamLike streamEntity,Entity entity) {
+
+    public void forceTakeEntity(IEtherStreamLike streamEntity, Entity entity) {
         streamEntity.setSyncedData(new EtherStreamCarryingEntityData(
                 entity.getUUID(), entity.getId(), streamEntity.getPosDir(), streamEntity.getStreamId()));
         cachedEntity = entity;

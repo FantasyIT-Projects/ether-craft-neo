@@ -23,8 +23,6 @@ import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.joml.Vector3f;
-import org.joml.Vector3fc;
 import org.jspecify.annotations.NonNull;
 import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.block.base.EtherContainer;
@@ -52,8 +50,6 @@ public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
             SynchedEntityData.defineId(EtherStreamEntity.class, EntityDataSerializerRegistry.SYNCED_DATA_LIST.get());
     public static final EntityDataAccessor<Boolean> DYING =
             SynchedEntityData.defineId(EtherStreamEntity.class, EntityDataSerializers.BOOLEAN);
-    public static final EntityDataAccessor<Vector3fc> DEATH_POS =
-            SynchedEntityData.defineId(EtherStreamEntity.class, EntityDataSerializers.VECTOR3);
     private int ether;
     public static final int MAX_TAIL = 6;
     public final double[] tailX = new double[MAX_TAIL];
@@ -62,7 +58,6 @@ public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
     public final float[] tailSize = new float[MAX_TAIL];
     public int tailHead = -1;
     public int tailCount;
-    public int clientDeathTick;
     private int deathTickStart;
     private static final int MAX_DEATH_TICKS = 60;
     private PosDir posDir;
@@ -96,7 +91,6 @@ public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
         builder.define(ETHER_COUNT, ether);
         builder.define(SYNCED_DATA, new ArrayList<>());
         builder.define(DYING, false);
-        builder.define(DEATH_POS, new Vector3f());
     }
 
     public void firstTick() {
@@ -152,9 +146,6 @@ public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
             List<IEtherStreamSyncedData> synced = this.entityData.get(SYNCED_DATA);
             if (synced != null) {
                 this.toSyncData = new ArrayList<>(synced);
-            }
-            if (entityData.get(DYING)) {
-                clientDeathTick++;
             }
             tailHead = (tailHead + 1) % MAX_TAIL;
             if (tailCount < MAX_TAIL) tailCount++;
@@ -394,7 +385,6 @@ public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
         }
         if (getSyncedData(EtherStreamLabelData.ID) != null) {
             deathTickStart = this.tickCount;
-            entityData.set(DEATH_POS, new Vector3f((float) this.getX(), (float) this.getY(), (float) this.getZ()));
             entityData.set(DYING, true);
         } else {
             this.discard();

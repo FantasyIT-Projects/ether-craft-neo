@@ -7,6 +7,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
+import studio.fantasyit.ether_craft.entity.stream.EtherStreamEntity;
 import studio.fantasyit.ether_craft.network.s2c.EtherStreamCreateS2C;
 import studio.fantasyit.ether_craft.stream.EtherConsumer;
 import studio.fantasyit.ether_craft.stream.client.extra.EtherStreamClientLogicManager;
@@ -24,7 +25,7 @@ public class ClientStreamEntry {
     public Vec3[] reverseStepMotions = new Vec3[6];
     public int startTickCount;
 
-    public final int id;
+    public int id;
 
     public int tickCount;
     public int ether;
@@ -79,6 +80,30 @@ public class ClientStreamEntry {
         updateDynamic();
     }
 
+    public static ClientStreamEntry fromEntity(EtherStreamEntity entity) {
+        ClientStreamEntry entry = new ClientStreamEntry((EtherStreamCreateS2C.StreamEntry) null);
+        entry.id = entity.getId();
+        entry.startPos = entity.position();
+        entry.motion = entity.getDeltaMovement();
+        entry.currentPos = entity.position();
+        entry.ether = entity.getEther();
+        entry.consumer.fromState(entity.consumer.toState());
+        entry.syncedData = new Object2ObjectOpenHashMap<>();
+        List<IEtherStreamSyncedData> synced = entity.getEntityData().get(EtherStreamEntity.SYNCED_DATA);
+        if (synced != null) {
+            for (IEtherStreamSyncedData data : synced) {
+                entry.syncedData.put(data.getId(), data);
+            }
+        }
+        for (int i = 0; i < entry.reverseStepMotions.length; i++) {
+            entry.reverseStepMotions[i] = entry.motion.reverse().scale(i);
+        }
+        Level level = Minecraft.getInstance().level;
+        entry.receivedAtTick = level != null ? level.getGameTime() : 0;
+        entry.updateDynamic();
+        return entry;
+    }
+
     public void updateFromServer(int ether, EtherConsumer.State consumerState) {
         this.ether = ether;
         this.consumer.fromState(consumerState);
@@ -115,7 +140,7 @@ public class ClientStreamEntry {
     }
 
     public Vec3 getCurrentPosition() {
-        return startPos.add(motion.scale(tickCount - startTickCount));
+        return currentPos;
     }
 
     public @Nullable IEtherStreamSyncedData getSyncedData(Identifier id) {

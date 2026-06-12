@@ -103,11 +103,6 @@ public class Network {
                 wrapWithPlayer(FactoryMenuSwitchItemC2SHandler::handle)
         );
         event.playToServer(
-                UncarryC2S.TYPE,
-                UncarryC2S.CODEC,
-                wrapWithPlayer(UncarryC2S::handle)
-        );
-        event.playToServer(
                 PlatingTriggerC2S.TYPE,
                 PlatingTriggerC2S.CODEC,
                 wrapWithPlayer(PlatingTriggerC2SHandler::handle)

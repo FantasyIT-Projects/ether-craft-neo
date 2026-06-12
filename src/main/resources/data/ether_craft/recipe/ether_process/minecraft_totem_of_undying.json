@@ -1,0 +1,117 @@
+{
+  "type": "ether_craft:ether_process",
+  "input": [
+    {
+      "id": "I0",
+      "item": "minecraft:gold_block",
+      "next": "P5"
+    },
+    {
+      "id": "I1",
+      "item": {
+        "ingredient": "minecraft:emerald",
+        "count": 2
+      },
+      "next": "P1"
+    },
+    {
+      "id": "I2",
+      "item": "minecraft:golden_apple",
+      "next": "P8"
+    }
+  ],
+  "process": [
+    {
+      "id": "P8",
+      "item": [
+        {
+          "chip": "ether_craft:high_heating_chip"
+        }
+      ],
+      "next": "P7"
+    },
+    {
+      "id": "P7",
+      "item": [
+        {
+          "chip": "ether_craft:energizing_chip"
+        }
+      ],
+      "next": "P6"
+    },
+    {
+      "id": "P6",
+      "item": [
+        {
+          "chip": "ether_craft:converging_chip"
+        }
+      ],
+      "next": "P0"
+    },
+    {
+      "id": "P5",
+      "item": [
+        {
+          "chip": "ether_craft:heating_chip"
+        }
+      ],
+      "next": "P4"
+    },
+    {
+      "id": "P4",
+      "item": [
+        {
+          "chip": "ether_craft:cutting_chip"
+        }
+      ],
+      "next": "P3"
+    },
+    {
+      "id": "P3",
+      "item": [
+        {
+          "chip": "ether_craft:carving_chip"
+        }
+      ],
+      "next": "P2"
+    },
+    {
+      "id": "P2",
+      "item": [
+        {
+          "chip": "ether_craft:converging_chip"
+        }
+      ],
+      "next": "P1"
+    },
+    {
+      "id": "P1",
+      "item": [
+        {
+          "chip": "ether_craft:welding_chip"
+        },
+        {
+          "chip": "ether_craft:welding_chip"
+        }
+      ],
+      "next": "P0"
+    },
+    {
+      "id": "P0",
+      "item": [
+        {
+          "chip": "ether_craft:anima_infusing_chip"
+        }
+      ],
+      "next": "O"
+    }
+  ],
+  "output": {
+    "id": "O",
+    "item": [
+      {
+        "id": "minecraft:totem_of_undying"
+      }
+    ]
+  }
+}

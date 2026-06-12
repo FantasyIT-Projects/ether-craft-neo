@@ -2,33 +2,20 @@ package studio.fantasyit.ether_craft.entity.stream.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.client.renderer.rendertype.RenderSetup;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.Identifier;
-import net.minecraft.util.FormattedCharSequence;
-import net.minecraft.world.phys.Vec3;
-import org.joml.Quaternionf;
-import org.joml.Vector3fc;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.entity.stream.EtherStreamEntity;
-import studio.fantasyit.ether_craft.stream.data.EtherStreamLabelData;
-import studio.fantasyit.ether_craft.stream.data.IEtherStreamSyncedData;
-
-import java.util.List;
 
 public class EtherStreamEntityRenderer extends EntityRenderer<EtherStreamEntity, EtherStreamEntityRenderState> {
     private static final Identifier TEXTURE = EtherCraft.id("textures/entity/ether_stream.png");
     private static final RenderType RENDER_TYPE = RenderTypes.energySwirl(TEXTURE, 0, 0);
-
-    private static final float LABEL_SCALE = 0.010416667F;
 
     public EtherStreamEntityRenderer(EntityRendererProvider.Context context) {
         super(context);
@@ -50,26 +37,7 @@ public class EtherStreamEntityRenderer extends EntityRenderer<EtherStreamEntity,
             state.tailZ[i] = entity.tailZ[idx];
             state.tailSize[i] = entity.tailSize[idx];
         }
-        // --- Label extraction ---
-        List<IEtherStreamSyncedData> syncedData = entity.getEntityData().get(EtherStreamEntity.SYNCED_DATA);
-        if (syncedData != null) {
-            for (IEtherStreamSyncedData data : syncedData) {
-                if (data instanceof EtherStreamLabelData labelData) {
-                    state.label = labelData.label;
-                    state.labelColor = labelData.labelColor;
-                    break;
-                }
-            }
-        }
-        state.motion = entity.getDeltaMovement();
         state.dying = entity.getEntityData().get(EtherStreamEntity.DYING);
-        if (state.dying) {
-            state.deathTick = entity.clientDeathTick;
-            Vector3fc dp = entity.getEntityData().get(EtherStreamEntity.DEATH_POS);
-            state.deathPos = new Vec3(dp.x(), dp.y(), dp.z());
-        }
-        state.speed = (float) state.motion.length();
-        // --- End label extraction ---
     }
 
     @Override
@@ -101,78 +69,7 @@ public class EtherStreamEntityRenderer extends EntityRenderer<EtherStreamEntity,
 
                 poseStack.popPose();
             }
-        renderLabel(state, poseStack, collector, camera);
         super.submit(state, poseStack, collector, camera);
-    }
-
-    private void renderLabel(EtherStreamEntityRenderState state, PoseStack poseStack,
-                             SubmitNodeCollector collector, CameraRenderState camera) {
-        if (state.label == null) return;
-        Vec3 motion = state.motion;
-        if (motion.lengthSqr() < 0.0001) return;
-
-        Font font = Minecraft.getInstance().font;
-        String fullText = state.label.getString();
-        int fullTextWidth = font.width(fullText);
-        if (fullTextWidth == 0) return;
-
-        String visibleText;
-        int visibleTextWidth;
-
-        if (state.dying) {
-            int consumedRight = Math.round(state.deathTick * state.speed / LABEL_SCALE);
-            int remainingWidth = fullTextWidth - consumedRight;
-            if (remainingWidth <= 0) return;
-            visibleText = font.plainSubstrByWidth(fullText, remainingWidth, false);
-            if (visibleText.isEmpty()) return;
-            visibleTextWidth = font.width(visibleText);
-        } else {
-            visibleText = fullText;
-            visibleTextWidth = fullTextWidth;
-        }
-
-        // Compute normal once
-        Vec3 dir = motion.normalize();
-        Vec3 up = new Vec3(0.0, 1.0, 0.0);
-        boolean vertical = Math.abs(dir.dot(up)) > 0.999;
-        Vec3 normal;
-        if (vertical) {
-            normal = dir.cross(new Vec3(1.0, 0.0, 0.0)).normalize();
-        } else {
-            normal = dir.cross(up).normalize();
-        }
-
-        FormattedCharSequence text = FormattedCharSequence.forward(visibleText, net.minecraft.network.chat.Style.EMPTY);
-
-        // Render on both faces so the label is visible from either side
-        // For normal face: right-align (text extends left from entity), for -normal face: left-align
-        for (Vec3 faceNormal : new Vec3[]{normal, normal.scale(-1)}) {
-            poseStack.pushPose();
-
-            if (state.dying && state.deathPos != null) {
-                poseStack.translate(state.deathPos.x - state.x, state.deathPos.y - state.y, state.deathPos.z - state.z);
-            }
-
-            Quaternionf rotation = new Quaternionf().rotateTo(
-                    new org.joml.Vector3f(0, 0, 1),
-                    new org.joml.Vector3f((float) faceNormal.x, (float) faceNormal.y, (float) faceNormal.z));
-            poseStack.mulPose(rotation);
-            if (vertical) {
-                poseStack.mulPose(new Quaternionf().rotateZ((float) Math.toRadians(faceNormal == normal ? -90 : 90)));
-            }
-            poseStack.scale(LABEL_SCALE, -LABEL_SCALE, LABEL_SCALE);
-
-            float textX;
-            if (vertical) {
-                textX = faceNormal == normal ? 0 : -visibleTextWidth;
-            } else {
-                textX = faceNormal == normal ? -visibleTextWidth : 0;
-            }
-            collector.submitText(poseStack, textX, 0, text, false,
-                    Font.DisplayMode.NORMAL, 0xF000F0, state.labelColor, 0, 0);
-
-            poseStack.popPose();
-        }
     }
 
     private static void vertex(VertexConsumer buffer, PoseStack.Pose pose, float x, float y, int a, float u, float v, int light) {
