@@ -9,6 +9,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import studio.fantasyit.ether_craft.Config;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.event.ClientRecipeSyncEvent;
@@ -97,6 +98,12 @@ public class JEIPlugin implements IModPlugin {
         if (!platingRecipes.isEmpty()) {
             registration.addRecipes(PLATING_TYPE, platingRecipes);
         }
+
+        registration.addIngredientInfo(
+                ItemRegistry.INACTIVATED_ETHER.get(),
+                Component.translatable("jei.ether_craft.inactivated_ether.info",
+                        Config.etherInactivateConvertTick / 20)
+        );
 
         for (var dyn : dynamicCategories) {
             List<EtherProcessFactoryRecipe> catRecipes = EtherProcessRecipeManager.extraRecipes.stream()

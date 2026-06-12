@@ -48,16 +48,23 @@ public class PlayerRendererEvent {
     public static void playerExtractRenderStateModifier(RegisterRenderStateModifiersEvent event) {
         event.registerAvatarEntityModifier(new AvatarRenderStateModifier() {
             @Override
-            public <T extends Avatar & ClientAvatarEntity> void accept(T avatar, AvatarRenderState renderState) {
-                CamouflageState data = avatar.getExistingData(AttachmentDataRegistry.CAMOUFLAGE_STATE).orElse(null);
+            public <T extends Avatar & ClientAvatarEntity> void accept(T entity, AvatarRenderState renderState) {
+                CamouflageState data = entity.getExistingData(AttachmentDataRegistry.CAMOUFLAGE_STATE).orElse(null);
                 if (data != null && data.isActive()) {
                     renderState.setRenderData(SHOULD_HIDE, true);
                     renderState.setRenderData(CAMOUFLAGE_POS, data.camouflagePos());
                     renderState.setRenderData(CAMOUFLAGE_YAW_KEY, data.camouflageYaw());
-                    Entity entity = (Entity) avatar;
-                    renderState.setRenderData(CAMOUFLAGE_OFF_X, data.camouflagePos().getX() + 1 - entity.position().x);
-                    renderState.setRenderData(CAMOUFLAGE_OFF_Y, data.camouflagePos().getY() - entity.position().y);
-                    renderState.setRenderData(CAMOUFLAGE_OFF_Z, data.camouflagePos().getZ() + 1 - entity.position().z);
+                    double xExOffset = 0;
+                    double zExOffset = 0;
+                    double yExOffset = 0;
+                    if (entity.isShiftKeyDown()) {
+                        xExOffset = entity.position().x - 0.5 - data.camouflagePos().getX();
+                        zExOffset = entity.position().z - 0.5 - data.camouflagePos().getZ();
+                        yExOffset = 0.11;
+                    }
+                    renderState.setRenderData(CAMOUFLAGE_OFF_X, data.camouflagePos().getX() + 1 - entity.position().x + xExOffset);
+                    renderState.setRenderData(CAMOUFLAGE_OFF_Y, data.camouflagePos().getY() - entity.position().y + yExOffset);
+                    renderState.setRenderData(CAMOUFLAGE_OFF_Z, data.camouflagePos().getZ() + 1 - entity.position().z + zExOffset);
                 } else {
                     renderState.setRenderData(SHOULD_HIDE, false);
                 }

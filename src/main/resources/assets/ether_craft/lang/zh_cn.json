@@ -113,6 +113,7 @@
   "jei.ether_craft.node_process": "节点处理",
   "jei.ether_craft.node_process.ether_cost": "以太: %d",
   "jei.ether_craft.plating": "以太镀层",
+  "jei.ether_craft.inactivated_ether.info": "一组以太以物品实体形式丢出后，静止 %d 秒后会转化为失活以太。",
   "jei.ether_craft.plating.formula": "以太%s~%s → 效果%s~%s",
   "jei.ether_craft.plating.effect.ether_craft.damage": "提升近战攻击伤害",
   "jei.ether_craft.plating.effect.ether_craft.dash": "右键向前冲刺",
@@ -190,7 +191,7 @@
   "ether_craft.gui.node.item_consume.line_1": "剩余燃烧: %ds",
   "ether_craft.gui.node.item_consume.line_idle": "空闲",
   "ether_craft.gui.node.item_consume.line_2": "以太: %d/%d",
-  "ether_craft.gui.node.item_consume.line_3": "燃料: %s",
+  "ether_craft.gui.node.item_consume.line_3": "%s",
   "ether_craft.gui.node.function_node_process.line_1": "进度: %d/%d",
   "ether_craft.gui.node.function_node_process.line_2": "以太: %d/%d",
   "ether_craft.gui.node.function_node_process.line_3": "目标: %s",
@@ -216,8 +217,8 @@
 
   "ether_craft.gui.node.redstone_signal.mode_ether": "当前: 以太检测",
   "ether_craft.gui.node.redstone_signal.mode_inventory": "当前: 物品检测",
-  "ether_craft.gui.node.redstone_signal.disabled": "当前: 禁用",
-  "ether_craft.gui.node.redstone_signal.enabled": "当前: 启用",
+  "ether_craft.gui.node.redstone_signal.normal": "当前: 正常",
+  "ether_craft.gui.node.redstone_signal.revert": "当前: 反相",
 
   "tooltip.ether_craft.plating.in_progress": "镀层进行中...",
   "tooltip.ether_craft.plating.title": "镀层:",

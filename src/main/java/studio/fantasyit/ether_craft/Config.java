@@ -251,10 +251,10 @@ public class Config {
             .defineInRange("plating.camouflage.stand_duration", 100, 1, 12000);
     private static final ModConfigSpec.IntValue PLATING_CAMOUFLAGE_ETHER_COST = BUILDER
             .comment("Ether consumed by Camouflage")
-            .defineInRange("plating.camouflage.ether_per_tick", 1, 0, Integer.MAX_VALUE);
+            .defineInRange("plating.camouflage.ether_per_tick", 300, 0, Integer.MAX_VALUE);
     private static final ModConfigSpec.DoubleValue PLATING_CAMOUFLAGE_SPEED_THRESHOLD = BUILDER
             .comment("The max speed that allows user to enter camouflage status.")
-            .defineInRange("plating.camouflage.speed_threshold", 0.05, 0, 20);
+            .defineInRange("plating.camouflage.speed_threshold", 0.08, 0, 20);
     private static final ModConfigSpec.IntValue PLATING_CAMOUFLAGE_GAIN_ETHER_PER_TICK = BUILDER
             .comment("The ether gain in camouflage status")
             .defineInRange("plating.camouflage.gain_per_tick", 5, 0, Integer.MAX_VALUE);
@@ -350,6 +350,9 @@ public class Config {
     private static final ModConfigSpec.IntValue PLATING_ETHIC_ETHER_PER_USE = BUILDER
             .comment("Ether consumed per ethical action")
             .defineInRange("plating.ethic.ether_per_use", 5, 0, Integer.MAX_VALUE);
+    private static final ModConfigSpec.IntValue PLATING_ETHIC_CD = BUILDER
+            .comment("Cd of ethical action")
+            .defineInRange("plating.ethic.cd", 20, 0, Integer.MAX_VALUE);
 
     // -- plating.anti_sonic_boom --
     private static final ModConfigSpec.IntValue PLATING_ANTI_SONIC_BOOM_ETHER_PER_BLOCK = BUILDER
@@ -441,6 +444,7 @@ public class Config {
     public static int platingAntiDarknessEtherPerBlock;
     public static int platingAntiDarknessEtherPerTick;
     public static int platingEthicEtherPerUse;
+    public static int platingEthicCD;
     public static int platingAntiSonicBoomEtherPerBlock;
     public static int platingSilentStepEtherPerTick;
     public static int platingDurabilityAbsorptionEtherPerDurability;
@@ -519,6 +523,7 @@ public class Config {
         platingAntiDarknessEtherPerBlock = PLATING_ANTI_DARKNESS_ETHER_PER_BLOCK.get();
         platingAntiDarknessEtherPerTick = PLATING_ANTI_DARKNESS_ETHER_PER_TICK.get();
         platingEthicEtherPerUse = PLATING_ETHIC_ETHER_PER_USE.get();
+        platingEthicCD = PLATING_ETHIC_CD.get();
         platingAntiSonicBoomEtherPerBlock = PLATING_ANTI_SONIC_BOOM_ETHER_PER_BLOCK.get();
         platingSilentStepEtherPerTick = PLATING_SILENT_STEP_ETHER_PER_TICK.get();
         platingDurabilityAbsorptionEtherPerDurability = PLATING_DURABILITY_ABSORPTION_ETHER_PER_DURABILITY.get();

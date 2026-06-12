@@ -36,7 +36,7 @@ public class EquipmentConsumeScreen extends BaseEtherNodeTabWidgetProvider<Funct
             if (!equipItem.isEmpty()) {
                 graphics.text(font, Component.translatable("ether_craft.gui.node.equipment_consume.line_1", equipItem.getHoverName()), x, ly(19), 0xFFFFFFFF);
             }
-            graphics.text(font, Component.translatable("ether_craft.gui.node.equipment_consume.line_2", plugin.remainBurnTicks), x, ly(30), 0xFFFFFFFF);
+            graphics.text(font, Component.translatable("ether_craft.gui.node.equipment_consume.line_2", plugin.remainBurnTicks / 20), x, ly(30), 0xFFFFFFFF);
         } else {
             graphics.text(font, Component.translatable("ether_craft.gui.node.equipment_consume.line_idle"), x, ly(19), 0xFFFFFFFF);
         }

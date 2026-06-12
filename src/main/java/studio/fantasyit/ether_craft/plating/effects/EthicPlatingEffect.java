@@ -3,6 +3,8 @@ package studio.fantasyit.ether_craft.plating.effects;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.TamableAnimal;
@@ -40,24 +42,33 @@ public class EthicPlatingEffect implements IPlatingEffect, IPlatingAttackTrigger
 
         if (target instanceof IronGolem golem) {
             PlatingUtil.extractEther(stack, Config.platingEthicEtherPerUse);
-            golem.setTarget(null);
             event.setCanceled(true);
+            if (!data.isCd(level)) {
+                golem.setTarget(null);
+            }
+            PlatingUtil.updatePlatingData(stack, data.copyWithCoolDown(level, Config.platingEthicCD));
             return;
         }
 
         if (target instanceof TamableAnimal tamable) {
             PlatingUtil.extractEther(stack, Config.platingEthicEtherPerUse);
-            tamable.setTarget(null);
             event.setCanceled(true);
+            if (!data.isCd(level)) {
+                tamable.setTarget(null);
+            }
+            PlatingUtil.updatePlatingData(stack, data.copyWithCoolDown(level, Config.platingEthicCD));
             return;
         }
 
         if (target instanceof Animal animal) {
             Optional<ResourceKey<LootTable>> lootTableKey = animal.getLootTable();
+            event.setCanceled(true);
             if (lootTableKey.isEmpty()) {
-                event.setCanceled(true);
                 return;
             }
+
+            if (data.isCd(level))
+                return;
             PlatingUtil.extractEther(stack, Config.platingEthicEtherPerUse);
             LootTable lootTable = level.getServer().reloadableRegistries().getLootTable(lootTableKey.get());
             LootParams lootParams = new LootParams.Builder(level)
@@ -70,7 +81,8 @@ public class EthicPlatingEffect implements IPlatingEffect, IPlatingAttackTrigger
             lootTable.getRandomItems(lootParams, animal.getLootTableSeed(), itemStack -> animal.spawnAtLocation(level, itemStack));
             animal.setLastHurtByMob(null);
             animal.setTarget(null);
-            event.setCanceled(true);
+            level.playSound(null, entity.blockPosition(), SoundEvents.CHICKEN_EGG, SoundSource.AMBIENT, 1.0F, 1.0F);
+            PlatingUtil.updatePlatingData(stack, data.copyWithCoolDown(level, Config.platingEthicCD));
         }
     }
 }

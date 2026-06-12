@@ -3,6 +3,7 @@ package studio.fantasyit.ether_craft.stream.cap;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -121,7 +122,9 @@ public class EtherStreamCarryEntityCapability implements IStreamCapability {
                     entity.getUUID(), entity.getId(), streamEntity.getPosDir(), streamEntity.getStreamId()));
             cachedEntity = entity;
             streamEntity.dirtyConsumer();
-
+            if (cachedEntity instanceof ServerPlayer sp) {
+                sp.sendSystemMessage(Component.translatable("mount.onboard", Component.translatable("key.sneak")), true);
+            }
             return true;
         }
 

@@ -22,13 +22,15 @@ public class CoyoteTimePlatingEffect implements IPlatingEffect, IPlatingVirtualW
 
     @Override
     public int providerVirtualWalkableAt(PlatingData data, ItemStack stack, Level level, LivingEntity entity, BlockPos pos, @Nullable BlockPos jumpStartAt) {
+        if (entity.isShiftKeyDown()) return Integer.MIN_VALUE;
         if (jumpStartAt == null) return Integer.MIN_VALUE;
         if (data.effect() <= 0) return Integer.MIN_VALUE;
         if (data.hasCd() && !data.isCd(level)) return Integer.MIN_VALUE;
         if (!PlatingUtil.canExtractEther(stack, Config.platingCoyoteTimeEtherPerJump)) return Integer.MIN_VALUE;
-        PlatingUtil.extractEther(stack, Config.platingCoyoteTimeEtherPerJump);
-        if (!data.hasCd())
+        if (!data.hasCd()) {
             PlatingUtil.updatePlatingData(stack, data.copyWithCoolDown(level, (long) (data.effect() * 20)));
+        }
+        PlatingUtil.extractEther(stack, Config.platingCoyoteTimeEtherPerJump);
         return jumpStartAt.getY();
     }
 

@@ -8,6 +8,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
+import net.neoforged.neoforge.common.crafting.DifferenceIngredient;
 import studio.fantasyit.ether_craft.node.plugins.feature.*;
 import studio.fantasyit.ether_craft.node.plugins.function.*;
 import studio.fantasyit.ether_craft.node.plugins.upgrade.*;
@@ -64,7 +65,7 @@ public class NodePluginTipManager {
                 new TipInfo(List.of(Ingredient.of(Items.CHEST), Ingredient.of(BuiltInRegistries.ITEM.getOrThrow(ItemTags.COPPER_CHESTS))), List.of(), Set.of(TipConcept.LOGISTICS)));
         registerTip(EtherStreamStorageUpgrade.ID,
                 new TipInfo(List.of(
-                        Ingredient.of(BuiltInRegistries.ITEM.getOrThrow(ItemTags.BOATS)), Ingredient.of(Items.SPRUCE_CHEST_BOAT)
+                        Ingredient.of(BuiltInRegistries.ITEM.getOrThrow(ItemTags.CHEST_BOATS)), Ingredient.of(Items.SPRUCE_CHEST_BOAT)
                 ), List.of(), Set.of(TipConcept.ETHER_FLOW, TipConcept.LOGISTICS)));
         registerTip(EtherStreamStorageUpgrade.ID_1,
                 new TipInfo(List.of(Ingredient.of(Items.CHEST_MINECART)), List.of(), Set.of(TipConcept.ETHER_FLOW, TipConcept.LOGISTICS)));
@@ -97,7 +98,10 @@ public class NodePluginTipManager {
                 new TipInfo(List.of(Ingredient.of(Items.SCULK_CATALYST)), List.of(), Set.of(TipConcept.WORLD_INTERACTION, TipConcept.ETHER_FLOW)));
         registerTip(EtherStreamCarryEntityUpgrade.ID,
                 new TipInfo(List.of(
-                        Ingredient.of(BuiltInRegistries.ITEM.getOrThrow(ItemTags.BOATS))
+                        DifferenceIngredient.of(
+                                Ingredient.of(BuiltInRegistries.ITEM.getOrThrow(ItemTags.BOATS)),
+                                Ingredient.of(BuiltInRegistries.ITEM.getOrThrow(ItemTags.CHEST_BOATS))
+                        )
                 ), List.of(), Set.of(TipConcept.ETHER_FLOW, TipConcept.WORLD_INTERACTION)));
         registerTip(EtherStreamBounceBackUpgrade.ID,
                 new TipInfo(List.of(Ingredient.of(Items.SLIME_BALL)), List.of(), Set.of(TipConcept.ETHER_FLOW)));

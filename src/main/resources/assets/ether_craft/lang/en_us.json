@@ -117,6 +117,7 @@
   "jei.ether_craft.node_process": "Node Process",
   "jei.ether_craft.node_process.ether_cost": "Ether: %d",
   "jei.ether_craft.plating": "Ether Plating",
+  "jei.ether_craft.inactivated_ether.info": "A full stack of Ether dropped as an item entity will convert to Inactivated Ether after %d seconds.",
   "jei.ether_craft.plating.formula": "Ether %s → %s → Value %s → %s",
   "jei.ether_craft.plating.effect.ether_craft.damage": "Increases melee attack damage",
   "jei.ether_craft.plating.effect.ether_craft.dash": "Right-click to dash forward",
@@ -222,8 +223,8 @@
 
   "ether_craft.gui.node.redstone_signal.mode_ether": "Using: Ether",
   "ether_craft.gui.node.redstone_signal.mode_inventory": "Using: Inventory",
-  "ether_craft.gui.node.redstone_signal.disabled": "Using: Disabled",
-  "ether_craft.gui.node.redstone_signal.enabled": "Using: Enabled",
+  "ether_craft.gui.node.redstone_signal.normal": "Using: Normal",
+  "ether_craft.gui.node.redstone_signal.revert": "Using: Revert",
   "tooltip.ether_craft.plating.in_progress": "Plating in progress...",
   "tooltip.ether_craft.plating.title": "Plating:",
   "tooltip.ether_craft.plating.ether": "Ether: %s",

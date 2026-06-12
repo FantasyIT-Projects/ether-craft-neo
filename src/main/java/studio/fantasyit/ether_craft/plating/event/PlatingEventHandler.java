@@ -2,6 +2,7 @@ package studio.fantasyit.ether_craft.plating.event;
 
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
 import net.minecraft.world.item.BowItem;
@@ -146,6 +147,10 @@ public class PlatingEventHandler {
 
         for (LivingEntity entity : level.getEntitiesOfClass(LivingEntity.class,
                 arrow.getBoundingBox().inflate(tracking.range()))) {
+            if (entity instanceof TamableAnimal tamableAnimal) {
+                if (tamableAnimal.getOwnerReference() != null)
+                    continue;
+            }
             if (entity == owner) continue;
             if (!entity.isAlive()) continue;
             double dist = entity.distanceToSqr(arrow);

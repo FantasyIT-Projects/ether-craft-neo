@@ -64,8 +64,9 @@ public class CamouflagePlatingEffect implements IPlatingEffect, IPlatingTickEqui
                 clearMobTargets(player);
             }
 
-            player.setData(AttachmentDataRegistry.CAMOUFLAGE_STATE.get(),
-                    new CamouflageState(true, newTicks, state.camouflagePos(), state.camouflageYaw(), player.position()));
+            if (!state.lastPos().equals(pos))
+                player.setData(AttachmentDataRegistry.CAMOUFLAGE_STATE.get(),
+                        new CamouflageState(true, newTicks, BlockPos.containing(pos), state.camouflageYaw(), pos));
 
             PlatingUtil.addEther(stack, Config.platingCamouflageGainEtherPerTick);
         }

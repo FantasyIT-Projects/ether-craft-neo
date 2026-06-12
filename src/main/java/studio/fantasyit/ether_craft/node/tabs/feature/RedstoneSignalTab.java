@@ -98,8 +98,8 @@ public class RedstoneSignalTab extends BaseEtherNodeTabWidgetProvider<FeatureRed
                 EtherAdaptNodeAsset.BTN_BLANK_DOWN,
                 EtherAdaptNodeAsset.BTN_BLANK_DOWN_HOVER,
                 null,
-                Component.translatable("ether_craft.gui.node.redstone_signal.disabled"),
-                Component.translatable("ether_craft.gui.node.redstone_signal.enabled"),
+                Component.translatable("ether_craft.gui.node.redstone_signal.normal"),
+                Component.translatable("ether_craft.gui.node.redstone_signal.revert"),
                 t -> {
                     ClientPacketDistributor.sendToServer(new SyncScreenDataC2S(
                             plugin.installedId,

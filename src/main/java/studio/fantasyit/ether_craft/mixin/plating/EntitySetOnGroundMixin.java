@@ -33,7 +33,7 @@ public abstract class EntitySetOnGroundMixin {
     private Vec3 ether_craft$virtual_ground_supplier(Vec3 result, Vec3 movement) {
         if (!(((Object) this) instanceof Player player)) return result;
         if (player.getAbilities().flying) return result;
-        if (movement.y > 0) return result;
+        if (movement.y >= 0) return result;
         if (result.y > movement.y) {
             PlatingEventHelper.forEachPlatingOnEquipment(player, (a, b, c) -> {
                 if (a instanceof IPlatingVirtualWalkableProvider vwp)
