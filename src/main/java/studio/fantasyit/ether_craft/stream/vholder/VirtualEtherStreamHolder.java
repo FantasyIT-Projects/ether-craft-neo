@@ -9,9 +9,9 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.ShelfBlock;
 import net.minecraft.world.level.block.entity.ShelfBlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
@@ -101,7 +101,6 @@ public class VirtualEtherStreamHolder {
         Vec3 queryVec = direction.getUnitVec3().scale(maxLen + 0.5);
         List<Entity> entities = level.getEntities(null, new AABB(pos).expandTowards(queryVec).inflate(1.0));
         entities.removeIf(entity -> entity == null || (entity.is(EntityType.ITEM) && !isPlatedItem((ItemEntity) entity)));
-        List<ArmorStand> armorStands = level.getEntitiesOfClass(ArmorStand.class, new AABB(pos).expandTowards(queryVec).inflate(1.0));
         int maxClipDist = (int) Math.ceil(maxLen);
         List<BlockState> blockStates = new ArrayList<>(maxClipDist);
         List<BlockPos> blockPoses = new ArrayList<>(maxClipDist);
@@ -179,6 +178,9 @@ public class VirtualEtherStreamHolder {
                     for (IStreamCapability cap : ves.capabilities) {
                         handled |= cap.hitEntity(level, ves, hit, hitEntity);
                     }
+                    if (hitEntity instanceof ArmorStand as) {
+                        PlatingChargingUtil.tryChargeArmorStand(ves, as);
+                    }
                 }
                 if (!handled) ves.markDead(hit);
             } else if (blockHit != null) {
@@ -197,12 +199,6 @@ public class VirtualEtherStreamHolder {
                     if (capability != null)
                         capability.receiveEther(ves.getEther());
                     ves.markDead(blockHit);
-                }
-            }
-
-            for (ArmorStand stand : armorStands) {
-                if (stand.distanceToSqr(ves.pos) < 0.25) {
-                    PlatingChargingUtil.tryChargeArmorStand(ves, stand);
                 }
             }
         }

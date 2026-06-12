@@ -28,9 +28,8 @@ public class EtherStreamDashPlatingEffect implements IPlatingEffect, IPlatingRig
         if (data.isCd(level)) return;
         if (!PlatingUtil.canExtractEther(stack, Config.platingEtherStreamDashEtherCost)) return;
         if (entity.noPhysics) return;
-
-        int ether = PlatingUtil.getEther(stack);
-        int streamEther = Math.max(1, (int) Math.min(data.effect(), ether));
+        PlatingUtil.extractEther(stack, Config.platingEtherStreamBreakEtherCost);
+        int streamEther = (int) Math.max(1, data.effect());
 
         Vec3 pos = entity.getEyePosition();
         Vec3 motion = entity.getLookAngle().scale(Config.platingEtherStreamDashSpeed);

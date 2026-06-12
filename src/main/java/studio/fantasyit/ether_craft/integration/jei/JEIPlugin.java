@@ -8,11 +8,13 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.event.ClientRecipeSyncEvent;
 import studio.fantasyit.ether_craft.factory.EtherProcessRecipeManager;
 import studio.fantasyit.ether_craft.factory.ExtraRecipeProvider;
+import studio.fantasyit.ether_craft.item.ProcessChipItem;
 import studio.fantasyit.ether_craft.node.NodePluginManager;
 import studio.fantasyit.ether_craft.recipe.crafting.UpgradeShapedRecipe;
 import studio.fantasyit.ether_craft.recipe.factory.EtherProcessFactoryRecipe;
@@ -212,7 +214,8 @@ public class JEIPlugin implements IModPlugin {
                 new ItemStack(ItemRegistry.ETHER_ADAPT_NODE_ITEM_LV_3.get())
         );
         registration.addCraftingStation(PLATING_TYPE,
-                new ItemStack(ItemRegistry.ETHER_STREAM_EMITTER_ITEM.get()),
+                ProcessChipItem.getStackFor(EtherCraft.id("energizing_chip")),
+                new ItemStack(Items.DISPENSER),
                 new ItemStack(ItemRegistry.ETHER_ADAPT_NODE_ITEM_LV_1.get()),
                 new ItemStack(ItemRegistry.ETHER_ADAPT_NODE_ITEM_LV_2.get()),
                 new ItemStack(ItemRegistry.ETHER_ADAPT_NODE_ITEM_LV_3.get())

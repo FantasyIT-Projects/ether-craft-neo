@@ -18,13 +18,13 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.context.ContextMap;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.display.SlotDisplayContext;
 import net.neoforged.neoforge.common.crafting.SizedIngredient;
 import org.jetbrains.annotations.Nullable;
+import studio.fantasyit.ether_craft.EtherCraft;
+import studio.fantasyit.ether_craft.item.ProcessChipItem;
 import studio.fantasyit.ether_craft.plating.data.PlatingEffectFormula;
 import studio.fantasyit.ether_craft.recipe.plating.PlatingRecipe;
-import studio.fantasyit.ether_craft.register.ItemRegistry;
 
 import java.util.List;
 
@@ -47,7 +47,7 @@ public class PlatingCategory implements IRecipeCategory<PlatingRecipe> {
     public PlatingCategory(IGuiHelper guiHelper) {
         this.icon = guiHelper.createDrawableIngredient(
                 VanillaTypes.ITEM_STACK,
-                new ItemStack(ItemRegistry.ETHER_STREAM_EMITTER_ITEM.get())
+                ProcessChipItem.getStackFor(EtherCraft.id("energizing_chip"))
         );
     }
 

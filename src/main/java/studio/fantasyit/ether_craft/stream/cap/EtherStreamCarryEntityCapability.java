@@ -104,7 +104,7 @@ public class EtherStreamCarryEntityCapability implements IStreamCapability {
     @Override
     public boolean hitEntity(ServerLevel level, IEtherStreamLike streamEntity, EntityHitResult hit, Entity entity) {
         if (playerOnly && !(entity instanceof ServerPlayer))
-            return false;
+            return true;
 
         EtherStreamCarryingEntityData data = getCarriedData(streamEntity);
 

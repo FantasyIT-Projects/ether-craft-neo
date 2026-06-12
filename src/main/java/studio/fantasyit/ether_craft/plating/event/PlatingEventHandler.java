@@ -132,6 +132,7 @@ public class PlatingEventHandler {
     @SubscribeEvent
     public static void onEntityTick(EntityTickEvent.Post event) {
         if (!(event.getEntity() instanceof AbstractArrow arrow)) return;
+        if (arrow.onGround()) return;
 
         TrackingData tracking = arrow.getExistingData(AttachmentDataRegistry.ARROW_TRACKING.get()).orElse(null);
         if (tracking == null || tracking.range() <= 0) return;
@@ -165,7 +166,7 @@ public class PlatingEventHandler {
         double currentAngle = Math.acos(dot);
 
         if (currentAngle > 1e-6) {
-            double maxDeflect = Math.toRadians(tracking.strength());
+            double maxDeflect = Math.toRadians(tracking.strength() * 180);
             double deflectAngle = Math.min(maxDeflect, currentAngle);
 
             Vec3 axis = currentDir.cross(toTarget).normalize();
