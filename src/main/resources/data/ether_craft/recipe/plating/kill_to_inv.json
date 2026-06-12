@@ -4,7 +4,10 @@
     {"ingredient": "minecraft:iron_sword", "count": 1},
     {"ingredient": "ether_craft:vacuum_pipe", "count": 1}
   ],
-  "filter": ["#minecraft:swords", "#minecraft:axes", "#minecraft:spears", "#c:tools/bow", "#c:tools/crossbow", "minecraft:mace", "minecraft:trident"],
+  "filter": {
+    "neoforge:ingredient_type": "neoforge:compound",
+    "ingredients": ["#minecraft:swords", "#minecraft:axes", "#minecraft:spears", "#c:tools/bow", "#c:tools/crossbow", "minecraft:mace", "minecraft:trident"]
+  },
   "effect": "ether_craft:kill_to_inv",
   "values": {"a1": 20000, "a2": 20001, "a3": 0, "a4": 1}
 }

@@ -5,8 +5,7 @@
     {"ingredient": "minecraft:target", "count": 1},
     {"ingredient": "minecraft:calibrated_sculk_sensor", "count": 1},
     {"ingredient": "minecraft:comparator", "count": 1},
-    {"ingredient": "minecraft:compass", "count": 1},
-    {"ingredient": "minecraft:fireworks", "count": 1}
+    {"ingredient": "minecraft:firework_rocket", "count": 1}
   ],
   "filter": "#c:tools/bow",
   "effect": "ether_craft:tracking",

@@ -4,7 +4,10 @@
             {"ingredient": "minecraft:rabbit_foot", "count": 1},
             {"ingredient": "minecraft:sugar", "count": 1}
 ],
-  "filter": ["#minecraft:swords","#c:tools/shield","#minecraft:leg_armor"],
+  "filter": {
+    "neoforge:ingredient_type": "neoforge:compound",
+    "ingredients": ["#minecraft:swords","#c:tools/shield","#minecraft:leg_armor"]
+  },
   "effect": "ether_craft:dash",
   "values": {"a1": 25000, "a2": 75000, "a3": 0.5, "a4": 2.5}
 }

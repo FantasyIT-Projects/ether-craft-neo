@@ -20,7 +20,7 @@ import studio.fantasyit.ether_craft.register.DataComponentRegistry;
 import java.util.List;
 import java.util.Optional;
 
-public class BlockPlatingEffect implements IPlatingEffect, IInstanceTrigger, IPlatingBlockingTrigger, IEffectStartAndEndTrigger {
+public class BlockPlatingEffect implements IPlatingEffect, IInstanceTrigger,IPlatingBlockingTrigger {
     public static final Identifier ID = EtherCraft.id("block");
 
     @Override
@@ -30,7 +30,6 @@ public class BlockPlatingEffect implements IPlatingEffect, IInstanceTrigger, IPl
 
     @Override
     public void onPlatted(PlatingData data, ItemStack stack) {
-        stack.set(DataComponentRegistry.TEMP_BLOCKING, true);
         stack.set(DataComponents.BLOCKS_ATTACKS, new BlocksAttacks(
                 0.0f,
                 1.0f,
@@ -48,22 +47,7 @@ public class BlockPlatingEffect implements IPlatingEffect, IInstanceTrigger, IPl
     }
 
     private static void removeBlocking(ItemStack stack) {
-        stack.remove(DataComponentRegistry.TEMP_BLOCKING);
         stack.remove(DataComponents.BLOCKS_ATTACKS);
-    }
-
-    @Override
-    public void onEffectStarts(LivingEntity entity, PlatingData platingData) {
-    }
-
-    @Override
-    public void onEffectEnds(LivingEntity entity) {
-        for (InteractionHand hand : InteractionHand.values()) {
-            ItemStack stack = entity.getItemInHand(hand);
-            if (stack.has(DataComponentRegistry.TEMP_BLOCKING)) {
-                removeBlocking(stack);
-            }
-        }
     }
 
     @Override

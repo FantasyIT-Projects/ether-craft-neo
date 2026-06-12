@@ -41,6 +41,7 @@ public class ItemRegistry {
     public static final DeferredHolder<Item, @NotNull Item> INACTIVATED_ETHER = ITEMS.register("inactivated_ether", i -> new Item(new Item.Properties().stacksTo(64).setId(ResourceKey.create(Registries.ITEM, i))));
     public static final DeferredHolder<Item, @NotNull Item> VACUUM_PIPE = ITEMS.register("vacuum_pipe", i -> new Item(new Item.Properties().stacksTo(64).setId(ResourceKey.create(Registries.ITEM, i))));
     public static final DeferredHolder<Item, @NotNull Item> ETHER_INGOT = ITEMS.register("ether_ingot", i -> new Item(new Item.Properties().stacksTo(64).setId(ResourceKey.create(Registries.ITEM, i))));
+    public static final DeferredHolder<Item, @NotNull Item> WARDEN_HEART = ITEMS.register("warden_heart", i -> new Item(new Item.Properties().stacksTo(64).setId(ResourceKey.create(Registries.ITEM, i))));
     private static final Consumable CHEESE_CONSUMABLE = Consumables.defaultFood()
             .onConsume(ClearAllStatusEffectsConsumeEffect.INSTANCE)
             .build();

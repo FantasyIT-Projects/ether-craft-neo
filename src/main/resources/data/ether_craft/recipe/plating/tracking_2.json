@@ -3,14 +3,14 @@
   "input": [
     {"ingredient": "minecraft:observer", "count": 1},
     {
-    "count": 1,
-    "id": "ether_craft:process_chip",
+    "neoforge:ingredient_type": "neoforge:components",
+    "items": "ether_craft:process_chip",
     "components": {
       "minecraft:item_model": "ether_craft:ai_supercomputing_chip",
       "ether_craft:ether_process_chip_id": "ether_craft:ai_supercomputing_chip"
     }
   },
-    {"ingredient": "minecraft:fireworks", "count": 1}
+    {"ingredient": "minecraft:firework_rocket", "count": 1}
   ],
   "filter": "#c:tools/bow",
   "effect": "ether_craft:tracking",

@@ -3,7 +3,7 @@
   "input": [
     {
       "id": "I0",
-      "item": "#c:storage_blocks/gold",
+      "item": "#ether_craft:plant_floating",
       "next": "P4"
     }
   ],
@@ -12,10 +12,10 @@
       "id": "P4",
       "item": [
         {
-          "chip": "ether_craft:heating_chip"
+          "chip": "ether_craft:converging_chip"
         },
         {
-          "chip": "ether_craft:heating_chip"
+          "chip": "ether_craft:converging_chip"
         }
       ],
       "next": "P3"
@@ -24,10 +24,7 @@
       "id": "P3",
       "item": [
         {
-          "chip": "ether_craft:energizing_chip"
-        },
-        {
-          "chip": "ether_craft:energizing_chip"
+          "chip": "ether_craft:ai_supercomputing_chip"
         }
       ],
       "next": "P2"
@@ -36,10 +33,7 @@
       "id": "P2",
       "item": [
         {
-          "chip": "ether_craft:energizing_chip"
-        },
-        {
-          "chip": "ether_craft:energizing_chip"
+          "chip": "ether_craft:heating_chip"
         }
       ],
       "next": "P1"
@@ -48,10 +42,7 @@
       "id": "P1",
       "item": [
         {
-          "chip": "ether_craft:energizing_chip"
-        },
-        {
-          "chip": "ether_craft:energizing_chip"
+          "chip": "ether_craft:anima_infusing_chip"
         }
       ],
       "next": "P0"
@@ -59,9 +50,6 @@
     {
       "id": "P0",
       "item": [
-        {
-          "chip": "ether_craft:converging_chip"
-        },
         {
           "chip": "ether_craft:converging_chip"
         }
@@ -73,7 +61,7 @@
     "id": "O",
     "item": [
       {
-        "id": "ether_craft:ether_block"
+        "id": "minecraft:frogspawn"
       }
     ]
   }

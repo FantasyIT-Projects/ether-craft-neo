@@ -8,6 +8,7 @@ import studio.fantasyit.ether_craft.plating.data.PlatingData;
 import studio.fantasyit.ether_craft.plating.data.ProgressingPlatingData;
 import studio.fantasyit.ether_craft.plating.effects.IPlatingEffect;
 import studio.fantasyit.ether_craft.plating.helper.PlatingUtil;
+import studio.fantasyit.ether_craft.plating.trigger.inst.IInstanceTrigger;
 import studio.fantasyit.ether_craft.register.DataComponentRegistry;
 
 import java.util.ArrayList;
@@ -27,8 +28,12 @@ public class PlatingProgressHandler {
             IPlatingEffect effect = PlatingManager.getEffect(eff.id());
             if (effect != null) {
                 double value = eff.formula().getEffect(ether);
-                if (value > 0)
-                    existing.add(new PlatingData(eff.id(), value));
+                if (value > 0) {
+                    PlatingData platingData = new PlatingData(eff.id(), value);
+                    existing.add(platingData);
+                    if (effect instanceof IInstanceTrigger iit)
+                        iit.onPlatted(platingData, stack);
+                }
             }
         }
 

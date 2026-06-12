@@ -3,38 +3,61 @@
   "input": [
     {
       "id": "I0",
-      "item": "minecraft:clock",
+      "item": {
+        "ingredient": "minecraft:prismarine_shard",
+        "count": 3
+      },
       "next": "P0"
     },
     {
       "id": "I1",
       "item": {
-        "ingredient": "minecraft:stone_brick_wall",
-        "count": 2
+        "ingredient": "minecraft:prismarine_shard",
+        "count": 3
       },
-      "next": "P3"
+      "next": "P1"
     },
     {
       "id": "I2",
-      "item": "#minecraft:wooden_fences",
-      "next": "P4"
+      "item": {
+        "ingredient": "minecraft:prismarine_shard",
+        "count": 3
+      },
+      "next": "P2"
+    },
+    {
+      "id": "I3",
+      "item": {
+        "ingredient": "minecraft:diamond",
+        "count": 3
+      },
+      "next": "P5"
     }
   ],
   "process": [
     {
+      "id": "P5",
+      "item": [
+        {
+          "chip": "ether_craft:energizing_chip"
+        }
+      ],
+      "next": "P4"
+    },
+    {
       "id": "P4",
       "item": [
         {
-          "chip": "ether_craft:cutting_chip"
+          "chip": "ether_craft:molding_chip"
         }
       ],
-      "next": "P1"
+      "next": "P3"
     },
     {
       "id": "P3",
       "item": [
         {
-          "chip": "ether_craft:cutting_chip"
+          "chip": "ether_craft:converging_chip"
         }
       ],
       "next": "P2"
@@ -43,7 +66,7 @@
       "id": "P2",
       "item": [
         {
-          "chip": "ether_craft:cutting_chip"
+          "chip": "ether_craft:welding_chip"
         }
       ],
       "next": "P1"
@@ -71,7 +94,7 @@
     "id": "O",
     "item": [
       {
-        "id": "minecraft:bell"
+        "id": "minecraft:trident"
       }
     ]
   }

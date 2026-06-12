@@ -28,6 +28,7 @@ public record PlatingEffectFormula(double a1, double a2, double a3, double a4) {
     );
 
     public double getEffect(long e) {
+        if (e < a1) return 0;
         return (Math.clamp(e, a1, a2) - a1) / (a2 - a1) * (a4 - a3) + a3;
     }
 }

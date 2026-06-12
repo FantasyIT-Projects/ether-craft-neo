@@ -1,6 +1,11 @@
 {
   "type": "ether_craft:node_process",
-  "ingredients": ["minecraft:charcoal::9"],
-  "result": "ether_craft:ether_glass",
+  "ingredients": [
+    {
+      "ingredient": "minecraft:charcoal",
+      "count": 9
+    }
+  ],
+  "result": "minecraft:coal_block",
   "etherCost": 6400
 }

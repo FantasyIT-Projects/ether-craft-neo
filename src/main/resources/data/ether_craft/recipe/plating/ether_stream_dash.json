@@ -6,7 +6,10 @@
     {"ingredient": "minecraft:minecart", "count": 1}
     
   ],
-  "filter": ["ether_craft:wrench","c:armors"],
+  "filter": {
+    "neoforge:ingredient_type": "neoforge:compound",
+    "ingredients": ["ether_craft:wrench","#c:armors"]
+  },
   "effect": "ether_craft:ether_stream_dash",
   "values": {"a1": 10000, "a2": 75000, "a3": 50, "a4": 6400}
 }

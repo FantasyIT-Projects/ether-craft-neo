@@ -4,7 +4,10 @@
     {"ingredient": "minecraft:iron_pickaxe", "count": 1},
     {"ingredient": "ether_craft:vacuum_pipe", "count": 1}
   ],
-  "filter": ["#c:tools/mining_tool", "#minecraft:axes", "#minecraft:shovels", "#minecraft:hoes"],
+  "filter": {
+    "neoforge:ingredient_type": "neoforge:compound",
+    "ingredients": ["#c:tools/mining_tool", "#minecraft:axes", "#minecraft:shovels", "#minecraft:hoes"]
+  },
   "effect": "ether_craft:break_to_inv",
   "values": {"a1": 20000, "a2": 20001, "a3": 0, "a4": 1}
 }

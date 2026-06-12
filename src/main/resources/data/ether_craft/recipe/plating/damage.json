@@ -1,7 +1,10 @@
 {
   "type": "ether_craft:plating",
   "input": [{"ingredient": "ether_craft:blade", "count": 1}],
-  "filter": ["#minecraft:swords", "#minecraft:axes", "#minecraft:spears", "#c:tools/bow", "#c:tools/crossbow", "minecraft:mace", "minecraft:trident", "#c:tools/mining_tool", "#minecraft:shovels", "#minecraft:hoes"],
+  "filter": {
+    "neoforge:ingredient_type": "neoforge:compound",
+    "ingredients": ["#minecraft:swords", "#minecraft:axes", "#minecraft:spears", "#c:tools/bow", "#c:tools/crossbow", "minecraft:mace", "minecraft:trident", "#c:tools/mining_tool", "#minecraft:shovels", "#minecraft:hoes"]
+  },
   "effect": "ether_craft:damage",
   "values": {"a1": 10000, "a2": 200000, "a3": 0, "a4": 10}
 }

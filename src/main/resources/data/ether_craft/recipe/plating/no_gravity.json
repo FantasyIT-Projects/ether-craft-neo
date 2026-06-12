@@ -1,6 +1,6 @@
 {
   "type": "ether_craft:plating",
-  "input": [{"ingredient": "minecraft:wind_charge", "count": 1}, {"ingredient": "minecraft:feather", "count": 1},{"ingredient": "minecraft:fireworks", "count": 1}],
+  "input": [{"ingredient": "minecraft:wind_charge", "count": 1}, {"ingredient": "minecraft:feather", "count": 1},{"ingredient": "minecraft:firework_rocket", "count": 1}],
   "filter": "#c:tools/crossbow",
   "effect": "ether_craft:no_gravity",
   "values": {"a1": 25000, "a2": 25001, "a3": 0, "a4": 1}

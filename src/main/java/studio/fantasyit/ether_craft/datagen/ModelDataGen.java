@@ -69,6 +69,7 @@ public class ModelDataGen extends ModelProvider {
         itemModels.generateFlatItem(ItemRegistry.INACTIVATED_ETHER.get(), ITEM_SIMPLE);
         itemModels.generateFlatItem(ItemRegistry.VACUUM_PIPE.get(), ITEM_SIMPLE);
         itemModels.generateFlatItem(ItemRegistry.ETHER_INGOT.get(), ITEM_SIMPLE);
+        itemModels.generateFlatItem(ItemRegistry.WARDEN_HEART.get(), ITEM_SIMPLE);
         itemModels.generateFlatItem(ItemRegistry.CHEESE.get(), ITEM_SIMPLE);
         ClientItem.Properties oversizedProps = new ClientItem.Properties(false, true, 1.0f);
 

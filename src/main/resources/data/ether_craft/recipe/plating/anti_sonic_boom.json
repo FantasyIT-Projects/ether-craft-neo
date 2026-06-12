@@ -3,7 +3,7 @@
   "input": [
     {"ingredient": "#minecraft:wool", "count": 1},
     {"ingredient": "minecraft:iron_block", "count": 1},
-    {"ingredient": "#minecraft:concrete", "count": 1},
+    {"ingredient": "#c:concretes", "count": 1},
     {"ingredient": "minecraft:resin_bricks", "count": 1}
   ],
   "filter": "#c:tools/shield",

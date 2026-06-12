@@ -3,70 +3,30 @@
   "input": [
     {
       "id": "I0",
-      "item": {
-        "ingredient": "ether_craft:ether_crystal",
-        "count": 32
-      },
-      "next": "P7"
+      "item": "minecraft:coal",
+      "next": "P11"
     },
     {
       "id": "I1",
-      "item": {
-        "ingredient": "minecraft:nether_brick",
-        "count": 64
-      },
-      "next": "P6"
-    },
-    {
-      "id": "I2",
-      "item": {
-        "ingredient": "ether_craft:ether_crystal",
-        "count": 32
-      },
-      "next": "P14"
-    },
-    {
-      "id": "I3",
-      "item": {
-        "ingredient": "ether_craft:ether_ingot",
-        "count": 64
-      },
-      "next": "P13"
+      "item": "ether_craft:ether_crystal",
+      "next": "P12"
     }
   ],
   "process": [
     {
-      "id": "P14",
+      "id": "P12",
       "item": [
         {
           "chip": "ether_craft:high_heating_chip"
         }
       ],
-      "next": "P13"
-    },
-    {
-      "id": "P13",
-      "item": [
-        {
-          "chip": "ether_craft:converging_chip"
-        }
-      ],
-      "next": "P12"
-    },
-    {
-      "id": "P12",
-      "item": [
-        {
-          "chip": "ether_craft:energizing_chip"
-        }
-      ],
-      "next": "P11"
+      "next": "P10"
     },
     {
       "id": "P11",
       "item": [
         {
-          "chip": "ether_craft:energizing_chip"
+          "chip": "ether_craft:high_heating_chip"
         }
       ],
       "next": "P10"
@@ -96,13 +56,13 @@
           "chip": "ether_craft:energizing_chip"
         }
       ],
-      "next": "P0"
+      "next": "P7"
     },
     {
       "id": "P7",
       "item": [
         {
-          "chip": "ether_craft:high_heating_chip"
+          "chip": "ether_craft:energizing_chip"
         }
       ],
       "next": "P6"
@@ -111,7 +71,7 @@
       "id": "P6",
       "item": [
         {
-          "chip": "ether_craft:converging_chip"
+          "chip": "ether_craft:energizing_chip"
         }
       ],
       "next": "P5"
@@ -165,7 +125,7 @@
       "id": "P0",
       "item": [
         {
-          "chip": "ether_craft:stamping_chip"
+          "chip": "ether_craft:converging_chip"
         }
       ],
       "next": "O"
@@ -175,7 +135,8 @@
     "id": "O",
     "item": [
       {
-        "id": "minecraft:netherite_scrap"
+        "id": "minecraft:coal",
+        "count": 2
       }
     ]
   }

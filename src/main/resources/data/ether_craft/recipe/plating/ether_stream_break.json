@@ -4,7 +4,10 @@
     {"ingredient": "minecraft:dispenser", "count": 1},
     {"ingredient": "minecraft:iron_pickaxe", "count": 1}
   ],
-  "filter": ["#c:tools/mining_tool", "#minecraft:axes", "#minecraft:shovels", "#minecraft:hoes"],
+  "filter": {
+    "neoforge:ingredient_type": "neoforge:compound",
+    "ingredients": ["#c:tools/mining_tool", "#minecraft:axes", "#minecraft:shovels", "#minecraft:hoes"]
+  },
   "effect": "ether_craft:ether_stream_break",
   "values": {"a1": 5000, "a2": 50000, "a3": 100, "a4": 6400}
 }
