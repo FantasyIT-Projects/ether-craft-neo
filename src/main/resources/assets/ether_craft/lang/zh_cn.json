@@ -238,5 +238,10 @@
   "tooltip.ether_craft.plating.effect.ether_craft.anti_darkness": "抗黑暗",
   "tooltip.ether_craft.plating.effect.ether_craft.ethic": "伦理",
   "tooltip.ether_craft.plating.effect.ether_craft.anti_sonic_boom": "抗音爆",
-  "tooltip.ether_craft.plating.effect.ether_craft.silent_step": "静步"
+  "tooltip.ether_craft.plating.effect.ether_craft.silent_step": "静步",
+  "tooltip.ether_craft.plating.effect.ether_craft.dash": "冲刺 %s",
+  "tooltip.ether_craft.plating.effect.ether_craft.high_jump": "高跳 %s",
+  "tooltip.ether_craft.plating.effect.ether_craft.soul_projection": "灵魂出窍",
+  "tooltip.ether_craft.plating.effect.ether_craft.no_gravity": "无重力 %s",
+  "tooltip.ether_craft.plating.effect.ether_craft.coyote_time": "郊狼时间 %s"
 }

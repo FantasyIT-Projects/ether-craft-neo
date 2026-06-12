@@ -7,12 +7,12 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.plating.data.CamouflageState;
 import studio.fantasyit.ether_craft.plating.data.PlatingData;
 import studio.fantasyit.ether_craft.plating.helper.PlatingUtil;
-import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import studio.fantasyit.ether_craft.plating.trigger.event.IPlatingTickEquippedTrigger;
 import studio.fantasyit.ether_craft.plating.trigger.inst.IEffectStartAndEndTrigger;
 import studio.fantasyit.ether_craft.register.AttachmentDataRegistry;
@@ -37,14 +37,14 @@ public class CamouflagePlatingEffect implements IPlatingEffect, IPlatingTickEqui
                 .orElse(CamouflageState.INACTIVE);
 
         Vec3 pos = player.position();
-        long posHash = hashPosition(pos);
+        double dist = pos.distanceTo(state.lastPos());
 
-        if (posHash != state.lastPosHash()) {
+        if (dist > Config.platingCamouflageSpeedThreshold) {
             if (state.isActive()) {
                 deactivate(player);
             }
             player.setData(AttachmentDataRegistry.CAMOUFLAGE_STATE.get(),
-                    new CamouflageState(false, 0, BlockPos.ZERO, 0f, posHash));
+                    new CamouflageState(false, 0, BlockPos.ZERO, 0f, pos));
             return;
         }
 
@@ -53,10 +53,11 @@ public class CamouflagePlatingEffect implements IPlatingEffect, IPlatingTickEqui
         if (!state.isActive()) {
             if (newTicks >= Config.platingCamouflageStandDuration) {
                 PlatingUtil.extractEther(stack, Config.platingCamouflageEtherCost);
-                activate(player, player.blockPosition(), player.getYRot(), posHash);
+                if (PlatingUtil.getEther(stack) > 0)
+                    activate(player, player.blockPosition(), player.getYRot(), pos);
             } else {
                 player.setData(AttachmentDataRegistry.CAMOUFLAGE_STATE.get(),
-                        new CamouflageState(false, newTicks, BlockPos.ZERO, 0f, posHash));
+                        new CamouflageState(false, newTicks, BlockPos.ZERO, 0f, pos));
             }
         } else {
             if (newTicks % MOB_CLEAR_INTERVAL == 0) {
@@ -64,16 +65,14 @@ public class CamouflagePlatingEffect implements IPlatingEffect, IPlatingTickEqui
             }
 
             player.setData(AttachmentDataRegistry.CAMOUFLAGE_STATE.get(),
-                    new CamouflageState(true, newTicks, state.camouflagePos(), state.camouflageYaw(), posHash));
+                    new CamouflageState(true, newTicks, state.camouflagePos(), state.camouflageYaw(), player.position()));
+
+            PlatingUtil.addEther(stack, Config.platingCamouflageGainEtherPerTick);
         }
     }
 
     @Override
     public void onEffectStarts(LivingEntity entity, PlatingData platingData) {
-        if (!(entity instanceof Player player)) return;
-        long posHash = hashPosition(player.position());
-        player.setData(AttachmentDataRegistry.CAMOUFLAGE_STATE.get(),
-                new CamouflageState(false, 0, BlockPos.ZERO, 0f, posHash));
     }
 
     @Override
@@ -86,7 +85,7 @@ public class CamouflagePlatingEffect implements IPlatingEffect, IPlatingTickEqui
         player.setData(AttachmentDataRegistry.CAMOUFLAGE_STATE.get(), CamouflageState.INACTIVE);
     }
 
-    private void activate(Player player, BlockPos pos, float yaw, long posHash) {
+    private void activate(Player player, BlockPos pos, float yaw, Vec3 posHash) {
         player.setInvisible(true);
         clearMobTargets(player);
         player.setData(AttachmentDataRegistry.CAMOUFLAGE_STATE.get(),
@@ -106,12 +105,5 @@ public class CamouflagePlatingEffect implements IPlatingEffect, IPlatingTickEqui
                 mob.setTarget(null);
             }
         }
-    }
-
-    private static long hashPosition(Vec3 pos) {
-        long x = (long) (pos.x * 1000.0);
-        long y = (long) (pos.y * 1000.0);
-        long z = (long) (pos.z * 1000.0);
-        return x ^ (y << 11) ^ (z << 22);
     }
 }

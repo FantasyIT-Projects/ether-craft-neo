@@ -250,6 +250,12 @@ public class Config {
     private static final ModConfigSpec.IntValue PLATING_CAMOUFLAGE_ETHER_COST = BUILDER
             .comment("Ether consumed by Camouflage")
             .defineInRange("plating.camouflage.ether_per_tick", 1, 0, Integer.MAX_VALUE);
+    private static final ModConfigSpec.DoubleValue PLATING_CAMOUFLAGE_SPEED_THRESHOLD = BUILDER
+            .comment("The max speed that allows user to enter camouflage status.")
+            .defineInRange("plating.camouflage.speed_threshold", 0.05, 0, 20);
+    private static final ModConfigSpec.IntValue PLATING_CAMOUFLAGE_GAIN_ETHER_PER_TICK = BUILDER
+            .comment("The ether gain in camouflage status")
+            .defineInRange("plating.camouflage.gain_per_tick", 5, 0, Integer.MAX_VALUE);
 
     // -- plating.block --
     private static final ModConfigSpec.DoubleValue PLATING_BLOCK_DAMAGE_REDUCTION = BUILDER
@@ -407,6 +413,8 @@ public class Config {
     public static int platingNoGravityEtherPerArrow;
     public static int platingCoyoteTimeEtherPerJump;
     public static int platingCamouflageStandDuration;
+    public static double platingCamouflageSpeedThreshold;
+    public static int platingCamouflageGainEtherPerTick;
     public static int platingCamouflageEtherCost;
     public static double platingBlockDamageReduction;
     public static int platingBlockEtherPerTick;
@@ -483,6 +491,8 @@ public class Config {
         platingCoyoteTimeEtherPerJump = PLATING_COYOTE_TIME_ETHER_PER_JUMP.get();
         platingCamouflageStandDuration = PLATING_CAMOUFLAGE_STAND_DURATION.get();
         platingCamouflageEtherCost = PLATING_CAMOUFLAGE_ETHER_COST.get();
+        platingCamouflageGainEtherPerTick = PLATING_CAMOUFLAGE_GAIN_ETHER_PER_TICK.get();
+        platingCamouflageSpeedThreshold = PLATING_CAMOUFLAGE_SPEED_THRESHOLD.get();
         platingBlockDamageReduction = PLATING_BLOCK_DAMAGE_REDUCTION.get();
         platingBlockEtherPerTick = PLATING_BLOCK_ETHER_PER_TICK.get();
         platingCritEtherPerAttack = PLATING_CRIT_ETHER_PER_ATTACK.get();

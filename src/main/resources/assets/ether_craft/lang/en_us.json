@@ -223,10 +223,6 @@
   "ether_craft.gui.node.redstone_signal.mode_inventory": "Inventory",
   "ether_craft.gui.node.redstone_signal.disabled": "Disabled",
   "ether_craft.gui.node.redstone_signal.enabled": "Enabled",
-  "menu.ether_craft.ether_bar_tooltip_speed": "Speed: %d",
-  "menu.ether_craft.ether_bar_tooltip_leak": "Leak: %d",
-  "ether_craft.gui.node.function_node_process.result_filter": "Output Filter. Set to restrict the recipe to be processed.",
-
   "tooltip.ether_craft.plating.in_progress": "Plating in progress...",
   "tooltip.ether_craft.plating.title": "Plating:",
   "tooltip.ether_craft.plating.ether": "Ether: %s",
@@ -247,6 +243,10 @@
   "tooltip.ether_craft.plating.effect.ether_craft.anti_darkness": "Anti-Darkness",
   "tooltip.ether_craft.plating.effect.ether_craft.ethic": "Ethic",
   "tooltip.ether_craft.plating.effect.ether_craft.anti_sonic_boom": "Anti-Sonic Boom",
-  "tooltip.ether_craft.plating.effect.ether_craft.silent_step": "Silent Step"
-}
+  "tooltip.ether_craft.plating.effect.ether_craft.silent_step": "Silent Step",
+  "tooltip.ether_craft.plating.effect.ether_craft.dash": "Dash %s",
+  "tooltip.ether_craft.plating.effect.ether_craft.high_jump": "High Jump %s",
+  "tooltip.ether_craft.plating.effect.ether_craft.soul_projection": "Soul Projection",
+  "tooltip.ether_craft.plating.effect.ether_craft.no_gravity": "No Gravity %s",
+  "tooltip.ether_craft.plating.effect.ether_craft.coyote_time": "Coyote Time %s"
 }
