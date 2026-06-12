@@ -10,6 +10,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
@@ -17,6 +18,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.ShelfBlock;
+import net.minecraft.world.level.block.entity.ShelfBlockEntity;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
@@ -26,6 +29,7 @@ import org.jetbrains.annotations.Nullable;
 import org.jspecify.annotations.NonNull;
 import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.block.base.EtherContainer;
+import studio.fantasyit.ether_craft.plating.helper.PlatingChargingUtil;
 import studio.fantasyit.ether_craft.plating.helper.PlatingUtil;
 import studio.fantasyit.ether_craft.register.BlockRegistry;
 import studio.fantasyit.ether_craft.register.EntityDataSerializerRegistry;
@@ -178,6 +182,14 @@ public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
             HitResult hitresult = fastHit();
             if (hitresult.getType() != HitResult.Type.MISS)
                 this.onHit(hitresult);
+
+            AABB scanBox = getBoundingBox().expandTowards(vec3).inflate(1.0F);
+            List<ArmorStand> armorStands = level().getEntitiesOfClass(ArmorStand.class, scanBox, e -> canHitEntity(e) && !shouldPassThrough(e));
+            for (ArmorStand stand : armorStands) {
+                if (stand.distanceToSqr(this) < 0.25) {
+                    PlatingChargingUtil.tryChargeArmorStand(this, stand);
+                }
+            }
         }
         this.setPos(this.getX() + vec3.x, this.getY() + vec3.y, this.getZ() + vec3.z);
 
@@ -263,9 +275,15 @@ public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
     @Override
     protected void onHitBlock(@NotNull BlockHitResult p_37258_) {
         if (!this.level().isClientSide()) {
+            BlockState blockState = level().getBlockState(p_37258_.getBlockPos());
+            if (blockState.getBlock() instanceof ShelfBlock) {
+                if (level().getBlockEntity(p_37258_.getBlockPos()) instanceof ShelfBlockEntity shelf) {
+                    PlatingChargingUtil.tryChargeShelf(this, shelf);
+                }
+            }
             boolean handled = false;
             for (IStreamCapability capability : capabilities) {
-                if (capability.hitBlock((ServerLevel) level(), this, p_37258_, level().getBlockState(p_37258_.getBlockPos())))
+                if (capability.hitBlock((ServerLevel) level(), this, p_37258_, blockState))
                     handled = true;
             }
             EtherContainer e = level().getCapability(EtherContainer.ETHER_CONTAINER, p_37258_.getBlockPos());

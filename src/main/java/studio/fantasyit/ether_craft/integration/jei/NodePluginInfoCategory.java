@@ -83,7 +83,7 @@ public class NodePluginInfoCategory implements IRecipeCategory<NodePluginInfoRec
             }
             inputSlot.setStandardSlotBackground();
 
-            if (tip.producibleItems().size() > 0) {
+            if (!tip.producibleItems().isEmpty()) {
                 var outputSlot = builder.addOutputSlot(ITEM_X, itemY + 19);
                 for (ItemStack stack : tip.producibleItems()) {
                     outputSlot.add(stack);

@@ -6,9 +6,12 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.ShelfBlock;
+import net.minecraft.world.level.block.entity.ShelfBlockEntity;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
@@ -22,6 +25,7 @@ import studio.fantasyit.ether_craft.network.s2c.EtherStreamCreateS2C;
 import studio.fantasyit.ether_craft.network.s2c.EtherStreamSetDyingS2C;
 import studio.fantasyit.ether_craft.network.s2c.EtherStreamSyncDataS2C;
 import studio.fantasyit.ether_craft.network.s2c.EtherStreamUpdateS2C;
+import studio.fantasyit.ether_craft.plating.helper.PlatingChargingUtil;
 import studio.fantasyit.ether_craft.plating.helper.PlatingUtil;
 import studio.fantasyit.ether_craft.register.BlockRegistry;
 import studio.fantasyit.ether_craft.register.Tags;
@@ -97,6 +101,7 @@ public class VirtualEtherStreamHolder {
         Vec3 queryVec = direction.getUnitVec3().scale(maxLen + 0.5);
         List<Entity> entities = level.getEntities(null, new AABB(pos).expandTowards(queryVec).inflate(1.0));
         entities.removeIf(entity -> entity == null || (entity.is(EntityType.ITEM) && !isPlatedItem((ItemEntity) entity)));
+        List<ArmorStand> armorStands = level.getEntitiesOfClass(ArmorStand.class, new AABB(pos).expandTowards(queryVec).inflate(1.0));
         int maxClipDist = (int) Math.ceil(maxLen);
         List<BlockState> blockStates = new ArrayList<>(maxClipDist);
         List<BlockPos> blockPoses = new ArrayList<>(maxClipDist);
@@ -178,14 +183,26 @@ public class VirtualEtherStreamHolder {
                 if (!handled) ves.markDead(hit);
             } else if (blockHit != null) {
                 boolean handled = false;
+                BlockState hitBlockState = level.getBlockState(blockHit.getBlockPos());
+                if (hitBlockState.getBlock() instanceof ShelfBlock) {
+                    if (level.getBlockEntity(blockHit.getBlockPos()) instanceof ShelfBlockEntity shelf) {
+                        PlatingChargingUtil.tryChargeShelf(ves, shelf);
+                    }
+                }
                 for (IStreamCapability cap : ves.capabilities) {
-                    handled |= cap.hitBlock(level, ves, blockHit, level.getBlockState(blockHit.getBlockPos()));
+                    handled |= cap.hitBlock(level, ves, blockHit, hitBlockState);
                 }
                 if (!handled) {
                     EtherContainer capability = level.getCapability(EtherContainer.ETHER_CONTAINER, blockHit.getBlockPos());
                     if (capability != null)
                         capability.receiveEther(ves.getEther());
                     ves.markDead(blockHit);
+                }
+            }
+
+            for (ArmorStand stand : armorStands) {
+                if (stand.distanceToSqr(ves.pos) < 0.25) {
+                    PlatingChargingUtil.tryChargeArmorStand(ves, stand);
                 }
             }
         }

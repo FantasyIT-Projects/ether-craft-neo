@@ -30,7 +30,7 @@ import java.util.List;
 
 public class PlatingCategory implements IRecipeCategory<PlatingRecipe> {
     private static final int WIDTH = 130;
-    private static final int HEIGHT = 58;
+    private static final int HEIGHT = 68;
     private static final int SLOT_SIZE = 18;
     private static final int INPUT_START_X = 1;
     private static final int INPUT_Y = 1;
@@ -39,7 +39,7 @@ public class PlatingCategory implements IRecipeCategory<PlatingRecipe> {
     private static final int OUTPUT_Y = 1;
     private static final int TEXT_X = 4;
     private static final int TEXT_Y = 24;
-    private static final int FORMULA_Y = 52;
+    private static final int FORMULA_Y = 42;
     private static final int LINE_COLOR = 0xFFAAAAAA;
 
     private final IDrawable icon;
@@ -93,7 +93,7 @@ public class PlatingCategory implements IRecipeCategory<PlatingRecipe> {
                     .setStandardSlotBackground();
         }
 
-        builder.addOutputSlot(OUTPUT_X, OUTPUT_Y)
+        builder.addInputSlot(OUTPUT_X, OUTPUT_Y)
                 .add(recipe.filter)
                 .setOutputSlotBackground();
     }
