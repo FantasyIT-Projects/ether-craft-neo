@@ -1,10 +1,9 @@
 {
   "type": "ether_craft:plating",
   "input": [
-    {"ingredient": "minecraft:phantom_membrane", "count": 4},
-    {"ingredient": "minecraft:chest", "count": 1}
+    {"ingredient": "minecraft:trapped_chest", "count": 1}
   ],
-  "filter": "minecraft:iron_helmet",
+  "filter": "#minecraft:chest_armor",
   "effect": "ether_craft:camouflage",
-  "values": {"a1": 0.0, "a2": 0.0, "a3": 0.0, "a4": 0.0}
+  "values": {"a1": 11415, "a2": 11451, "a3": 0, "a4": 1}
 }

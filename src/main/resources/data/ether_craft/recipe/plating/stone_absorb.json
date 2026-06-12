@@ -1,9 +1,10 @@
 {
   "type": "ether_craft:plating",
   "input": [
-    {"ingredient": "minecraft:cobblestone", "count": 16}
+    {"ingredient": "minecraft:lava_bucket", "count": 1},
+    {"ingredient": "minecraft:paper", "count": 1}
   ],
-  "filter": "minecraft:iron_pickaxe",
+  "filter": "#c:tools/mining_tool",
   "effect": "ether_craft:stone_absorb",
-  "values": {"a1": 0.0, "a2": 0.0, "a3": 0.0, "a4": 0.0}
+  "values": {"a1": 20000, "a2": 20001, "a3": 0, "a4": 1}
 }

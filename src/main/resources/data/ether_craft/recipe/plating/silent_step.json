@@ -1,10 +1,11 @@
 {
   "type": "ether_craft:plating",
   "input": [
-    {"ingredient": "minecraft:white_wool", "count": 4},
-    {"ingredient": "minecraft:feather", "count": 1}
+    {"ingredient": "minecraft:leather_boots", "count": 1},
+    {"ingredient": "#minecraft:wool_carpets", "count": 6},
+    {"ingredient": "minecraft:string", "count": 4}
   ],
-  "filter": "minecraft:iron_boots",
+  "filter": "#minecraft:foot_armor",
   "effect": "ether_craft:silent_step",
-  "values": {"a1": 0.0, "a2": 0.0, "a3": 0.0, "a4": 0.0}
+  "values": {"a1": 25000, "a2": 25001, "a3": 0, "a4": 1}
 }

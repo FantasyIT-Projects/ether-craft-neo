@@ -1,10 +1,12 @@
 {
   "type": "ether_craft:plating",
   "input": [
-    {"ingredient": "minecraft:white_wool", "count": 4},
-    {"ingredient": "minecraft:obsidian", "count": 1}
+    {"ingredient": "#minecraft:wool", "count": 1},
+    {"ingredient": "minecraft:iron_block", "count": 1},
+    {"ingredient": "#minecraft:concrete", "count": 1},
+    {"ingredient": "minecraft:resin_bricks", "count": 1}
   ],
-  "filter": "minecraft:iron_chestplate",
+  "filter": "#c:tools/shield",
   "effect": "ether_craft:anti_sonic_boom",
-  "values": {"a1": 0.0, "a2": 0.0, "a3": 0.0, "a4": 0.0}
+  "values": {"a1": 20000, "a2": 100000, "a3": 0.5, "a4": 1.0}
 }

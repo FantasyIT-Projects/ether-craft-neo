@@ -1,9 +1,10 @@
 {
   "type": "ether_craft:plating",
   "input": [
-    {"ingredient": "minecraft:hopper", "count": 2}
+    {"ingredient": "minecraft:iron_pickaxe", "count": 1},
+    {"ingredient": "ether_craft:vacuum_pipe", "count": 1}
   ],
-  "filter": "minecraft:iron_pickaxe",
+  "filter": ["#c:tools/mining_tool", "#minecraft:axes", "#minecraft:shovels", "#minecraft:hoes"],
   "effect": "ether_craft:break_to_inv",
-  "values": {"a1": 0.0, "a2": 0.0, "a3": 0.0, "a4": 0.0}
+  "values": {"a1": 20000, "a2": 20001, "a3": 0, "a4": 1}
 }

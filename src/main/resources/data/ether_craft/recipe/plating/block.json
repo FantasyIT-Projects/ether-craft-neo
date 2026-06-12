@@ -1,9 +1,9 @@
 {
   "type": "ether_craft:plating",
   "input": [
-    {"ingredient": "minecraft:iron_block", "count": 2}
+    {"ingredient": "minecraft:shield", "count": 1}
   ],
-  "filter": "minecraft:shield",
+  "filter": "#minecraft:swords",
   "effect": "ether_craft:block",
-  "values": {"a1": 0.0, "a2": 0.0, "a3": 0.0, "a4": 0.0}
+  "values": {"a1": 25000, "a2": 25001, "a3": 0, "a4": 1}
 }

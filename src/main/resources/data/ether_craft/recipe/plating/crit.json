@@ -1,9 +1,9 @@
 {
   "type": "ether_craft:plating",
   "input": [
-    {"ingredient": "minecraft:blaze_powder", "count": 4}
+    {"ingredient": "ether_craft:diamond_needle", "count": 1}
   ],
-  "filter": "minecraft:iron_sword",
+  "filter": ["#minecraft:swords", "#minecraft:axes", "#minecraft:spears", "#c:tools/bow", "#c:tools/crossbow", "minecraft:mace", "minecraft:trident"],
   "effect": "ether_craft:crit",
-  "values": {"a1": 10.0, "a2": 200.0, "a3": 0.05, "a4": 0.25}
+  "values": {"a1": 10000, "a2": 50000, "a3": 0, "a4": 0.5}
 }

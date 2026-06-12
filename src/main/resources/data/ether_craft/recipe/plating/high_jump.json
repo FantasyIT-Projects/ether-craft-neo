@@ -1,7 +1,14 @@
 {
   "type": "ether_craft:plating",
-  "input": [{"ingredient": "minecraft:feather", "count": 2}],
-  "filter": "minecraft:iron_pickaxe",
+  "input": [{"ingredient": "minecraft:wind_charge", "count": 1}, {"ingredient": "minecraft:slime", "count": 1}, 
+{
+  "neoforge:ingredient_type": "neoforge:components",
+  "items": "minecraft:potion",
+  "components": {
+    "minecraft:potion_contents": "minecraft:strong_leaping"
+  }
+}],
+  "filter": ["minecraft:mace","#minecraft:leg_armor"],
   "effect": "ether_craft:high_jump",
-  "values": {"a1": 5.0, "a2": 100.0, "a3": 0.4, "a4": 1.4}
+  "values": {"a1": 20000, "a2": 150000, "a3": 0.5, "a4": 1.5}
 }

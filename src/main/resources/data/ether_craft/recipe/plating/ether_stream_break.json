@@ -1,10 +1,10 @@
 {
   "type": "ether_craft:plating",
   "input": [
-    {"ingredient": "minecraft:diamond", "count": 2},
-    {"ingredient": "minecraft:gunpowder", "count": 2}
+    {"ingredient": "minecraft:dispenser", "count": 1},
+    {"ingredient": "minecraft:iron_pickaxe", "count": 1}
   ],
-  "filter": "minecraft:diamond_pickaxe",
+  "filter": ["#c:tools/mining_tool", "#minecraft:axes", "#minecraft:shovels", "#minecraft:hoes"],
   "effect": "ether_craft:ether_stream_break",
-  "values": {"a1": 10.0, "a2": 200.0, "a3": 1.0, "a4": 5.0}
+  "values": {"a1": 5000, "a2": 50000, "a3": 100, "a4": 6400}
 }
