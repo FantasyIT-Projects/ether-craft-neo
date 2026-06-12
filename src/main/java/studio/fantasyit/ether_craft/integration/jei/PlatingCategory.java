@@ -39,7 +39,7 @@ public class PlatingCategory implements IRecipeCategory<PlatingRecipe> {
     private static final int OUTPUT_Y = 1;
     private static final int TEXT_X = 4;
     private static final int TEXT_Y = 24;
-    private static final int FORMULA_Y = 38;
+    private static final int FORMULA_Y = 52;
     private static final int LINE_COLOR = 0xFFAAAAAA;
 
     private final IDrawable icon;
