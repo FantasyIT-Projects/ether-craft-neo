@@ -57,7 +57,6 @@ public class FunctionEquipmentConsumeGenerator extends AbstractItemConsumeFuncti
     @Override
     void onBurnTick() {
         nodeEntity.receiveEther(etherToGenerate);
-        etherToGenerate = 0;
     }
 
     @Override

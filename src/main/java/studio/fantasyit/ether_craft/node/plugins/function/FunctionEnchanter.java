@@ -13,6 +13,7 @@ import net.minecraft.world.Containers;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.EnchantmentInstance;
@@ -120,6 +121,10 @@ public class FunctionEnchanter extends AbstractNodePlugin {
                 }
             }
         }
+        if (processSlot.getItem(0).getCount() > 1) {
+            tryPlaceToMain();
+            return;
+        }
 
         if (!processSlot.getItem(0).isEmpty() && nodeEntity.getEther() >= etherCost) {
             if (isEnchantableAndUnenchanted(ItemResource.of(processSlot.getItem(0)))) {
@@ -187,15 +192,19 @@ public class FunctionEnchanter extends AbstractNodePlugin {
             return itemStack;
         }
 
+        ItemStack target = itemStack;
+        if (itemStack.is(Items.BOOK))
+            target = new ItemStack(Items.ENCHANTED_BOOK);
+
         List<EnchantmentInstance> enchants = EnchantmentHelper.selectEnchantment(
-                random, itemStack.copy(), qualityCost, tagOpt.get().stream()
+                random, target.copy(), qualityCost, tagOpt.get().stream()
         );
 
         if (enchants.isEmpty()) {
             return itemStack;
         }
 
-        ItemStack result = itemStack.copy();
+        ItemStack result = target.copy();
         for (EnchantmentInstance ench : enchants) {
             result.enchant(ench.enchantment(), ench.level());
         }

@@ -1,6 +1,8 @@
 package studio.fantasyit.ether_craft.plating.event;
 
 import net.minecraft.network.chat.Component;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.Container;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.SimpleMenuProvider;
@@ -32,6 +34,12 @@ public class CamouflageInteractEventHandler {
 
         event.setCanceled(true);
         event.setCancellationResult(InteractionResult.SUCCESS);
+
+        targetPlayer.level().playSound(
+                null, targetPlayer.blockPosition(),
+                SoundEvents.CHEST_OPEN, SoundSource.BLOCKS,
+                1.0F, 1.0F
+        );
 
         Inventory targetInv = targetPlayer.getInventory();
         event.getEntity().openMenu(new SimpleMenuProvider(
