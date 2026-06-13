@@ -66,8 +66,7 @@ public class EtherProcessorRecipeUtil {
         }
 
         //A.标记所有无环且不经过最后一列的树
-        for (int i = 1; i < rows - 1; i++) {
-
+        for (int i = 0; i < rows; i++) {
             //从最后一行（即输出位置）的每一个输出格开始寻找可能的树结构
             boolean illegal = false;
             if (markTreeArea(markMatrix, cols - 1, i, -1, -1, i + 1)) {
@@ -78,25 +77,25 @@ public class EtherProcessorRecipeUtil {
                         break;
                     }
                 }
-                if (illegal) {
-                    continue;
-                }
+                if (i == 0 || i == rows - 1)
+                    illegal = true;
+                if (!illegal) {
+                    List<Integer> inputIds = new ArrayList<>();
+                    List<Integer> processInputTrees = new ArrayList<>();
+                    TreeLike<List<Integer>, List<ItemStack>> tree = new TreeLike<>(0, new ArrayList<>());
+                    tree.addNode(1, new ArrayList<>());
+                    tree.addEdge(0, 1, List.of(new ItemStack(ItemRegistry.DIRECT_INPUT_ITEM_CHIP.get())));
+                    Set<EtherProcessWorkingChip> relevantComponents = new HashSet<>();
+                    Set<PathNode> path = new HashSet<>();
+                    scanForTrees(chipSlots, markMatrix, tree, inputIds, relevantComponents, path, processInputTrees, cols - 1, i, -1, -1, i + 1, 1, 0);
 
-                List<Integer> inputIds = new ArrayList<>();
-                List<Integer> processInputTrees = new ArrayList<>();
-                TreeLike<List<Integer>, List<ItemStack>> tree = new TreeLike<>(0, new ArrayList<>());
-                tree.addNode(1, new ArrayList<>());
-                tree.addEdge(0, 1, List.of(new ItemStack(ItemRegistry.DIRECT_INPUT_ITEM_CHIP.get())));
-                Set<EtherProcessWorkingChip> relevantComponents = new HashSet<>();
-                Set<PathNode> path = new HashSet<>();
-                scanForTrees(chipSlots, markMatrix, tree, inputIds, relevantComponents, path, processInputTrees, cols - 1, i, -1, -1, i + 1, 1, 0);
-
-                if (tree.getNodes().size() > 1) {
-                    List<ItemStack> inputStacks = new ArrayList<>();
-                    for (int inputId : inputIds) {
-                        inputStacks.add(inputs.get(inputId));
+                    if (tree.getNodes().size() > 1) {
+                        List<ItemStack> inputStacks = new ArrayList<>();
+                        for (int inputId : inputIds) {
+                            inputStacks.add(inputs.get(inputId));
+                        }
+                        result.recipes.add(new EtherFactoryRecipeInput(inputStacks, tree, inputIds, processInputTrees, i, relevantComponents, path));
                     }
-                    result.recipes.add(new EtherFactoryRecipeInput(inputStacks, tree, inputIds, processInputTrees, i, relevantComponents, path));
                 }
             } else {
                 illegal = true;
@@ -112,7 +111,6 @@ public class EtherProcessorRecipeUtil {
                         outputCtn++;
                     }
                 }
-                //TODO: 替换LeakFactor为参数
                 result.leakingSpeed += inputCtn * outputCtn * 10;
             }
         }

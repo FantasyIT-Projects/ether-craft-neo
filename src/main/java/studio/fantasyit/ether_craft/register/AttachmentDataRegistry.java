@@ -48,6 +48,10 @@ public class AttachmentDataRegistry {
                     .build()
     );
 
+    public static final Supplier<AttachmentType<Integer>> TAKEN_BY_ETHER_STREAM = ATTACHMENT_TYPES.register(
+            "taken_by_ether_stream", () -> AttachmentType.builder(() -> 0)
+                    .build()
+    );
     public static final Supplier<AttachmentType<CamouflageState>> CAMOUFLAGE_STATE = ATTACHMENT_TYPES.register(
             "camouflage_state", () -> AttachmentType.builder(() -> CamouflageState.INACTIVE)
                     .sync(CamouflageState.STREAM_CODEC)

@@ -156,7 +156,7 @@ public class FunctionNodeProcess extends AbstractNodePlugin {
                     ItemStack oItem = inputSlots.getItem(i);
                     int maxAccept = oItem.isEmpty() ? 64 : (inputSlots.getMaxStackSize(oItem) - oItem.getCount());
                     ItemStack pulled = nodeEntity.extractWithPredicate(
-                            res -> inputSlots.canPlaceItem(finalI, res.toStack()) && inputItemFilter.acceptsAtAllowEmpty(res, finalI), tx, maxAccept
+                            res -> (oItem.isEmpty() || ItemStack.isSameItemSameComponents(oItem, res.toStack())) && inputItemFilter.acceptsAtAllowEmpty(res, finalI), tx, maxAccept
                     );
                     if (!pulled.isEmpty()) {
                         inputSlots.setItem(i, pulled.copyWithCount(pulled.getCount() + oItem.getCount()));

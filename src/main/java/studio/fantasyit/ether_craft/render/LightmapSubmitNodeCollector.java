@@ -20,6 +20,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.client.model.quad.BakedNormals;
 import net.neoforged.neoforge.client.model.quad.MutableQuad;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
@@ -51,7 +52,8 @@ public class LightmapSubmitNodeCollector implements SubmitNodeCollector {
         for (BakedQuad quad : quads) {
             mutable.setFrom(quad);
             for (int i = 0; i < 4; i++) {
-                mutable.setNormal(i, 0, 0, 1);
+                if (mutable.packedNormal(i) != BakedNormals.pack(0, 0, 1f))
+                    mutable.setNormal(i, 0, 1f, 0);
             }
             remapped.add(mutable.toBakedQuad());
         }

@@ -12,11 +12,16 @@ public class EtherStreamClientLogicManager {
         extraLogic.add(new EtherStreamLabelLogic());
         extraLogic.add(new EtherStreamCarriedEntityLogic());
     }
+
     public static void reApplyAttach(ClientStreamEntry entry) {
-        entry.attachedLogic.clear();
         for (IEtherStreamExtraClientLogic logic : extraLogic) {
-            if (logic.shouldAttach(entry))
+            if (logic.shouldAttach(entry)) {
                 entry.attachedLogic.add(logic);
+                logic.onAttach(entry);
+            } else if (entry.attachedLogic.contains(logic)) {
+                logic.onDetach(entry);
+                entry.attachedLogic.remove(logic);
+            }
         }
     }
 }

@@ -114,6 +114,20 @@ public class MainPageProvider extends BaseEtherNodeTabWidgetProvider<MainPageDum
                     UIUtil.renderItemStackSlotPlaceholder(graphics, s.getItem(), lx(s.x), ly(s.y));
             }
         }
+
+        for (Slot s : screen.getMenu().slots) {
+            if (s instanceof RangeLimitFilterSlot rls && !rls.valid()) {
+                graphics.fill(lx(s.x - 1), ly(s.y - 1), lx(s.x + 17), ly(s.y + 17), 0x60000000);
+            }
+        }
+        RangeLimitPlaceContainer normalStorage = screen.getMenu().entity.normalStorage;
+        int accessibleCount = normalStorage.getAccessibleCount();
+        if (accessibleCount <= normalStorage.getContainerSize() - 9) {
+            EtherAdaptNodeAsset.LOCK.blit(graphics, lx(82), ly(78) + 18 * Math.ceilDiv(accessibleCount, 9));
+        } else if (accessibleCount < normalStorage.getContainerSize()) {
+            int lastX = 9 + (accessibleCount % 9) * 18;
+            EtherAdaptNodeAsset.LOCK.blit(graphics, lx(lastX + 186 - EtherAdaptNodeAsset.LOCK.w / 2), ly(114));
+        }
     }
 
     @Override
@@ -124,19 +138,6 @@ public class MainPageProvider extends BaseEtherNodeTabWidgetProvider<MainPageDum
                 screen.getMenu().entity.getMaxEther(),
                 lx(27), ly(39), EtherAdaptNodeAsset.ETHER_BAR_CTR.w - 2, 2, graphics
         );
-        for (Slot s : screen.getMenu().slots) {
-            if (s instanceof RangeLimitFilterSlot rls && !rls.valid()) {
-                graphics.fill(lx(s.x - 1), ly(s.y - 1), lx(s.x + 17), ly(s.y + 17), 0x60000000);
-            }
-        }
-        RangeLimitPlaceContainer normalStorage = screen.getMenu().entity.normalStorage;
-        int accessibleCount = normalStorage.getAccessibleCount();
-        if (accessibleCount <= normalStorage.getContainerSize() - 9) {
-            EtherAdaptNodeAsset.LOCK.blit(graphics, lx(83), ly(78) + 18 * Math.ceilDiv(accessibleCount, 9));
-        } else if (accessibleCount < normalStorage.getContainerSize()) {
-            int lastX = 9 + (accessibleCount % 9) * 18;
-            EtherAdaptNodeAsset.LOCK.blit(graphics, lx(lastX + 186 - EtherAdaptNodeAsset.LOCK.w / 2), ly(114));
-        }
     }
 
     @Override

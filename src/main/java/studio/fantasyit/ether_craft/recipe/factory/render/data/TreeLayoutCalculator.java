@@ -47,6 +47,17 @@ public final class TreeLayoutCalculator {
             byLevel.computeIfAbsent(e.getValue(), k -> new ArrayList<>()).add(e.getKey());
         }
 
+        int maxColumnContentHeight = 0;
+        for (var entry : byLevel.entrySet()) {
+            int totalH = 0;
+            for (String id : entry.getValue()) {
+                totalH += nodeHeights.get(id) + cfg.nodeGap();
+            }
+            if (totalH > 0) totalH -= cfg.nodeGap();
+            maxColumnContentHeight = Math.max(maxColumnContentHeight, totalH);
+        }
+        layout.canvasHeight = Math.max(cfg.viewHeight(), maxColumnContentHeight + 2 * cfg.padding());
+
         Map<String, Integer> nodeX = new HashMap<>();
         Map<String, Integer> nodeY = new HashMap<>();
 
@@ -72,8 +83,9 @@ public final class TreeLayoutCalculator {
             for (String id : ids) {
                 totalH += nodeHeights.get(id) + cfg.nodeGap();
             }
+            if (totalH > 0) totalH -= cfg.nodeGap();
 
-            int curY = cfg.padding() + (cfg.viewHeight() - 2 * cfg.padding() - totalH) / 2;
+            int curY = cfg.padding() + (layout.canvasHeight - 2 * cfg.padding() - totalH) / 2;
             for (String id : ids) {
                 nodeX.put(id, colX);
                 nodeY.put(id, curY);
@@ -83,13 +95,11 @@ public final class TreeLayoutCalculator {
 
         layout.output = new TreeDiagramLayout.PositionedOutput(
                 layout.canvasWidth - cfg.padding() - outWidth,
-                cfg.padding() + (cfg.viewHeight() - 2 * cfg.padding() - outHeight) / 2,
+                cfg.padding() + (layout.canvasHeight - 2 * cfg.padding() - outHeight) / 2,
                 outWidth,
                 outHeight,
-                outHeight / 2
+                (outHeight + 1) / 2
         );
-
-        layout.canvasHeight = cfg.viewHeight();
 
         for (var nodeSpec : spec.nodes()) {
             int h = nodeHeights.get(nodeSpec.id());
@@ -98,7 +108,7 @@ public final class TreeLayoutCalculator {
             int w = cfg.slotSize();
             layout.nodes.add(new TreeDiagramLayout.PositionedNode(
                     nodeSpec.id(), x, y, w, h,
-                    isInput.get(nodeSpec.id()) ? cfg.slotSize() / 2 : h / 2,
+                    isInput.get(nodeSpec.id()) ? cfg.slotSize() / 2 : (h + 1) / 2,
                     x + cfg.slotSize()
             ));
         }
@@ -106,15 +116,15 @@ public final class TreeLayoutCalculator {
         for (var nodeSpec : spec.nodes()) {
             int fx = nodeX.get(nodeSpec.id()) + cfg.slotSize();
             int fy = nodeY.get(nodeSpec.id())
-                    + (isInput.get(nodeSpec.id()) ? cfg.slotSize() / 2 : nodeHeights.get(nodeSpec.id()) / 2);
+                    + (isInput.get(nodeSpec.id()) ? cfg.slotSize() / 2 : (nodeHeights.get(nodeSpec.id()) + 1) / 2) - 2;
             String next = nodeSpec.nextId();
             int tx, ty;
             if (next != null && allIds.contains(next)) {
                 tx = nodeX.get(next);
-                ty = nodeY.get(next) + (isInput.get(next) ? cfg.slotSize() / 2 : nodeHeights.get(next) / 2);
+                ty = nodeY.get(next) + (isInput.get(next) ? cfg.slotSize() / 2 : (nodeHeights.get(next) + 1) / 2) - 2;
             } else {
                 tx = layout.output.x();
-                ty = layout.output.y() + outHeight / 2;
+                ty = layout.output.y() + (outHeight + 1) / 2 - 2;
             }
             layout.edges.add(new TreeDiagramLayout.Edge(fx, fy, tx, ty));
         }

@@ -76,10 +76,10 @@ public class EtherProcessFactoryContainerMenu extends BaseContainerMenu<@NotNull
         int etherSlotY = factoryDef.panelLeft().y;
         if (factoryDef.showPanel()) {
             etherSlotX += 4;
-            etherSlotY += 4;
+            etherSlotY += 7;
         }
 
-        etherSlot = addSlot(new EtherSlot(entity.etherContainer, etherSlotX + 1, etherSlotY + 4));
+        etherSlot = addSlot(new EtherSlot(entity.etherContainer, etherSlotX + 1, etherSlotY + 1));
         for (int i = 0; i < entity.processingRecipes.length; i++) {
             int finalI = i;
             addDataSlot(new BaseDataSlot(() -> entity.processingProgress[finalI], (v) -> entity.processingProgress[finalI] = v));

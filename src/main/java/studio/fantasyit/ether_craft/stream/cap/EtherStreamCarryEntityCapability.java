@@ -121,6 +121,7 @@ public class EtherStreamCarryEntityCapability implements IStreamCapability {
             streamEntity.setSyncedData(new EtherStreamCarryingEntityData(
                     entity.getUUID(), entity.getId(), streamEntity.getPosDir(), streamEntity.getStreamId()));
             cachedEntity = entity;
+            entity.noPhysics = true;
             streamEntity.dirtyConsumer();
             if (cachedEntity instanceof ServerPlayer sp) {
                 sp.sendSystemMessage(Component.translatable("mount.onboard", Component.translatable("key.sneak")), true);

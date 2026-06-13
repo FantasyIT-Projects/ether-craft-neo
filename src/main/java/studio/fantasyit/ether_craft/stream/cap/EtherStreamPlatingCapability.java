@@ -38,7 +38,6 @@ public class EtherStreamPlatingCapability implements IStreamCapability {
     public void tick(@UnknownNullability IEtherStreamLike streamEntity) {
         if (!(streamEntity.level() instanceof ServerLevel level)) return;
 
-
         Optional<IStreamCapability> optStorage = streamEntity.getCapability(EtherStreamStorageCapability.ID);
         EtherStreamStorageCapability storage = optStorage.filter(EtherStreamStorageCapability.class::isInstance)
                 .map(EtherStreamStorageCapability.class::cast).orElse(null);
@@ -67,16 +66,19 @@ public class EtherStreamPlatingCapability implements IStreamCapability {
     }
 
     private boolean handlePlating(IEtherStreamLike streamEntity, ServerLevel level, ItemEntity itemEntity, ItemStack stack, EtherStreamStorageCapability storage, List<PlatingRecipe> recipes) {
-        if (storage == null) return false;
-        List<ItemStack> availableItems = getStorageItems(storage);
+        List<ItemStack> availableItems;
+        if (storage == null)
+            availableItems = Collections.emptyList();
+        else
+            availableItems = getStorageItems(storage);
 
         List<PlatingRecipe> matched = matchExactCover(availableItems, Set.of(), recipes);
         if (matched == null) {
             streamEntity.consumeEtherInternal(streamEntity.getEther());
             return false;
         }
-
-        consumeStorageItems(storage, matched);
+        if (!matched.isEmpty() && storage != null)
+            consumeStorageItems(storage, matched);
         List<ProgressingPlatingData> effectIds = matched.stream().map(PlatingRecipe::makeProcessing).toList();
         PlatingUtil.startPlating(stack, effectIds, level.getGameTime());
         return true;

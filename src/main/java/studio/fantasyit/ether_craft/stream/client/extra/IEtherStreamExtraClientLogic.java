@@ -25,4 +25,9 @@ public interface IEtherStreamExtraClientLogic {
 
     default void onDestroy(ClientStreamEntry entry) {
     }
+
+    default void onDetach(ClientStreamEntry entry) {
+    }
+    default void onAttach(ClientStreamEntry entry) {
+    }
 }

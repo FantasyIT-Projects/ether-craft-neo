@@ -10,6 +10,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.TooltipDisplay;
+import org.jspecify.annotations.NonNull;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.factory.EtherProcessChipManager;
 import studio.fantasyit.ether_craft.register.DataComponentRegistry;
@@ -45,9 +46,6 @@ public class ProcessChipItem extends Item {
         super.appendHoverText(itemStack, context, display, builder, tooltipFlag);
         Identifier id = itemStack.get(DataComponentRegistry.CHIP_ID);
         if (id == null) return;
-        String baseKey = "tooltip." + id.getNamespace() + "." + id.getPath();
-        builder.accept(Component.translatable(baseKey));
-
         EtherProcessChipManager.ProcessChipRecord r = EtherProcessChipManager.get(id);
         if (r == null) return;
         builder.accept(Component.translatable("tooltip.ether_craft.ether_process_chip.max_ether", r.maxEther()));
@@ -59,6 +57,14 @@ public class ProcessChipItem extends Item {
             int current = stored != null ? stored : r.maxDurability();
             builder.accept(Component.translatable("tooltip.ether_craft.ether_process_chip.durability", current, r.maxDurability()));
         }
+    }
+
+    @Override
+    public @NonNull Component getName(ItemStack itemStack) {
+        Identifier id = itemStack.get(DataComponentRegistry.CHIP_ID);
+        if (id == null) return super.getName(itemStack);
+        String baseKey = "tooltip." + id.getNamespace() + "." + id.getPath();
+        return Component.translatable(baseKey);
     }
 
     @Override

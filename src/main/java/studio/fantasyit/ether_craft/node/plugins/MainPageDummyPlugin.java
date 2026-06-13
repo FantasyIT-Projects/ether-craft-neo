@@ -71,14 +71,14 @@ public class MainPageDummyPlugin extends AbstractNodePlugin {
             ctx.normalStorage.add(slot);
         }
 
-        menu.addSlotArea(nodeEntity.normalStorage, 0, 9, 76, 9, 18, 3, 18,
+        menu.addSlotArea(nodeEntity.normalStorage, 0, 8, 76, 9, 18, 3, 18,
                 (a, b, c, d, e, f) -> new RangeLimitFilterSlot((RangeLimitPlaceContainer) a, nodeEntity.normalStorageFilter, b, c, d),
                 (s, i, j) -> {
                     menu.toDrawSlot.add(s);
                     ctx.mainSlots.add((RangeLimitFilterSlot) s);
                 });
 
-        menu.addSlotArea(nodeEntity.normalStorageFilter, 0, 9, 76, 9, 18, 3, 18,
+        menu.addSlotArea(nodeEntity.normalStorageFilter, 0, 8, 76, 9, 18, 3, 18,
                 (a, b, c, d, e, f) -> {
                     FilterSlot fs = new FilterSlot((ItemFilter) a, b, c, d);
                     fs.setActive(false);

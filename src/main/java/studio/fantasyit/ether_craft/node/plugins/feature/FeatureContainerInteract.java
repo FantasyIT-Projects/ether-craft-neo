@@ -19,6 +19,7 @@ import studio.fantasyit.ether_craft.menu.base.slot.BaseDataSlot;
 import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeContainerMenu;
 import studio.fantasyit.ether_craft.network.c2s.SyncScreenDataC2S;
 import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
+import studio.fantasyit.ether_craft.register.ItemRegistry;
 
 import javax.annotation.Nullable;
 
@@ -101,7 +102,7 @@ public class FeatureContainerInteract extends AbstractDirectionalFilterFeature {
                     return;
                 }
                 if (targetHandler.insert(resource, extracted, transaction) < extracted) {
-                    return;
+                    continue;
                 }
                 transaction.commit();
                 etherSource.extractEther(totalCost);
@@ -111,6 +112,9 @@ public class FeatureContainerInteract extends AbstractDirectionalFilterFeature {
     }
 
     private int maxToTransfer(ItemResource itemResource, int fromIdx, ResourceHandler<ItemResource> from, ResourceHandler<ItemResource> to, EtherContainer etherSource, @Nullable TransactionContext parent) {
+        if (itemResource.is(ItemRegistry.ETHER)) {
+            return (int) Math.floor((double) etherSource.getEther() / (Config.nodeContainerInteractEtherPerItem + Config.etherConvert));
+        }
         int maxToExtract = Math.toIntExact(etherSource.getEther() / Config.nodeContainerInteractEtherPerItem);
         try (Transaction t1 = Transaction.open(parent)) {
             int t = from.extract(fromIdx, itemResource, maxToExtract, t1);
