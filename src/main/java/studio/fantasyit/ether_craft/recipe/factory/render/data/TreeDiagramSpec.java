@@ -34,7 +34,7 @@ public record TreeDiagramSpec(
             int minSpacing
     ) {
         public static final LayoutConfig DEFAULT = new LayoutConfig(
-                18, 22, 1, 9, 140, 90, 4, 15, 26
+                18, 22, 1, 0, 140, 90, 4, 15, 26
         );
     }
 

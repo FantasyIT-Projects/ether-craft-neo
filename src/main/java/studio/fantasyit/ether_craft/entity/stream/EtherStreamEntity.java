@@ -12,8 +12,8 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
-import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
@@ -40,7 +40,6 @@ import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
 import studio.fantasyit.ether_craft.stream.PosDir;
 import studio.fantasyit.ether_craft.stream.cap.IStreamCapability;
 import studio.fantasyit.ether_craft.stream.client.data.EntityStreamClientManager;
-import studio.fantasyit.ether_craft.stream.data.EtherStreamLabelData;
 import studio.fantasyit.ether_craft.stream.data.IEtherStreamSyncedData;
 import studio.fantasyit.ether_craft.stream.data.SyncedEtherStreamDataManager;
 
@@ -182,14 +181,6 @@ public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
             HitResult hitresult = fastHit();
             if (hitresult.getType() != HitResult.Type.MISS)
                 this.onHit(hitresult);
-
-            AABB scanBox = getBoundingBox().expandTowards(vec3).inflate(1.0F);
-            List<ArmorStand> armorStands = level().getEntitiesOfClass(ArmorStand.class, scanBox, e -> canHitEntity(e) && !shouldPassThrough(e));
-            for (ArmorStand stand : armorStands) {
-                if (stand.distanceToSqr(this) < 0.25) {
-                    PlatingChargingUtil.tryChargeArmorStand(this, stand);
-                }
-            }
         }
         this.setPos(this.getX() + vec3.x, this.getY() + vec3.y, this.getZ() + vec3.z);
 
@@ -298,14 +289,8 @@ public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
     protected void onHitEntity(EntityHitResult p_37259_) {
         if (this.level().isClientSide()) return;
         Entity entity = p_37259_.getEntity();
-        if (entity instanceof ItemEntity ie && (PlatingUtil.isPlatingInProgress(ie.getItem()) || PlatingUtil.hasPlating(ie.getItem()))) {
-            int remaining = this.ether;
-            if (remaining > 0) {
-                ItemStack stack = ie.getItem();
-                PlatingUtil.addEther(stack, Math.min(remaining, Config.platingMaxEtherReceive));
-                consumeEther(remaining);
-                ie.setItem(stack);
-            }
+        if (entity instanceof ItemEntity ie && isPlatedItem(ie)) {
+            chargePlatedItem(ie);
             dropAndDiscard(p_37259_);
             return;
         }
@@ -313,8 +298,10 @@ public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
         for (IStreamCapability capability : capabilities)
             if (capability.hitEntity((ServerLevel) level(), this, p_37259_, entity))
                 handled = true;
-        if (!handled)
+        if (!handled) {
+            PlatingChargingUtil.tryChargeEntity(this, entity);
             dropAndDiscard(p_37259_);
+        }
     }
 
     @Override
@@ -381,6 +368,20 @@ public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
         return posDir;
     }
 
+    private static boolean isPlatedItem(ItemEntity ie) {
+        ItemStack stack = ie.getItem();
+        return PlatingUtil.isPlatingInProgress(stack) || PlatingUtil.hasPlating(stack);
+    }
+
+    private void chargePlatedItem(ItemEntity ie) {
+        int remaining = this.ether;
+        if (remaining <= 0) return;
+        ItemStack stack = ie.getItem();
+        PlatingUtil.addEther(stack, Math.min(remaining, Config.platingMaxEtherReceive));
+        consumeEther(remaining);
+        ie.setItem(stack);
+    }
+
     public void dropAndDiscard(@Nullable HitResult hitResult) {
         for (IStreamCapability cap : capabilities) {
             if (!cap.onBeforeDestroy(this, hitResult)) return;
@@ -416,29 +417,35 @@ public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
             to = hitResult.getLocation();
         }
 
-        List<Entity> entities = level.getEntities(this, getBoundingBox().expandTowards(movement).inflate(1.0F), this::canHitEntity);
+        List<Entity> entities = level.getEntities(this, getBoundingBox().expandTowards(movement).inflate(1.0F));
+        entities.removeIf(e -> e instanceof ItemEntity ie && !isPlatedItem(ie));
 
         double nearest = Double.MAX_VALUE;
-        double entityMargin = ProjectileUtil.computeMargin(this);
-        Optional<Vec3> nearestLocation = Optional.empty();
+        Vec3 nearestLocation = null;
         Entity hitEntity = null;
         for (Entity entity : entities) {
-            if (!this.canHitEntity(entity))
-                continue;
             if (shouldPassThrough(entity))
                 continue;
-            AABB bb = entity.getBoundingBox().inflate(entityMargin);
-            Optional<Vec3> location = bb.clip(from, to);
-            if (location.isPresent()) {
-                double dd = from.distanceToSqr(location.get());
+            AABB bb = entity.getBoundingBox().inflate(0.3);
+            boolean currentCanHit = bb.contains(from);
+            Vec3 localHitAt = bb.getCenter();
+            if (!currentCanHit) {
+                Optional<Vec3> clip = bb.clip(from, to);
+                if (clip.isPresent()) {
+                    currentCanHit = true;
+                    localHitAt = clip.get();
+                }
+            }
+            if (currentCanHit) {
+                double dd = from.distanceToSqr(localHitAt);
                 if (dd < nearest) {
-                    hitEntity = entity;
                     nearest = dd;
-                    nearestLocation = location;
+                    hitEntity = entity;
+                    nearestLocation = localHitAt;
                 }
             }
         }
 
-        return hitEntity == null ? hitResult : new EntityHitResult(hitEntity, nearestLocation.get());
+        return hitEntity == null ? hitResult : new EntityHitResult(hitEntity, nearestLocation);
     }
 }

@@ -130,7 +130,7 @@ public class EtherProcessCategory implements IRecipeCategory<EtherProcessFactory
             if (idx < allSlots.size()) {
                 IRecipeSlotDrawable slot = allSlots.get(idx);
                 slot.setPosition(c.x(), c.y());
-                widget.registerSlot(c.parentId(), slot);
+                widget.registerSlot(c.parentId() + "_" + idx, slot);
                 idx++;
             }
         }

@@ -8,6 +8,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.ShelfBlock;
 import net.minecraft.world.level.block.entity.ShelfBlockEntity;
@@ -178,11 +179,11 @@ public class VirtualEtherStreamHolder {
                     for (IStreamCapability cap : ves.capabilities) {
                         handled |= cap.hitEntity(level, ves, hit, hitEntity);
                     }
-                    if (hitEntity instanceof ArmorStand as) {
-                        PlatingChargingUtil.tryChargeArmorStand(ves, as);
-                    }
                 }
-                if (!handled) ves.markDead(hit);
+                if (!handled) {
+                    PlatingChargingUtil.tryChargeEntity(ves, hitEntity);
+                    ves.markDead(hit);
+                }
             } else if (blockHit != null) {
                 boolean handled = false;
                 BlockState hitBlockState = level.getBlockState(blockHit.getBlockPos());

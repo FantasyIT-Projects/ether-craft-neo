@@ -72,7 +72,6 @@ public final class TreeLayoutCalculator {
             for (String id : ids) {
                 totalH += nodeHeights.get(id) + cfg.nodeGap();
             }
-            if (totalH > 0) totalH -= cfg.nodeGap();
 
             int curY = cfg.padding() + (cfg.viewHeight() - 2 * cfg.padding() - totalH) / 2;
             for (String id : ids) {

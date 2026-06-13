@@ -79,7 +79,7 @@ public class EtherProcessFactoryContainerMenu extends BaseContainerMenu<@NotNull
             etherSlotY += 4;
         }
 
-        etherSlot = addSlot(new EtherSlot(entity.etherContainer, etherSlotX + 1, etherSlotY + 1));
+        etherSlot = addSlot(new EtherSlot(entity.etherContainer, etherSlotX + 1, etherSlotY + 4));
         for (int i = 0; i < entity.processingRecipes.length; i++) {
             int finalI = i;
             addDataSlot(new BaseDataSlot(() -> entity.processingProgress[finalI], (v) -> entity.processingProgress[finalI] = v));

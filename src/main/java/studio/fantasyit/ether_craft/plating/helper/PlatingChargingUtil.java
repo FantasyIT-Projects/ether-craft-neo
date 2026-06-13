@@ -1,7 +1,9 @@
 package studio.fantasyit.ether_craft.plating.helper;
 
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.decoration.ArmorStand;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.ShelfBlockEntity;
 import studio.fantasyit.ether_craft.Config;
@@ -38,6 +40,31 @@ public class PlatingChargingUtil {
                 shelf.setItem(i, stack);
             }
         }
+    }
+
+    private static final EquipmentSlot[] PLAYER_CHARGE_SLOTS = {
+            EquipmentSlot.HEAD,
+            EquipmentSlot.CHEST,
+            EquipmentSlot.LEGS,
+            EquipmentSlot.FEET,
+            EquipmentSlot.MAINHAND,
+            EquipmentSlot.OFFHAND
+    };
+
+    public static void tryChargePlayer(IEtherStreamLike stream, Player player) {
+        if (stream.getEther() <= 0) return;
+        for (EquipmentSlot slot : PLAYER_CHARGE_SLOTS) {
+            ItemStack stack = player.getItemBySlot(slot);
+            tryChargeItem(stream, stack);
+            if (stream.getEther() <= 0) break;
+        }
+    }
+
+    public static void tryChargeEntity(IEtherStreamLike stream, Entity entity) {
+        if (entity instanceof ArmorStand as)
+            tryChargeArmorStand(stream, as);
+        else if (entity instanceof Player player)
+            tryChargePlayer(stream, player);
     }
 
     private static boolean tryChargeItem(IEtherStreamLike stream, ItemStack stack) {
