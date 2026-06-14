@@ -6,9 +6,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.ShelfBlock;
 import net.minecraft.world.level.block.entity.ShelfBlockEntity;
@@ -21,7 +19,6 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 import studio.fantasyit.ether_craft.Config;
-import studio.fantasyit.ether_craft.block.base.EtherContainer;
 import studio.fantasyit.ether_craft.network.s2c.EtherStreamCreateS2C;
 import studio.fantasyit.ether_craft.network.s2c.EtherStreamSetDyingS2C;
 import studio.fantasyit.ether_craft.network.s2c.EtherStreamSyncDataS2C;
@@ -205,9 +202,9 @@ public class VirtualEtherStreamHolder {
 
         for (int i = 0, size = streams.size(); i < size; i++) {
             VirtualEtherStream ves = streams.get(i);
-            if(ves.markToSyncCreation || ves.markToRemove) continue;
-            BlockPos oldPos = BlockPos.containing(ves.pos);
-            BlockPos newPos = BlockPos.containing(ves.pos.add(ves.motion));
+            if (ves.markToSyncCreation || ves.markToRemove) continue;
+            BlockPos oldPos = BlockPos.containing(ves.pos.subtract(ves.motion));
+            BlockPos newPos = BlockPos.containing(ves.pos);
             if (oldPos.equals(newPos)) continue;
             int id1 = oldPos.distManhattan(pos);
             int id2 = newPos.distManhattan(pos);
