@@ -3,6 +3,7 @@ package studio.fantasyit.ether_craft.stream.cap;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
@@ -14,6 +15,7 @@ import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 import studio.fantasyit.ether_craft.Config;
@@ -78,6 +80,16 @@ public class EtherStreamGrowthAcceleratorCapability implements IStreamCapability
         state.randomTick(level, pos, level.getRandom());
         if (state.getBlock() instanceof CaveVines && state.getBlock() instanceof BonemealableBlock b)
             b.performBonemeal(level, level.getRandom(), pos, state);
+
+        Vec3 center = pos.getCenter();
+        level.sendParticles(
+                ParticleTypes.HAPPY_VILLAGER,
+                center.x,
+                center.y,
+                center.z,
+                5,
+                0.2, 0.2, 0.2, 0.01
+        );
 
         lastCatalyzedPos = pos;
     }

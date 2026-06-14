@@ -16,6 +16,7 @@ import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
+import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.plating.data.ProgressingPlatingData;
 import studio.fantasyit.ether_craft.plating.helper.PlatingUtil;
@@ -60,6 +61,7 @@ public class EtherStreamPlatingCapability implements IStreamCapability {
                 PlatingUtil.addEther(stack, ether);
                 streamEntity.consumeEther(ether);
                 itemEntity.setItem(stack);
+                itemEntity.setPickUpDelay(Config.platingDurationTicks);
                 break;
             }
         }

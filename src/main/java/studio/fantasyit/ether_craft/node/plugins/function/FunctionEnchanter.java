@@ -91,6 +91,10 @@ public class FunctionEnchanter extends AbstractNodePlugin {
             return;
 
         int etherCost = selectedLevel == -1 ? 0 : Config.nodeEnchanterEtherCosts.get(selectedLevel);
+        if (selectedLevel == -1) {
+            progress = 0;
+            return;
+        }
         if (progress > 0) {
             if (nodeEntity.getEther() < etherCost) {
                 progress = 0;

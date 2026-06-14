@@ -1,9 +1,11 @@
 package studio.fantasyit.ether_craft.node.plugins.function;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.block.node.EtherAdaptNodeEntity;
@@ -41,6 +43,15 @@ public class FunctionGrowthAccelerator extends AbstractNodePlugin {
                             return;
                         nodeEntity.extractEther(etherCost);
                         state.randomTick(level, pos, level.getRandom());
+                        Vec3 c = pos.getCenter();
+                        level.sendParticles(
+                                ParticleTypes.HAPPY_VILLAGER,
+                                c.x,
+                                c.y,
+                                c.z,
+                                5,
+                                0.2, 0.2, 0.2, 0.01
+                        );
                     }
                 }
             }

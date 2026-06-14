@@ -250,5 +250,9 @@
   "tooltip.ether_craft.plating.effect.ether_craft.high_jump": "高跳 %s",
   "tooltip.ether_craft.plating.effect.ether_craft.soul_projection": "灵魂出窍",
   "tooltip.ether_craft.plating.effect.ether_craft.no_gravity": "无重力 %s",
-  "tooltip.ether_craft.plating.effect.ether_craft.coyote_time": "郊狼时间 %s"
+  "tooltip.ether_craft.plating.effect.ether_craft.coyote_time": "郊狼时间 %s",
+
+  "jade.ether_craft.adapt_node.level": "等级: LV %s",
+  "jade.ether_craft.adapt_node.ether": "以太: %s/%s",
+  "jade.ether_craft.adapt_node.plugins": "升级槽位: %d"
 }

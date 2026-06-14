@@ -255,5 +255,9 @@
   "tooltip.ether_craft.plating.effect.ether_craft.high_jump": "High Jump %s",
   "tooltip.ether_craft.plating.effect.ether_craft.soul_projection": "Soul Projection",
   "tooltip.ether_craft.plating.effect.ether_craft.no_gravity": "No Gravity %s",
-  "tooltip.ether_craft.plating.effect.ether_craft.coyote_time": "Coyote Time %s"
+  "tooltip.ether_craft.plating.effect.ether_craft.coyote_time": "Coyote Time %s",
+
+  "jade.ether_craft.adapt_node.level": "Level: LV %s",
+  "jade.ether_craft.adapt_node.ether": "Ether: %s/%s",
+  "jade.ether_craft.adapt_node.plugins": "Upgrade Slots: %d"
 }
