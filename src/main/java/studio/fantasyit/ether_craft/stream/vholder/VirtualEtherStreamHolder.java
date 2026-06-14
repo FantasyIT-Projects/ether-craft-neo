@@ -99,7 +99,7 @@ public class VirtualEtherStreamHolder {
         Vec3 queryVec = direction.getUnitVec3().scale(maxLen + 0.5);
         List<Entity> entities = level.getEntities(null, new AABB(pos).expandTowards(queryVec).inflate(1.0));
         entities.removeIf(entity -> entity == null || (entity.is(EntityType.ITEM) && !isPlatedItem((ItemEntity) entity)));
-        int maxClipDist = (int) Math.ceil(maxLen);
+        int maxClipDist = (int) Math.ceil(maxLen) + 1;
         List<BlockState> blockStates = new ArrayList<>(maxClipDist);
         List<BlockPos> blockPoses = new ArrayList<>(maxClipDist);
         List<VoxelShape> shapes = new ArrayList<>(maxClipDist);
@@ -118,8 +118,8 @@ public class VirtualEtherStreamHolder {
             Vec3 oldPos = ves.pos;
             Vec3 newPos = oldPos.add(ves.motion);
 
-            int clipStart = BlockPos.containing(oldPos).distManhattan(pos);
-            int clipEnd = BlockPos.containing(newPos).distManhattan(pos);
+            int clipStart = Math.clamp(BlockPos.containing(oldPos).distManhattan(pos), 0, blockStates.size() - 1);
+            int clipEnd = Math.clamp(BlockPos.containing(newPos).distManhattan(pos), 0, blockStates.size() - 1);
             //获取最近的方块碰撞
             BlockHitResult blockHit = null;
             for (int j = clipStart; j <= clipEnd; j++) {
@@ -206,8 +206,8 @@ public class VirtualEtherStreamHolder {
             BlockPos oldPos = BlockPos.containing(ves.pos.subtract(ves.motion));
             BlockPos newPos = BlockPos.containing(ves.pos);
             if (oldPos.equals(newPos)) continue;
-            int id1 = oldPos.distManhattan(pos);
-            int id2 = newPos.distManhattan(pos);
+            int id1 = Math.clamp(oldPos.distManhattan(pos), 0, blockStates.size() - 1);
+            int id2 = Math.clamp(newPos.distManhattan(pos), 0, blockStates.size() - 1);
             boolean isEtherGlass1 = blockStates.get(id1).is(BlockRegistry.ETHER_GLASS);
             boolean isEtherGlass2 = blockStates.get(id2).is(BlockRegistry.ETHER_GLASS);
             if (isEtherGlass1 != isEtherGlass2) {
