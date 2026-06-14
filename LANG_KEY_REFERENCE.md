@@ -2,7 +2,7 @@
 
 > 如何系统性地发现项目中所有需要翻译的语言键，以及如何为 `en_us.json` / `zh_cn.json` 生成正确的条目。
 >
-> **最后更新:** 2026-05-20
+> **最后更新:** 2026-06-14
 
 ---
 
@@ -42,21 +42,9 @@
 - 自定义 BlockItem 子类 (factory lv1-4, node lv1-3) → `item.ether_craft.<id>`（方块使用 `block.ether_craft.ether_process_factory` 等）
 - `CreativeTabRegistry` 使用 `TAB_NAME = "ether_craft_tab_main"` → 需要 `ether_craft_tab_main`，而非 `itemGroup.ether_craft`
 
-**命令:**
-```bash
-# 查找所有已注册的方块
-grep "BLOCKS.register" src/main/java/**/register/BlockRegistry.java
-
-# 查找所有已注册的物品
-grep "ITEMS.register" src/main/java/**/register/ItemRegistry.java
-```
-
 ### 第 2 步：搜索所有 `Component.translatable()` 调用
 
-**命令:**
-```bash
-rg "Component\.translatable\(" src/main/java/ -n
-```
+使用 IDE MCP 工具在 `src/main/java` 中搜索 `Component.translatable(`，或使用 `idea_search_in_files_by_regex` 查找。
 
 对每个调用，提取第一个参数：
 - **若为字符串字面量**（如 `"menu.ether_craft.factory.filter"`）→ 直接加入列表
@@ -95,12 +83,7 @@ String baseKey = "tooltip." + id.getNamespace() + "." + id.getPath();
 
 **做法:**
 1. 追溯 `id` 的来源（数据组件、数据包、注册表）
-2. 扫描数据目录获取所有可能的 ID
-
-```bash
-# 扫描芯片数据文件
-find src/main/resources/data -path "*/ether_process_chip/*.json" -exec basename {} .json \;
-```
+2. 使用 IDE MCP 工具搜索数据目录（如 `src/main/resources/data/<modid>/ether_process_chip/`）获取所有可能的 ID
 
 #### 3d. ExtraRecipeProvider / 插件注册
 
@@ -113,11 +96,7 @@ String descKey = "jei.ether_craft.plugin." + recipe.pluginId().getNamespace() + 
 
 ### 第 4 步：检查 `Component.literal()` 硬编码文本
 
-```bash
-rg "Component\.literal\(" src/main/java/ -n
-```
-
-若 `literal()` 内容为纯英文且不含 `+` → 界面静态文本，应改为 `Component.translatable()` 以支持本地化。
+使用 IDE MCP 工具搜索 `Component.literal(`。若 `literal()` 内容为纯英文且不含 `+` → 界面静态文本，应改为 `Component.translatable()` 以支持本地化。
 
 若含 `+` 拼接运行时值：
 ```java
@@ -151,7 +130,7 @@ Component.translatable("menu.ether_craft.factory.debug.ether", be.getEther())
 |---|---|---|
 | `block.<modid>.<id>` | 方块名 | `block.ether_craft.ether_adapt_node` |
 | `item.<modid>.<id>` | 物品名 | `item.ether_craft.wrench` |
-| `itemGroup.<modid>` | 默认创造标签页名 | `itemGroup.ether_craft` |
+| `<modid>_tab_main` | 自定义创造标签页名 | `ether_craft_tab_main` |
 | `tooltip.<modid>.<id>` | 物品 tooltip | `tooltip.ether_craft.heating_chip` |
 | `menu.<modid>.<screen>.<widget>` | GUI 控件 | `menu.ether_craft.factory.filter` |
 | `jei.<modid>.<category>` | JEI 分类标题 | `jei.ether_craft.ether_process` |
@@ -159,11 +138,52 @@ Component.translatable("menu.ether_craft.factory.debug.ether", be.getEther())
 | `jei.<modid>.category.<ns>.<path>` | JEI 动态分类 | `jei.ether_craft.category.ether_craft.special.furnace` |
 | `message.<modid>.<id>` | 系统消息 | `message.ether_craft.plugin_installed` |
 | `<modid>.gui.<element>` | 自定义 GUI 元素 | `ether_craft.gui.name_placeholder` |
-| `<modid>_tab_main` | 自定义标签页标题 | `ether_craft_tab_main` |
 
 ---
 
-## 五、参数占位符
+## 五、审计发现：常见问题模式
+
+翻译键审计中发现的典型问题及修复方式：
+
+### 5a. JSON 重复键导致覆盖
+
+```json
+{
+  "key": "Value A",
+  "key": "Value B"   // ← 覆盖 Value A，静默生效
+}
+```
+
+**触发条件：** 同一键在 JSON 中出现两次。**后果：** 后出现的值静默覆盖前者。**修复：** 为不同用途使用不同键名。
+
+### 5b. 死键（Dead Key）
+
+翻译键存在语言文件中，但对应的资源（数据文件、实现类、配方）不存在。
+
+**常见成因：**
+- 功能被移除或重命名，但翻译键未清理
+- 功能规划中但未实现（如 `soul_projection` 有翻译键但无 `PlatingEffect` 实现类）
+- 数据文件缺失（如 `head_hunt.json` 配方不存在但 `HeadHuntPlatingEffect` 已注册）
+
+**修复：** 确认功能不存在后，从两个语言文件中删除对应键。
+
+### 5c. 中英文值不一致
+
+同一键在 `en_us.json` 和 `zh_cn.json` 中的语义不同。例如英文为 `"Cost: %d/%d"` 而中文为 `"以太: %d/%d"`，或英文有前缀 `"Fuel: %s"` 而中文直接为 `"%s"`。
+
+**修复：** 以中文为准对齐英文，或反之，确保语义一致。
+
+### 5d. 动态键覆盖范围不全
+
+通过 Identifier 拼接的翻译键（如 `"jei.ether_craft.plugin." + id.getNamespace() + "." + id.getPath()`）需要确保：
+
+1. 追溯所有可能的 Identifier 来源（插件注册列表、数据目录）
+2. 为每个可能值生成翻译键
+3. 新添加的插件/芯片/配方需要同步添加翻译键
+
+---
+
+## 六、参数占位符
 
 - `%d` — 整数
 - `%s` — 字符串
@@ -174,7 +194,7 @@ Component.translatable("menu.ether_craft.factory.debug.ether", be.getEther())
 
 ---
 
-## 六、新键追加流程
+## 七、新键追加流程
 
 1. 按上述步骤收集所有需要的键
 2. 读取现有的 `src/main/resources/assets/<modid>/lang/en_us.json`
