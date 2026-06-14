@@ -10,6 +10,7 @@ import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
@@ -26,7 +27,13 @@ public class EtherStreamBounceBackCapability implements IStreamCapability {
     @Override
     public boolean onBeforeDestroy(IEtherStreamLike streamEntity, @Nullable HitResult hitResult) {
         if (streamEntity.getEther() > 0) {
-            streamEntity.recreate(streamEntity.deltaMovement().reverse());
+            Vec3 pos;
+            if (hitResult == null || hitResult.getType() == HitResult.Type.MISS) {
+                pos = streamEntity.position();
+            } else {
+                pos = hitResult.getLocation().subtract(streamEntity.deltaMovement().scale(2));
+            }
+            streamEntity.recreate(pos, streamEntity.deltaMovement().reverse());
             return false;
         }
         return true;

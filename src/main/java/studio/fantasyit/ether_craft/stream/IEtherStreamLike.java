@@ -46,7 +46,7 @@ public interface IEtherStreamLike {
 
     void setRunIntoEtherGlass(boolean isEtherGlass2);
 
-    IEtherStreamLike recreate(Vec3 newMotion);
+    IEtherStreamLike recreate(Vec3 newPos, Vec3 newMotion);
 
     void removeInstantly();
 

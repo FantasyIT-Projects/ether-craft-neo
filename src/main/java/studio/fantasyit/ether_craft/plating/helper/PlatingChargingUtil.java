@@ -9,6 +9,9 @@ import net.minecraft.world.level.block.entity.ShelfBlockEntity;
 import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class PlatingChargingUtil {
 
     private static final EquipmentSlot[] ARMOR_STAND_SLOTS = {
@@ -23,22 +26,26 @@ public class PlatingChargingUtil {
     public static void tryChargeArmorStand(IEtherStreamLike stream, ArmorStand stand) {
         if (stream.getEther() <= 0) return;
 
+        List<ItemStack> items = new ArrayList<>();
         for (EquipmentSlot slot : ARMOR_STAND_SLOTS) {
-            ItemStack stack = stand.getItemBySlot(slot);
-            if (tryChargeItem(stream, stack)) {
-                stand.setItemSlot(slot, stack);
-            }
+            items.add(stand.getItemBySlot(slot));
+        }
+        distributeCharge(stream, items);
+        for (int i = 0; i < ARMOR_STAND_SLOTS.length; i++) {
+            stand.setItemSlot(ARMOR_STAND_SLOTS[i], items.get(i));
         }
     }
 
     public static void tryChargeShelf(IEtherStreamLike stream, ShelfBlockEntity shelf) {
         if (stream.getEther() <= 0) return;
 
+        List<ItemStack> items = new ArrayList<>();
         for (int i = 0; i < shelf.getContainerSize(); i++) {
-            ItemStack stack = shelf.getItem(i);
-            if (tryChargeItem(stream, stack)) {
-                shelf.setItem(i, stack);
-            }
+            items.add(shelf.getItem(i));
+        }
+        distributeCharge(stream, items);
+        for (int i = 0; i < shelf.getContainerSize(); i++) {
+            shelf.setItem(i, items.get(i));
         }
     }
 
@@ -53,11 +60,11 @@ public class PlatingChargingUtil {
 
     public static void tryChargePlayer(IEtherStreamLike stream, Player player) {
         if (stream.getEther() <= 0) return;
+        List<ItemStack> items = new ArrayList<>();
         for (EquipmentSlot slot : PLAYER_CHARGE_SLOTS) {
-            ItemStack stack = player.getItemBySlot(slot);
-            tryChargeItem(stream, stack);
-            if (stream.getEther() <= 0) break;
+            items.add(player.getItemBySlot(slot));
         }
+        distributeCharge(stream, items);
     }
 
     public static void tryChargeEntity(IEtherStreamLike stream, Entity entity) {
@@ -67,16 +74,27 @@ public class PlatingChargingUtil {
             tryChargePlayer(stream, player);
     }
 
-    private static boolean tryChargeItem(IEtherStreamLike stream, ItemStack stack) {
-        if (stack.isEmpty()) return false;
-        if (!PlatingUtil.hasPlating(stack) && !PlatingUtil.isPlatingInProgress(stack)) return false;
+    private static void distributeCharge(IEtherStreamLike stream, List<ItemStack> items) {
+        if (stream.getEther() <= 0) return;
 
-        int ether = stream.getEther();
-        if (ether <= 0) return false;
+        List<ItemStack> chargeable = new ArrayList<>();
+        for (ItemStack stack : items) {
+            if (stack.isEmpty()) continue;
+            if (!PlatingUtil.hasPlating(stack) && !PlatingUtil.isPlatingInProgress(stack)) continue;
+            chargeable.add(stack);
+        }
 
-        int amount = Math.min(ether, Config.platingMaxEtherReceive);
-        PlatingUtil.addEther(stack, amount);
-        stream.consumeEther(amount);
-        return true;
+        if (chargeable.isEmpty()) return;
+
+        int totalEther = stream.getEther();
+        int count = chargeable.size();
+        int perItem = Math.min(totalEther / count, Config.platingMaxEtherReceive);
+
+        if (perItem <= 0) return;
+
+        for (ItemStack stack : chargeable) {
+            PlatingUtil.addEther(stack, perItem);
+            stream.consumeEther(perItem);
+        }
     }
 }

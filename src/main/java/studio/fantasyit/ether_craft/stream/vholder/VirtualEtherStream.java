@@ -6,10 +6,12 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import studio.fantasyit.ether_craft.Config;
+import studio.fantasyit.ether_craft.block.base.EtherContainer;
 import studio.fantasyit.ether_craft.register.BlockRegistry;
 import studio.fantasyit.ether_craft.stream.EtherConsumer;
 import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
@@ -54,7 +56,7 @@ public class VirtualEtherStream implements IEtherStreamLike {
         this.startPos = this.pos = startPos;
         this.direction = posDir.dir();
         this.posDir = posDir;
-        this.runIntoEtherGlass = level.getBlockState(BlockPos.containing(startPos)).is(BlockRegistry.ETHER_GLASS);
+        this.setRunIntoEtherGlass(level.getBlockState(BlockPos.containing(startPos)).is(BlockRegistry.ETHER_GLASS));
     }
 
     @Override
@@ -127,6 +129,12 @@ public class VirtualEtherStream implements IEtherStreamLike {
         for (IStreamCapability cap : capabilities) {
             if (!cap.onBeforeDestroy(this, hitResult)) return;
         }
+        if (hitResult instanceof BlockHitResult blockHitResult) {
+            EtherContainer capability = level.getCapability(EtherContainer.ETHER_CONTAINER, blockHitResult.getBlockPos());
+            if (capability != null) {
+                capability.receiveEther(getEther());
+            }
+        }
         for (IStreamCapability cap : capabilities) {
             cap.onDestroy(this, hitResult);
         }
@@ -174,10 +182,10 @@ public class VirtualEtherStream implements IEtherStreamLike {
     }
 
     @Override
-    public IEtherStreamLike recreate(Vec3 newMotion) {
-        PosDir newPosDir = new PosDir(BlockPos.containing(pos), Direction.getApproximateNearest(newMotion));
+    public IEtherStreamLike recreate(Vec3 newPos, Vec3 newMotion) {
+        PosDir newPosDir = new PosDir(BlockPos.containing(newPos), Direction.getApproximateNearest(newMotion));
         VirtualEtherStream newStream = new VirtualEtherStream(
-                holder.nextId++, ether, pos, newPosDir, newMotion, level, holder
+                holder.nextId++, ether, newPos, newPosDir, newMotion, level, holder
         );
         newStream.capabilities = this.capabilities;
         this.capabilities = new ArrayList<>();
@@ -185,6 +193,7 @@ public class VirtualEtherStream implements IEtherStreamLike {
             cap.setConsumer(newStream.consumer);
         }
         newStream.consumer.fromState(this.consumer.toState());
+        newStream.consumer.setIsInEtherGlass(newStream.runIntoEtherGlass);
         newStream.toSyncData = new ArrayList<>(this.toSyncData);
         newStream.tickCount = 0;
         for (IStreamCapability cap : newStream.capabilities) {
@@ -193,7 +202,7 @@ public class VirtualEtherStream implements IEtherStreamLike {
         newStream.markToSyncCreation = true;
         holder.streams.add(newStream);
         this.ether = 0;
-        this.markDead(null);
+        this.markToRemove = true;
         return newStream;
     }
 

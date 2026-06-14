@@ -146,6 +146,8 @@ public class VirtualEtherStreamHolder {
             Vec3 entityHitAt = null;
             double nearestDist = blockDist;
             for (Entity entity : entities) {
+                if (entity.is(Tags.ETHER_STREAM_PASS_THROUGH_ENTITY))
+                    continue;
                 AABB bb = entity.getBoundingBox().inflate(0.3);
                 double localDist = entity.distanceToSqr(oldPos);
                 boolean currentCanHit = bb.contains(ves.pos) && localDist < nearestDist;
@@ -196,9 +198,6 @@ public class VirtualEtherStreamHolder {
                     handled |= cap.hitBlock(level, ves, blockHit, hitBlockState);
                 }
                 if (!handled) {
-                    EtherContainer capability = level.getCapability(EtherContainer.ETHER_CONTAINER, blockHit.getBlockPos());
-                    if (capability != null)
-                        capability.receiveEther(ves.getEther());
                     ves.markDead(blockHit);
                 }
             }
@@ -206,6 +205,7 @@ public class VirtualEtherStreamHolder {
 
         for (int i = 0, size = streams.size(); i < size; i++) {
             VirtualEtherStream ves = streams.get(i);
+            if(ves.markToSyncCreation || ves.markToRemove) continue;
             BlockPos oldPos = BlockPos.containing(ves.pos);
             BlockPos newPos = BlockPos.containing(ves.pos.add(ves.motion));
             if (oldPos.equals(newPos)) continue;

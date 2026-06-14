@@ -10,16 +10,14 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.ShelfBlock;
 import net.minecraft.world.level.block.entity.ShelfBlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
@@ -73,6 +71,7 @@ public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
         instance.setDeltaMovement(motion);
         Direction approximateNearest = Direction.getApproximateNearest(motion);
         instance.posDir = new PosDir(BlockPos.containing(position), approximateNearest);
+        instance.setRunIntoEtherGlass(level.getBlockState(BlockPos.containing(position)).is(BlockRegistry.ETHER_GLASS));
         return instance;
     }
 
@@ -177,7 +176,7 @@ public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
         }
 
         Vec3 vec3 = this.getDeltaMovement();
-        if(!this.level().isClientSide()) {
+        if (!this.level().isClientSide()) {
             HitResult hitresult = fastHit();
             if (hitresult.getType() != HitResult.Type.MISS)
                 this.onHit(hitresult);
@@ -198,6 +197,8 @@ public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
 
     @Override
     public boolean shouldPassThrough(Entity entity) {
+        if (entity.is(Tags.ETHER_STREAM_PASS_THROUGH_ENTITY))
+            return true;
         for (IStreamCapability cap : capabilities)
             if (cap.shouldPassThrough(entity))
                 return true;
@@ -277,9 +278,6 @@ public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
                 if (capability.hitBlock((ServerLevel) level(), this, p_37258_, blockState))
                     handled = true;
             }
-            EtherContainer e = level().getCapability(EtherContainer.ETHER_CONTAINER, p_37258_.getBlockPos());
-            if (e != null)
-                e.receiveEther(this.ether);
             if (!handled)
                 dropAndDiscard(p_37258_);
         }
@@ -332,8 +330,8 @@ public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
     }
 
     @Override
-    public IEtherStreamLike recreate(Vec3 newMotion) {
-        EtherStreamEntity newEntity = create(level(), this.ether, position(), newMotion);
+    public IEtherStreamLike recreate(Vec3 newPos, Vec3 newMotion) {
+        EtherStreamEntity newEntity = create(level(), this.ether, newPos, newMotion);
         newEntity.capabilities = this.capabilities;
         this.capabilities = new ArrayList<>();
         for (IStreamCapability cap : newEntity.capabilities) {
@@ -349,7 +347,7 @@ public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
             serverLevel.addFreshEntity(newEntity);
         }
         this.ether = 0;
-        dropAndDiscard(null);
+        this.discard();
         return newEntity;
     }
 
@@ -386,10 +384,15 @@ public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
         for (IStreamCapability cap : capabilities) {
             if (!cap.onBeforeDestroy(this, hitResult)) return;
         }
+        if (hitResult instanceof BlockHitResult blockHit) {
+            EtherContainer e = level().getCapability(EtherContainer.ETHER_CONTAINER, blockHit.getBlockPos());
+            if (e != null)
+                e.receiveEther(this.ether);
+        }
         for (IStreamCapability capability : capabilities) {
             capability.onDestroy(this, hitResult);
         }
-        if(level().isClientSide())
+        if (level().isClientSide())
             EntityStreamClientManager.markDead(this);
         this.discard();
     }

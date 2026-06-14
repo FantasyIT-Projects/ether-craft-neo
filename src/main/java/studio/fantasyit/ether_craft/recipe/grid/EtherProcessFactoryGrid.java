@@ -115,9 +115,10 @@ public class EtherProcessFactoryGrid implements Recipe<EtherProcessFactoryGridIn
             chip[entry.y][entry.x] = true;
         }
 
-        for (int i = 1; i < maxY - 1; i++) {
+        for (int i = 1; i < maxY; i++) {
             if (chip[i][maxX - 1])
                 continue;
+            marked[i][maxX - 1] = i;
             Queue<Integer> queue = new LinkedList<>();
             queue.add(((maxX - 1) << 8) + i);
             while (!queue.isEmpty()) {
