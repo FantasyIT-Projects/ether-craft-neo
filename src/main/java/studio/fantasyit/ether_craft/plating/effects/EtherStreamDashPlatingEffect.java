@@ -22,6 +22,10 @@ public class EtherStreamDashPlatingEffect implements IPlatingEffect, IPlatingRig
         return ID;
     }
 
+    protected double getSpeed() {
+        return Config.platingEtherStreamDashSpeed;
+    }
+
     @Override
     public void apply(IPlatingEffect effect, PlatingData data, ItemStack stack, LivingEntity entity, PlayerInteractEvent.RightClickItem event) {
         if (!(entity.level() instanceof ServerLevel level)) return;
@@ -32,7 +36,7 @@ public class EtherStreamDashPlatingEffect implements IPlatingEffect, IPlatingRig
         int streamEther = (int) Math.max(1, data.effect());
 
         Vec3 pos = entity.getEyePosition();
-        Vec3 motion = entity.getLookAngle().scale(Config.platingEtherStreamDashSpeed);
+        Vec3 motion = entity.getLookAngle().scale(getSpeed());
         EtherStreamEntity stream = EtherStreamEntity.create(level, streamEther, pos, motion);
         stream.setRealCanReceiveEther(Config.platingEtherStreamDashEtherCost);
         stream.setHitExclude(entity);

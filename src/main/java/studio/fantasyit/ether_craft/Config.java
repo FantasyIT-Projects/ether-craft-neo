@@ -314,7 +314,10 @@ public class Config {
             .defineInRange("plating.ether_stream_dash.ether_cost", 50, 0, Integer.MAX_VALUE);
     private static final ModConfigSpec.DoubleValue PLATING_ETHER_STREAM_DASH_SPEED = BUILDER
             .comment("Speed multiplier for Ether Stream Dash")
-            .defineInRange("plating.ether_stream_dash.speed", 1.5, 0.1, 10.0);
+            .defineInRange("plating.ether_stream_dash.speed", 0.5, 0.1, 10.0);
+    private static final ModConfigSpec.DoubleValue PLATING_ETHER_STREAM_DASH_FASTER_SPEED = BUILDER
+            .comment("Speed multiplier for Ether Stream Dash Faster")
+            .defineInRange("plating.ether_stream_dash.speed_faster", 1.5, 0.1, 10.0);
 
     // -- plating.ether_stream_damage --
     private static final ModConfigSpec.IntValue PLATING_ETHER_STREAM_DAMAGE_CD_TICKS = BUILDER
@@ -435,6 +438,7 @@ public class Config {
     public static int platingEtherStreamDashCdTicks;
     public static int platingEtherStreamDashEtherCost;
     public static double platingEtherStreamDashSpeed;
+    public static double platingEtherStreamDashFasterSpeed;
     public static int platingEtherStreamDamageCdTicks;
     public static int platingEtherStreamDamageEtherCost;
     public static double platingEtherStreamDamageSpeed;
@@ -514,6 +518,7 @@ public class Config {
         platingEtherStreamDashCdTicks = PLATING_ETHER_STREAM_DASH_CD_TICKS.get();
         platingEtherStreamDashEtherCost = PLATING_ETHER_STREAM_DASH_ETHER_COST.get();
         platingEtherStreamDashSpeed = PLATING_ETHER_STREAM_DASH_SPEED.get();
+        platingEtherStreamDashFasterSpeed = PLATING_ETHER_STREAM_DASH_FASTER_SPEED.get();
         platingEtherStreamDamageCdTicks = PLATING_ETHER_STREAM_DAMAGE_CD_TICKS.get();
         platingEtherStreamDamageEtherCost = PLATING_ETHER_STREAM_DAMAGE_ETHER_COST.get();
         platingEtherStreamDamageSpeed = PLATING_ETHER_STREAM_DAMAGE_SPEED.get();
