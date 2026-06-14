@@ -24,6 +24,7 @@ public class CapabilityFactoryManager {
         register(EtherStreamCostReducerCapability.ID, EtherStreamCostReducerCapability::new, EtherStreamCostReducerCapability.CODEC);
         register(EtherStreamPlatingCapability.ID, EtherStreamPlatingCapability::new, EtherStreamPlatingCapability.CODEC);
         register(EtherStreamBounceBackCapability.ID, EtherStreamBounceBackCapability::new, EtherStreamBounceBackCapability.CODEC);
+        register(EtherStreamItemDisplayCapability.ID,EtherStreamItemDisplayCapability::new,EtherStreamItemDisplayCapability.CODEC);
     }
 
     public static <T extends IStreamCapability> void register(Identifier id, Supplier<T> factory, Codec<T> codec) {

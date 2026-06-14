@@ -1,6 +1,7 @@
 package studio.fantasyit.ether_craft.stream.client.data;
 
 import studio.fantasyit.ether_craft.entity.stream.EtherStreamEntity;
+import studio.fantasyit.ether_craft.stream.client.extra.IEtherStreamExtraClientLogic;
 import studio.fantasyit.ether_craft.stream.data.IEtherStreamSyncedData;
 
 import java.util.ArrayList;
@@ -86,6 +87,11 @@ public class EntityStreamClientManager {
         ClientStreamEntry entry = getOrCreate(entity);
         syncFromEntity(entry, entity);
         noTickCount.put(entry.id, 0);
+        boolean shouldRender = true;
+        for (IEtherStreamExtraClientLogic logic : entry.attachedLogic)
+            if (!logic.shouldRender(entry))
+                shouldRender = false;
+        entity.setInvisible(!shouldRender);
     }
 
     public static void markDead(EtherStreamEntity etherStreamEntity) {

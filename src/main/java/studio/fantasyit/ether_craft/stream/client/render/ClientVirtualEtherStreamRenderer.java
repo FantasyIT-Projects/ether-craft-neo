@@ -104,9 +104,11 @@ public class ClientVirtualEtherStreamRenderer {
             }
         }
 
-        for (var entry : EntityStreamClientManager.entries) {
-            if (entry.attachedLogic.isEmpty()) continue;
-            Vec3 currentPos = entry.getCurrentPosition();
+        for (var stream : EntityStreamClientManager.entries) {
+            if (stream.attachedLogic.isEmpty()) continue;
+            float elapsed = mc.level.getGameTime() - stream.receivedAtTick + partialTick;
+            if (stream.isDying) elapsed = stream.deathAtTick - stream.receivedAtTick;
+            Vec3 currentPos = stream.startPos.add(stream.motion.scale(stream.startTickCount + elapsed));
 
             double dx = currentPos.x - camX;
             double dy = currentPos.y - camY;
@@ -119,8 +121,8 @@ public class ClientVirtualEtherStreamRenderer {
             if (!camera.cullFrustum.pointInFrustum(currentPos.x, currentPos.y, currentPos.z))
                 continue;
 
-            for (var logic : entry.attachedLogic)
-                logic.onRender(entry, currentPos, camera, poseStack, collector);
+            for (var logic : stream.attachedLogic)
+                logic.onRender(stream, currentPos, camera, poseStack, collector);
         }
     }
 }

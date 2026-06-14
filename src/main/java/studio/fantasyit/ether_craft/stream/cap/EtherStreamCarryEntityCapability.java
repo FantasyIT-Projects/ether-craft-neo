@@ -122,6 +122,7 @@ public class EtherStreamCarryEntityCapability implements IStreamCapability {
                     entity.getUUID(), entity.getId(), streamEntity.getPosDir(), streamEntity.getStreamId()));
             cachedEntity = entity;
             entity.noPhysics = true;
+            entity.setInvulnerable(true);
             streamEntity.dirtyConsumer();
             if (cachedEntity instanceof ServerPlayer sp) {
                 sp.sendSystemMessage(Component.translatable("mount.onboard", Component.translatable("key.sneak")), true);
@@ -137,6 +138,7 @@ public class EtherStreamCarryEntityCapability implements IStreamCapability {
                 entity.getUUID(), entity.getId(), streamEntity.getPosDir(), streamEntity.getStreamId()));
         cachedEntity = entity;
         entity.noPhysics = true;
+        entity.setInvulnerable(true);
         streamEntity.dirtyConsumer();
     }
 
@@ -181,6 +183,8 @@ public class EtherStreamCarryEntityCapability implements IStreamCapability {
             dropPlayerPos = realDraggedAt;
         }
         entity.setDeltaMovement(Vec3.ZERO);
+        entity.fallDistance = 0;
+        entity.setInvulnerable(false);
         if (entity.level() instanceof ServerLevel) {
             entity.teleportTo(dropPlayerPos.x, dropPlayerPos.y, dropPlayerPos.z);
             entity.setOldPosAndRot();

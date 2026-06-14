@@ -27,13 +27,15 @@ public class EtherStreamDamagePlatingEffect implements IPlatingEffect, IPlatingR
         if (!(entity.level() instanceof ServerLevel level)) return;
         if (data.isCd(level)) return;
         if (!PlatingUtil.canExtractEther(stack, Config.platingEtherStreamDamageEtherCost)) return;
-        PlatingUtil.extractEther(stack, Config.platingEtherStreamBreakEtherCost);
+        PlatingUtil.extractEther(stack, Config.platingEtherStreamDamageEtherCost);
         int ether = PlatingUtil.getEther(stack);
         int streamEther = (int) Math.max(1, data.effect());
 
         Vec3 pos = entity.getEyePosition();
         Vec3 motion = entity.getLookAngle().scale(Config.platingEtherStreamDamageSpeed);
         EtherStreamEntity stream = EtherStreamEntity.create(level, streamEther, pos, motion);
+        stream.setRealCanReceiveEther(Config.platingEtherStreamDamageEtherCost);
+        stream.setHitExclude(entity);
         EtherStreamDamageCapability cap = new EtherStreamDamageCapability();
         cap.addWeapon(stack);
         stream.addCapability(cap);

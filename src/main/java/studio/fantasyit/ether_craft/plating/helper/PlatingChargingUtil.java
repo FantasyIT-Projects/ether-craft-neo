@@ -24,7 +24,7 @@ public class PlatingChargingUtil {
     };
 
     public static void tryChargeArmorStand(IEtherStreamLike stream, ArmorStand stand) {
-        if (stream.getEther() <= 0) return;
+        if (stream.getCanConveyEther() <= 0) return;
 
         List<ItemStack> items = new ArrayList<>();
         for (EquipmentSlot slot : ARMOR_STAND_SLOTS) {
@@ -37,7 +37,7 @@ public class PlatingChargingUtil {
     }
 
     public static void tryChargeShelf(IEtherStreamLike stream, ShelfBlockEntity shelf) {
-        if (stream.getEther() <= 0) return;
+        if (stream.getCanConveyEther() <= 0) return;
 
         List<ItemStack> items = new ArrayList<>();
         for (int i = 0; i < shelf.getContainerSize(); i++) {
@@ -59,7 +59,7 @@ public class PlatingChargingUtil {
     };
 
     public static void tryChargePlayer(IEtherStreamLike stream, Player player) {
-        if (stream.getEther() <= 0) return;
+        if (stream.getCanConveyEther() <= 0) return;
         List<ItemStack> items = new ArrayList<>();
         for (EquipmentSlot slot : PLAYER_CHARGE_SLOTS) {
             items.add(player.getItemBySlot(slot));
@@ -75,7 +75,7 @@ public class PlatingChargingUtil {
     }
 
     private static void distributeCharge(IEtherStreamLike stream, List<ItemStack> items) {
-        if (stream.getEther() <= 0) return;
+        if (stream.getCanConveyEther() <= 0) return;
 
         List<ItemStack> chargeable = new ArrayList<>();
         for (ItemStack stack : items) {
@@ -86,7 +86,7 @@ public class PlatingChargingUtil {
 
         if (chargeable.isEmpty()) return;
 
-        int totalEther = stream.getEther();
+        int totalEther = stream.getCanConveyEther();
         int count = chargeable.size();
         int perItem = Math.min(totalEther / count, Config.platingMaxEtherReceive);
 

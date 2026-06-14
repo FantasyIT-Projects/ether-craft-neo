@@ -33,6 +33,8 @@ public class EtherStreamBreakPlatingEffect implements IPlatingEffect, IPlatingRi
         Vec3 pos = entity.getEyePosition();
         Vec3 motion = entity.getLookAngle().scale(Config.platingEtherStreamBreakSpeed);
         EtherStreamEntity stream = EtherStreamEntity.create(level, streamEther, pos, motion);
+        stream.setRealCanReceiveEther(Config.platingEtherStreamBreakEtherCost);
+        stream.setHitExclude(entity);
         EtherStreamBreakBlockCapability cap = new EtherStreamBreakBlockCapability();
         cap.addTool(stack);
         stream.addCapability(cap);

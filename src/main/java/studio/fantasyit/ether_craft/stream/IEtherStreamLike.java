@@ -53,4 +53,8 @@ public interface IEtherStreamLike {
     int getStreamId();
 
     PosDir getPosDir();
+
+    int tickCount();
+
+    int getCanConveyEther();
 }

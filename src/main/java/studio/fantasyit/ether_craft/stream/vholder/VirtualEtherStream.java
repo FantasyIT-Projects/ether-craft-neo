@@ -40,6 +40,7 @@ public class VirtualEtherStream implements IEtherStreamLike {
     List<IStreamCapability> capabilities = new ArrayList<>();
     public final EtherConsumer consumer = new EtherConsumer();
     int ether;
+    public int realCanReceiveEther = -1;
     int streamId;
     int tickCount = 0;
 
@@ -96,6 +97,13 @@ public class VirtualEtherStream implements IEtherStreamLike {
     }
 
     @Override
+    public int getCanConveyEther() {
+        if (realCanReceiveEther != -1 && realCanReceiveEther < ether)
+            return realCanReceiveEther;
+        return ether;
+    }
+
+    @Override
     public void dirtyConsumer() {
         consumer.markDirty();
     }
@@ -132,7 +140,7 @@ public class VirtualEtherStream implements IEtherStreamLike {
         if (hitResult instanceof BlockHitResult blockHitResult) {
             EtherContainer capability = level.getCapability(EtherContainer.ETHER_CONTAINER, blockHitResult.getBlockPos());
             if (capability != null) {
-                capability.receiveEther(getEther());
+                capability.receiveEther(getCanConveyEther());
             }
         }
         for (IStreamCapability cap : capabilities) {
@@ -187,6 +195,7 @@ public class VirtualEtherStream implements IEtherStreamLike {
         VirtualEtherStream newStream = new VirtualEtherStream(
                 holder.nextId++, ether, newPos, newPosDir, newMotion, level, holder
         );
+        newStream.realCanReceiveEther = realCanReceiveEther;
         newStream.capabilities = this.capabilities;
         this.capabilities = new ArrayList<>();
         for (IStreamCapability cap : newStream.capabilities) {
@@ -227,6 +236,11 @@ public class VirtualEtherStream implements IEtherStreamLike {
 
     public PosDir getPosDir() {
         return posDir;
+    }
+
+    @Override
+    public int tickCount() {
+        return tickCount;
     }
 
     public int getStreamId() {

@@ -9,7 +9,9 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityReference;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.ItemStack;
@@ -48,9 +50,12 @@ import java.util.Optional;
 public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
     static int internalEtherId = 0;
     static final EntityDataAccessor<Integer> ETHER_COUNT = SynchedEntityData.defineId(EtherStreamEntity.class, EntityDataSerializers.INT);
+    static final EntityDataAccessor<Integer> ETHER_REAL_COUNT = SynchedEntityData.defineId(EtherStreamEntity.class, EntityDataSerializers.INT);
+    static final EntityDataAccessor<Optional<EntityReference<LivingEntity>>> HIT_EXCLUDE = SynchedEntityData.defineId(EtherStreamEntity.class, EntityDataSerializers.OPTIONAL_LIVING_ENTITY_REFERENCE);
     public static final EntityDataAccessor<List<IEtherStreamSyncedData>> SYNCED_DATA =
             SynchedEntityData.defineId(EtherStreamEntity.class, EntityDataSerializerRegistry.SYNCED_DATA_LIST.get());
     private int ether;
+    public int realCanReceiveEther = -1;
     public static final int MAX_TAIL = 6;
     public final double[] tailX = new double[MAX_TAIL];
     public final double[] tailY = new double[MAX_TAIL];
@@ -79,6 +84,7 @@ public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
     public EtherStreamEntity(EntityType<EtherStreamEntity> etherStreamEntityEntityType, Level level) {
         super(etherStreamEntityEntityType, level);
         this.ether = this.entityData.get(ETHER_COUNT);
+        this.realCanReceiveEther = this.entityData.get(ETHER_REAL_COUNT);
     }
 
     protected float getSize() {
@@ -88,6 +94,8 @@ public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         builder.define(ETHER_COUNT, ether);
+        builder.define(ETHER_REAL_COUNT, -1);
+        builder.define(HIT_EXCLUDE, Optional.empty());
         builder.define(SYNCED_DATA, new ArrayList<>());
     }
 
@@ -97,7 +105,23 @@ public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
         }
     }
 
+    public void setHitExclude(LivingEntity entity) {
+        this.entityData.set(HIT_EXCLUDE, Optional.of(EntityReference.of(entity)));
+    }
+
+    public void setRealCanReceiveEther(int ether) {
+        this.realCanReceiveEther = ether;
+        this.entityData.set(ETHER_REAL_COUNT, ether);
+    }
+
     public int getEther() {
+        return ether;
+    }
+
+    @Override
+    public int getCanConveyEther() {
+        if (realCanReceiveEther != -1 && realCanReceiveEther < ether)
+            return realCanReceiveEther;
         return ether;
     }
 
@@ -199,6 +223,9 @@ public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
     public boolean shouldPassThrough(Entity entity) {
         if (entity.is(Tags.ETHER_STREAM_PASS_THROUGH_ENTITY))
             return true;
+        if (entity instanceof LivingEntity l && this.entityData.get(HIT_EXCLUDE).map(t -> t.matches(l)).orElse(false)) {
+            return true;
+        }
         for (IStreamCapability cap : capabilities)
             if (cap.shouldPassThrough(entity))
                 return true;
@@ -332,6 +359,7 @@ public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
     @Override
     public IEtherStreamLike recreate(Vec3 newPos, Vec3 newMotion) {
         EtherStreamEntity newEntity = create(level(), this.ether, newPos, newMotion);
+        newEntity.realCanReceiveEther = realCanReceiveEther;
         newEntity.capabilities = this.capabilities;
         this.capabilities = new ArrayList<>();
         for (IStreamCapability cap : newEntity.capabilities) {
@@ -366,6 +394,11 @@ public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
         return posDir;
     }
 
+    @Override
+    public int tickCount() {
+        return tickCount;
+    }
+
     private static boolean isPlatedItem(ItemEntity ie) {
         ItemStack stack = ie.getItem();
         return PlatingUtil.isPlatingInProgress(stack) || PlatingUtil.hasPlating(stack);
@@ -387,7 +420,7 @@ public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
         if (hitResult instanceof BlockHitResult blockHit) {
             EtherContainer e = level().getCapability(EtherContainer.ETHER_CONTAINER, blockHit.getBlockPos());
             if (e != null)
-                e.receiveEther(this.ether);
+                e.receiveEther(getCanConveyEther());
         }
         for (IStreamCapability capability : capabilities) {
             capability.onDestroy(this, hitResult);

@@ -11,6 +11,7 @@ public class EtherStreamClientLogicManager {
     public static void collect() {
         extraLogic.add(new EtherStreamLabelLogic());
         extraLogic.add(new EtherStreamCarriedEntityLogic());
+        extraLogic.add(new EtherStreamDisplayItemLogic());
     }
 
     public static void reApplyAttach(ClientStreamEntry entry) {
