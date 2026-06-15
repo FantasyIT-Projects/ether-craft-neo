@@ -2,6 +2,7 @@ package studio.fantasyit.ether_craft.plating.effects;
 
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
@@ -10,9 +11,10 @@ import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.plating.data.PlatingData;
 import studio.fantasyit.ether_craft.plating.helper.PlatingUtil;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
+import studio.fantasyit.ether_craft.plating.trigger.event.IPlatingKeyTrigger;
 import studio.fantasyit.ether_craft.plating.trigger.event.IPlatingRightClickTrigger;
 
-public class DashPlatingEffect implements IPlatingEffect, IPlatingRightClickTrigger {
+public class DashPlatingEffect implements IPlatingEffect, IPlatingRightClickTrigger, IPlatingKeyTrigger {
     public static final Identifier ID = EtherCraft.id("dash");
 
     @Override
@@ -22,6 +24,16 @@ public class DashPlatingEffect implements IPlatingEffect, IPlatingRightClickTrig
 
     @Override
     public void apply(IPlatingEffect effect, PlatingData data, ItemStack stack, LivingEntity entity, PlayerInteractEvent.RightClickItem event) {
+        doDash(effect, data, stack, entity);
+        event.setCanceled(true);
+    }
+
+    @Override
+    public void onKeyTrigger(IPlatingEffect effect, PlatingData data, ItemStack stack, LivingEntity entity, EquipmentSlot slot) {
+        doDash(effect, data, stack, entity);
+    }
+
+    private void doDash(IPlatingEffect effect, PlatingData data, ItemStack stack, LivingEntity entity) {
         if (!(entity.level() instanceof ServerLevel level)) return;
         if (data.isCd(level)) return;
 
@@ -35,7 +47,5 @@ public class DashPlatingEffect implements IPlatingEffect, IPlatingRightClickTrig
 
         PlatingData updated = data.copyWithCoolDown(level, Config.platingDashCdTicks);
         PlatingUtil.updatePlatingData(stack, updated);
-
-        event.setCanceled(true);
     }
 }

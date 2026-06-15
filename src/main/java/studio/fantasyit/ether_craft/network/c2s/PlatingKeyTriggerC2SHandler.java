@@ -1,5 +1,6 @@
 package studio.fantasyit.ether_craft.network.c2s;
 
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import studio.fantasyit.ether_craft.plating.data.PlatingData;
@@ -12,14 +13,16 @@ import java.util.List;
 
 public class PlatingKeyTriggerC2SHandler {
     public static void handle(PlatingKeyTriggerC2S packet, Player player) {
-        for (ItemStack stack : PlatingEventHelper.getPlatedEquipment(player)) {
-            List<PlatingData> data = PlatingUtil.getPlatingData(stack);
-            for (PlatingData d : data) {
-                IPlatingEffect effect = PlatingEventHelper.getEffect(d.id());
-                if (effect instanceof IPlatingKeyTrigger trigger) {
-                    trigger.onKeyTrigger(effect, d, stack, player);
-                }
-            }
+        EquipmentSlot slot = packet.slot();
+        ItemStack stack = player.getItemBySlot(slot);
+        List<PlatingData> data = PlatingUtil.getPlatingData(stack);
+        for (PlatingData d : data) {
+            IPlatingEffect effect = PlatingEventHelper.getEffect(d.id());
+            if (effect == null) continue;
+            if (effect instanceof IPlatingKeyTrigger trigger)
+                trigger.onKeyTrigger(effect, d, stack, player, slot);
+
+
         }
     }
 }
