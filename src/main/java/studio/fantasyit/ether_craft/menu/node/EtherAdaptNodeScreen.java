@@ -134,9 +134,10 @@ public class EtherAdaptNodeScreen extends AbstractContainerScreen<@NotNull Ether
 
     @Override
     protected void extractTooltip(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
-        super.extractTooltip(graphics, mouseX, mouseY);
         if (tabProvider != null)
-            tabProvider.extractTooltip(graphics, mouseX, mouseY);
+            if (tabProvider.extractTooltip(graphics, mouseX, mouseY))
+                return;
+        super.extractTooltip(graphics, mouseX, mouseY);
     }
 
     @Override

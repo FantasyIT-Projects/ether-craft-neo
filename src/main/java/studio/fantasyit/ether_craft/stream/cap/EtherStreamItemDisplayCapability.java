@@ -59,6 +59,7 @@ public class EtherStreamItemDisplayCapability implements IStreamCapability {
             List<ItemStack> depItem = new ArrayList<>();
             for (int i = 0; i < cap.getContainerSize(); i++) {
                 @NotNull ItemStack item = cap.getItem(i);
+                if (item.isEmpty()) continue;
                 boolean found = false;
                 for (ItemStack ei : depItem)
                     if (ItemStack.isSameItemSameComponents(item, ei)) {

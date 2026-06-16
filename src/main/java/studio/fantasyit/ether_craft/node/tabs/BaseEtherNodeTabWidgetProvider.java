@@ -54,15 +54,17 @@ public abstract class BaseEtherNodeTabWidgetProvider<T extends AbstractNodePlugi
         }
     }
 
-    public void extractTooltip(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
+    public boolean extractTooltip(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
         for (Pair<Rect2i, Supplier<List<Component>>> tooltipArea : tooltipAreas) {
             if (tooltipArea.getA().contains(mouseX, mouseY)) {
                 List<Component> tooltip = tooltipArea.getB().get();
                 if (tooltip != null) {
                     graphics.setTooltipForNextFrame(tooltip.stream().map(Component::getVisualOrderText).toList(), mouseX, mouseY);
+                    return true;
                 }
             }
         }
+        return false;
     }
 
     public void createWidget() {
