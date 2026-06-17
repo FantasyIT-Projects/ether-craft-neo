@@ -43,7 +43,7 @@ public class Config {
 
     private static final ModConfigSpec.IntValue NODE_FURNACE_BURN_TIME_FACTOR = BUILDER
             .comment("Divisor applied to item burn time (higher = faster fuel consumption)")
-            .defineInRange("node.furnace.burn_time_factor", 1, 1, 100);
+            .defineInRange("node.furnace.burn_time_factor", 4, 1, 100);
 
     private static final ModConfigSpec.IntValue NODE_FURNACE_ETHER_PER_TICK = BUILDER
             .comment("Ether generated per tick while furnace is actively burning fuel")
@@ -51,7 +51,7 @@ public class Config {
 
     private static final ModConfigSpec.IntValue NODE_BLAST_FURNACE_ETHER_PER_TICK = BUILDER
             .comment("Ether generated per tick while blast furnace is actively burning fuel")
-            .defineInRange("node.furnace.ether_per_tick_blast_furnace", 50, 1, Integer.MAX_VALUE);
+            .defineInRange("node.furnace.ether_per_tick_blast_furnace", 30, 1, Integer.MAX_VALUE);
     private static final ModConfigSpec.IntValue NODE_BLAST_FURNACE_BURN_TIME_FACTOR = BUILDER
             .comment("Divisor applied to item burn time (higher = faster fuel consumption)")
             .defineInRange("node.furnace.burn_time_factor_blast_furnace", 1, 1, 100);
@@ -140,7 +140,7 @@ public class Config {
 
     private static final ModConfigSpec.IntValue ETHER_STREAM_MAX_TICK = BUILDER
             .comment("Maximum lifetime of an Ether Stream entity in ticks (20 ticks = 1 second)")
-            .defineInRange("ether_stream.max_tick", 12000, 1, Integer.MAX_VALUE);
+            .defineInRange("ether_stream.max_tick", 1200, 1, Integer.MAX_VALUE);
 
     private static final ModConfigSpec.DoubleValue ETHER_STREAM_CONSUMPTION_FACTOR = BUILDER
             .comment("Base ether consumption per tick as a fraction of total ether stored in the stream")
@@ -217,7 +217,7 @@ public class Config {
             .defineInRange("plating.dash.cd_ticks", 20, 0, 12000);
     private static final ModConfigSpec.IntValue PLATING_DASH_ETHER_COST = BUILDER
             .comment("Ether cost for Dash plating effect")
-            .defineInRange("plating.dash.ether_cost", 5, 0, Integer.MAX_VALUE);
+            .defineInRange("plating.dash.ether_cost", 500, 0, Integer.MAX_VALUE);
 
     // -- plating.high_jump --
     private static final ModConfigSpec.IntValue PLATING_HIGH_JUMP_CD_TICKS = BUILDER
@@ -225,7 +225,7 @@ public class Config {
             .defineInRange("plating.high_jump.cd_ticks", 20, 0, 12000);
     private static final ModConfigSpec.IntValue PLATING_HIGH_JUMP_ETHER_COST = BUILDER
             .comment("Ether cost for High Jump plating effect")
-            .defineInRange("plating.high_jump.ether_cost", 5, 0, Integer.MAX_VALUE);
+            .defineInRange("plating.high_jump.ether_cost", 1000, 0, Integer.MAX_VALUE);
 
     // -- plating.soul --
     private static final ModConfigSpec.IntValue PLATING_SOUL_ETHER_PER_TICK = BUILDER
@@ -238,12 +238,12 @@ public class Config {
     // -- plating.no_gravity --
     private static final ModConfigSpec.IntValue PLATING_NO_GRAVITY_ETHER_PER_ARROW = BUILDER
             .comment("Ether cost per arrow for No Gravity plating effect")
-            .defineInRange("plating.no_gravity.ether_per_arrow", 1, 0, Integer.MAX_VALUE);
+            .defineInRange("plating.no_gravity.ether_per_arrow", 125, 0, Integer.MAX_VALUE);
 
     // -- plating.coyote_time --
     private static final ModConfigSpec.IntValue PLATING_COYOTE_TIME_ETHER_PER_JUMP = BUILDER
             .comment("Ether cost per delayed jump for Coyote Time plating effect")
-            .defineInRange("plating.coyote_time.ether_per_jump", 1, 0, Integer.MAX_VALUE);
+            .defineInRange("plating.coyote_time.ether_per_jump", 5, 0, Integer.MAX_VALUE);
 
     // -- plating.camouflage --
     private static final ModConfigSpec.IntValue PLATING_CAMOUFLAGE_STAND_DURATION = BUILDER
@@ -251,13 +251,13 @@ public class Config {
             .defineInRange("plating.camouflage.stand_duration", 100, 1, 12000);
     private static final ModConfigSpec.IntValue PLATING_CAMOUFLAGE_ETHER_COST = BUILDER
             .comment("Ether consumed by Camouflage")
-            .defineInRange("plating.camouflage.ether_per_tick", 300, 0, Integer.MAX_VALUE);
+            .defineInRange("plating.camouflage.ether_per_tick", 500, 0, Integer.MAX_VALUE);
     private static final ModConfigSpec.DoubleValue PLATING_CAMOUFLAGE_SPEED_THRESHOLD = BUILDER
             .comment("The max speed that allows user to enter camouflage status.")
-            .defineInRange("plating.camouflage.speed_threshold", 0.08, 0, 20);
+            .defineInRange("plating.camouflage.speed_threshold", 0.05, 0, 20);
     private static final ModConfigSpec.IntValue PLATING_CAMOUFLAGE_GAIN_ETHER_PER_TICK = BUILDER
             .comment("The ether gain in camouflage status")
-            .defineInRange("plating.camouflage.gain_per_tick", 5, 0, Integer.MAX_VALUE);
+            .defineInRange("plating.camouflage.gain_per_tick", 2, 0, Integer.MAX_VALUE);
 
     // -- plating.block --
     private static final ModConfigSpec.DoubleValue PLATING_BLOCK_DAMAGE_REDUCTION = BUILDER
@@ -265,17 +265,17 @@ public class Config {
             .defineInRange("plating.block.damage_reduction", 0.5, 0, 1);
     private static final ModConfigSpec.IntValue PLATING_BLOCK_ETHER_PER_TICK = BUILDER
             .comment("Ether consumed per tick while blocking")
-            .defineInRange("plating.block.ether_per_tick", 1, 0, Integer.MAX_VALUE);
+            .defineInRange("plating.block.ether_per_tick", 500, 0, Integer.MAX_VALUE);
 
     // -- plating.crit --
     private static final ModConfigSpec.IntValue PLATING_CRIT_ETHER_PER_ATTACK = BUILDER
             .comment("Ether consumed per attack by Crit plating")
-            .defineInRange("plating.crit.ether_per_attack", 1, 0, Integer.MAX_VALUE);
+            .defineInRange("plating.crit.ether_per_attack", 75, 0, Integer.MAX_VALUE);
 
     // -- plating.crit_damage --
     private static final ModConfigSpec.IntValue PLATING_CRIT_DAMAGE_ETHER_PER_ATTACK = BUILDER
             .comment("Ether consumed per attack by Crit Damage plating")
-            .defineInRange("plating.crit_damage.ether_per_attack", 1, 0, Integer.MAX_VALUE);
+            .defineInRange("plating.crit_damage.ether_per_attack", 75, 0, Integer.MAX_VALUE);
 
     // -- plating.head_hunt --
     private static final ModConfigSpec.IntValue PLATING_HEAD_HUNT_ETHER_PER_KILL = BUILDER
@@ -285,39 +285,39 @@ public class Config {
     // -- plating.tracking --
     private static final ModConfigSpec.IntValue PLATING_TRACKING_ETHER_PER_ARROW = BUILDER
             .comment("Ether consumed per arrow by Tracking plating")
-            .defineInRange("plating.tracking.ether_per_arrow", 2, 0, Integer.MAX_VALUE);
+            .defineInRange("plating.tracking.ether_per_arrow", 125, 0, Integer.MAX_VALUE);
     private static final ModConfigSpec.DoubleValue PLATING_TRACKING_RANGE = BUILDER
             .comment("Search radius in blocks for arrow tracking")
-            .defineInRange("plating.tracking.range", 6.0, 0, 32);
+            .defineInRange("plating.tracking.range", 16.0, 0, 32);
 
     // -- plating.break_to_inv --
     private static final ModConfigSpec.IntValue PLATING_BREAK_TO_INV_ETHER_PER_BLOCK = BUILDER
             .comment("Ether consumed per block broken by Break to Inventory plating")
-            .defineInRange("plating.break_to_inv.ether_per_block", 1, 0, Integer.MAX_VALUE);
+            .defineInRange("plating.break_to_inv.ether_per_block", 125, 0, Integer.MAX_VALUE);
 
     // -- plating.kill_to_inv --
     private static final ModConfigSpec.IntValue PLATING_KILL_TO_INV_ETHER_PER_KILL = BUILDER
             .comment("Ether consumed per kill by Kill to Inventory plating")
-            .defineInRange("plating.kill_to_inv.ether_per_kill", 1, 0, Integer.MAX_VALUE);
+            .defineInRange("plating.kill_to_inv.ether_per_kill", 125, 0, Integer.MAX_VALUE);
 
     // -- plating.stone_absorb --
     private static final ModConfigSpec.IntValue PLATING_STONE_ABSORB_ETHER_PER_BLOCK = BUILDER
             .comment("Ether gained per stone-type block broken by Stone Absorb plating")
-            .defineInRange("plating.stone_absorb.ether_per_block", 5, 0, Integer.MAX_VALUE);
+            .defineInRange("plating.stone_absorb.ether_per_block", 125, 0, Integer.MAX_VALUE);
 
     // -- plating.ether_stream_dash --
     private static final ModConfigSpec.IntValue PLATING_ETHER_STREAM_DASH_CD_TICKS = BUILDER
             .comment("Cooldown ticks for Ether Stream Dash plating effect")
-            .defineInRange("plating.ether_stream_dash.cd_ticks", 40, 0, 12000);
+            .defineInRange("plating.ether_stream_dash.cd_ticks", 5, 0, 12000);
     private static final ModConfigSpec.IntValue PLATING_ETHER_STREAM_DASH_ETHER_COST = BUILDER
             .comment("Ether cost for Ether Stream Dash plating effect")
-            .defineInRange("plating.ether_stream_dash.ether_cost", 50, 0, Integer.MAX_VALUE);
+            .defineInRange("plating.ether_stream_dash.ether_cost", 500, 0, Integer.MAX_VALUE);
     private static final ModConfigSpec.DoubleValue PLATING_ETHER_STREAM_DASH_SPEED = BUILDER
             .comment("Speed multiplier for Ether Stream Dash")
-            .defineInRange("plating.ether_stream_dash.speed", 0.5, 0.1, 10.0);
+            .defineInRange("plating.ether_stream_dash.speed", 0.25, 0.1, 10.0);
     private static final ModConfigSpec.DoubleValue PLATING_ETHER_STREAM_DASH_FASTER_SPEED = BUILDER
             .comment("Speed multiplier for Ether Stream Dash Faster")
-            .defineInRange("plating.ether_stream_dash.speed_faster", 1.5, 0.1, 10.0);
+            .defineInRange("plating.ether_stream_dash.speed_faster", 2.5, 0.1, 10.0);
 
     // -- plating.ether_stream_damage --
     private static final ModConfigSpec.IntValue PLATING_ETHER_STREAM_DAMAGE_CD_TICKS = BUILDER
@@ -328,23 +328,23 @@ public class Config {
             .defineInRange("plating.ether_stream_damage.ether_cost", 50, 0, Integer.MAX_VALUE);
     private static final ModConfigSpec.DoubleValue PLATING_ETHER_STREAM_DAMAGE_SPEED = BUILDER
             .comment("Speed multiplier for Ether Stream Damage")
-            .defineInRange("plating.ether_stream_damage.speed", 0.1, 0.01, 10.0);
+            .defineInRange("plating.ether_stream_damage.speed", 1.0, 0.01, 10.0);
 
     // -- plating.ether_stream_break --
     private static final ModConfigSpec.IntValue PLATING_ETHER_STREAM_BREAK_CD_TICKS = BUILDER
             .comment("Cooldown ticks for Ether Stream Break plating effect")
-            .defineInRange("plating.ether_stream_break.cd_ticks", 2, 0, 12000);
+            .defineInRange("plating.ether_stream_break.cd_ticks", 5, 0, 12000);
     private static final ModConfigSpec.IntValue PLATING_ETHER_STREAM_BREAK_ETHER_COST = BUILDER
             .comment("Ether cost for Ether Stream Break plating effect")
-            .defineInRange("plating.ether_stream_break.ether_cost", 50, 0, Integer.MAX_VALUE);
+            .defineInRange("plating.ether_stream_break.ether_cost", 500, 0, Integer.MAX_VALUE);
     private static final ModConfigSpec.DoubleValue PLATING_ETHER_STREAM_BREAK_SPEED = BUILDER
             .comment("Speed multiplier for Ether Stream Break")
-            .defineInRange("plating.ether_stream_break.speed", 0.1, 0.01, 10.0);
+            .defineInRange("plating.ether_stream_break.speed", 1.0, 0.01, 10.0);
 
     // -- plating.anti_darkness --
     private static final ModConfigSpec.IntValue PLATING_ANTI_DARKNESS_ETHER_PER_BLOCK = BUILDER
             .comment("Ether consumed when blocking Darkness or Blindness effect")
-            .defineInRange("plating.anti_darkness.ether_per_block", 10, 0, Integer.MAX_VALUE);
+            .defineInRange("plating.anti_darkness.ether_per_block", 500, 0, Integer.MAX_VALUE);
     private static final ModConfigSpec.IntValue PLATING_ANTI_DARKNESS_ETHER_PER_TICK = BUILDER
             .comment("Ether consumed per tick for Night Vision")
             .defineInRange("plating.anti_darkness.ether_per_tick", 1, 0, Integer.MAX_VALUE);
@@ -352,7 +352,7 @@ public class Config {
     // -- plating.ethic --
     private static final ModConfigSpec.IntValue PLATING_ETHIC_ETHER_PER_USE = BUILDER
             .comment("Ether consumed per ethical action")
-            .defineInRange("plating.ethic.ether_per_use", 5, 0, Integer.MAX_VALUE);
+            .defineInRange("plating.ethic.ether_per_use", 500, 0, Integer.MAX_VALUE);
     private static final ModConfigSpec.IntValue PLATING_ETHIC_CD = BUILDER
             .comment("Cd of ethical action")
             .defineInRange("plating.ethic.cd", 20, 0, Integer.MAX_VALUE);
@@ -360,7 +360,7 @@ public class Config {
     // -- plating.anti_sonic_boom --
     private static final ModConfigSpec.IntValue PLATING_ANTI_SONIC_BOOM_ETHER_PER_BLOCK = BUILDER
             .comment("Ether consumed when blocking sonic boom damage")
-            .defineInRange("plating.anti_sonic_boom.ether_per_block", 10, 0, Integer.MAX_VALUE);
+            .defineInRange("plating.anti_sonic_boom.ether_per_block", 5000, 0, Integer.MAX_VALUE);
 
     // -- plating.silent_step --
     private static final ModConfigSpec.IntValue PLATING_SILENT_STEP_ETHER_PER_TICK = BUILDER
@@ -370,7 +370,7 @@ public class Config {
     // -- plating.durability_absorption --
     private static final ModConfigSpec.IntValue PLATING_DURABILITY_ABSORPTION_ETHER_PER_DURABILITY = BUILDER
             .comment("Ether consumed per durability point absorbed. Minimum 1.")
-            .defineInRange("plating.durability_absorption.ether_per_durability", 1, 1, Integer.MAX_VALUE);
+            .defineInRange("plating.durability_absorption.ether_per_durability", 500, 1, Integer.MAX_VALUE);
 
 
     static final ModConfigSpec SPEC = BUILDER.build();

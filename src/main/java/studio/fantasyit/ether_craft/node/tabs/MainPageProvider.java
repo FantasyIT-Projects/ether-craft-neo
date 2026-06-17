@@ -6,6 +6,8 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.renderer.Rect2i;
+import net.minecraft.ChatFormatting;
+import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.inventory.Slot;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
@@ -22,10 +24,12 @@ import studio.fantasyit.ether_craft.network.c2s.SyncFilterActiveC2S;
 import studio.fantasyit.ether_craft.node.plugins.MainPageDummyPlugin;
 import studio.fantasyit.ether_craft.node.plugins.MainPageDummyPlugin.MainPageContext;
 import studio.fantasyit.ether_craft.node.plugins.base.PluginMenuContext;
+import studio.fantasyit.ether_craft.node.NodePluginManager;
 import studio.fantasyit.ether_craft.util.UIUtil;
 
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 public class MainPageProvider extends BaseEtherNodeTabWidgetProvider<MainPageDummyPlugin> {
 
@@ -138,6 +142,57 @@ public class MainPageProvider extends BaseEtherNodeTabWidgetProvider<MainPageDum
                 screen.getMenu().entity.getMaxEther(),
                 lx(27), ly(39), EtherAdaptNodeAsset.ETHER_BAR_CTR.w - 2, 2, graphics
         );
+    }
+
+    @Override
+    public boolean extractTooltip(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
+        if (super.extractTooltip(graphics, mouseX, mouseY))
+            return true;
+
+        Slot hovered = null;
+        for (Slot slot : screen.getMenu().slots) {
+            if (mouseX >= lx(slot.x) && mouseX < lx(slot.x) + 18
+                    && mouseY >= ly(slot.y) && mouseY < ly(slot.y) + 18) {
+                hovered = slot;
+                break;
+            }
+        }
+
+        if (hovered == null || !hovered.hasItem())
+            return false;
+
+        boolean isFunctionSlot = hovered == ctx().functionStorage;
+        boolean isUpgradeSlot = ctx().normalStorage != null && ctx().normalStorage.contains(hovered);
+
+        if (!isFunctionSlot && !isUpgradeSlot)
+            return false;
+
+        Predicate<NodePluginManager.PluginType> typeFilter = isFunctionSlot
+                ? NodePluginManager.FUNCTION_TYPE
+                : NodePluginManager.FEATURE_UPGRADE_TYPE;
+
+        NodePluginManager.PluginInfo info = NodePluginManager.Instance.getInfoFor(hovered.getItem(), typeFilter);
+        if (info == null)
+            return false;
+
+        Component typeComponent = Component.translatable("jei.ether_craft.plugin_type." + info.type().getSerializedName());
+        ChatFormatting color = switch (info.type()) {
+            case FUNCTION -> ChatFormatting.GOLD;
+            case FEATURE -> ChatFormatting.BLUE;
+            case UPGRADE -> ChatFormatting.GREEN;
+            default -> ChatFormatting.WHITE;
+        };
+        String descKey = "jei.ether_craft.plugin." + info.id().getNamespace() + "." + info.id().getPath().replace('/', '.');
+
+        List<Component> tooltip = List.of(
+                typeComponent.copy().withStyle(color),
+                Component.translatable(descKey)
+        );
+        graphics.setTooltipForNextFrame(
+                tooltip.stream().map(Component::getVisualOrderText).toList(),
+                mouseX, mouseY
+        );
+        return true;
     }
 
     @Override

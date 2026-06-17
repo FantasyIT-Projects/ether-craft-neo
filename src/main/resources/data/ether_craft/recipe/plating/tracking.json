@@ -9,5 +9,5 @@
   ],
   "filter": "#c:tools/bow",
   "effect": "ether_craft:tracking",
-  "values": {"a1": 100000, "a2": 100001, "a3": 0, "a4": 1}
+  "values": {"a1": 75000, "a2": 100000, "a3": 0, "a4": 5}
 }

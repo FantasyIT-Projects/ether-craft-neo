@@ -171,7 +171,7 @@ public class PlatingEventHandler {
         double currentAngle = Math.acos(dot);
 
         if (currentAngle > 1e-6) {
-            double maxDeflect = Math.toRadians(tracking.strength() * 180);
+            double maxDeflect = Math.toRadians(tracking.strength());
             double deflectAngle = Math.min(maxDeflect, currentAngle);
 
             Vec3 axis = currentDir.cross(toTarget).normalize();

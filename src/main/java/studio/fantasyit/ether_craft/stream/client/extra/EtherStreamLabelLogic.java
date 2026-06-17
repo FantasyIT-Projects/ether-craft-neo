@@ -12,6 +12,9 @@ import org.joml.Quaternionf;
 import studio.fantasyit.ether_craft.stream.client.data.ClientStreamEntry;
 import studio.fantasyit.ether_craft.stream.data.EtherStreamLabelData;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class EtherStreamLabelLogic implements IEtherStreamExtraClientLogic {
     private static final float LABEL_SCALE = 0.010416667F;
 
@@ -33,19 +36,28 @@ public class EtherStreamLabelLogic implements IEtherStreamExtraClientLogic {
         if (motion.lengthSqr() < 0.0001) return;
 
         Font font = Minecraft.getInstance().font;
-        String fullText = labelData.label.getString();
-        int fullTextWidth = font.width(fullText);
-        if (fullTextWidth == 0) return;
+        List<EtherStreamLabelData.Segment> segments = labelData.getSegments();
+        if (segments.isEmpty()) return;
 
-        String visibleText = fullText;
-        int visibleTextWidth = fullTextWidth;
-
+        List<EtherStreamLabelData.Segment> renderSegments = segments;
         if (stream.isDying) {
-            // Right-clip: deathTick counts down 60->0, consume text from right
-            int moveFromDeath = (int) ((60f - stream.deathTick) * stream.motion.length() * 100);
-            int clipPixels = Math.min(moveFromDeath, fullTextWidth);
-            visibleText = font.plainSubstrByWidth(fullText, Math.max(0, fullTextWidth - clipPixels));
-            visibleTextWidth = font.width(visibleText);
+            int clip = (int) ((60f - stream.deathTick) * stream.motion.length() * 100);
+            renderSegments = clipSegments(segments, clip, font, false);
+            if (renderSegments.isEmpty()) return;
+        } else {
+            double distanceTraveled = currentPos.distanceTo(stream.startPos);
+            int keepPixels = (int) (distanceTraveled * 100);
+            float totalWidth = 0;
+            for (EtherStreamLabelData.Segment seg : segments)
+                totalWidth += font.width(seg.text()) * seg.scale();
+            int clip = Math.max(0, (int) totalWidth - keepPixels);
+            renderSegments = clipSegments(segments, clip, font, true);
+            if (renderSegments.isEmpty()) return;
+        }
+
+        float totalWidth = 0;
+        for (EtherStreamLabelData.Segment seg : renderSegments) {
+            totalWidth += font.width(seg.text()) * seg.scale();
         }
 
         Vec3 dir = motion.normalize();
@@ -58,9 +70,6 @@ public class EtherStreamLabelLogic implements IEtherStreamExtraClientLogic {
             normal = dir.cross(up).normalize();
         }
 
-        FormattedCharSequence text = FormattedCharSequence.forward(visibleText, net.minecraft.network.chat.Style.EMPTY);
-
-        // Render on both faces so the label is visible from either side
         for (Vec3 faceNormal : new Vec3[]{normal, normal.scale(-1)}) {
             poseStack.pushPose();
 
@@ -79,16 +88,75 @@ public class EtherStreamLabelLogic implements IEtherStreamExtraClientLogic {
             }
             poseStack.scale(LABEL_SCALE, -LABEL_SCALE, LABEL_SCALE);
 
-            float textX;
+            float startX;
             if (vertical) {
-                textX = faceNormal == normal ? 0 : -visibleTextWidth;
+                startX = faceNormal == normal ? 0 : -totalWidth;
             } else {
-                textX = faceNormal == normal ? -visibleTextWidth : 0;
+                startX = faceNormal == normal ? -totalWidth : 0;
             }
-            collector.submitText(poseStack, textX, 0, text, false,
-                    Font.DisplayMode.NORMAL, 0xF000F0, labelData.labelColor, 0, 0);
+
+            float cursor = startX;
+            for (EtherStreamLabelData.Segment seg : renderSegments) {
+                poseStack.pushPose();
+                poseStack.translate(cursor, 0, 0);
+                poseStack.scale(seg.scale(), seg.scale(), 1);
+
+                int color = seg.color() != null ? seg.color().getValue() : labelData.labelColor;
+                color = 0xff000000 | color;
+                FormattedCharSequence text = FormattedCharSequence.forward(seg.text(), net.minecraft.network.chat.Style.EMPTY);
+                collector.submitText(poseStack, 0, 0, text, false,
+                        Font.DisplayMode.NORMAL, 0xFFF000F0, color, 0, 0);
+
+                poseStack.popPose();
+                cursor += font.width(seg.text()) * seg.scale();
+            }
 
             poseStack.popPose();
         }
+    }
+
+    private List<EtherStreamLabelData.Segment> clipSegments(List<EtherStreamLabelData.Segment> segments, int clipPixels, Font font, boolean fromStart) {
+        int remaining = clipPixels;
+        List<EtherStreamLabelData.Segment> result = new ArrayList<>();
+
+        int i = fromStart ? 0 : segments.size() - 1;
+        int end = fromStart ? segments.size() : -1;
+        int step = fromStart ? 1 : -1;
+
+        for (; i != end; i += step) {
+            EtherStreamLabelData.Segment seg = segments.get(i);
+            int segWidth = (int) (font.width(seg.text()) * seg.scale());
+
+            if (remaining <= 0) {
+                if (fromStart) {
+                    for (int j = i; j < segments.size(); j++) result.add(segments.get(j));
+                } else {
+                    for (int j = 0; j <= i; j++) result.add(segments.get(j));
+                }
+                return result;
+            }
+
+            if (remaining >= segWidth) {
+                remaining -= segWidth;
+            } else {
+                float unscaledClip = remaining / seg.scale();
+                if (fromStart) {
+                    String prefix = font.plainSubstrByWidth(seg.text(), (int) unscaledClip);
+                    String remainingText = seg.text().substring(prefix.length());
+                    if (!remainingText.isEmpty())
+                        result.add(new EtherStreamLabelData.Segment(remainingText, seg.scale(), seg.color()));
+                    for (int j = i + 1; j < segments.size(); j++) result.add(segments.get(j));
+                } else {
+                    String clippedText = font.plainSubstrByWidth(seg.text(),
+                            Math.max(0, font.width(seg.text()) - (int) unscaledClip));
+                    for (int j = 0; j < i; j++) result.add(segments.get(j));
+                    if (!clippedText.isEmpty())
+                        result.add(new EtherStreamLabelData.Segment(clippedText, seg.scale(), seg.color()));
+                }
+                return result;
+            }
+        }
+
+        return result;
     }
 }

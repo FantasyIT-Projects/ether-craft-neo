@@ -6,8 +6,13 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
+import net.minecraft.network.chat.TextColor;
 import net.minecraft.resources.Identifier;
+import org.jetbrains.annotations.Nullable;
 import studio.fantasyit.ether_craft.EtherCraft;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class EtherStreamLabelData implements IEtherStreamSyncedData {
     public static final Identifier ID = EtherCraft.id("label");
@@ -38,5 +43,86 @@ public class EtherStreamLabelData implements IEtherStreamSyncedData {
 
     public static EtherStreamLabelData fromBuffer(FriendlyByteBuf reader) {
         return new EtherStreamLabelData(reader.readLenientJsonWithCodec(ComponentSerialization.CODEC), reader.readInt());
+    }
+
+    public record Segment(String text, float scale, @Nullable TextColor color) {}
+
+    @Nullable
+    private List<Segment> parsedSegments;
+
+    public List<Segment> getSegments() {
+        if (parsedSegments == null) {
+            parsedSegments = parseSegments(label.getString());
+        }
+        return parsedSegments;
+    }
+
+    private List<Segment> parseSegments(String raw) {
+        List<Segment> segments = new ArrayList<>();
+        StringBuilder buffer = new StringBuilder();
+        float scale = 1.0f;
+        TextColor color = null;
+
+        int i = 0;
+        while (i < raw.length()) {
+            char c = raw.charAt(i);
+            if (c == '[') {
+                if (i + 1 < raw.length() && raw.charAt(i + 1) == '[') {
+                    buffer.append('[');
+                    i += 2;
+                    continue;
+                }
+                if (!buffer.isEmpty()) {
+                    segments.add(new Segment(buffer.toString(), scale, color));
+                    buffer.setLength(0);
+                }
+                int end = raw.indexOf(']', i + 1);
+                if (end == -1) {
+                    buffer.append(c);
+                    i++;
+                    continue;
+                }
+                String tag = raw.substring(i + 1, end);
+                if (tag.equals("/")) {
+                    scale = 1.0f;
+                    color = null;
+                } else {
+                    for (String part : tag.split(",")) {
+                        part = part.trim();
+                        int eq = part.indexOf('=');
+                        if (eq == -1) continue;
+                        String key = part.substring(0, eq).trim().toLowerCase();
+                        String val = part.substring(eq + 1).trim();
+                        switch (key) {
+                            case "size" -> {
+                                try {
+                                    scale = Float.parseFloat(val);
+                                } catch (NumberFormatException ignored) {}
+                            }
+                            case "color" -> {
+                                TextColor parsed = TextColor.parseColor(val).result().orElse(null);
+                                if (parsed != null) color = parsed;
+                            }
+                        }
+                    }
+                }
+                i = end + 1;
+            } else if (c == ']') {
+                if (i + 1 < raw.length() && raw.charAt(i + 1) == ']') {
+                    buffer.append(']');
+                    i += 2;
+                    continue;
+                }
+                buffer.append(']');
+                i++;
+            } else {
+                buffer.append(c);
+                i++;
+            }
+        }
+        if (!buffer.isEmpty()) {
+            segments.add(new Segment(buffer.toString(), scale, color));
+        }
+        return segments;
     }
 }

@@ -4,8 +4,8 @@
   "group": "ether_craft",
   "key": {
     "#": "ether_craft:inactivated_ether",
-    "A": "minecraft:furnace",
-    "B": "minecraft:flint_and_steel"
+    "A": "minecraft:iron_ingot",
+    "B": "minecraft:flint"
   },
   "pattern": [
     "#A#",
