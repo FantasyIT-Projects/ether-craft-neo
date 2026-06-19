@@ -3,6 +3,7 @@ package studio.fantasyit.ether_craft.stream.data;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.core.Direction;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
@@ -13,21 +14,29 @@ import studio.fantasyit.ether_craft.EtherCraft;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class EtherStreamLabelData implements IEtherStreamSyncedData {
     public static final Identifier ID = EtherCraft.id("label");
 
     public static final MapCodec<EtherStreamLabelData> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
             ComponentSerialization.CODEC.fieldOf("label").forGetter(t -> t.label),
-            Codec.INT.fieldOf("labelColor").forGetter(t -> t.labelColor)
-    ).apply(instance, EtherStreamLabelData::new));
+            Codec.INT.fieldOf("labelColor").forGetter(t -> t.labelColor),
+            Direction.CODEC.optionalFieldOf("sourceDirection").forGetter(t -> Optional.ofNullable(t.sourceDirection))
+    ).apply(instance, (label, color, dirOpt) -> new EtherStreamLabelData(label, color, dirOpt.orElse(null))));
 
     public Component label;
     public int labelColor;
+    public @Nullable Direction sourceDirection;
 
     public EtherStreamLabelData(Component label, int labelColor) {
+        this(label, labelColor, null);
+    }
+
+    public EtherStreamLabelData(Component label, int labelColor, @Nullable Direction sourceDirection) {
         this.label = label;
         this.labelColor = labelColor;
+        this.sourceDirection = sourceDirection;
     }
 
     @Override
@@ -39,10 +48,15 @@ public class EtherStreamLabelData implements IEtherStreamSyncedData {
     public void toBuffer(FriendlyByteBuf writer) {
         writer.writeJsonWithCodec(ComponentSerialization.CODEC, label);
         writer.writeInt(labelColor);
+        writer.writeNullable(sourceDirection, FriendlyByteBuf::writeEnum);
     }
 
     public static EtherStreamLabelData fromBuffer(FriendlyByteBuf reader) {
-        return new EtherStreamLabelData(reader.readLenientJsonWithCodec(ComponentSerialization.CODEC), reader.readInt());
+        return new EtherStreamLabelData(
+                reader.readLenientJsonWithCodec(ComponentSerialization.CODEC),
+                reader.readInt(),
+                reader.readNullable(buf -> buf.readEnum(Direction.class))
+        );
     }
 
     public record Segment(String text, float scale, @Nullable TextColor color) {}

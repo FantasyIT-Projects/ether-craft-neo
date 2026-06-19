@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "ether_craft:block/smooth_inactivated_ether_block"
+    }
+  }
+}

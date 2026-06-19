@@ -54,7 +54,7 @@ public class Config {
             .defineInRange("node.furnace.ether_per_tick_blast_furnace", 30, 1, Integer.MAX_VALUE);
     private static final ModConfigSpec.IntValue NODE_BLAST_FURNACE_BURN_TIME_FACTOR = BUILDER
             .comment("Divisor applied to item burn time (higher = faster fuel consumption)")
-            .defineInRange("node.furnace.burn_time_factor_blast_furnace", 1, 1, 100);
+            .defineInRange("node.furnace.burn_time_factor_blast_furnace", 4, 1, 100);
 
     // -- node.magnet --
 

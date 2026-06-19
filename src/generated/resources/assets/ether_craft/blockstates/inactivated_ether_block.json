@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "ether_craft:block/inactivated_ether_block"
+    }
+  }
+}

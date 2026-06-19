@@ -112,7 +112,7 @@ public class NodePluginManager {
         ALL_PLUGINS.add(new PluginInfo(PluginType.UPGRADE, EtherStreamSpeedUpUpgrade.ID, EtherStreamSpeedUpUpgrade::new, t -> t.is(Items.POWERED_RAIL), Items.POWERED_RAIL));
         ALL_PLUGINS.add(new PluginInfo(PluginType.UPGRADE, EtherStreamBounceBackUpgrade.ID, EtherStreamBounceBackUpgrade::new, t -> t.is(Items.SLIME_BALL), Items.SLIME_BALL));
         ALL_PLUGINS.add(new PluginInfo(PluginType.UPGRADE, EtherStreamDisplayItemUpgrade.ID, EtherStreamDisplayItemUpgrade::new, t -> t.is(Items.ITEM_FRAME), Items.ITEM_FRAME));
-        ALL_PLUGINS.add(new PluginInfo(PluginType.UPGRADE, EtherAutoSupplyUpgrade.ID, EtherAutoSupplyUpgrade::new, t -> t.is(ItemRegistry.ETHER_CRYSTAL.get()), ItemRegistry.ETHER_CRYSTAL.get()));
+        ALL_PLUGINS.add(new PluginInfo(PluginType.FUNCTION, EtherAutoSupplyUpgrade.ID, EtherAutoSupplyUpgrade::new, t -> t.is(ItemRegistry.ETHER_CRYSTAL.get()), ItemRegistry.ETHER_CRYSTAL.get()));
         ALL_PLUGINS.add(new PluginInfo(PluginType.FEATURE, RedstoneSwitchUpgrade.ID, (a, b) -> new RedstoneSwitchUpgrade(a, b, true), t -> t.is(Items.REDSTONE), Items.REDSTONE));
         ALL_PLUGINS.add(new PluginInfo(PluginType.FEATURE, RedstoneSwitchUpgrade.ID_REVERT, (a, b) -> new RedstoneSwitchUpgrade(a, b, false), t -> t.is(Items.REDSTONE_TORCH), Items.REDSTONE_TORCH));
     }

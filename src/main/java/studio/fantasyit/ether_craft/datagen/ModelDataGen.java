@@ -185,6 +185,8 @@ public class ModelDataGen extends ModelProvider {
         blockModels.createTrivialCube(BlockRegistry.ETHER_ORE.get());
         blockModels.createTrivialCube(BlockRegistry.DEEPSLATE_ETHER_ORE.get());
         blockModels.createTrivialCube(BlockRegistry.NETHER_ETHER_ORE.get());
+        blockModels.createTrivialCube(BlockRegistry.INACTIVATED_ETHER_BLOCK.get());
+        blockModels.createTrivialCube(BlockRegistry.SMOOTH_INACTIVATED_ETHER_BLOCK.get());
 
         // 以太玻璃 - 连接纹理
         var etherGlassCustom = MultiVariant.of(new CustomBlockStateModelBuilder.Simple(new EtherGlassUnbakedModel()));

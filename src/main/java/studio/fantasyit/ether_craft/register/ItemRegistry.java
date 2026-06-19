@@ -62,6 +62,8 @@ public class ItemRegistry {
     public static final DeferredHolder<Item, @NotNull Item> DEEPSLATE_ETHER_ORE_ITEM = block(BlockRegistry.DEEPSLATE_ETHER_ORE);
     public static final DeferredHolder<Item, @NotNull Item> NETHER_ETHER_ORE_ITEM = block(BlockRegistry.NETHER_ETHER_ORE);
     public static final DeferredHolder<Item, @NotNull Item> ETHER_GLASS_ITEM = block(BlockRegistry.ETHER_GLASS);
+    public static final DeferredHolder<Item, @NotNull Item> INACTIVATED_ETHER_BLOCK_ITEM = block(BlockRegistry.INACTIVATED_ETHER_BLOCK);
+    public static final DeferredHolder<Item, @NotNull Item> SMOOTH_INACTIVATED_ETHER_BLOCK_ITEM = block(BlockRegistry.SMOOTH_INACTIVATED_ETHER_BLOCK);
 
     public static final DeferredHolder<Item, @NotNull Item> ANSWER_GRID_5X5 = ITEMS.register("ether_process_recipe_answer_5x5",
             EtherProcessRecipeAnswerItem.getConstructorWithShape(5, 5));

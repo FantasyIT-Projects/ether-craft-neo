@@ -24,6 +24,11 @@ public class EtherStreamLabelLogic implements IEtherStreamExtraClientLogic {
     }
 
     @Override
+    public boolean shouldRender(ClientStreamEntry entry) {
+        return entry.getSyncedData(EtherStreamLabelData.ID) != null;
+    }
+
+    @Override
     public boolean shouldDelayDeath(ClientStreamEntry entry) {
         return true;
     }
@@ -62,10 +67,10 @@ public class EtherStreamLabelLogic implements IEtherStreamExtraClientLogic {
 
         Vec3 dir = motion.normalize();
         Vec3 up = new Vec3(0.0, 1.0, 0.0);
-        boolean vertical = Math.abs(dir.dot(up)) > 0.999;
+        boolean steep = Math.abs(dir.dot(up)) > 0.707;
         Vec3 normal;
-        if (vertical) {
-            normal = dir.cross(new Vec3(1.0, 0.0, 0.0)).normalize();
+        if (steep && labelData.sourceDirection != null) {
+            normal = dir.cross(labelData.sourceDirection.getUnitVec3()).normalize();
         } else {
             normal = dir.cross(up).normalize();
         }
@@ -83,13 +88,13 @@ public class EtherStreamLabelLogic implements IEtherStreamExtraClientLogic {
                     new org.joml.Vector3f(0, 0, 1),
                     new org.joml.Vector3f((float) faceNormal.x, (float) faceNormal.y, (float) faceNormal.z));
             poseStack.mulPose(rotation);
-            if (vertical) {
+            if (steep) {
                 poseStack.mulPose(new Quaternionf().rotateZ((float) Math.toRadians(faceNormal == normal ? -90 : 90)));
             }
             poseStack.scale(LABEL_SCALE, -LABEL_SCALE, LABEL_SCALE);
 
             float startX;
-            if (vertical) {
+            if (steep) {
                 startX = faceNormal == normal ? 0 : -totalWidth;
             } else {
                 startX = faceNormal == normal ? -totalWidth : 0;

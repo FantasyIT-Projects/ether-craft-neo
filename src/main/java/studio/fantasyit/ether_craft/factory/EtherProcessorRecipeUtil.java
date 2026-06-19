@@ -1,4 +1,4 @@
-package studio.fantasyit.ether_craft.util;
+package studio.fantasyit.ether_craft.factory;
 
 import net.minecraft.resources.Identifier;
 import net.minecraft.tags.ItemTags;
@@ -10,12 +10,13 @@ import net.neoforged.neoforge.common.crafting.SizedIngredient;
 import org.joml.Vector2i;
 import studio.fantasyit.ether_craft.base.GraphLike;
 import studio.fantasyit.ether_craft.base.TreeLike;
-import studio.fantasyit.ether_craft.factory.EtherProcessWorkingChip;
 import studio.fantasyit.ether_craft.item.ProcessChipItem;
 import studio.fantasyit.ether_craft.recipe.DelayedIngredient;
 import studio.fantasyit.ether_craft.recipe.factory.EtherFactoryRecipeInput;
 import studio.fantasyit.ether_craft.recipe.factory.PathNode;
 import studio.fantasyit.ether_craft.register.ItemRegistry;
+import studio.fantasyit.ether_craft.util.CollectionUtil;
+import studio.fantasyit.ether_craft.util.SetUtil;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;

@@ -37,7 +37,7 @@ public class FunctionFurnaceGenerator extends AbstractItemConsumeFunction {
         ItemStack remainStack = itemStack.copyWithCount(itemStack.getCount() - 1);
         int factor = Config.nodeFurnaceBurnTimeFactor;
         if (this.installedId.pluginId().equals(ID_BLAST))
-            nodeEntity.receiveEther(Config.nodeBlastFurnaceBurnTimeFactor);
+            factor = Config.nodeBlastFurnaceBurnTimeFactor;
         this.remainBurnTicks = itemStack.getBurnTime(null, nodeEntity.getLevel().fuelValues()) / factor;
 
         if (itemStack.is(ItemTags.LOGS) || itemStack.is(ItemTags.PLANKS))

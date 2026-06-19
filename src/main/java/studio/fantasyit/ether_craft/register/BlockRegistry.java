@@ -25,6 +25,8 @@ public class BlockRegistry {
     public static final DeferredHolder<Block, @NotNull Block> ETHER_ORE = BLOCKS.register("ether_ore", r -> new Block(Block.Properties.of().strength(3f).requiresCorrectToolForDrops().sound(SoundType.STONE).setId(ResourceKey.create(BuiltInRegistries.BLOCK.key(), r))));
     public static final DeferredHolder<Block, @NotNull Block> DEEPSLATE_ETHER_ORE = BLOCKS.register("deepslate_ether_ore", r -> new Block(Block.Properties.of().strength(4.5f).requiresCorrectToolForDrops().sound(SoundType.DEEPSLATE).setId(ResourceKey.create(BuiltInRegistries.BLOCK.key(), r))));
     public static final DeferredHolder<Block, @NotNull Block> NETHER_ETHER_ORE = BLOCKS.register("nether_ether_ore", r -> new Block(Block.Properties.of().strength(3f).requiresCorrectToolForDrops().sound(SoundType.NETHER_ORE).setId(ResourceKey.create(BuiltInRegistries.BLOCK.key(), r))));
+    public static final DeferredHolder<Block, @NotNull Block> INACTIVATED_ETHER_BLOCK = BLOCKS.register("inactivated_ether_block", r -> new Block(Block.Properties.of().strength(5f).requiresCorrectToolForDrops().sound(SoundType.STONE).setId(ResourceKey.create(BuiltInRegistries.BLOCK.key(), r))));
+    public static final DeferredHolder<Block, @NotNull Block> SMOOTH_INACTIVATED_ETHER_BLOCK = BLOCKS.register("smooth_inactivated_ether_block", r -> new Block(Block.Properties.of().strength(5f).requiresCorrectToolForDrops().sound(SoundType.STONE).setId(ResourceKey.create(BuiltInRegistries.BLOCK.key(), r))));
 
     public static void register(IEventBus modbus) {
         BLOCKS.register(modbus);

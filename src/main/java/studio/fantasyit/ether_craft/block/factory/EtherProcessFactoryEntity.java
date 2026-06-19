@@ -47,7 +47,7 @@ import studio.fantasyit.ether_craft.recipe.factory.EtherProcessFactoryRecipe;
 import studio.fantasyit.ether_craft.register.DataComponentRegistry;
 import studio.fantasyit.ether_craft.register.ItemRegistry;
 import studio.fantasyit.ether_craft.register.Tags;
-import studio.fantasyit.ether_craft.util.EtherProcessorRecipeUtil;
+import studio.fantasyit.ether_craft.factory.EtherProcessorRecipeUtil;
 
 import java.util.*;
 import java.util.function.Consumer;

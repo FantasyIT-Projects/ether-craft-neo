@@ -37,7 +37,10 @@ public class TagGenBlock extends TagsProvider<Block> {
                 .addElement(BlockRegistry.ETHER_PROCESS_FACTORY.getKey().identifier())
                 .addElement(BlockRegistry.ETHER_STREAM_EMITTER.getKey().identifier())
                 .addElement(BlockRegistry.ETHER_ADAPT_NODE.getKey().identifier())
-                .addElement(BlockRegistry.ETHER_GLASS.getKey().identifier());
+                .addElement(BlockRegistry.ETHER_GLASS.getKey().identifier())
+                .addElement(BlockRegistry.ETHER_BLOCK.getKey().identifier())
+                .addElement(BlockRegistry.INACTIVATED_ETHER_BLOCK.getKey().identifier())
+                .addElement(BlockRegistry.SMOOTH_INACTIVATED_ETHER_BLOCK.getKey().identifier());
 
         getOrCreateRawBuilder(BlockTags.MINEABLE_WITH_PICKAXE)
                 .addElement(BlockRegistry.ETHER_PROCESS_FACTORY.getKey().identifier())
@@ -47,7 +50,9 @@ public class TagGenBlock extends TagsProvider<Block> {
                 .addElement(BlockRegistry.ETHER_BLOCK.getKey().identifier())
                 .addElement(BlockRegistry.ETHER_ORE.getKey().identifier())
                 .addElement(BlockRegistry.DEEPSLATE_ETHER_ORE.getKey().identifier())
-                .addElement(BlockRegistry.NETHER_ETHER_ORE.getKey().identifier());
+                .addElement(BlockRegistry.NETHER_ETHER_ORE.getKey().identifier())
+                .addElement(BlockRegistry.INACTIVATED_ETHER_BLOCK.getKey().identifier())
+                .addElement(BlockRegistry.SMOOTH_INACTIVATED_ETHER_BLOCK.getKey().identifier());
 
         var cropBuilder = getOrCreateRawBuilder(Tags.CROP_ACCELERATABLE);
         BuiltInRegistries.BLOCK.forEach(block -> {
@@ -73,6 +78,8 @@ public class TagGenBlock extends TagsProvider<Block> {
                 .addElement(BlockRegistry.ETHER_BLOCK.getKey().identifier())
                 .addElement(BlockRegistry.ETHER_ORE.getKey().identifier())
                 .addElement(BlockRegistry.DEEPSLATE_ETHER_ORE.getKey().identifier())
-                .addElement(BlockRegistry.NETHER_ETHER_ORE.getKey().identifier());
+                .addElement(BlockRegistry.NETHER_ETHER_ORE.getKey().identifier())
+                .addElement(BlockRegistry.INACTIVATED_ETHER_BLOCK.getKey().identifier())
+                .addElement(BlockRegistry.SMOOTH_INACTIVATED_ETHER_BLOCK.getKey().identifier());
     }
 }

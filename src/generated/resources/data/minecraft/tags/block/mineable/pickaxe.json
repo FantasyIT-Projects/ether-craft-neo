@@ -7,6 +7,8 @@
     "ether_craft:ether_block",
     "ether_craft:ether_ore",
     "ether_craft:deepslate_ether_ore",
-    "ether_craft:nether_ether_ore"
+    "ether_craft:nether_ether_ore",
+    "ether_craft:inactivated_ether_block",
+    "ether_craft:smooth_inactivated_ether_block"
   ]
 }
