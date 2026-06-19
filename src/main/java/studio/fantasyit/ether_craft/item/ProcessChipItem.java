@@ -21,6 +21,7 @@ import java.util.function.Consumer;
 
 public class ProcessChipItem extends Item {
     public static final Identifier SEPARATOR = EtherCraft.id("separator_chip");
+    public static final Identifier CONCAT = EtherCraft.id("concat_chip");
 
     public ProcessChipItem(Identifier identifier) {
         super(new Properties().setId(ResourceKey.create(Registries.ITEM, identifier)));

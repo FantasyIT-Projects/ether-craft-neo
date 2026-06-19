@@ -2,6 +2,9 @@ package studio.fantasyit.ether_craft.factory;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
@@ -34,16 +37,49 @@ public class EtherProcessChipManager {
         chipInfo.forEach(consumer);
     }
 
+    public record ProcessChipEffectConfig(boolean separate, boolean effectSelf, boolean effectSide) {
+        public static final ProcessChipEffectConfig DEFAULT = new ProcessChipEffectConfig(true, false, true);
+        public static final Codec<ProcessChipEffectConfig> CODEC = RecordCodecBuilder.create(inst -> inst.group(
+                Codec.BOOL.fieldOf("separate").orElse(true).forGetter(ProcessChipEffectConfig::separate),
+                Codec.BOOL.fieldOf("effectSelf").orElse(true).forGetter(ProcessChipEffectConfig::effectSelf),
+                Codec.BOOL.fieldOf("effectSide").orElse(true).forGetter(ProcessChipEffectConfig::effectSide)
+        ).apply(inst, ProcessChipEffectConfig::new));
+        public static final StreamCodec<RegistryFriendlyByteBuf, ProcessChipEffectConfig> STREAM_CODEC = StreamCodec.composite(
+                ByteBufCodecs.BOOL,
+                ProcessChipEffectConfig::separate,
+                ByteBufCodecs.BOOL,
+                ProcessChipEffectConfig::effectSelf,
+                ByteBufCodecs.BOOL,
+                ProcessChipEffectConfig::effectSide,
+                ProcessChipEffectConfig::new
+        );
+    }
+
     public record ProcessChipRecord(long maxEther, int etherDecay, long etherRequire, long etherConsume,
-                                    int maxDurability, Optional<Identifier> behavior) {
+                                    ProcessChipEffectConfig effect, int maxDurability,
+                                    Optional<Identifier> behavior) {
         public static final Codec<ProcessChipRecord> CODEC = RecordCodecBuilder.create(inst -> inst.group(
                 Codec.LONG.fieldOf("maxEther").forGetter(ProcessChipRecord::maxEther),
                 Codec.INT.fieldOf("etherDecay").forGetter(ProcessChipRecord::etherDecay),
                 Codec.LONG.fieldOf("etherRequire").forGetter(ProcessChipRecord::etherRequire),
                 Codec.LONG.fieldOf("etherConsume").forGetter(ProcessChipRecord::etherConsume),
+                ProcessChipEffectConfig.CODEC.optionalFieldOf("effect", ProcessChipEffectConfig.DEFAULT).forGetter(ProcessChipRecord::effect),
                 Codec.INT.optionalFieldOf("maxDurability", 0).forGetter(ProcessChipRecord::maxDurability),
                 Identifier.CODEC.optionalFieldOf("behavior").forGetter(ProcessChipRecord::behavior)
         ).apply(inst, ProcessChipRecord::new));
+
+        public static final StreamCodec<RegistryFriendlyByteBuf, ProcessChipRecord> STREAM_CODEC =
+                StreamCodec.composite(
+                        ByteBufCodecs.VAR_LONG, EtherProcessChipManager.ProcessChipRecord::maxEther,
+                        ByteBufCodecs.VAR_INT, EtherProcessChipManager.ProcessChipRecord::etherDecay,
+                        ByteBufCodecs.VAR_LONG, EtherProcessChipManager.ProcessChipRecord::etherRequire,
+                        ByteBufCodecs.VAR_LONG, EtherProcessChipManager.ProcessChipRecord::etherConsume,
+                        ProcessChipEffectConfig.STREAM_CODEC, ProcessChipRecord::effect,
+                        ByteBufCodecs.VAR_INT, EtherProcessChipManager.ProcessChipRecord::maxDurability,
+                        ByteBufCodecs.optional(Identifier.STREAM_CODEC), EtherProcessChipManager.ProcessChipRecord::behavior,
+                        EtherProcessChipManager.ProcessChipRecord::new
+                );
+
     }
 
     public static ProcessChipRecord get(Identifier identifier) {
@@ -56,5 +92,4 @@ public class EtherProcessChipManager {
         if (i == null) return null;
         return chipInfo.get(i);
     }
-
 }

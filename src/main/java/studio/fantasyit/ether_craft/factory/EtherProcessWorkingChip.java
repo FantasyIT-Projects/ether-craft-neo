@@ -16,7 +16,8 @@ public class EtherProcessWorkingChip {
             Codec.INT.fieldOf("etherDecay").forGetter(t -> t.etherDecay),
             Codec.LONG.fieldOf("etherRequire").forGetter(t -> t.etherRequire),
             Codec.LONG.fieldOf("etherConsume").forGetter(t -> t.etherConsume),
-            Codec.INT.optionalFieldOf("durability", 0).forGetter(t -> t.durability)
+            Codec.INT.optionalFieldOf("durability", 0).forGetter(t -> t.durability),
+            EtherProcessChipManager.ProcessChipEffectConfig.CODEC.fieldOf("effect").orElse(EtherProcessChipManager.ProcessChipEffectConfig.DEFAULT).forGetter(t -> t.effect)
     ).apply(i, EtherProcessWorkingChip::new));
 
     public ItemStack item;
@@ -30,6 +31,9 @@ public class EtherProcessWorkingChip {
     public long etherRequire;
     //加工以太消耗
     public long etherConsume;
+    //effect
+    public EtherProcessChipManager.ProcessChipEffectConfig effect;
+
     protected long[] decayCircle;
     protected int head;
 
@@ -39,7 +43,7 @@ public class EtherProcessWorkingChip {
     public @Nullable IProcessChipBehavior behavior;
 
     private EtherProcessWorkingChip() {
-        this(ItemStack.EMPTY, 0, 0, 1, 0, 0, 0);
+        this(ItemStack.EMPTY, 0, 0, 1, 0, 0);
     }
 
     public EtherProcessWorkingChip(ItemStack item) {
@@ -58,6 +62,7 @@ public class EtherProcessWorkingChip {
             this.etherRequire = 0;
             this.etherConsume = 0;
             this.maxDurability = 0;
+            this.effect = r.effect();
         } else {
             this.maxEther = r.maxEther();
             this.etherDecay = r.etherDecay();
@@ -66,6 +71,7 @@ public class EtherProcessWorkingChip {
             this.maxDurability = r.maxDurability();
             if (r.behavior().isPresent())
                 this.behavior = EtherProcessChipManager.getBehavior(r.behavior().get());
+            this.effect = r.effect();
         }
         this.durability = resolveDurability(item, this.maxDurability);
         init();
@@ -81,10 +87,10 @@ public class EtherProcessWorkingChip {
      * @param etherConsume 加工以太消耗
      */
     public EtherProcessWorkingChip(ItemStack item, long ether, long maxEther, int etherDecay, long etherRequire, long etherConsume) {
-        this(item, ether, maxEther, etherDecay, etherRequire, etherConsume, 0);
+        this(item, ether, maxEther, etherDecay, etherRequire, etherConsume, 0, EtherProcessChipManager.ProcessChipEffectConfig.DEFAULT);
     }
 
-    public EtherProcessWorkingChip(ItemStack item, long ether, long maxEther, int etherDecay, long etherRequire, long etherConsume, int durability) {
+    public EtherProcessWorkingChip(ItemStack item, long ether, long maxEther, int etherDecay, long etherRequire, long etherConsume, int durability, EtherProcessChipManager.ProcessChipEffectConfig effect) {
         this.item = item;
         this.ether = ether;
         this.maxEther = maxEther;
@@ -93,6 +99,7 @@ public class EtherProcessWorkingChip {
         this.etherConsume = etherConsume;
         this.durability = durability;
         this.maxDurability = 0;
+        this.effect = effect;
         init();
     }
 

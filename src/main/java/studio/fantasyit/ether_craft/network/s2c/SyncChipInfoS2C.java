@@ -12,7 +12,6 @@ import studio.fantasyit.ether_craft.factory.EtherProcessChipManager;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 public record SyncChipInfoS2C(Map<Identifier, EtherProcessChipManager.ProcessChipRecord> chipInfo)
         implements CustomPacketPayload {
@@ -21,20 +20,9 @@ public record SyncChipInfoS2C(Map<Identifier, EtherProcessChipManager.ProcessChi
             Identifier.fromNamespaceAndPath(EtherCraft.MODID, "sync_chip_info")
     );
 
-    private static final StreamCodec<RegistryFriendlyByteBuf, EtherProcessChipManager.ProcessChipRecord> CHIP_RECORD_STREAM_CODEC =
-            StreamCodec.composite(
-                    ByteBufCodecs.VAR_LONG, EtherProcessChipManager.ProcessChipRecord::maxEther,
-                    ByteBufCodecs.VAR_INT,  EtherProcessChipManager.ProcessChipRecord::etherDecay,
-                    ByteBufCodecs.VAR_LONG, EtherProcessChipManager.ProcessChipRecord::etherRequire,
-                    ByteBufCodecs.VAR_LONG, EtherProcessChipManager.ProcessChipRecord::etherConsume,
-                    ByteBufCodecs.VAR_INT,  EtherProcessChipManager.ProcessChipRecord::maxDurability,
-                    ByteBufCodecs.optional(Identifier.STREAM_CODEC), EtherProcessChipManager.ProcessChipRecord::behavior,
-                    EtherProcessChipManager.ProcessChipRecord::new
-            );
-
     public static final StreamCodec<RegistryFriendlyByteBuf, @NotNull SyncChipInfoS2C> CODEC =
             StreamCodec.composite(
-                    ByteBufCodecs.map(HashMap::new, Identifier.STREAM_CODEC, CHIP_RECORD_STREAM_CODEC),
+                    ByteBufCodecs.map(HashMap::new, Identifier.STREAM_CODEC, EtherProcessChipManager.ProcessChipRecord.STREAM_CODEC),
                     SyncChipInfoS2C::chipInfo,
                     SyncChipInfoS2C::new
             );

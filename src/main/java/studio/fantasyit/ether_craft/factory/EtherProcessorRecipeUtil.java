@@ -203,18 +203,22 @@ public class EtherProcessorRecipeUtil {
         for (int i = 0; i < 4; i++) {
             int x2 = x + DIRECTIONS[i][0];
             int y2 = y + DIRECTIONS[i][1];
-            if (x2 == fromX && y2 == fromY) {
-                continue;
-            }
             if (x2 >= 0 && x2 < markMatrix[0].length && y2 >= 0 && y2 < markMatrix.length) {
                 EtherProcessWorkingChip targetItem = scanMatrix[y2][x2];
                 if (targetItem != null && !targetItem.item.isEmpty()) {
-                    if (!ProcessChipItem.isSeparator(targetItem.item))
+                    if (!ProcessChipItem.isSeparator(targetItem.item) && targetItem.effect.effectSide())
                         chips.add(targetItem.item);
                     relevantComponents.add(targetItem);
                 }
             }
         }
+        if (scanMatrix[y][x] != null && !scanMatrix[y][x].item.isEmpty()) {
+            EtherProcessWorkingChip targetItem = scanMatrix[y][x];
+            if (!ProcessChipItem.isSeparator(targetItem.item) && targetItem.effect.effectSelf())
+                chips.add(targetItem.item);
+            relevantComponents.add(targetItem);
+        }
+
         // if Find
         if (chips.size() != 0) {
             int nxParentId = tree.getMaxId() + 1;
@@ -233,6 +237,8 @@ public class EtherProcessorRecipeUtil {
             }
             if (x2 >= -1 && x2 < markMatrix[0].length && y2 >= 0 && y2 < markMatrix.length) {
                 if (x2 == -1 || markMatrix[y2][x2] == markId) {
+                    EtherProcessWorkingChip targetItem = scanMatrix[y][x];
+                    if (targetItem != null && !targetItem.item.isEmpty() && targetItem.effect.separate()) continue;
                     nexPositions.add(new Vector2i(x2, y2));
                     scanForTrees(scanMatrix, markMatrix, tree, inputIds, relevantComponents, path, processInputTrees, x2, y2, x, y, markId, parentId, depth + 1);
                 }
