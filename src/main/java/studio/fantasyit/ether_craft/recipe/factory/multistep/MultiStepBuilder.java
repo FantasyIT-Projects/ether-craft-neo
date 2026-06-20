@@ -42,9 +42,9 @@ public class MultiStepBuilder {
         this.workingPath = workingPath;
         this.globalOutputMapping = new HashMap<>();
         for (int i = 0; i < inputStacks.size(); i++) {
-            globalOutputMapping.put(inputIds.get(i), inputStacks.get(i));
-            maxGlobalIdx = Math.max(maxGlobalIdx, i);
+            globalOutputMapping.put(inputTreeIds.get(i), inputStacks.get(i));
         }
+        maxGlobalIdx = tree.getMaxId();
     }
 
     public EtherFactoryMultiStepInput getInput() {
@@ -53,7 +53,7 @@ public class MultiStepBuilder {
 
         // 初始 inputMapping: 输入节点ID → 自身（已在 globalOutputMapping 中）
         Map<Integer, Integer> inputMapping = new HashMap<>();
-        for (Integer inputId : inputIds) {
+        for (Integer inputId : inputTreeIds) {
             inputMapping.put(inputId, inputId);
         }
 
@@ -83,20 +83,17 @@ public class MultiStepBuilder {
 
                 // 构建子步骤的 inputMapping：继承父 inputMapping 中位于子步骤树内的条目
                 Map<Integer, Integer> childInputMapping = new HashMap<>();
-                Set<Integer> subTreeNodeIds = new HashSet<>();
-                for (TreeLike.TreeNode<List<Integer>, List<ItemStack>> n : newTree.getNodes()) {
-                    subTreeNodeIds.add(n.id);
-                }
                 for (Map.Entry<Integer, Integer> entry : parentInputMapping.entrySet()) {
-                    if (subTreeNodeIds.contains(entry.getKey())) {
+                    if (newTree.getNode(entry.getKey()) != null) {
                         childInputMapping.put(entry.getKey(), entry.getValue());
                     }
+                }
+                for (int key : childInputMapping.keySet()) {
+                    parentInputMapping.remove(key);
                 }
 
                 // 为子步骤分配新的全局 output ID
                 int newGlobalId = ++maxGlobalIdx;
-                globalOutputMapping.put(newGlobalId, ItemStack.EMPTY);
-
                 // 在全局树中注册子步骤节点
                 int childRefNodeId = refTree.getMaxId() + 1;
                 refTree.addNode(childRefNodeId, new EtherFactoryMultiStepInput.TreeRef(newTree, childInputMapping, newGlobalId));
@@ -151,11 +148,9 @@ public class MultiStepBuilder {
             }
         }
 
-        // 第二遍：添加所有节点（跳过已在构造函数中创建的root）
+        // 第二遍：添加所有节点
         for (TreeLike.TreeNode<List<Integer>, List<ItemStack>> node : allNodes) {
-            if (!node.id.equals(root.id)) {
-                newTree.addNode(node.id, new ArrayList<>(node.value));
-            }
+            newTree.addNode(node.id, new ArrayList<>(node.value));
         }
 
         // 第三遍：添加所有边（value深拷贝）
@@ -163,6 +158,7 @@ public class MultiStepBuilder {
             newTree.addEdge(edge.from.id, edge.node.id, new ArrayList<>(edge.value));
         }
 
+        newTree.addEdge(0, root.id, List.of(new ItemStack(ItemRegistry.DIRECT_INPUT_ITEM_CHIP.get())));
         return newTree;
     }
 }

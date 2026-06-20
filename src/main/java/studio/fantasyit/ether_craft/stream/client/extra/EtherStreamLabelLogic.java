@@ -25,7 +25,7 @@ public class EtherStreamLabelLogic implements IEtherStreamExtraClientLogic {
 
     @Override
     public boolean shouldRender(ClientStreamEntry entry) {
-        return entry.getSyncedData(EtherStreamLabelData.ID) != null;
+        return entry.getSyncedData(EtherStreamLabelData.ID) == null;
     }
 
     @Override

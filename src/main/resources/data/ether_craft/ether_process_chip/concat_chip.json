@@ -1,0 +1,11 @@
+{
+  "maxEther": 100,
+  "etherDecay": 10,
+  "etherRequire": 10,
+  "etherConsume": 50,
+  "effect": {
+    "separate": false,
+    "effectSelf": true,
+    "effectSide": false
+  }
+}

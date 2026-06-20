@@ -76,21 +76,31 @@ public class EtherProcessRecipeManager {
         return Optional.empty();
     }
 
-
     public static Optional<MultiStepMatchIO> getRecipe(Level level, RecipeManager manager, EtherFactoryMultiStepInput input) {
-        MultiStepMatchIO result = new MultiStepMatchIO(new ArrayList<>(), new ArrayList<>());
+        TreeLike<EtherProcessFactoryRecipe, Void> keyTree = new TreeLike<>(0, null);
+        MultiStepMatchIO result = new MultiStepMatchIO(new ArrayList<>(), new ArrayList<>(), keyTree);
         MutableBoolean isFail = new MutableBoolean(false);
         input.globalOutputTmpMapping().clear();
-        getRecipeRecurse(level, manager, input.processInputTrees().getRoot(), input, result, isFail, true);
+        getRecipeRecurse(level, manager, input.processInputTrees().getRoot(), input, result, isFail, keyTree, keyTree.getRoot().id, true);
         if (isFail.booleanValue()) {
             return Optional.empty();
         }
         return Optional.of(result);
     }
 
-    public static void getRecipeRecurse(Level level, RecipeManager manager, TreeLike.TreeNode<EtherFactoryMultiStepInput.TreeRef, Integer> node, EtherFactoryMultiStepInput multiStepInput, MultiStepMatchIO io, MutableBoolean isFail, boolean isTop) {
+    public static void getRecipeRecurse(Level level,
+                                        RecipeManager manager,
+                                        TreeLike.TreeNode<EtherFactoryMultiStepInput.TreeRef, Integer> node,
+                                        EtherFactoryMultiStepInput multiStepInput,
+                                        MultiStepMatchIO io,
+                                        MutableBoolean isFail,
+                                        TreeLike<EtherProcessFactoryRecipe, Void> keyTree,
+                                        int keyTreeNode,
+                                        boolean isTop) {
         for (TreeLike.TreeEdge<EtherFactoryMultiStepInput.TreeRef, Integer> e : node.edges) {
-            getRecipeRecurse(level, manager, e.node, multiStepInput, io, isFail, false);
+            TreeLike.TreeNode<EtherProcessFactoryRecipe, Void> nxtNode = keyTree.addNode(keyTree.getMaxId() + 1, null);
+            keyTree.addEdge(keyTreeNode, nxtNode.id, null);
+            getRecipeRecurse(level, manager, e.node, multiStepInput, io, isFail, keyTree, nxtNode.id, false);
             if (isFail.booleanValue()) {
                 return;
             }
@@ -110,12 +120,13 @@ public class EtherProcessRecipeManager {
         EtherFactoryRecipeInput etherFactoryRecipeInput = new EtherFactoryRecipeInput(inputStacks, inputTreeIds, value.tree());
         Optional<EtherProcessFactoryRecipe> recipe = getRecipe(level, manager, etherFactoryRecipeInput);
         if (recipe.isEmpty()) {
-            isFail.setFalse();
+            isFail.setTrue();
             return;
         }
+        keyTree.getNode(keyTreeNode).value = recipe.get();
         List<ItemStackTemplate> output = recipe.get().output;
         if (output.size() != 1 && !isTop) {
-            isFail.setFalse();
+            isFail.setTrue();
             return;
         }
         int outputId = value.output();
@@ -123,7 +134,7 @@ public class EtherProcessRecipeManager {
         int[] toCostCountByInputAndIngredient = EtherProcessorRecipeUtil.getToCostCountByInputAndIngredient(inputStacks, recipe.get().input);
         for (int i = 0; i < toCostCountByInputAndIngredient.length; i++) {
             if (toCostCountByInputAndIngredient[i] == -1) {
-                isFail.setFalse();
+                isFail.setTrue();
                 return;
             }
             if (isInput.get(i)) {

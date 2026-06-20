@@ -9,12 +9,12 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.WrittenBookContent;
 import org.jetbrains.annotations.Nullable;
 import studio.fantasyit.ether_craft.EtherCraft;
+import studio.fantasyit.ether_craft.block.node.EtherAdaptNodeBlock;
 import studio.fantasyit.ether_craft.block.node.EtherAdaptNodeEntity;
-import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
 import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
 import studio.fantasyit.ether_craft.node.plugins.base.AbstractNodePlugin;
 import studio.fantasyit.ether_craft.node.plugins.base.IEtherStreamCapabilityProviderPlugin;
-import studio.fantasyit.ether_craft.node.plugins.feature.AbstractDirectionalFeature;
+import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
 import studio.fantasyit.ether_craft.stream.data.EtherStreamLabelData;
 
 import java.util.ArrayList;
@@ -37,10 +37,7 @@ public class EtherStreamTextUpgrade extends AbstractNodePlugin implements IEther
             writtenBookContent.pages().forEach(t -> allLines.add(t.raw()));
             if (allLines.isEmpty()) return;
             Component component = allLines.get(nodeEntity.getLevel().getRandom().nextInt(allLines.size()));
-            @Nullable Direction sourceDir = null;
-            AbstractNodePlugin mainPlugin = nodeEntity.functionStorage.getPlugin(0);
-            if (mainPlugin instanceof AbstractDirectionalFeature directional)
-                sourceDir = directional.direction;
+            @Nullable Direction sourceDir = nodeEntity.getBlockState().getValueOrElse(EtherAdaptNodeBlock.FACING, Direction.NORTH);
             EtherStreamLabelData etherStreamLabelCapability = new EtherStreamLabelData(component, 0xFFFFFFFF, sourceDir);
             entity.setSyncedData(etherStreamLabelCapability);
         }

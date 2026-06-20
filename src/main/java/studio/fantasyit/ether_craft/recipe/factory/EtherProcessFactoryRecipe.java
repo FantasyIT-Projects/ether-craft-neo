@@ -29,6 +29,8 @@ public class EtherProcessFactoryRecipe implements Recipe<@NotNull EtherFactoryRe
     public final TreeLike<Integer, List<DelayedIngredient>> process;
     public final List<SizedIngredient> input;
     public final List<ItemStackTemplate> output;
+    //每个 input 条目对应的配方树节点ID（与 recipeInputNodeIds.get(j) = input 列表第j项的树节点ID）
+    public final List<Integer> inputNodeIds;
 
     public static MapCodec<EtherProcessFactoryRecipe> CODEC = EtherProcessRecipeJson.MAP_CODEC.xmap(
             EtherProcessFactoryRecipe::new,
@@ -52,10 +54,13 @@ public class EtherProcessFactoryRecipe implements Recipe<@NotNull EtherFactoryRe
         // Step 2: StringId ==> IntegerId 映射
         Map<String, Integer> idMapping = new HashMap<>();
         final int[] currentId = {0};
+        List<Integer> inputNodeIds = new ArrayList<>();
 
         for (EtherProcessRecipeJson.InputEntry entry : inputEntries) {
             String id = entry.id();
+            int assignedId = currentId[0];
             idMapping.put(id, currentId[0]++);
+            inputNodeIds.add(assignedId);
         }
         for (EtherProcessRecipeJson.InputEntry entry : inputEntries) {
             String id = DIRECT_INPUT + entry.id();
@@ -130,11 +135,12 @@ public class EtherProcessFactoryRecipe implements Recipe<@NotNull EtherFactoryRe
         this.process = recipeTree;
         this.input = inputs;
         this.output = outputs;
+        this.inputNodeIds = List.copyOf(inputNodeIds);
     }
 
     @Override
     public boolean matches(EtherFactoryRecipeInput itemStacks, Level level) {
-        return EtherProcessorRecipeUtil.isRecipeCompatible(process, input, itemStacks);
+        return EtherProcessorRecipeUtil.isRecipeCompatible(process, input, inputNodeIds, itemStacks);
     }
 
     @Override

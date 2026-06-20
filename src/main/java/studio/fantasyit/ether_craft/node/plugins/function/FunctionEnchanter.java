@@ -197,8 +197,6 @@ public class FunctionEnchanter extends AbstractNodePlugin {
         }
 
         ItemStack target = itemStack;
-        if (itemStack.is(Items.BOOK))
-            target = new ItemStack(Items.ENCHANTED_BOOK);
 
         List<EnchantmentInstance> enchants = EnchantmentHelper.selectEnchantment(
                 random, target.copy(), qualityCost, tagOpt.get().stream()
@@ -209,6 +207,9 @@ public class FunctionEnchanter extends AbstractNodePlugin {
         }
 
         ItemStack result = target.copy();
+        if (itemStack.is(Items.BOOK))
+            result = new ItemStack(Items.ENCHANTED_BOOK);
+
         for (EnchantmentInstance ench : enchants) {
             result.enchant(ench.enchantment(), ench.level());
         }

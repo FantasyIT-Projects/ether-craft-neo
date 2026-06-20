@@ -198,7 +198,7 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
             if (recipeFor.isPresent()) {
                 MultiStepMatchIO currentRecipe = recipeFor.get();
                 hasRecipe[outputId] = true;
-                if (processingRecipes[outputId] != null && processingRecipes[outputId] == currentRecipe) {
+                if (processingRecipes[outputId] != null && processingRecipes[outputId].isSameTo(currentRecipe)) {
                     continue;
                 }
                 processingRecipes[outputId] = currentRecipe;

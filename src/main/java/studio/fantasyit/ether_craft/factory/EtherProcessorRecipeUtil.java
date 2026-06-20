@@ -61,7 +61,10 @@ public class EtherProcessorRecipeUtil {
                 if (chipSlots[i][j] == null) {
                     markMatrix[i][j] = 0;
                 } else if (!chipSlots[i][j].item.isEmpty()) {
-                    markMatrix[i][j] = -1;
+                    if (chipSlots[i][j].effect.separate())
+                        markMatrix[i][j] = -1;
+                    else
+                        markMatrix[i][j] = 0;
                 } else {
                     markMatrix[i][j] = 100;
                 }
@@ -252,7 +255,7 @@ public class EtherProcessorRecipeUtil {
         path.add(new PathNode(x, y, depth, nexPositions));
     }
 
-    public static boolean isRecipeCompatible(TreeLike<Integer, List<DelayedIngredient>> recipeProcess, List<SizedIngredient> recipeInputs, EtherFactoryRecipeInput input) {
+    public static boolean isRecipeCompatible(TreeLike<Integer, List<DelayedIngredient>> recipeProcess, List<SizedIngredient> recipeInputs, List<Integer> recipeInputNodeIds, EtherFactoryRecipeInput input) {
         if (input.inputs.size() != recipeInputs.size()) return false;
 
         Queue<TreeLike.TreeNode<List<Integer>, List<ItemStack>>> queue = new LinkedList<>();
@@ -316,7 +319,7 @@ public class EtherProcessorRecipeUtil {
             possibleRecipeVids.add(new HashSet<>());
             for (int j = 0; j < recipeInputs.size(); j++) {
                 if (recipeInputs.get(j).test(input.inputs.get(i))) {
-                    possibleRecipeVids.get(i).add(j);
+                    possibleRecipeVids.get(i).add(recipeInputNodeIds.get(j));
                 }
             }
         }
