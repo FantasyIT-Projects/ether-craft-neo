@@ -39,15 +39,16 @@ import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.block.base.*;
 import studio.fantasyit.ether_craft.factory.EtherProcessRecipeManager;
 import studio.fantasyit.ether_craft.factory.EtherProcessWorkingChip;
+import studio.fantasyit.ether_craft.factory.EtherProcessorRecipeUtil;
 import studio.fantasyit.ether_craft.factory.FactoryLevelDef;
 import studio.fantasyit.ether_craft.menu.factory.EtherProcessFactoryContainerMenu;
 import studio.fantasyit.ether_craft.network.s2c.SyncBlockNameS2C;
 import studio.fantasyit.ether_craft.recipe.factory.EtherFactoryRecipeInput;
-import studio.fantasyit.ether_craft.recipe.factory.EtherProcessFactoryRecipe;
+import studio.fantasyit.ether_craft.recipe.factory.multistep.EtherFactoryMultiStepInput;
+import studio.fantasyit.ether_craft.recipe.factory.multistep.MultiStepMatchIO;
 import studio.fantasyit.ether_craft.register.DataComponentRegistry;
 import studio.fantasyit.ether_craft.register.ItemRegistry;
 import studio.fantasyit.ether_craft.register.Tags;
-import studio.fantasyit.ether_craft.factory.EtherProcessorRecipeUtil;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -62,8 +63,8 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
     public ItemFilter[] filters;
     public SimpleContainer possibleResults;
     // 配方数据
-    public EtherProcessFactoryRecipe[] processingRecipes;
-    public EtherFactoryRecipeInput[] processingInputs;
+    public MultiStepMatchIO[] processingRecipes;
+    public EtherFactoryMultiStepInput[] processingInputs;
     public @Nullable EtherProcessWorkingChip[][] slotChips;
     //渲染用数据
     public int[][] pathBelongings;
@@ -95,8 +96,8 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
         }
         possibleResults = new SimpleContainer(ROWS);
         processingProgress = new int[ROWS];
-        processingRecipes = new EtherProcessFactoryRecipe[ROWS];
-        processingInputs = new EtherFactoryRecipeInput[ROWS];
+        processingRecipes = new MultiStepMatchIO[ROWS];
+        processingInputs = new EtherFactoryMultiStepInput[ROWS];
         slotChips = new EtherProcessWorkingChip[ROWS][COLS];
         pathBelongings = new int[ROWS][COLS];
         pathDepth = new int[ROWS][COLS];
@@ -192,10 +193,10 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
         leak = factoryStructure.leakingSpeed;
         boolean[] hasRecipe = new boolean[ROWS];
         for (int i = 0; i < factoryStructure.recipes.size(); i++) {
-            Optional<EtherProcessFactoryRecipe> recipeFor = EtherProcessRecipeManager.getRecipe(level, level.recipeAccess(), factoryStructure.recipes.get(i));
-            Integer outputId = factoryStructure.recipes.get(i).outputId;
+            Optional<MultiStepMatchIO> recipeFor = EtherProcessRecipeManager.getRecipe(level, level.recipeAccess(), factoryStructure.recipes.get(i));
+            Integer outputId = factoryStructure.recipes.get(i).outputI();
             if (recipeFor.isPresent()) {
-                EtherProcessFactoryRecipe currentRecipe = recipeFor.get();
+                MultiStepMatchIO currentRecipe = recipeFor.get();
                 hasRecipe[outputId] = true;
                 if (processingRecipes[outputId] != null && processingRecipes[outputId] == currentRecipe) {
                     continue;
@@ -203,7 +204,7 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
                 processingRecipes[outputId] = currentRecipe;
                 processingProgress[outputId] = 0;
                 processingInputs[outputId] = factoryStructure.recipes.get(i);
-                possibleResults.setItem(outputId, currentRecipe.getResultItem());
+                possibleResults.setItem(outputId, currentRecipe.outputs().stream().findFirst().orElse(ItemStack.EMPTY));
             } else {
                 hasRecipe[outputId] = false;
             }
@@ -225,11 +226,11 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
         for (int i = 0; i < ROWS; i++) {
             if (processingInputs[i] != null) {
                 int finalI = i;
-                pathMaxDepth[i] = processingInputs[i].maxDepth;
-                processingInputs[i].workingPath.forEach(v -> {
+                pathMaxDepth[i] = processingInputs[i].maxDepth();
+                processingInputs[i].workingPath().forEach(v -> {
                     pathBelongings[v.pos().x][v.pos().y] = finalI;
                     pathDirection[v.pos().x][v.pos().y] = v.next();
-                    pathDepth[v.pos().x][v.pos().y] = processingInputs[finalI].maxDepth - v.depth();
+                    pathDepth[v.pos().x][v.pos().y] = processingInputs[finalI].maxDepth() - v.depth();
                 });
             }
         }
@@ -265,7 +266,7 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
         boolean changed = false;
         for (int i = 0; i < this.processingRecipes.length; i++) {
             if (this.processingRecipes[i] != null) {
-                if (this.processingInputs[i].relevantChips.stream().anyMatch(item -> (!item.canWork()))) {
+                if (this.processingInputs[i].relevantChip().stream().anyMatch(item -> (!item.canWork()))) {
                     processingProgress[i] = 0;
                 } else if (processingProgress[i] < MAX_PROGRESS) {
                     processingProgress[i] += pressureBonus;
@@ -406,22 +407,20 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
     }
 
     private boolean consumeAndPlaceOutput(int row) {
-        EtherProcessFactoryRecipe recipe = processingRecipes[row];
-        EtherFactoryRecipeInput input = processingInputs[row];
+        MultiStepMatchIO recipe = processingRecipes[row];
+        EtherFactoryMultiStepInput input = processingInputs[row];
 
-        if (!input.relevantChips.stream().allMatch(EtherProcessWorkingChip::canConsume))
+        if (!input.relevantChip().stream().allMatch(EtherProcessWorkingChip::canConsume))
             return false;
 
-        ItemStack[] results = new ItemStack[recipe.output.size()];
-        for (int j = 0; j < recipe.output.size(); j++) {
-            ItemStack template = recipe.getResultItem(j);
-            ItemStack source = findCopySource(template, input);
-            results[j] = recipe.getResultItem(j, source);
+        ItemStack[] results = new ItemStack[recipe.outputs().size()];
+        for (int j = 0; j < recipe.outputs().size(); j++) {
+            results[j] = recipe.outputs().get(j);
         }
 
         int[] matchingRecipes = EtherProcessorRecipeUtil.getToCostCountByInputAndIngredient(
-                input.inputs,
-                recipe.input
+                input.inputs(),
+                recipe.inputs()
         );
         if (Arrays.stream(matchingRecipes).anyMatch(t -> t == -1))
             return false;
@@ -429,13 +428,13 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
         if (!tryPlaceOutputs(row, results))
             return false;
 
-        for (int j = 0; j < input.inputIds.size(); j++) {
-            int cNum = recipe.input.get(matchingRecipes[j]).count();
-            inputContainer.getItem(input.inputIds.get(j)).shrink(cNum);
+        for (int j = 0; j < input.inputIds().size(); j++) {
+            int cNum = recipe.inputs().get(matchingRecipes[j]).count();
+            inputContainer.getItem(input.inputIds().get(j)).shrink(cNum);
             inputContainer.setChanged();
         }
 
-        for (EtherProcessWorkingChip c : input.relevantChips) {
+        for (EtherProcessWorkingChip c : input.relevantChip()) {
             c.consume();
         }
 

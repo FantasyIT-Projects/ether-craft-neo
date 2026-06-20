@@ -41,6 +41,10 @@ public class ProcessChipItem extends Item {
         return stack.is(ItemRegistry.PROCESS_CHIP_ITEM) && Objects.equals(stack.get(DataComponentRegistry.CHIP_ID), SEPARATOR);
     }
 
+    public static boolean isConcat(ItemStack stack) {
+        return stack.is(ItemRegistry.PROCESS_CHIP_ITEM) && Objects.equals(stack.get(DataComponentRegistry.CHIP_ID), CONCAT);
+    }
+
     @SuppressWarnings("deprecation")
     @Override
     public void appendHoverText(ItemStack itemStack, TooltipContext context, TooltipDisplay display, Consumer<Component> builder, TooltipFlag tooltipFlag) {

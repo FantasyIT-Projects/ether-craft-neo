@@ -10,15 +10,19 @@ import java.util.Map;
 
 public class EtherFactoryRecipeInput implements RecipeInput {
     //输入物品（ItemStack对象）
-    public Map<Integer,ItemStack> inputs;
+    public List<ItemStack> inputs;
+    //输入物品（在输入树中的ID）
+    public List<Integer> inputTreeIds;
     // 处理树流程
     public TreeLike<List<Integer>, List<ItemStack>> process;
 
     public EtherFactoryRecipeInput(
-            Map<Integer,ItemStack> inputs,
+            List<ItemStack> inputs,
+            List<Integer> inputTreeIds,
             TreeLike<List<Integer>, List<ItemStack>> process
     ) {
         this.inputs = inputs;
+        this.inputTreeIds = inputTreeIds;
         this.process = process;
     }
 

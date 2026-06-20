@@ -39,6 +39,7 @@ public class TreeLike<T, U> {
         root = new TreeNode<>(id, value);
         idMapping = new HashMap<>();
         idMapping.put(id, root);
+        maxId = id;
     }
 
     public TreeNode<T, U> addNode(Integer id, T value) {

@@ -14,6 +14,8 @@ import studio.fantasyit.ether_craft.item.ProcessChipItem;
 import studio.fantasyit.ether_craft.recipe.DelayedIngredient;
 import studio.fantasyit.ether_craft.recipe.factory.EtherFactoryRecipeInput;
 import studio.fantasyit.ether_craft.recipe.factory.PathNode;
+import studio.fantasyit.ether_craft.recipe.factory.multistep.EtherFactoryMultiStepInput;
+import studio.fantasyit.ether_craft.recipe.factory.multistep.MultiStepBuilder;
 import studio.fantasyit.ether_craft.register.ItemRegistry;
 import studio.fantasyit.ether_craft.util.CollectionUtil;
 import studio.fantasyit.ether_craft.util.SetUtil;
@@ -27,7 +29,7 @@ public class EtherProcessorRecipeUtil {
 
 
     public static class FactoryStructure {
-        public List<EtherFactoryRecipeInput> recipes;
+        public List<EtherFactoryMultiStepInput> recipes;
         public int[][] markMatrix;
         public int leakingSpeed;
 
@@ -95,7 +97,8 @@ public class EtherProcessorRecipeUtil {
                         for (int inputId : inputIds) {
                             inputStacks.add(inputs.get(inputId));
                         }
-                        result.recipes.add(new EtherFactoryRecipeInput(inputStacks, tree, inputIds, processInputTrees, i, relevantComponents, path));
+                        MultiStepBuilder builder = new MultiStepBuilder(tree, inputStacks, inputIds, processInputTrees, i, relevantComponents, path);
+                        result.recipes.add(builder.getInput());
                     }
                 }
             } else {
