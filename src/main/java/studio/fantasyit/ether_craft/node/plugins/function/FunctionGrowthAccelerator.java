@@ -15,6 +15,7 @@ import studio.fantasyit.ether_craft.register.Tags;
 
 public class FunctionGrowthAccelerator extends AbstractNodePlugin {
     public static final Identifier ID = EtherCraft.id("growth_accelerator");
+    public static final Identifier ID_ALL = EtherCraft.id("growth_accelerator_all");
 
     public FunctionGrowthAccelerator(EtherAdaptNodeEntity nodeEntity, InstalledPlugin installedId) {
         super(nodeEntity, installedId);
@@ -38,7 +39,7 @@ public class FunctionGrowthAccelerator extends AbstractNodePlugin {
 
                     BlockPos pos = center.offset(dx, dy, dz);
                     BlockState state = level.getBlockState(pos);
-                    if (state.is(Tags.CROP_ACCELERATABLE)) {
+                    if (state.is(Tags.CROP_ACCELERATABLE) || ID_ALL.equals(installedId.pluginId())) {
                         if (nodeEntity.getEther() < etherCost)
                             return;
                         nodeEntity.extractEther(etherCost);

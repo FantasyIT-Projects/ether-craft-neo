@@ -84,6 +84,7 @@ public class NodePluginManager {
         ALL_PLUGINS.add(new PluginInfo(PluginType.FUNCTION, FunctionEquipmentConsumeGenerator.ID, FunctionEquipmentConsumeGenerator::new, t -> t.is(Items.GRINDSTONE), Items.GRINDSTONE));
         ALL_PLUGINS.add(new PluginInfo(PluginType.FUNCTION, FunctionEtherConverter.ID, FunctionEtherConverter::new, t -> t.is(Items.DRAGON_EGG), Items.DRAGON_EGG));
         ALL_PLUGINS.add(new PluginInfo(PluginType.FUNCTION, FunctionGrowthAccelerator.ID, FunctionGrowthAccelerator::new, t -> t.is(Items.BONE_MEAL), Items.BONE_MEAL));
+        ALL_PLUGINS.add(new PluginInfo(PluginType.FUNCTION, FunctionGrowthAccelerator.ID_ALL, FunctionGrowthAccelerator::new, t -> t.is(Items.SCULK_CATALYST), Items.SCULK_CATALYST));
         ALL_PLUGINS.add(new PluginInfo(PluginType.FUNCTION, FunctionEnchanter.ID, FunctionEnchanter::new, t -> t.is(Items.ENCHANTING_TABLE), Items.ENCHANTING_TABLE));
         ALL_PLUGINS.add(new PluginInfo(PluginType.FUNCTION, FunctionCreativeEther.ID_FUNC, FunctionCreativeEther::new, t -> t.is(ItemRegistry.ETHER_CREATIVE), ItemRegistry.ETHER_CREATIVE.get()));
         ALL_PLUGINS.add(new PluginInfo(PluginType.FUNCTION, EtherStreamPlatingUpgrade.ID, EtherStreamPlatingUpgrade::new, t -> t.is(ItemRegistry.PROCESS_CHIP_ITEM) && EtherCraft.id("energizing_chip").equals(t.get(DataComponentRegistry.CHIP_ID)),
