@@ -142,6 +142,10 @@ public class Config {
             .comment("Maximum lifetime of an Ether Stream entity in ticks (20 ticks = 1 second)")
             .defineInRange("ether_stream.max_tick", 1200, 1, Integer.MAX_VALUE);
 
+    private static final ModConfigSpec.DoubleValue ETHER_STREAM_GLASS_TRANSFORM_CHANCE = BUILDER
+            .comment("The chance when glass will be transformed when ether stream passes")
+            .defineInRange("ether_stream.glass_transform_chance", 0.5f, 0, 1);
+
     private static final ModConfigSpec.DoubleValue ETHER_STREAM_CONSUMPTION_FACTOR = BUILDER
             .comment("Base ether consumption per tick as a fraction of total ether stored in the stream")
             .defineInRange("ether_stream.consumption_factor", 0.005, 0, 10);
@@ -396,6 +400,7 @@ public class Config {
     public static int nodeEmitterMinEtherMin;
     public static int nodeEmitterMinEtherMax;
     public static int etherStreamMaxTick;
+    public static double etherStreamGlassTransformChance;
     public static double etherStreamConsumptionFactor;
     public static double etherStreamConsumptionByTimeFactor;
     public static int etherStreamBreakBlockHardnessMultiplier;
@@ -476,6 +481,7 @@ public class Config {
         nodeEmitterMinEtherMin = NODE_EMITTER_MIN_ETHER_MIN.get();
         nodeEmitterMinEtherMax = NODE_EMITTER_MIN_ETHER_MAX.get();
         etherStreamMaxTick = ETHER_STREAM_MAX_TICK.get();
+        etherStreamGlassTransformChance = ETHER_STREAM_GLASS_TRANSFORM_CHANCE.get();
         etherStreamConsumptionFactor = ETHER_STREAM_CONSUMPTION_FACTOR.get();
         etherStreamConsumptionByTimeFactor = ETHER_STREAM_CONSUMPTION_BY_TIME_FACTOR.get();
         etherStreamBreakBlockHardnessMultiplier = ETHER_STREAM_BREAK_BLOCK_HARDNESS_MULTIPLIER.get();

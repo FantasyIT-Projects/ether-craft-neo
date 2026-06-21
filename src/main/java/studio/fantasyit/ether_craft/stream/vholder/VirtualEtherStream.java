@@ -6,6 +6,8 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
@@ -57,7 +59,9 @@ public class VirtualEtherStream implements IEtherStreamLike {
         this.startPos = this.pos = startPos;
         this.direction = posDir.dir();
         this.posDir = posDir;
-        this.setRunIntoEtherGlass(level.getBlockState(BlockPos.containing(startPos)).is(BlockRegistry.ETHER_GLASS));
+        BlockState blockState = level.getBlockState(BlockPos.containing(startPos));
+        this.setRunIntoEtherGlass(blockState.is(BlockRegistry.ETHER_GLASS));
+        this.onRunIntoNewBlock(null, null, blockPosition(), blockState);
     }
 
     @Override
@@ -288,5 +292,20 @@ public class VirtualEtherStream implements IEtherStreamLike {
         }
         ves.toSyncData = new ArrayList<>(data.toSyncData());
         return ves;
+    }
+
+    public void onRunIntoNewBlock(@Nullable BlockPos oldPos, @Nullable BlockState oldState, BlockPos newPos, BlockState newState) {
+        if (oldState != null) {
+            boolean isEtherGlass1 = oldState.is(BlockRegistry.ETHER_GLASS);
+            boolean isEtherGlass2 = newState.is(BlockRegistry.ETHER_GLASS);
+            if (isEtherGlass1 != isEtherGlass2) {
+                setRunIntoEtherGlass(isEtherGlass2);
+            }
+        }
+
+        if (newState.is(Blocks.GLASS)) {
+            if (level.getRandom().nextDouble() <= Config.etherStreamGlassTransformChance)
+                level.setBlockAndUpdate(newPos, BlockRegistry.ETHER_GLASS.get().defaultBlockState());
+        }
     }
 }

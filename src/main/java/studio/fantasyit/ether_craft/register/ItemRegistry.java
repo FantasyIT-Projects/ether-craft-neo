@@ -18,6 +18,7 @@ import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.item.EtherAdaptNodeBlockItem;
 import studio.fantasyit.ether_craft.item.EtherProcessFactoryBlockItem;
 import studio.fantasyit.ether_craft.item.EtherProcessRecipeAnswerItem;
+import studio.fantasyit.ether_craft.item.ItemWrench;
 import studio.fantasyit.ether_craft.item.ProcessChipItem;
 
 public class ItemRegistry {
@@ -32,7 +33,7 @@ public class ItemRegistry {
     public static final DeferredHolder<Item, @NotNull ProcessChipItem> PROCESS_CHIP_ITEM = ITEMS.register("process_chip", ProcessChipItem::new);
     public static final DeferredHolder<Item, @NotNull ProcessChipItem> DIRECT_INPUT_ITEM_CHIP = ITEMS.register("direct_input", ProcessChipItem::new);
 
-    public static final DeferredHolder<Item, @NotNull Item> WRENCH = ITEMS.register("wrench", i -> new Item(new Item.Properties().stacksTo(1).setId(ResourceKey.create(Registries.ITEM, i))));
+    public static final DeferredHolder<Item, @NotNull ItemWrench> WRENCH = ITEMS.register("wrench", i -> new ItemWrench(new Item.Properties().stacksTo(1).setId(ResourceKey.create(Registries.ITEM, i))));
     public static final DeferredHolder<Item, @NotNull Item> BLADE = ITEMS.register("blade", i -> new Item(new Item.Properties().stacksTo(64).setId(ResourceKey.create(Registries.ITEM, i))));
     public static final DeferredHolder<Item, @NotNull Item> DIAMOND_NEEDLE = ITEMS.register("diamond_needle", i -> new Item(new Item.Properties().stacksTo(64).setId(ResourceKey.create(Registries.ITEM, i))));
     public static final DeferredHolder<Item, @NotNull Item> ETHER_CRYSTAL = ITEMS.register("ether_crystal", i -> new Item(new Item.Properties().stacksTo(64).setId(ResourceKey.create(Registries.ITEM, i))));

@@ -47,7 +47,7 @@ public abstract class EntitySetOnGroundMixin {
         double[] provided = {result.y};
         PlatingEventHelper.forEachPlatingOnEquipment(player, (a, b, c) -> {
             if (a instanceof IPlatingVirtualWalkableProvider vwp) {
-                int i = vwp.providerVirtualWalkableAt(b, c, player.level(), player, player.blockPosition().below(), ether_craft$lastOnGroundPos);
+                int i = vwp.providerVirtualWalkableAt(b, c, player.level(), player, player.blockPosition().below(), ether_craft$lastOnGroundPos,movement);
                 double df = (i + 1) - ey;
                 if (provided[0] < df) provided[0] = df;
             }

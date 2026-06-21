@@ -7,7 +7,6 @@ import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
 import org.slf4j.Logger;
-import studio.fantasyit.ether_craft.event.WrenchEventHandler;
 import studio.fantasyit.ether_craft.register.*;
 import studio.fantasyit.ether_craft.stream.CapabilityFactoryManager;
 import studio.fantasyit.ether_craft.stream.cap.*;
@@ -19,7 +18,6 @@ public class EtherCraft
     public static final Logger LOGGER = LogUtils.getLogger();
     public EtherCraft(IEventBus modEventBus, ModContainer modContainer)
     {
-        WrenchEventHandler.register();
         AttachmentDataRegistry.register(modEventBus);
         BlockEntityRegistry.register(modEventBus);
         BlockRegistry.register(modEventBus);

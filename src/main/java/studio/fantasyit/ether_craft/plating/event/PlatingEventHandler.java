@@ -46,10 +46,8 @@ public class PlatingEventHandler {
     public static void onRightClickItem(PlayerInteractEvent.RightClickItem event) {
         Player player = event.getEntity();
         if (player.level().isClientSide()) return;
-
-        for (ItemStack stack : PlatingEventHelper.getPlatedEquipment(player)) {
-            PlatingEventHelper.doEventTrigger(player, stack, event, IPlatingRightClickTrigger.class);
-        }
+        ItemStack itemstack = event.getItemStack();
+        PlatingEventHelper.doEventTrigger(player, itemstack, event, IPlatingRightClickTrigger.class);
     }
 
     @SubscribeEvent
@@ -142,8 +140,12 @@ public class PlatingEventHandler {
 
         Level level = arrow.level();
         Vec3 arrowPos = arrow.position();
+        Vec3 currentVel = arrow.getDeltaMovement();
+        double speed = currentVel.length();
+        Vec3 currentDir = currentVel.normalize();
+
         LivingEntity nearest = null;
-        double nearestDist = tracking.range();
+        double nearestScore = Double.MAX_VALUE;
 
         for (LivingEntity entity : level.getEntitiesOfClass(LivingEntity.class,
                 arrow.getBoundingBox().inflate(tracking.range()))) {
@@ -153,19 +155,22 @@ public class PlatingEventHandler {
             }
             if (entity == owner) continue;
             if (!entity.isAlive()) continue;
-            double dist = entity.distanceToSqr(arrow);
-            if (dist < nearestDist * nearestDist) {
+
+            double distSq = entity.distanceToSqr(arrow);
+            Vec3 toTarget = entity.getBoundingBox().getCenter().subtract(arrowPos).normalize();
+            double dot = Math.clamp(currentDir.dot(toTarget), -1.0, 1.0);
+            double angle = Math.acos(dot);
+            double score = angle + distSq;
+
+            if (score < nearestScore) {
                 nearest = entity;
-                nearestDist = Math.sqrt(dist);
+                nearestScore = score;
             }
         }
 
         if (nearest == null) return;
 
-        Vec3 toTarget = nearest.getEyePosition().subtract(arrowPos).normalize();
-        Vec3 currentVel = arrow.getDeltaMovement();
-        double speed = currentVel.length();
-        Vec3 currentDir = currentVel.normalize();
+        Vec3 toTarget = nearest.getBoundingBox().getCenter().subtract(arrowPos).normalize();
 
         double dot = Math.clamp(currentDir.dot(toTarget), -1.0, 1.0);
         double currentAngle = Math.acos(dot);

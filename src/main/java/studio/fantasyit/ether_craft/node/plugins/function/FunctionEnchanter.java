@@ -111,6 +111,9 @@ public class FunctionEnchanter extends AbstractNodePlugin {
             if (progress >= Config.nodeEnchanterMaxProgress) {
                 tryPlaceToMain();
             }
+            if (progress >= Config.nodeEnchanterMaxProgress) {
+                progress = Config.nodeEnchanterMaxProgress;
+            }
             return;
         }
 

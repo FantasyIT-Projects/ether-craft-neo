@@ -15,8 +15,10 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.ShelfBlock;
 import net.minecraft.world.level.block.entity.ShelfBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -31,10 +33,7 @@ import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.block.base.EtherContainer;
 import studio.fantasyit.ether_craft.plating.helper.PlatingChargingUtil;
 import studio.fantasyit.ether_craft.plating.helper.PlatingUtil;
-import studio.fantasyit.ether_craft.register.BlockRegistry;
-import studio.fantasyit.ether_craft.register.EntityDataSerializerRegistry;
-import studio.fantasyit.ether_craft.register.EntityRegistry;
-import studio.fantasyit.ether_craft.register.Tags;
+import studio.fantasyit.ether_craft.register.*;
 import studio.fantasyit.ether_craft.stream.EtherConsumer;
 import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
 import studio.fantasyit.ether_craft.stream.PosDir;
@@ -215,6 +214,11 @@ public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
             if (wasGlass != isGlass) {
                 setRunIntoEtherGlass(isGlass);
             }
+            if (!newBlock.equals(oldBlock) && level().getBlockState(newBlock).is(Blocks.GLASS)) {
+                if (level().getRandom().nextDouble() <= Config.etherStreamGlassTransformChance) {
+                    level().setBlockAndUpdate(newBlock, BlockRegistry.ETHER_GLASS.get().defaultBlockState());
+                }
+            }
         }
     }
 
@@ -224,6 +228,11 @@ public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
         if (entity.is(Tags.ETHER_STREAM_PASS_THROUGH_ENTITY))
             return true;
         if (entity instanceof LivingEntity l && this.entityData.get(HIT_EXCLUDE).map(t -> t.matches(l)).orElse(false)) {
+            return true;
+        }
+        if (entity instanceof ItemEntity ie) {
+            if (PlatingUtil.isPlatedItemEntity(ie)) return false;
+            if (ie.getItem().is(Items.GLASS)) return false;
             return true;
         }
         for (IStreamCapability cap : capabilities)
@@ -265,33 +274,6 @@ public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
     }
 
     @Override
-    protected void onHit(HitResult hitResult) {
-        if (!this.level().isClientSide()) {
-            if (hitResult.getType() == HitResult.Type.BLOCK) {
-                BlockHitResult blockHit = (BlockHitResult) hitResult;
-                BlockState blockState = this.level().getBlockState(blockHit.getBlockPos());
-                if (blockState.is(Tags.ETHER_STREAM_PASS_THROUGH)) {
-                    return;
-                }
-                for (IStreamCapability cap : capabilities) {
-                    if (cap.shouldPassThrough(blockState, (ServerLevel) level(), blockHit.getBlockPos())) {
-                        return;
-                    }
-                }
-            }
-        } else {
-            if (hitResult.getType() == HitResult.Type.BLOCK) {
-                BlockHitResult blockhit = (BlockHitResult) hitResult;
-                BlockState blockState = level().getBlockState(blockhit.getBlockPos());
-                if (blockState.is(Tags.ETHER_STREAM_PASS_THROUGH)) {
-                    return;
-                }
-            }
-        }
-        super.onHit(hitResult);
-    }
-
-    @Override
     protected void onHitBlock(@NotNull BlockHitResult p_37258_) {
         if (!this.level().isClientSide()) {
             BlockState blockState = level().getBlockState(p_37258_.getBlockPos());
@@ -299,6 +281,9 @@ public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
                 if (level().getBlockEntity(p_37258_.getBlockPos()) instanceof ShelfBlockEntity shelf) {
                     PlatingChargingUtil.tryChargeShelf(this, shelf);
                 }
+            }
+            if (blockState.is(Tags.ETHER_STREAM_PASS_THROUGH)) {
+                return;
             }
             boolean handled = false;
             for (IStreamCapability capability : capabilities) {
@@ -316,6 +301,11 @@ public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
         Entity entity = p_37259_.getEntity();
         if (entity instanceof ItemEntity ie && isPlatedItem(ie)) {
             chargePlatedItem(ie);
+            dropAndDiscard(p_37259_);
+            return;
+        }
+        if (entity instanceof ItemEntity ie && ie.getItem().is(Items.GLASS)) {
+            ie.setItem(new ItemStack(ItemRegistry.ETHER_GLASS_ITEM, ie.getItem().getCount()));
             dropAndDiscard(p_37259_);
             return;
         }
@@ -454,7 +444,7 @@ public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
         }
 
         List<Entity> entities = level.getEntities(this, getBoundingBox().expandTowards(movement).inflate(1.0F));
-        entities.removeIf(e -> e instanceof ItemEntity ie && !isPlatedItem(ie));
+        entities.removeIf(e -> e instanceof ItemEntity ie && !isPlatedItem(ie) && !ie.getItem().is(Items.GLASS));
 
         double nearest = Double.MAX_VALUE;
         Vec3 nearestLocation = null;

@@ -13,6 +13,8 @@
   "block.ether_craft.ether_ore": "Ether Ore",
   "block.ether_craft.deepslate_ether_ore": "Deepslate Ether Ore",
   "block.ether_craft.nether_ether_ore": "Nether Ether Ore",
+  "block.ether_craft.inactivated_ether_block": "Inactivated Ether Block",
+  "block.ether_craft.smooth_inactivated_ether_block": "Smooth Inactivated Ether Block",
 
   "ether_craft.gui.node.container_interact.extract": "Using: Extract",
   "ether_craft.gui.node.container_interact.insert": "Using: Insert",
@@ -45,6 +47,8 @@
   "item.ether_craft.deepslate_ether_ore": "Deepslate Ether Ore",
   "item.ether_craft.nether_ether_ore": "Nether Ether Ore",
   "item.ether_craft.ether_glass": "Ether Glass",
+  "item.ether_craft.inactivated_ether_block": "Inactivated Ether Block",
+  "item.ether_craft.smooth_inactivated_ether_block": "Smooth Inactivated Ether Block",
 
   "item.ether_craft.process_chip": "Process Chip",
   "item.ether_craft.wrench": "Wrench",
@@ -76,8 +80,8 @@
   "menu.ether_craft.node.directional_filter.direction.south": "South",
   "menu.ether_craft.node.directional_filter.direction.up": "Up",
   "menu.ether_craft.node.directional_filter.direction.west": "West",
-  "menu.ether_craft.node.creative_ether.label": "Creative Ether",
-  "menu.ether_craft.node.creative_ether.value": "%d",
+  "menu.ether_craft.node.creative_ether.label": "Fill/tick",
+  "menu.ether_craft.node.creative_ether.value": "%d/tick",
   "menu.ether_craft.node.magnet.cx": "X",
   "menu.ether_craft.node.magnet.cy": "Y",
   "menu.ether_craft.node.magnet.cz": "Z",
@@ -85,8 +89,6 @@
   "menu.ether_craft.node.magnet.sy": "rY",
   "menu.ether_craft.node.magnet.sz": "rZ",
   "menu.ether_craft.node.magnet.value": "%d",
-  "menu.ether_craft.node.creative_ether.label": "Fill/tick",
-  "menu.ether_craft.node.creative_ether.value": "%d/tick",
   "tooltip.ether_craft.ai_supercomputing_chip": "AI Chip",
   "tooltip.ether_craft.anima_infusing_chip": "Anima Infusing Chip",
   "tooltip.ether_craft.antimatter_producing_chip": "Antimatter Producing Chip",
@@ -223,9 +225,6 @@
 
   "ether_craft.gui.node.destruction.mode_overflow": "Using: Overflow",
   "ether_craft.gui.node.destruction.mode_all": "Using: Destroy All",
-
-  "ether_craft.gui.node.redstone_switch.work_with_signal": "Work with Signal",
-  "ether_craft.gui.node.redstone_switch.work_without_signal": "Work without Signal",
 
   "ether_craft.gui.node.redstone_signal.mode_ether": "Using: Ether",
   "ether_craft.gui.node.redstone_signal.mode_inventory": "Using: Inventory",

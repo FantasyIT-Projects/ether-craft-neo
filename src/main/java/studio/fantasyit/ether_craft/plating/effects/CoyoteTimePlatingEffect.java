@@ -5,6 +5,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.EtherCraft;
@@ -21,7 +22,7 @@ public class CoyoteTimePlatingEffect implements IPlatingEffect, IPlatingVirtualW
     }
 
     @Override
-    public int providerVirtualWalkableAt(PlatingData data, ItemStack stack, Level level, LivingEntity entity, BlockPos pos, @Nullable BlockPos jumpStartAt) {
+    public int providerVirtualWalkableAt(PlatingData data, ItemStack stack, Level level, LivingEntity entity, BlockPos pos, @Nullable BlockPos jumpStartAt, Vec3 movement) {
         if (entity.isShiftKeyDown()) return Integer.MIN_VALUE;
         if (jumpStartAt == null) return Integer.MIN_VALUE;
         if (data.effect() <= 0) return Integer.MIN_VALUE;
@@ -29,6 +30,9 @@ public class CoyoteTimePlatingEffect implements IPlatingEffect, IPlatingVirtualW
         if (!PlatingUtil.canExtractEther(stack, Config.platingCoyoteTimeEtherPerJump)) return Integer.MIN_VALUE;
         if (!data.hasCd()) {
             PlatingUtil.updatePlatingData(stack, data.copyWithCoolDown(level, (long) (data.effect() * 20)));
+        }
+        if (entity.getY() + movement.y - 1 > jumpStartAt.getY()) {
+            return jumpStartAt.getY();
         }
         PlatingUtil.extractEther(stack, Config.platingCoyoteTimeEtherPerJump);
         return jumpStartAt.getY();

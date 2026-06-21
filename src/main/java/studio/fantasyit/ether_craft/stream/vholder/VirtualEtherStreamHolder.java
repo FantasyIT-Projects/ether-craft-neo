@@ -8,6 +8,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.ShelfBlock;
 import net.minecraft.world.level.block.entity.ShelfBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -25,7 +26,7 @@ import studio.fantasyit.ether_craft.network.s2c.EtherStreamSyncDataS2C;
 import studio.fantasyit.ether_craft.network.s2c.EtherStreamUpdateS2C;
 import studio.fantasyit.ether_craft.plating.helper.PlatingChargingUtil;
 import studio.fantasyit.ether_craft.plating.helper.PlatingUtil;
-import studio.fantasyit.ether_craft.register.BlockRegistry;
+import studio.fantasyit.ether_craft.register.ItemRegistry;
 import studio.fantasyit.ether_craft.register.Tags;
 import studio.fantasyit.ether_craft.stream.PosDir;
 import studio.fantasyit.ether_craft.stream.cap.IStreamCapability;
@@ -98,7 +99,7 @@ public class VirtualEtherStreamHolder {
         }
         Vec3 queryVec = direction.getUnitVec3().scale(maxLen + 0.5);
         List<Entity> entities = level.getEntities(null, new AABB(pos).expandTowards(queryVec).inflate(1.0));
-        entities.removeIf(entity -> entity == null || (entity.is(EntityType.ITEM) && !isPlatedItem((ItemEntity) entity)));
+        entities.removeIf(entity -> entity == null || (entity.is(EntityType.ITEM) && !PlatingUtil.isPlatedItemEntity((ItemEntity) entity) && !((ItemEntity) entity).getItem().is(Items.GLASS)));
         int maxClipDist = (int) Math.ceil(maxLen) + 1;
         List<BlockState> blockStates = new ArrayList<>(maxClipDist);
         List<BlockPos> blockPoses = new ArrayList<>(maxClipDist);
@@ -172,8 +173,10 @@ public class VirtualEtherStreamHolder {
             if (hitEntity != null) {
                 boolean handled = false;
                 EntityHitResult hit = new EntityHitResult(hitEntity, entityHitAt);
-                if (hitEntity instanceof ItemEntity ie && isPlatedItem(ie)) {
+                if (hitEntity instanceof ItemEntity ie && PlatingUtil.isPlatedItemEntity(ie)) {
                     addEtherToPlatedItem(ves, ie);
+                } else if (hitEntity instanceof ItemEntity ie && ie.getItem().is(Items.GLASS)) {
+                    ie.setItem(new ItemStack(ItemRegistry.ETHER_GLASS_ITEM, ie.getItem().getCount()));
                 } else {
                     for (IStreamCapability cap : ves.capabilities) {
                         handled |= cap.hitEntity(level, ves, hit, hitEntity);
@@ -208,11 +211,7 @@ public class VirtualEtherStreamHolder {
             if (oldPos.equals(newPos)) continue;
             int id1 = Math.clamp(oldPos.distManhattan(pos), 0, blockStates.size() - 1);
             int id2 = Math.clamp(newPos.distManhattan(pos), 0, blockStates.size() - 1);
-            boolean isEtherGlass1 = blockStates.get(id1).is(BlockRegistry.ETHER_GLASS);
-            boolean isEtherGlass2 = blockStates.get(id2).is(BlockRegistry.ETHER_GLASS);
-            if (isEtherGlass1 != isEtherGlass2) {
-                ves.setRunIntoEtherGlass(isEtherGlass2);
-            }
+            ves.onRunIntoNewBlock(oldPos, blockStates.get(id1), newPos, blockStates.get(id2));
         }
     }
 
@@ -342,10 +341,6 @@ public class VirtualEtherStreamHolder {
         return streams.isEmpty();
     }
 
-    private static boolean isPlatedItem(ItemEntity ie) {
-        ItemStack stack = ie.getItem();
-        return PlatingUtil.isPlatingInProgress(stack) || PlatingUtil.hasPlating(stack);
-    }
 
     private static void addEtherToPlatedItem(VirtualEtherStream ves, ItemEntity ie) {
         ItemStack stack = ie.getItem();

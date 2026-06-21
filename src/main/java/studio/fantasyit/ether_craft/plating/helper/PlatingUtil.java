@@ -1,6 +1,7 @@
 package studio.fantasyit.ether_craft.plating.helper;
 
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import studio.fantasyit.ether_craft.plating.data.PlatingData;
 import studio.fantasyit.ether_craft.plating.data.ProgressingPlatingData;
@@ -86,5 +87,10 @@ public class PlatingUtil {
             }
         }
         stack.set(DataComponentRegistry.PLATING_DATA, List.copyOf(list));
+    }
+
+    public static boolean isPlatedItemEntity(ItemEntity ie) {
+        ItemStack stack = ie.getItem();
+        return PlatingUtil.isPlatingInProgress(stack) || PlatingUtil.hasPlating(stack);
     }
 }
