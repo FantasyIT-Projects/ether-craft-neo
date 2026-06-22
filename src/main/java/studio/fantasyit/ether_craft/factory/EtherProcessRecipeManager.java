@@ -8,6 +8,7 @@ import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.Level;
+import net.neoforged.neoforge.common.crafting.SizedIngredient;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 import studio.fantasyit.ether_craft.base.TreeLike;
 import studio.fantasyit.ether_craft.factory.special.ExtraFurnaceRecipe;
@@ -15,7 +16,9 @@ import studio.fantasyit.ether_craft.recipe.factory.EtherFactoryRecipeInput;
 import studio.fantasyit.ether_craft.recipe.factory.EtherProcessFactoryRecipe;
 import studio.fantasyit.ether_craft.recipe.factory.multistep.EtherFactoryMultiStepInput;
 import studio.fantasyit.ether_craft.recipe.factory.multistep.MultiStepMatchIO;
+import studio.fantasyit.ether_craft.recipe.factory.multistep.MultiStepMatchIOTemp;
 import studio.fantasyit.ether_craft.register.RecipeTypeRegistry;
+import studio.fantasyit.ether_craft.util.MathUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -78,21 +81,21 @@ public class EtherProcessRecipeManager {
 
     public static Optional<MultiStepMatchIO> getRecipe(Level level, RecipeManager manager, EtherFactoryMultiStepInput input) {
         TreeLike<EtherProcessFactoryRecipe, Void> keyTree = new TreeLike<>(0, null);
-        MultiStepMatchIO result = new MultiStepMatchIO(new ArrayList<>(), new ArrayList<>(), keyTree);
+        MultiStepMatchIOTemp result = new MultiStepMatchIOTemp();
         MutableBoolean isFail = new MutableBoolean(false);
         input.globalOutputTmpMapping().clear();
         getRecipeRecurse(level, manager, input.processInputTrees().getRoot(), input, result, isFail, keyTree, keyTree.getRoot().id, true);
         if (isFail.booleanValue()) {
             return Optional.empty();
         }
-        return Optional.of(result);
+        return Optional.of(result.propagateMultipliersAndGetImmutable(input.processInputTrees(), keyTree));
     }
 
     public static void getRecipeRecurse(Level level,
                                         RecipeManager manager,
                                         TreeLike.TreeNode<EtherFactoryMultiStepInput.TreeRef, Integer> node,
                                         EtherFactoryMultiStepInput multiStepInput,
-                                        MultiStepMatchIO io,
+                                        MultiStepMatchIOTemp io,
                                         MutableBoolean isFail,
                                         TreeLike<EtherProcessFactoryRecipe, Void> keyTree,
                                         int keyTreeNode,
@@ -124,25 +127,42 @@ public class EtherProcessRecipeManager {
             return;
         }
         keyTree.getNode(keyTreeNode).value = recipe.get();
-        List<ItemStackTemplate> output = recipe.get().output;
-        if (output.size() != 1 && !isTop) {
-            isFail.setTrue();
-            return;
-        }
-        int outputId = value.output();
-        multiStepInput.globalOutputTmpMapping().put(outputId, output.getFirst().create());
         int[] toCostCountByInputAndIngredient = EtherProcessorRecipeUtil.getToCostCountByInputAndIngredient(inputStacks, recipe.get().input);
+        int multipler = 1;
         for (int i = 0; i < toCostCountByInputAndIngredient.length; i++) {
             if (toCostCountByInputAndIngredient[i] == -1) {
                 isFail.setTrue();
                 return;
             }
+            SizedIngredient recipeIngredient = recipe.get().input.get(toCostCountByInputAndIngredient[i]);
             if (isInput.get(i)) {
-                io.inputs().add(recipe.get().input.get(toCostCountByInputAndIngredient[i]));
+                io.addInput(recipeIngredient, node.value.output());
+            } else {
+                multipler = (int) MathUtil.findLCM(MathUtil.findLCM(inputStacks.get(i).count(), recipeIngredient.count()) / recipeIngredient.count(), multipler);
             }
         }
+
+        for (int i = 0; i < toCostCountByInputAndIngredient.length; i++) {
+            SizedIngredient recipeIngredient = recipe.get().input.get(toCostCountByInputAndIngredient[i]);
+            if (!isInput.get(i)) {
+                int count = multipler * recipeIngredient.count() / inputStacks.get(i).count();
+                io.setNodeMultiplierOuter(inputTreeIds.get(i), count);
+            }
+        }
+        io.setNodeMultiplierInner(value.output(), multipler);
+
+
         if (isTop) {
-            recipe.get().output.stream().map(ItemStackTemplate::create).forEach(io.outputs()::add);
+            recipe.get().output.stream().map(ItemStackTemplate::create).forEach(t -> io.addOutput(t, node.value.output()));
+        } else {
+            List<ItemStackTemplate> output = recipe.get().output;
+            if (output.size() != 1) {
+                for (int i = 1; i < output.size(); i++) {
+                    io.addExtraOutput(output.get(i).create(), node.value.output());
+                }
+            }
+            int outputId = value.output();
+            multiStepInput.globalOutputTmpMapping().put(outputId, output.getFirst().create());
         }
     }
 }

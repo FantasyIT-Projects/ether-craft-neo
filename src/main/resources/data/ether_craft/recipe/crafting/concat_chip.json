@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "group": "ether_craft",
+  "key": {
+    "#": "ether_craft:inactivated_ether",
+    "A": "ether_craft:vacuum_pipe",
+    "B": "ether_craft:ether_dust"
+  },
+  "pattern": [
+    "###",
+    "ABA",
+    "###"
+  ],
+  "result": {
+    "count": 1,
+    "id": "ether_craft:conbat_chip"
+  }
+}

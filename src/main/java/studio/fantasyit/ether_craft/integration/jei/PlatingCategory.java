@@ -25,6 +25,7 @@ import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.item.ProcessChipItem;
 import studio.fantasyit.ether_craft.plating.data.PlatingEffectFormula;
 import studio.fantasyit.ether_craft.recipe.plating.PlatingRecipe;
+import studio.fantasyit.ether_craft.register.ItemRegistry;
 
 import java.util.List;
 
@@ -37,6 +38,8 @@ public class PlatingCategory implements IRecipeCategory<PlatingRecipe> {
     private static final int MAX_INPUTS = 5;
     private static final int OUTPUT_X = 105;
     private static final int OUTPUT_Y = 1;
+    private static final int DUST_X = 110;
+    private static final int DUST_Y = 50;
     private static final int TEXT_X = 4;
     private static final int TEXT_Y = 24;
     private static final int FORMULA_Y = 42;
@@ -96,6 +99,9 @@ public class PlatingCategory implements IRecipeCategory<PlatingRecipe> {
         builder.addInputSlot(OUTPUT_X, OUTPUT_Y)
                 .add(recipe.filter)
                 .setOutputSlotBackground();
+
+        builder.addInputSlot(DUST_X, DUST_Y)
+                .add(ItemRegistry.ETHER_DUST.get());
     }
 
     @Override

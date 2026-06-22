@@ -73,7 +73,7 @@ public class MultiStepBuilder {
             TreeLike.TreeNode<List<Integer>, List<ItemStack>> mainTreeNode) {
         List<TreeLike.TreeEdge<List<Integer>, List<ItemStack>>> edgesCopy = new ArrayList<>(mainTreeNode.edges);
         for (TreeLike.TreeEdge<List<Integer>, List<ItemStack>> edge : edgesCopy) {
-            if (edge.value.stream().allMatch(ProcessChipItem::isConcat) && !edge.value.isEmpty()) {
+            if (edge.value.stream().anyMatch(ProcessChipItem::isConcat) && !edge.value.isEmpty()) {
                 // [trim] 拷贝 concat 边后的子树为独立的新步骤树
                 TreeLike<List<Integer>, List<ItemStack>> newTree = copySubTree(edge.node);
 

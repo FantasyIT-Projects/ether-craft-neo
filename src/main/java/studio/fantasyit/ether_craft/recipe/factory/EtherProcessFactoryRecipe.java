@@ -24,7 +24,6 @@ import java.util.Map;
 
 public class EtherProcessFactoryRecipe implements Recipe<@NotNull EtherFactoryRecipeInput> {
     private static final String DIRECT_INPUT = "DIRECT_INPUT";
-    //树配方。保证ID[0-n]为n个输入物品，且与input下标对应
     public final EtherProcessRecipeJson json;
     public final TreeLike<Integer, List<DelayedIngredient>> process;
     public final List<SizedIngredient> input;

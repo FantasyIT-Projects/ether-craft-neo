@@ -71,6 +71,7 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
     public int[][] pathDepth;
     public int[][] pathDirection;
     public int[] pathMaxDepth;
+    public int[] maxMultiplier;
     //机制数据
     public int[][] currentEther;
     public int pressureBonus = 1;
@@ -104,6 +105,7 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
         pathDirection = new int[ROWS][COLS];
         pathMaxDepth = new int[ROWS];
         currentEther = new int[ROWS][COLS];
+        maxMultiplier = new int[ROWS];
     }
 
     public FactoryLevelDef getLevelDef() {
@@ -203,6 +205,7 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
                 }
                 processingRecipes[outputId] = currentRecipe;
                 processingProgress[outputId] = 0;
+                maxMultiplier[outputId] = currentRecipe.maxStepMultiplier();
                 processingInputs[outputId] = factoryStructure.recipes.get(i);
                 possibleResults.setItem(outputId, currentRecipe.outputs().stream().findFirst().orElse(ItemStack.EMPTY));
             } else {
@@ -215,6 +218,7 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
                 processingProgress[i] = 0;
                 processingInputs[i] = null;
                 possibleResults.setItem(i, ItemStack.EMPTY);
+                maxMultiplier[i] = 1;
             }
         }
 
@@ -268,7 +272,7 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
             if (this.processingRecipes[i] != null) {
                 if (this.processingInputs[i].relevantChip().stream().anyMatch(item -> (!item.canWork()))) {
                     processingProgress[i] = 0;
-                } else if (processingProgress[i] < MAX_PROGRESS) {
+                } else if (processingProgress[i] < MAX_PROGRESS * processingRecipes[i].maxStepMultiplier()) {
                     processingProgress[i] += pressureBonus;
                 } else {
                     consumeAndPlaceOutput(i);

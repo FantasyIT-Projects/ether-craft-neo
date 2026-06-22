@@ -9,6 +9,7 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import org.jetbrains.annotations.NotNull;
 import studio.fantasyit.ether_craft.EtherCraft;
+import studio.fantasyit.ether_craft.block.CheeseBlock;
 import studio.fantasyit.ether_craft.block.emitter.EtherStreamEmitterBlock;
 import studio.fantasyit.ether_craft.block.factory.EtherProcessFactoryBlock;
 import studio.fantasyit.ether_craft.block.glass.EtherGlassBlock;
@@ -27,6 +28,7 @@ public class BlockRegistry {
     public static final DeferredHolder<Block, @NotNull Block> NETHER_ETHER_ORE = BLOCKS.register("nether_ether_ore", r -> new Block(Block.Properties.of().strength(3f).requiresCorrectToolForDrops().sound(SoundType.NETHER_ORE).setId(ResourceKey.create(BuiltInRegistries.BLOCK.key(), r))));
     public static final DeferredHolder<Block, @NotNull Block> INACTIVATED_ETHER_BLOCK = BLOCKS.register("inactivated_ether_block", r -> new Block(Block.Properties.of().strength(5f).requiresCorrectToolForDrops().sound(SoundType.STONE).setId(ResourceKey.create(BuiltInRegistries.BLOCK.key(), r))));
     public static final DeferredHolder<Block, @NotNull Block> SMOOTH_INACTIVATED_ETHER_BLOCK = BLOCKS.register("smooth_inactivated_ether_block", r -> new Block(Block.Properties.of().strength(5f).requiresCorrectToolForDrops().sound(SoundType.STONE).setId(ResourceKey.create(BuiltInRegistries.BLOCK.key(), r))));
+    public static final DeferredHolder<Block, @NotNull CheeseBlock> CHEESE_BLOCK = BLOCKS.register("cheese_block", r -> new CheeseBlock(Block.Properties.of().strength(0.5f).sound(SoundType.WOOL).noOcclusion().setId(ResourceKey.create(BuiltInRegistries.BLOCK.key(), r))));
 
     public static void register(IEventBus modbus) {
         BLOCKS.register(modbus);

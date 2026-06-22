@@ -36,12 +36,13 @@
 | Inactivated Ether | 失活以太 | `inactivated_ether` |
 | Ether Ingot | 以太锭 | `ether_ingot` |
 | Ether Crystal | 以太水晶 | `ether_crystal` |
+| Ether Dust | 以太粉 | `ether_dust` |
 | Etherphilic Bowl | 以太皿 | `etherphilic_bowl` |
 | Wrench | 扳手 | `wrench` |
 | Blade | 锯片 | `blade` |
 | Diamond Needle | 钻石针 | `diamond_needle` |
 | Gold Screw | 金螺丝 | `gold_screw` |
-| Vacuum Pipe | 真空管 | `vacuum_pipe` |
+| Vacuum Pipe | 真空管道 | `vacuum_pipe` |
 | Warden Heart | 监守者之心 | `warden_heart` |
 | Cheese | 奶酪 | `cheese` |
 | Process Chip | 处理芯片 | `process_chip` |
@@ -113,7 +114,7 @@
 | Furnace Generator           | 熔炉以太生成器   | 熔炉 | `generator/furnace` |
 | Blast Furnace Generator     | 高炉以太生成器   | 高炉 | `generator/blast` |
 | Stone Generator             | 切石机以太生成器  | 切石机 | `generator/stone` |
-| Magnet                      | 磁铁        | 真空管 | `magnet` |
+| Magnet                      | 磁铁        | 真空管道 | `magnet` |
 | Node Process                | 节点加工      | 合成器 | `node_process` |
 | Equipment Consume Generator | 装备消耗以太生成器 | 砂轮 | `generator/equipment` |
 | Ether Converter             | 以太转换器     | 龙蛋 | `generator/ether_converter` |

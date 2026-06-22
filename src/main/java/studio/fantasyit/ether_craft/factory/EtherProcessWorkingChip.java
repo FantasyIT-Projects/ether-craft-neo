@@ -62,7 +62,7 @@ public class EtherProcessWorkingChip {
             this.etherRequire = 0;
             this.etherConsume = 0;
             this.maxDurability = 0;
-            this.effect = r.effect();
+            this.effect = EtherProcessChipManager.ProcessChipEffectConfig.DEFAULT;
         } else {
             this.maxEther = r.maxEther();
             this.etherDecay = r.etherDecay();

@@ -71,6 +71,7 @@ public class ModelDataGen extends ModelProvider {
         itemModels.generateFlatItem(ItemRegistry.ETHER_INGOT.get(), ITEM_SIMPLE);
         itemModels.generateFlatItem(ItemRegistry.WARDEN_HEART.get(), ITEM_SIMPLE);
         itemModels.generateFlatItem(ItemRegistry.CHEESE.get(), ITEM_SIMPLE);
+        itemModels.generateFlatItem(ItemRegistry.ETHER_DUST.get(), ITEM_SIMPLE);
         ClientItem.Properties oversizedProps = new ClientItem.Properties(false, true, 1.0f);
 
         Identifier flat5x5 = itemModels.createFlatItemModel(ItemRegistry.ANSWER_GRID_5X5.get(), ITEM_SIMPLE);
@@ -187,6 +188,11 @@ public class ModelDataGen extends ModelProvider {
         blockModels.createTrivialCube(BlockRegistry.NETHER_ETHER_ORE.get());
         blockModels.createTrivialCube(BlockRegistry.INACTIVATED_ETHER_BLOCK.get());
         blockModels.createTrivialCube(BlockRegistry.SMOOTH_INACTIVATED_ETHER_BLOCK.get());
+
+        blockModels.blockStateOutput.accept(
+                MultiVariantGenerator.dispatch(BlockRegistry.CHEESE_BLOCK.get(),
+                        BlockModelGenerators.variant(new Variant(EtherCraft.id("block/cheese_block"))))
+        );
 
         // 以太玻璃 - 连接纹理
         var etherGlassCustom = MultiVariant.of(new CustomBlockStateModelBuilder.Simple(new EtherGlassUnbakedModel()));

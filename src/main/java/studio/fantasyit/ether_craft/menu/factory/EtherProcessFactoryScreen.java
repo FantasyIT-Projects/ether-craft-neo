@@ -17,7 +17,6 @@ import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector2i;
 import org.lwjgl.glfw.GLFW;
-import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.block.factory.EtherProcessFactoryEntity;
 import studio.fantasyit.ether_craft.factory.EtherProcessChipManager;
 import studio.fantasyit.ether_craft.factory.FactoryLevelDef;
@@ -197,7 +196,7 @@ public class EtherProcessFactoryScreen extends AbstractContainerScreen<@NotNull 
                         if (be.pathBelongings[k][j] != i) continue;
                         int currentDepth = be.pathDepth[k][j];
                         int maxDepth = be.pathMaxDepth[i];
-                        float localProgress = (((float) progress / Config.nodeProcessMaxProgress - ((float) currentDepth / (maxDepth + 1))) * (maxDepth + 1));
+                        float localProgress = (((float) progress / (EtherProcessFactoryEntity.MAX_PROGRESS * be.maxMultiplier[i]) - ((float) currentDepth / (maxDepth + 1))) * (maxDepth + 1));
 
                         fillProgressSlot(graphics, internalX, internalY, k * 18, j * 18,
                                 localProgress,

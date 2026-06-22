@@ -106,6 +106,19 @@ const S = {
         this.outputRow = data.outputRow != null ? data.outputRow : 4;
         this.outputItemId = data.outputItemId || 'minecraft:iron_ingot';
         this.clearDetection();
+        for (let y = 0; y < this.ROWS; y++) {
+            for (let x = 0; x < this.COLS; x++) {
+                const cell = this.grid[y][x];
+                if (cell.type === 'chip' && cell.chipId) {
+                    if (!this.BUILTIN_CHIPS.includes(cell.chipId)) {
+                        const saved = this.loadSavedChips();
+                        if (!saved.includes(cell.chipId)) {
+                            this.saveCustomChip(cell.chipId);
+                        }
+                    }
+                }
+            }
+        }
         return true;
     },
 

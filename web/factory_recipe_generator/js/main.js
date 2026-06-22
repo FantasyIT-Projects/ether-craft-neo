@@ -114,6 +114,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 UI.renderInputSlots();
                 UI.renderRowBtns();
                 Grid.render();
+                UI.renderSavedChips();
                 runDetect();
                 Export.exportJson();
             }
@@ -145,6 +146,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     UI.renderInputSlots();
                     UI.renderRowBtns();
                     Grid.render();
+                    UI.renderSavedChips();
                     runDetect();
                     Export.exportJson();
                 } else {

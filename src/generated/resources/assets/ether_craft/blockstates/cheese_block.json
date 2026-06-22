@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "ether_craft:block/cheese_block"
+    }
+  }
+}

@@ -21,6 +21,8 @@ import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.plating.data.ProgressingPlatingData;
 import studio.fantasyit.ether_craft.plating.helper.PlatingUtil;
 import studio.fantasyit.ether_craft.recipe.plating.PlatingRecipe;
+import studio.fantasyit.ether_craft.register.DataComponentRegistry;
+import studio.fantasyit.ether_craft.register.ItemRegistry;
 import studio.fantasyit.ether_craft.register.RecipeTypeRegistry;
 import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
 
@@ -51,8 +53,6 @@ public class EtherStreamPlatingCapability implements IStreamCapability {
         for (ItemEntity itemEntity : entities) {
             ItemStack stack = itemEntity.getItem();
             if (stack.isEmpty()) continue;
-            boolean canProcess = PlatingUtil.isPlatingInProgress(stack) || PlatingUtil.canPlate(stack);
-            if (!canProcess) continue;
 
             List<PlatingRecipe> recipes = getSortedRecipes(level, stack);
             boolean success = handlePlating(streamEntity, level, itemEntity, stack, storage, recipes);
@@ -74,13 +74,29 @@ public class EtherStreamPlatingCapability implements IStreamCapability {
         else
             availableItems = getStorageItems(storage);
 
+        if (availableItems.isEmpty()) {
+            if (stack.has(DataComponentRegistry.PLATING_DATA))
+                PlatingUtil.clearPlating(stack);
+            return false;
+        }
+
+        if (availableItems.stream().noneMatch(t -> t.is(ItemRegistry.ETHER_DUST))) {
+            return false;
+        }
+        availableItems = availableItems.stream().filter(t -> !t.is(ItemRegistry.ETHER_DUST)).toList();
+
         List<PlatingRecipe> matched = matchExactCover(availableItems, Set.of(), recipes);
         if (matched == null) {
             streamEntity.consumeEtherInternal(streamEntity.getEther());
             return false;
         }
-        if (!matched.isEmpty() && storage != null)
+        if (!matched.isEmpty())
             consumeStorageItems(storage, matched);
+        for (int slot = 0; slot < storage.getContainerSize(); slot++) {
+            if (storage.getItem(slot).is(ItemRegistry.ETHER_DUST)) {
+                storage.setItem(slot, ItemStack.EMPTY);
+            }
+        }
         List<ProgressingPlatingData> effectIds = matched.stream().map(PlatingRecipe::makeProcessing).toList();
         PlatingUtil.startPlating(stack, effectIds, level.getGameTime());
         return true;

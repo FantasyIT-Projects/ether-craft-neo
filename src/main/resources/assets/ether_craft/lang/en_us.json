@@ -15,6 +15,7 @@
   "block.ether_craft.nether_ether_ore": "Nether Ether Ore",
   "block.ether_craft.inactivated_ether_block": "Inactivated Ether Block",
   "block.ether_craft.smooth_inactivated_ether_block": "Smooth Inactivated Ether Block",
+  "block.ether_craft.cheese_block": "Cheese",
 
   "ether_craft.gui.node.container_interact.extract": "Using: Extract",
   "ether_craft.gui.node.container_interact.insert": "Using: Insert",
@@ -31,6 +32,7 @@
   "message.ether_craft.plugin_installed": "Plugin installed",
   "message.ether_craft.plugin_slots_full": "No empty plugin slot available",
   "item.ether_craft.direct_input": "Direct Input",
+  "item.ether_craft.ether_dust": "Ether Dust",
   "item.ether_craft.ether": "Ether",
   "item.ether_craft.ether_adapt_node_lv_1": "Ether Adapt Node (LV 1)",
   "item.ether_craft.ether_adapt_node_lv_2": "Ether Adapt Node (LV 2)",

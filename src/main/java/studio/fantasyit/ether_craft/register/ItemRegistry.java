@@ -43,10 +43,11 @@ public class ItemRegistry {
     public static final DeferredHolder<Item, @NotNull Item> VACUUM_PIPE = ITEMS.register("vacuum_pipe", i -> new Item(new Item.Properties().stacksTo(64).setId(ResourceKey.create(Registries.ITEM, i))));
     public static final DeferredHolder<Item, @NotNull Item> ETHER_INGOT = ITEMS.register("ether_ingot", i -> new Item(new Item.Properties().stacksTo(64).setId(ResourceKey.create(Registries.ITEM, i))));
     public static final DeferredHolder<Item, @NotNull Item> WARDEN_HEART = ITEMS.register("warden_heart", i -> new Item(new Item.Properties().stacksTo(64).setId(ResourceKey.create(Registries.ITEM, i))));
+    public static final DeferredHolder<Item, @NotNull Item> ETHER_DUST = ITEMS.register("ether_dust", i -> new Item(new Item.Properties().stacksTo(64).setId(ResourceKey.create(Registries.ITEM, i))));
     private static final Consumable CHEESE_CONSUMABLE = Consumables.defaultFood()
             .onConsume(ClearAllStatusEffectsConsumeEffect.INSTANCE)
             .build();
-    public static final DeferredHolder<Item, @NotNull Item> CHEESE = ITEMS.register("cheese", i -> new Item(new Item.Properties()
+    public static final DeferredHolder<Item, @NotNull Item> CHEESE = ITEMS.register("cheese", i -> new BlockItem(BlockRegistry.CHEESE_BLOCK.get(), new Item.Properties()
             .stacksTo(64)
             .food(new FoodProperties.Builder().nutrition(2).saturationModifier(1f).alwaysEdible().build(), CHEESE_CONSUMABLE)
             .setId(ResourceKey.create(Registries.ITEM, i))));

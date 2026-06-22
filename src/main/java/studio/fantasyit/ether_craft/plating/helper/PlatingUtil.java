@@ -55,11 +55,6 @@ public class PlatingUtil {
         stack.remove(DataComponentRegistry.PLATING_START_TIME);
     }
 
-    public static boolean canPlate(ItemStack stack) {
-        return !stack.has(DataComponentRegistry.PLATING_DATA)
-                && !stack.has(DataComponentRegistry.PLATING_IN_PROGRESS);
-    }
-
     public static boolean isPlatingInProgress(ItemStack stack) {
         return stack.has(DataComponentRegistry.PLATING_IN_PROGRESS);
     }
