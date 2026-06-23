@@ -74,6 +74,25 @@ public class TagGenBlock extends TagsProvider<Block> {
         cropBuilder.addElement(BuiltInRegistries.BLOCK.getKey(Blocks.KELP_PLANT));
         cropBuilder.addElement(BuiltInRegistries.BLOCK.getKey(Blocks.CHORUS_FLOWER));
 
+        getOrCreateRawBuilder(Tags.STONE_ABSORBABLE)
+                .addElement(BuiltInRegistries.BLOCK.getKey(Blocks.STONE))
+                .addElement(BuiltInRegistries.BLOCK.getKey(Blocks.COBBLESTONE))
+                .addElement(BuiltInRegistries.BLOCK.getKey(Blocks.DEEPSLATE))
+                .addElement(BuiltInRegistries.BLOCK.getKey(Blocks.COBBLED_DEEPSLATE))
+                .addElement(BuiltInRegistries.BLOCK.getKey(Blocks.GRANITE))
+                .addElement(BuiltInRegistries.BLOCK.getKey(Blocks.DIORITE))
+                .addElement(BuiltInRegistries.BLOCK.getKey(Blocks.ANDESITE))
+                .addElement(BuiltInRegistries.BLOCK.getKey(Blocks.TUFF))
+                .addElement(BuiltInRegistries.BLOCK.getKey(Blocks.CALCITE))
+                .addElement(BuiltInRegistries.BLOCK.getKey(Blocks.DRIPSTONE_BLOCK))
+                .addElement(BuiltInRegistries.BLOCK.getKey(Blocks.NETHERRACK))
+                .addElement(BuiltInRegistries.BLOCK.getKey(Blocks.BASALT))
+                .addElement(BuiltInRegistries.BLOCK.getKey(Blocks.SMOOTH_BASALT))
+                .addElement(BuiltInRegistries.BLOCK.getKey(Blocks.BLACKSTONE))
+                .addElement(BuiltInRegistries.BLOCK.getKey(Blocks.END_STONE))
+                .addElement(BuiltInRegistries.BLOCK.getKey(Blocks.SANDSTONE))
+                .addElement(BuiltInRegistries.BLOCK.getKey(Blocks.RED_SANDSTONE));
+
         getOrCreateRawBuilder(BlockTags.NEEDS_IRON_TOOL)
                 .addElement(BlockRegistry.ETHER_BLOCK.getKey().identifier())
                 .addElement(BlockRegistry.ETHER_ORE.getKey().identifier())
