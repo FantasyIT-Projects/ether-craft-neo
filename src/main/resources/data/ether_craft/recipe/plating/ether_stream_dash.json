@@ -8,7 +8,7 @@
   ],
   "filter": {
     "neoforge:ingredient_type": "neoforge:compound",
-    "ingredients": ["ether_craft:wrench","#c:armors"]
+    "ingredients": ["ether_craft:wrench","#minecraft:chest_armor","#minecraft:foot_armor","#minecraft:head_armor","#minecraft:leg_armor"]
   },
   "effect": "ether_craft:ether_stream_dash",
   "values": {"a1": 10000, "a2": 75000, "a3": 50, "a4": 6400}

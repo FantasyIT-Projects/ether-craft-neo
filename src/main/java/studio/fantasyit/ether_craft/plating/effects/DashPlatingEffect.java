@@ -14,7 +14,7 @@ import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import studio.fantasyit.ether_craft.plating.trigger.event.IPlatingKeyTrigger;
 import studio.fantasyit.ether_craft.plating.trigger.event.IPlatingRightClickTrigger;
 
-public class DashPlatingEffect implements IPlatingEffect, IPlatingRightClickTrigger, IPlatingKeyTrigger {
+public class DashPlatingEffect implements IPlatingEffect, IPlatingKeyTrigger {
     public static final Identifier ID = EtherCraft.id("dash");
 
     @Override
@@ -22,11 +22,6 @@ public class DashPlatingEffect implements IPlatingEffect, IPlatingRightClickTrig
         return ID;
     }
 
-    @Override
-    public void apply(IPlatingEffect effect, PlatingData data, ItemStack stack, LivingEntity entity, PlayerInteractEvent.RightClickItem event) {
-        doDash(effect, data, stack, entity);
-        event.setCanceled(true);
-    }
 
     @Override
     public void onKeyTrigger(IPlatingEffect effect, PlatingData data, ItemStack stack, LivingEntity entity, EquipmentSlot slot) {

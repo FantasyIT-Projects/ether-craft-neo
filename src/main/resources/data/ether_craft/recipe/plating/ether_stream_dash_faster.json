@@ -4,12 +4,9 @@
     {"ingredient": "minecraft:dispenser", "count": 1},
     {"ingredient": "ether_craft:ether_glass", "count": 1},
     {"ingredient": "minecraft:minecart", "count": 1},
-    {"ingredient": "minecraft:powered_rail", "count": 1}
+    {"ingredient": "minecraft:golden_rail", "count": 1}
   ],
-  "filter": {
-    "neoforge:ingredient_type": "neoforge:compound",
-    "ingredients": ["ether_craft:wrench","#c:armors"]
-  },
+  "filter": "ether_craft:wrench",
   "effect": "ether_craft:ether_stream_dash_faster",
   "values": {"a1": 50000, "a2": 125000, "a3": 0.5, "a4": 2.5}
 }
