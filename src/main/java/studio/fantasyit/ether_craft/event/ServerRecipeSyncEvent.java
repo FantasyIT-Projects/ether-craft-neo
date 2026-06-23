@@ -6,7 +6,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.OnDatapackSyncEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 import studio.fantasyit.ether_craft.factory.EtherProcessChipManager;
-import studio.fantasyit.ether_craft.factory.EtherProcessRecipeManager;
+import studio.fantasyit.ether_craft.recipe.factory.EtherProcessRecipeManager;
 import studio.fantasyit.ether_craft.network.s2c.SyncChipInfoS2C;
 import studio.fantasyit.ether_craft.network.s2c.SyncExtraRecipesS2C;
 import studio.fantasyit.ether_craft.network.s2c.SyncPluginTipsS2C;

@@ -1,9 +1,12 @@
 package studio.fantasyit.ether_craft.recipe.factory.multistep;
 
 import net.minecraft.world.item.ItemStack;
+import org.joml.Vector2i;
 import studio.fantasyit.ether_craft.base.TreeLike;
 import studio.fantasyit.ether_craft.factory.EtherProcessWorkingChip;
 import studio.fantasyit.ether_craft.recipe.factory.PathNode;
+import studio.fantasyit.ether_craft.recipe.factory.RecipeNode;
+import studio.fantasyit.ether_craft.recipe.factory.TreeRef;
 
 import java.util.List;
 import java.util.Map;
@@ -16,15 +19,11 @@ public record EtherFactoryMultiStepInput(TreeLike<TreeRef, Integer> processInput
                                          Set<EtherProcessWorkingChip> relevantChip,
                                          Set<PathNode> workingPath,
                                          int maxDepth,
+                                         Map<Vector2i, Integer> outputPositions,
                                          Map<Integer, ItemStack> globalInputMapping,
                                          Map<Integer, ItemStack> globalOutputTmpMapping) {
 
-    public record TreeRef(
-            TreeLike<List<Integer>, List<ItemStack>> tree,
-            Map<Integer, Integer> inputMapping,
-            int output
-    ) {
-    }
+
 
     public ItemStack getGlobalItem(int idx) {
         if (globalInputMapping.containsKey(idx)) {

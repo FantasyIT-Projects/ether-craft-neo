@@ -14,12 +14,12 @@ public class EtherFactoryRecipeInput implements RecipeInput {
     //输入物品（在输入树中的ID）
     public List<Integer> inputTreeIds;
     // 处理树流程
-    public TreeLike<List<Integer>, List<ItemStack>> process;
+    public TreeLike<List<Integer>, RecipeNode> process;
 
     public EtherFactoryRecipeInput(
             List<ItemStack> inputs,
             List<Integer> inputTreeIds,
-            TreeLike<List<Integer>, List<ItemStack>> process
+            TreeLike<List<Integer>, RecipeNode> process
     ) {
         this.inputs = inputs;
         this.inputTreeIds = inputTreeIds;

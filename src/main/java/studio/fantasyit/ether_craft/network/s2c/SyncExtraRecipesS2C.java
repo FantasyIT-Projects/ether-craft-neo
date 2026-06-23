@@ -8,7 +8,7 @@ import net.minecraft.resources.Identifier;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.jetbrains.annotations.NotNull;
 import studio.fantasyit.ether_craft.EtherCraft;
-import studio.fantasyit.ether_craft.factory.EtherProcessRecipeManager;
+import studio.fantasyit.ether_craft.recipe.factory.EtherProcessRecipeManager;
 
 import java.util.ArrayList;
 import java.util.List;

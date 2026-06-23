@@ -1,4 +1,4 @@
-package studio.fantasyit.ether_craft.factory;
+package studio.fantasyit.ether_craft.recipe.factory;
 
 import net.minecraft.resources.Identifier;
 import net.minecraft.tags.ItemTags;
@@ -10,10 +10,9 @@ import net.neoforged.neoforge.common.crafting.SizedIngredient;
 import org.joml.Vector2i;
 import studio.fantasyit.ether_craft.base.GraphLike;
 import studio.fantasyit.ether_craft.base.TreeLike;
+import studio.fantasyit.ether_craft.factory.EtherProcessWorkingChip;
 import studio.fantasyit.ether_craft.item.ProcessChipItem;
 import studio.fantasyit.ether_craft.recipe.DelayedIngredient;
-import studio.fantasyit.ether_craft.recipe.factory.EtherFactoryRecipeInput;
-import studio.fantasyit.ether_craft.recipe.factory.PathNode;
 import studio.fantasyit.ether_craft.recipe.factory.multistep.EtherFactoryMultiStepInput;
 import studio.fantasyit.ether_craft.recipe.factory.multistep.MultiStepBuilder;
 import studio.fantasyit.ether_craft.register.ItemRegistry;
@@ -88,9 +87,9 @@ public class EtherProcessorRecipeUtil {
                 if (!illegal) {
                     List<Integer> inputIds = new ArrayList<>();
                     List<Integer> processInputTrees = new ArrayList<>();
-                    TreeLike<List<Integer>, List<ItemStack>> tree = new TreeLike<>(0, new ArrayList<>());
+                    TreeLike<List<Integer>, RecipeNode> tree = new TreeLike<>(0, new ArrayList<>());
                     tree.addNode(1, new ArrayList<>());
-                    tree.addEdge(0, 1, List.of(new ItemStack(ItemRegistry.DIRECT_INPUT_ITEM_CHIP.get())));
+                    tree.addEdge(0, 1, RecipeNode.virtual(List.of(new ItemStack(ItemRegistry.DIRECT_INPUT_ITEM_CHIP.get()))));
                     Set<EtherProcessWorkingChip> relevantComponents = new HashSet<>();
                     Set<PathNode> path = new HashSet<>();
                     scanForTrees(chipSlots, markMatrix, tree, inputIds, relevantComponents, path, processInputTrees, cols - 1, i, -1, -1, i + 1, 1, 0);
@@ -184,7 +183,7 @@ public class EtherProcessorRecipeUtil {
      */
     private static void scanForTrees(EtherProcessWorkingChip[][] scanMatrix,
                                      int[][] markMatrix,
-                                     TreeLike<List<Integer>, List<ItemStack>> tree,
+                                     TreeLike<List<Integer>, RecipeNode> tree,
                                      List<Integer> inputIds,
                                      Set<EtherProcessWorkingChip> relevantComponents,
                                      Set<PathNode> path,
@@ -200,7 +199,7 @@ public class EtherProcessorRecipeUtil {
             inputIds.add(y);
             int id = tree.getMaxId() + 1;
             tree.addNode(id, new ArrayList<>());
-            tree.addEdge(parentId, id, List.of(new ItemStack(ItemRegistry.DIRECT_INPUT_ITEM_CHIP.get())));
+            tree.addEdge(parentId, id, RecipeNode.virtual(List.of(new ItemStack(ItemRegistry.DIRECT_INPUT_ITEM_CHIP.get()))));
             processInputTrees.add(id);
             return;
         }
@@ -229,7 +228,7 @@ public class EtherProcessorRecipeUtil {
         if (chips.size() != 0) {
             int nxParentId = tree.getMaxId() + 1;
             tree.addNode(nxParentId, new ArrayList<>());
-            tree.addEdge(parentId, nxParentId, chips);
+            tree.addEdge(parentId, nxParentId, new RecipeNode(x, y, chips));
             parentId = nxParentId;
         }
 
@@ -258,31 +257,31 @@ public class EtherProcessorRecipeUtil {
     public static boolean isRecipeCompatible(TreeLike<Integer, List<DelayedIngredient>> recipeProcess, List<SizedIngredient> recipeInputs, List<Integer> recipeInputNodeIds, EtherFactoryRecipeInput input) {
         if (input.inputs.size() != recipeInputs.size()) return false;
 
-        Queue<TreeLike.TreeNode<List<Integer>, List<ItemStack>>> queue = new LinkedList<>();
+        Queue<TreeLike.TreeNode<List<Integer>, RecipeNode>> queue = new LinkedList<>();
         input.process.getNodes().forEach(node -> node.value.clear());
         input.process.getRoot().value.add(recipeProcess.getRoot().id);
         queue.add(input.process.getRoot());
         while (!queue.isEmpty()) {
-            TreeLike.TreeNode<List<Integer>, List<ItemStack>> node = queue.poll();
+            TreeLike.TreeNode<List<Integer>, RecipeNode> node = queue.poll();
             //第一步：获取当前可能处在配方树的节点位置
             node.value.forEach((id) -> {
 
                 //2.1:获取当前实际位置向前传播的边（输入边）
-                for (TreeLike.TreeEdge<List<Integer>, List<ItemStack>> edge : node.edges) {
+                for (TreeLike.TreeEdge<List<Integer>, RecipeNode> edge : node.edges) {
                     //2.2:获取当前虚拟位置向前传播的边（配方边）
                     for (TreeLike.TreeEdge<Integer, List<DelayedIngredient>> recipeEdge : recipeProcess.getEdge(id)) {
                         /*
                         此时，我们获取到了输入边可能是的一条配方边，此时对这种可能性进行验证。
                         * */
-                        if (edge.value.size() != recipeEdge.value.size()) {
+                        if (edge.value.input().size() != recipeEdge.value.size()) {
                             continue;
                         }
 
                         AtomicBoolean allCompat = new AtomicBoolean(false);
-                        CollectionUtil.fullPermutationIndex(edge.value, (indexes) -> {
+                        CollectionUtil.fullPermutationIndex(edge.value.input(), (indexes) -> {
                             boolean currentCompat = true;
                             for (int i = 0; i < indexes.length; i++) {
-                                ItemStack itemStack = edge.value.get(indexes[i]);
+                                ItemStack itemStack = edge.value.input().get(indexes[i]);
                                 if (!recipeEdge.value.get(i).toIngredient().test(itemStack)) {
                                     currentCompat = false;
                                 }

@@ -1,14 +1,13 @@
 package studio.fantasyit.ether_craft.factory.special;
 
 import net.minecraft.resources.Identifier;
-import net.minecraft.world.item.crafting.BlastingRecipe;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.crafting.SmeltingRecipe;
 import net.minecraft.world.level.ItemLike;
 import net.neoforged.neoforge.common.crafting.SizedIngredient;
 import studio.fantasyit.ether_craft.EtherCraft;
-import studio.fantasyit.ether_craft.factory.EtherProcessRecipeManager;
+import studio.fantasyit.ether_craft.recipe.factory.EtherProcessRecipeManager;
 import studio.fantasyit.ether_craft.recipe.DelayedIngredient;
 import studio.fantasyit.ether_craft.recipe.IngredientSerializer;
 import studio.fantasyit.ether_craft.recipe.factory.EtherProcessFactoryRecipe;

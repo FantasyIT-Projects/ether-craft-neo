@@ -1,4 +1,4 @@
-package studio.fantasyit.ether_craft.factory;
+package studio.fantasyit.ether_craft.recipe.factory;
 
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -11,9 +11,8 @@ import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.common.crafting.SizedIngredient;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 import studio.fantasyit.ether_craft.base.TreeLike;
+import studio.fantasyit.ether_craft.factory.ExtraRecipeProvider;
 import studio.fantasyit.ether_craft.factory.special.ExtraFurnaceRecipe;
-import studio.fantasyit.ether_craft.recipe.factory.EtherFactoryRecipeInput;
-import studio.fantasyit.ether_craft.recipe.factory.EtherProcessFactoryRecipe;
 import studio.fantasyit.ether_craft.recipe.factory.multistep.EtherFactoryMultiStepInput;
 import studio.fantasyit.ether_craft.recipe.factory.multistep.MultiStepMatchIO;
 import studio.fantasyit.ether_craft.recipe.factory.multistep.MultiStepMatchIOTemp;
@@ -93,14 +92,14 @@ public class EtherProcessRecipeManager {
 
     public static void getRecipeRecurse(Level level,
                                         RecipeManager manager,
-                                        TreeLike.TreeNode<EtherFactoryMultiStepInput.TreeRef, Integer> node,
+                                        TreeLike.TreeNode<TreeRef, Integer> node,
                                         EtherFactoryMultiStepInput multiStepInput,
                                         MultiStepMatchIOTemp io,
                                         MutableBoolean isFail,
                                         TreeLike<EtherProcessFactoryRecipe, Void> keyTree,
                                         int keyTreeNode,
                                         boolean isTop) {
-        for (TreeLike.TreeEdge<EtherFactoryMultiStepInput.TreeRef, Integer> e : node.edges) {
+        for (TreeLike.TreeEdge<TreeRef, Integer> e : node.edges) {
             TreeLike.TreeNode<EtherProcessFactoryRecipe, Void> nxtNode = keyTree.addNode(keyTree.getMaxId() + 1, null);
             keyTree.addEdge(keyTreeNode, nxtNode.id, null);
             getRecipeRecurse(level, manager, e.node, multiStepInput, io, isFail, keyTree, nxtNode.id, false);
@@ -108,7 +107,7 @@ public class EtherProcessRecipeManager {
                 return;
             }
         }
-        EtherFactoryMultiStepInput.TreeRef value = node.value;
+        TreeRef value = node.value;
 
         List<Integer> inputTreeIds = new ArrayList<>();
         List<ItemStack> inputStacks = new ArrayList<>();
@@ -138,7 +137,7 @@ public class EtherProcessRecipeManager {
             if (isInput.get(i)) {
                 io.addInput(recipeIngredient, node.value.output());
             } else {
-                multipler = (int) MathUtil.findLCM(MathUtil.findLCM(inputStacks.get(i).count(), recipeIngredient.count()) / recipeIngredient.count(), multipler);
+                multipler = MathUtil.findLCM(MathUtil.findLCM(inputStacks.get(i).count(), recipeIngredient.count()) / recipeIngredient.count(), multipler);
             }
         }
 

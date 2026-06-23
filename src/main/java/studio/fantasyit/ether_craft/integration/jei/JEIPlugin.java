@@ -13,7 +13,7 @@ import studio.fantasyit.ether_craft.Config;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.event.ClientRecipeSyncEvent;
-import studio.fantasyit.ether_craft.factory.EtherProcessRecipeManager;
+import studio.fantasyit.ether_craft.recipe.factory.EtherProcessRecipeManager;
 import studio.fantasyit.ether_craft.factory.ExtraRecipeProvider;
 import studio.fantasyit.ether_craft.item.ProcessChipItem;
 import studio.fantasyit.ether_craft.node.NodePluginManager;

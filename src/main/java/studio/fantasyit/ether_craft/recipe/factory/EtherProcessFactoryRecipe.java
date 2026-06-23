@@ -15,7 +15,6 @@ import studio.fantasyit.ether_craft.recipe.DelayedIngredient;
 import studio.fantasyit.ether_craft.register.ItemRegistry;
 import studio.fantasyit.ether_craft.register.RecipeSerializerRegistry;
 import studio.fantasyit.ether_craft.register.RecipeTypeRegistry;
-import studio.fantasyit.ether_craft.factory.EtherProcessorRecipeUtil;
 
 import java.util.ArrayList;
 import java.util.HashMap;
