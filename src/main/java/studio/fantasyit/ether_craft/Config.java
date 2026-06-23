@@ -319,9 +319,9 @@ public class Config {
     private static final ModConfigSpec.DoubleValue PLATING_ETHER_STREAM_DASH_SPEED = BUILDER
             .comment("Speed multiplier for Ether Stream Dash")
             .defineInRange("plating.ether_stream_dash.speed", 0.25, 0.1, 10.0);
-    private static final ModConfigSpec.DoubleValue PLATING_ETHER_STREAM_DASH_FASTER_SPEED = BUILDER
-            .comment("Speed multiplier for Ether Stream Dash Faster")
-            .defineInRange("plating.ether_stream_dash.speed_faster", 2.5, 0.1, 10.0);
+    private static final ModConfigSpec.IntValue PLATING_ETHER_STREAM_DASH_CONTAIN_FASTER = BUILDER
+            .comment("The ether contains in ether stream")
+            .defineInRange("plating.ether_stream_dash.ether_contain_faster", 2000, 1, Integer.MAX_VALUE);
 
     // -- plating.ether_stream_damage --
     private static final ModConfigSpec.IntValue PLATING_ETHER_STREAM_DAMAGE_CD_TICKS = BUILDER
@@ -442,8 +442,8 @@ public class Config {
     public static int platingStoneAbsorbEtherPerBlock;
     public static int platingEtherStreamDashCdTicks;
     public static int platingEtherStreamDashEtherCost;
+    public static int platingEtherStreamDashEtherContainFaster;
     public static double platingEtherStreamDashSpeed;
-    public static double platingEtherStreamDashFasterSpeed;
     public static int platingEtherStreamDamageCdTicks;
     public static int platingEtherStreamDamageEtherCost;
     public static double platingEtherStreamDamageSpeed;
@@ -523,8 +523,8 @@ public class Config {
         platingStoneAbsorbEtherPerBlock = PLATING_STONE_ABSORB_ETHER_PER_BLOCK.get();
         platingEtherStreamDashCdTicks = PLATING_ETHER_STREAM_DASH_CD_TICKS.get();
         platingEtherStreamDashEtherCost = PLATING_ETHER_STREAM_DASH_ETHER_COST.get();
+        platingEtherStreamDashEtherContainFaster = PLATING_ETHER_STREAM_DASH_CONTAIN_FASTER.get();
         platingEtherStreamDashSpeed = PLATING_ETHER_STREAM_DASH_SPEED.get();
-        platingEtherStreamDashFasterSpeed = PLATING_ETHER_STREAM_DASH_FASTER_SPEED.get();
         platingEtherStreamDamageCdTicks = PLATING_ETHER_STREAM_DAMAGE_CD_TICKS.get();
         platingEtherStreamDamageEtherCost = PLATING_ETHER_STREAM_DAMAGE_ETHER_COST.get();
         platingEtherStreamDamageSpeed = PLATING_ETHER_STREAM_DAMAGE_SPEED.get();

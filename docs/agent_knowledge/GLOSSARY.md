@@ -155,6 +155,7 @@
 | Growth Accelerator (All Blocks) | 全方块催熟升级 | 幽匿催发体 | `growth_accelerator_upgrade_allow_all` |
 | Carry Entity Upgrade | 携带实体 | 船 | `carry_entity_upgrade` |
 | Carry Player Upgrade | 携带玩家 | 矿车 | `carry_player_upgrade` |
+| Speed Upgrade | 速度升级 | 紫水晶碎片 | `speed_upgrade` |
 | Speed Up Upgrade | 速度提升 | 动力铁轨 | `ether_stream_speed_up_upgrade` |
 | Bounce Back Upgrade | 反弹 | 粘液球 | `ether_stream_bounce_back_upgrade` |
 | Display Item Upgrade | 物品显示 | 物品展示框 | `ether_stream_display_item_upgrade` |

@@ -21,7 +21,10 @@ import studio.fantasyit.ether_craft.node.NodeProperty;
 import studio.fantasyit.ether_craft.node.filter.FilterGuiRegCommon;
 import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
 import studio.fantasyit.ether_craft.node.plugins.base.AbstractNodePlugin;
+import studio.fantasyit.ether_craft.node.plugins.upgrade.SpeedUpgrade;
 import studio.fantasyit.ether_craft.util.ContainerOps;
+
+import java.util.Objects;
 
 public abstract class AbstractItemConsumeFunction extends AbstractNodePlugin {
     public static final Identifier WORKING_MATERIAL = EtherCraft.id("generator/material");
@@ -79,9 +82,17 @@ public abstract class AbstractItemConsumeFunction extends AbstractNodePlugin {
                 container.setItem(0, newStack);
                 onBurnTick();
             }
-        } else if (remainBurnTicks > 0) {
-            onBurnTick();
-            remainBurnTicks--;
+        } else {
+            int count = 1;
+            for (int i = 0; i < nodeEntity.featureUpgradeStorage.getContainerSize(); i++) {
+                if (Objects.equals(nodeEntity.featureUpgradeStorage.getPluginId(i), SpeedUpgrade.ID)) {
+                    count++;
+                }
+            }
+            for (int i = 0; i < count && remainBurnTicks > 0; i++) {
+                onBurnTick();
+                remainBurnTicks--;
+            }
         }
 
     }

@@ -22,7 +22,12 @@ public class EtherStreamDashFasterPlatingEffect extends EtherStreamDashPlatingEf
         return ID;
     }
 
-    protected double getSpeed() {
-        return Config.platingEtherStreamDashFasterSpeed;
+
+    protected double getSpeed(PlatingData platingData) {
+        return platingData.effect();
+    }
+
+    protected int getEtherContains(PlatingData platingData){
+        return Config.platingEtherStreamDashEtherContainFaster;
     }
 }

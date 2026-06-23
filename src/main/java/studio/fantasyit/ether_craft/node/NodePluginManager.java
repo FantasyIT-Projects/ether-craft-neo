@@ -89,12 +89,15 @@ public class NodePluginManager {
         ALL_PLUGINS.add(new PluginInfo(PluginType.FUNCTION, FunctionCreativeEther.ID_FUNC, FunctionCreativeEther::new, t -> t.is(ItemRegistry.ETHER_CREATIVE), ItemRegistry.ETHER_CREATIVE.get()));
         ALL_PLUGINS.add(new PluginInfo(PluginType.FUNCTION, EtherStreamPlatingUpgrade.ID, EtherStreamPlatingUpgrade::new, t -> t.is(ItemRegistry.PROCESS_CHIP_ITEM) && EtherCraft.id("energizing_chip").equals(t.get(DataComponentRegistry.CHIP_ID)),
                 new ItemStackTemplate(ItemRegistry.PROCESS_CHIP_ITEM, DataComponentPatch.builder().set(DataComponentRegistry.CHIP_ID.get(), EtherCraft.id("energizing_chip")).set(DataComponents.ITEM_MODEL, EtherCraft.id("energizing_chip")).build())));
+        ALL_PLUGINS.add(new PluginInfo(PluginType.FUNCTION, EtherAutoSupplyUpgrade.ID, EtherAutoSupplyUpgrade::new, t -> t.is(ItemRegistry.ETHER_CRYSTAL.get()), ItemRegistry.ETHER_CRYSTAL.get()));
         ALL_PLUGINS.add(new PluginInfo(PluginType.FEATURE, FeatureEtherStreamEmitter.ID, FeatureEtherStreamEmitter::new, t -> t.is(Items.DISPENSER), Items.DISPENSER));
         ALL_PLUGINS.add(new PluginInfo(PluginType.FEATURE, FeatureDropperThrower.ID, FeatureDropperThrower::new, t -> t.is(Items.DROPPER), Items.DROPPER));
         ALL_PLUGINS.add(new PluginInfo(PluginType.FEATURE, FeatureContainerInteract.ID, FeatureContainerInteract::new, t -> t.is(Items.HOPPER), Items.HOPPER));
         ALL_PLUGINS.add(new PluginInfo(PluginType.FEATURE, FeatureRedstoneSignal.ID, FeatureRedstoneSignal::new, t -> t.is(Items.COMPARATOR), Items.COMPARATOR));
         ALL_PLUGINS.add(new PluginInfo(PluginType.FEATURE, DestructionUpgrade.ID, DestructionUpgrade::new, t -> t.is(Items.LAVA_BUCKET), Items.LAVA_BUCKET));
         ALL_PLUGINS.add(new PluginInfo(PluginType.FEATURE, FunctionCreativeEther.ID, FunctionCreativeEther::new, t -> t.is(ItemRegistry.ETHER_CREATIVE), ItemRegistry.ETHER_CREATIVE.get()));
+        ALL_PLUGINS.add(new PluginInfo(PluginType.FEATURE, RedstoneSwitchUpgrade.ID, (a, b) -> new RedstoneSwitchUpgrade(a, b, true), t -> t.is(Items.REDSTONE), Items.REDSTONE));
+        ALL_PLUGINS.add(new PluginInfo(PluginType.FEATURE, RedstoneSwitchUpgrade.ID_REVERT, (a, b) -> new RedstoneSwitchUpgrade(a, b, false), t -> t.is(Items.REDSTONE_TORCH), Items.REDSTONE_TORCH));
         ALL_PLUGINS.add(new PluginInfo(PluginType.UPGRADE, EtherStorageUpgrade.ID, EtherStorageUpgrade::new, t -> t.is(ItemRegistry.ETHERPHILIC_BOWL), ItemRegistry.ETHERPHILIC_BOWL.get()));
         ALL_PLUGINS.add(new PluginInfo(PluginType.UPGRADE, StorageUpgrade.ID, StorageUpgrade::new, t -> t.is(Items.CHEST) || t.is(ItemTags.COPPER_CHESTS), Items.CHEST));
         ALL_PLUGINS.add(new PluginInfo(PluginType.UPGRADE, EtherStreamStorageUpgrade.ID, (a, b) -> new EtherStreamStorageUpgrade(a, b, 1), t -> t.is(ItemTags.CHEST_BOATS), Items.OAK_CHEST_BOAT));
@@ -111,11 +114,10 @@ public class NodePluginManager {
         ALL_PLUGINS.add(new PluginInfo(PluginType.UPGRADE, EtherStreamCarryEntityUpgrade.ID, EtherStreamCarryEntityUpgrade::new, t -> t.is(ItemTags.BOATS) && !t.is(ItemTags.CHEST_BOATS), Items.OAK_BOAT));
         ALL_PLUGINS.add(new PluginInfo(PluginType.UPGRADE, EtherStreamCarryEntityUpgrade.ID_PLAYER, EtherStreamCarryEntityUpgrade::new, t -> t.is(Items.MINECART), Items.MINECART));
         ALL_PLUGINS.add(new PluginInfo(PluginType.UPGRADE, EtherStreamSpeedUpUpgrade.ID, EtherStreamSpeedUpUpgrade::new, t -> t.is(Items.POWERED_RAIL), Items.POWERED_RAIL));
+        ALL_PLUGINS.add(new PluginInfo(PluginType.UPGRADE, EtherStreamSpeedDownUpgrade.ID, EtherStreamSpeedDownUpgrade::new, t -> t.is(Items.RAIL), Items.RAIL));
         ALL_PLUGINS.add(new PluginInfo(PluginType.UPGRADE, EtherStreamBounceBackUpgrade.ID, EtherStreamBounceBackUpgrade::new, t -> t.is(Items.SLIME_BALL), Items.SLIME_BALL));
         ALL_PLUGINS.add(new PluginInfo(PluginType.UPGRADE, EtherStreamDisplayItemUpgrade.ID, EtherStreamDisplayItemUpgrade::new, t -> t.is(Items.ITEM_FRAME), Items.ITEM_FRAME));
-        ALL_PLUGINS.add(new PluginInfo(PluginType.FUNCTION, EtherAutoSupplyUpgrade.ID, EtherAutoSupplyUpgrade::new, t -> t.is(ItemRegistry.ETHER_CRYSTAL.get()), ItemRegistry.ETHER_CRYSTAL.get()));
-        ALL_PLUGINS.add(new PluginInfo(PluginType.FEATURE, RedstoneSwitchUpgrade.ID, (a, b) -> new RedstoneSwitchUpgrade(a, b, true), t -> t.is(Items.REDSTONE), Items.REDSTONE));
-        ALL_PLUGINS.add(new PluginInfo(PluginType.FEATURE, RedstoneSwitchUpgrade.ID_REVERT, (a, b) -> new RedstoneSwitchUpgrade(a, b, false), t -> t.is(Items.REDSTONE_TORCH), Items.REDSTONE_TORCH));
+        ALL_PLUGINS.add(new PluginInfo(PluginType.UPGRADE, SpeedUpgrade.ID, SpeedUpgrade::new, t -> t.is(Items.AMETHYST_SHARD), Items.AMETHYST_SHARD));
     }
 
     public NodePluginManager() {

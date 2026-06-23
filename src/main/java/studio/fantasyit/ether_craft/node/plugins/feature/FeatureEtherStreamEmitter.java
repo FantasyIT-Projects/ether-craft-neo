@@ -18,6 +18,7 @@ import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
 import studio.fantasyit.ether_craft.node.plugins.base.AbstractNodePlugin;
 import studio.fantasyit.ether_craft.node.plugins.base.IEtherStreamCapabilityProviderPlugin;
 import studio.fantasyit.ether_craft.node.plugins.base.PluginMenuContext;
+import studio.fantasyit.ether_craft.node.plugins.upgrade.EtherStreamSpeedDownUpgrade;
 import studio.fantasyit.ether_craft.node.plugins.upgrade.EtherStreamSpeedUpUpgrade;
 import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
 import studio.fantasyit.ether_craft.stream.PosDir;
@@ -70,6 +71,8 @@ public class FeatureEtherStreamEmitter extends AbstractDirectionalFilterFeature 
                 @Nullable Identifier plugin = nodeEntity.featureUpgradeStorage.getPluginId(i);
                 if (EtherStreamSpeedUpUpgrade.ID.equals(plugin)) {
                     spd = spd.multiply(2f, 2f, 2f);
+                } else if (EtherStreamSpeedDownUpgrade.ID.equals(plugin)) {
+                    spd = spd.multiply(0.5f, 0.5f, 0.5f);
                 }
             }
             IEtherStreamLike stream = veshm.createStream(

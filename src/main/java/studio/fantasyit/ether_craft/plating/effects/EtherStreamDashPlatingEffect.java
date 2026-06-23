@@ -24,8 +24,12 @@ public class EtherStreamDashPlatingEffect implements IPlatingEffect, IPlatingRig
         return ID;
     }
 
-    protected double getSpeed() {
+    protected double getSpeed(PlatingData platingData) {
         return Config.platingEtherStreamDashSpeed;
+    }
+
+    protected int getEtherContains(PlatingData platingData){
+        return (int) platingData.effect();
     }
 
     @Override
@@ -40,10 +44,10 @@ public class EtherStreamDashPlatingEffect implements IPlatingEffect, IPlatingRig
         if (!PlatingUtil.canExtractEther(stack, Config.platingEtherStreamDashEtherCost)) return true;
         if (entity.noPhysics) return true;
         PlatingUtil.extractEther(stack, Config.platingEtherStreamDashEtherCost);
-        int streamEther = (int) Math.max(1, data.effect());
+        int streamEther = Math.max(1, getEtherContains(data));
 
         Vec3 pos = entity.getEyePosition();
-        Vec3 motion = entity.getLookAngle().scale(getSpeed());
+        Vec3 motion = entity.getLookAngle().scale(getSpeed(data));
         EtherStreamEntity stream = EtherStreamEntity.create(level, streamEther, pos, motion);
         stream.setRealCanReceiveEther(Config.platingEtherStreamDashEtherCost);
         stream.setHitExclude(entity);
