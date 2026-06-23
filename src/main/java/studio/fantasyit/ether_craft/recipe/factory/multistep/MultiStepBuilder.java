@@ -7,7 +7,6 @@ import studio.fantasyit.ether_craft.factory.EtherProcessWorkingChip;
 import studio.fantasyit.ether_craft.item.ProcessChipItem;
 import studio.fantasyit.ether_craft.recipe.factory.PathNode;
 import studio.fantasyit.ether_craft.recipe.factory.RecipeNode;
-import studio.fantasyit.ether_craft.recipe.factory.TreeRef;
 import studio.fantasyit.ether_craft.register.ItemRegistry;
 
 import java.util.*;

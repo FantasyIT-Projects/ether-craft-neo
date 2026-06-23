@@ -2,9 +2,9 @@ package studio.fantasyit.ether_craft.recipe.factory.multistep;
 
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.common.crafting.SizedIngredient;
+import org.joml.Vector2i;
 import studio.fantasyit.ether_craft.base.TreeLike;
 import studio.fantasyit.ether_craft.recipe.factory.EtherProcessFactoryRecipe;
-import studio.fantasyit.ether_craft.recipe.factory.TreeRef;
 import studio.fantasyit.ether_craft.util.MathUtil;
 
 import java.util.ArrayList;
@@ -48,7 +48,19 @@ public class MultiStepMatchIOTemp {
         nodeMultipliersOuter.put(outId, multiplier);
     }
 
-    public MultiStepMatchIO propagateMultipliersAndGetImmutable(TreeLike<TreeRef, Integer> treeLike, TreeLike<EtherProcessFactoryRecipe, Void> key) {
+    public MultiStepMatchIO getFailed(EtherFactoryMultiStepInput input, TreeLike<EtherProcessFactoryRecipe, Void> keyTree) {
+
+        Map<Vector2i, ItemStack> intermediateOutputs = new HashMap<>();
+        input.outputPositions().forEach((k, v) -> {
+            if (input.globalOutputTmpMapping().containsKey(v)) {
+                intermediateOutputs.put(k, input.globalOutputTmpMapping().get(v));
+            }
+        });
+        return new MultiStepMatchIO(false, intermediateOutputs, List.of(), List.of(), keyTree, 0);
+    }
+
+    public MultiStepMatchIO propagateMultipliersAndGetImmutable(EtherFactoryMultiStepInput input, TreeLike<EtherProcessFactoryRecipe, Void> key) {
+        TreeLike<TreeRef, Integer> treeLike = input.processInputTrees();
         Map<Integer, Integer> finalMultipliers = new HashMap<>();
         int optimal = computeRequiredFactor(treeLike.getRoot());
         propagateMultipliersDFS(treeLike.getRoot(), finalMultipliers, optimal);
@@ -64,7 +76,13 @@ public class MultiStepMatchIOTemp {
         for (int i = 0; i < extraOutputs.size(); i++) {
             finalOutputs.add(extraOutputs.get(i).copyWithCount(finalMultipliers.getOrDefault(extraOutputsBelongsTo.get(i), 1) * extraOutputs.get(i).getCount()));
         }
-        return new MultiStepMatchIO(finalInputs, finalOutputs, key, nodeMultipliersInner.values().stream().max(Integer::compareTo).orElse(1));
+        Map<Vector2i, ItemStack> intermediateOutputs = new HashMap<>();
+        input.outputPositions().forEach((k, v) -> {
+            if (input.globalOutputTmpMapping().containsKey(v)) {
+                intermediateOutputs.put(k, input.globalOutputTmpMapping().get(v));
+            }
+        });
+        return new MultiStepMatchIO(true, intermediateOutputs, finalInputs, finalOutputs, key, nodeMultipliersInner.values().stream().max(Integer::compareTo).orElse(1));
     }
 
     private void propagateMultipliersDFS(TreeLike.TreeNode<TreeRef, Integer> node, Map<Integer, Integer> finalMultipliers, int multiplier) {

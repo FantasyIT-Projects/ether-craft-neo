@@ -104,6 +104,10 @@ public class EtherProcessFactoryContainerMenu extends BaseContainerMenu<@NotNull
             addSlot(new InvisibleSlot(entity.possibleResults, i, 0, 0));
         }
 
+        for (int i = 0; i < this.entity.possibleIntermediateResults.getContainerSize(); i++) {
+            addSlot(new InvisibleSlot(entity.possibleIntermediateResults, i, 0, 0));
+        }
+
         for (int i = this.entity.ROWS; i < mainUiSlots.size(); i++) {
             if (mainUiSlots.get(i) instanceof BaseSlot s)
                 internalAndOutputSlots.add(s);

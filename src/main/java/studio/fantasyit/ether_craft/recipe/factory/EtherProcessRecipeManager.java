@@ -16,6 +16,7 @@ import studio.fantasyit.ether_craft.factory.special.ExtraFurnaceRecipe;
 import studio.fantasyit.ether_craft.recipe.factory.multistep.EtherFactoryMultiStepInput;
 import studio.fantasyit.ether_craft.recipe.factory.multistep.MultiStepMatchIO;
 import studio.fantasyit.ether_craft.recipe.factory.multistep.MultiStepMatchIOTemp;
+import studio.fantasyit.ether_craft.recipe.factory.multistep.TreeRef;
 import studio.fantasyit.ether_craft.register.RecipeTypeRegistry;
 import studio.fantasyit.ether_craft.util.MathUtil;
 
@@ -85,9 +86,9 @@ public class EtherProcessRecipeManager {
         input.globalOutputTmpMapping().clear();
         getRecipeRecurse(level, manager, input.processInputTrees().getRoot(), input, result, isFail, keyTree, keyTree.getRoot().id, true);
         if (isFail.booleanValue()) {
-            return Optional.empty();
+            return Optional.of(result.getFailed(input,keyTree));
         }
-        return Optional.of(result.propagateMultipliersAndGetImmutable(input.processInputTrees(), keyTree));
+        return Optional.of(result.propagateMultipliersAndGetImmutable(input, keyTree));
     }
 
     public static void getRecipeRecurse(Level level,

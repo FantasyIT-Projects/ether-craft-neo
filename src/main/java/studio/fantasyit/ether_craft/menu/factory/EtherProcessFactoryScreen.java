@@ -187,10 +187,24 @@ public class EtherProcessFactoryScreen extends AbstractContainerScreen<@NotNull 
 
         int internalX = f.posInternal().x;
         int internalY = f.posInternal().y;
-        if (!menu.isFilterActive())
+        if (!menu.isFilterActive()) {
+            for (int j = 0; j < be.COLS; j++) {
+                for (int k = 0; k < be.ROWS; k++) {
+                    int idx = k * be.COLS + j;
+                    ItemStack item = menu.entity.possibleIntermediateResults.getItem(idx);
+                    if (!item.isEmpty())
+                        UIUtil.renderItemStackSlotPlaceholder(
+                                graphics,
+                                item,
+                                getLeftPos() + menu.internalAndOutputSlots.get(idx).x,
+                                getTopPos() + menu.internalAndOutputSlots.get(idx).y
+                        );
+                }
+            }
             for (int i = 0; i < be.processingInputs.length; i++) {
                 int progress = be.processingProgress[i];
                 if (progress == 0) continue;
+
                 for (int j = 0; j < be.COLS; j++) {
                     for (int k = 0; k < be.ROWS; k++) {
                         if (be.pathBelongings[k][j] != i) continue;
@@ -208,6 +222,7 @@ public class EtherProcessFactoryScreen extends AbstractContainerScreen<@NotNull 
                     }
                 }
             }
+        }
         for (int i = 0; i < be.processingRecipes.length; i++) {
             ItemStack it = be.possibleResults.getItem(i);
             if (it.isEmpty()) continue;

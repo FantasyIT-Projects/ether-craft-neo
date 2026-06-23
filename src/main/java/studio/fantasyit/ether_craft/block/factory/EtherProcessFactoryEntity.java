@@ -37,13 +37,13 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2i;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.block.base.*;
-import studio.fantasyit.ether_craft.recipe.factory.EtherProcessRecipeManager;
 import studio.fantasyit.ether_craft.factory.EtherProcessWorkingChip;
-import studio.fantasyit.ether_craft.recipe.factory.EtherProcessorRecipeUtil;
 import studio.fantasyit.ether_craft.factory.FactoryLevelDef;
 import studio.fantasyit.ether_craft.menu.factory.EtherProcessFactoryContainerMenu;
 import studio.fantasyit.ether_craft.network.s2c.SyncBlockNameS2C;
 import studio.fantasyit.ether_craft.recipe.factory.EtherFactoryRecipeInput;
+import studio.fantasyit.ether_craft.recipe.factory.EtherProcessRecipeManager;
+import studio.fantasyit.ether_craft.recipe.factory.EtherProcessorRecipeUtil;
 import studio.fantasyit.ether_craft.recipe.factory.multistep.EtherFactoryMultiStepInput;
 import studio.fantasyit.ether_craft.recipe.factory.multistep.MultiStepMatchIO;
 import studio.fantasyit.ether_craft.register.DataComponentRegistry;
@@ -62,6 +62,7 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
     public int[] processingProgress;
     public ItemFilter[] filters;
     public SimpleContainer possibleResults;
+    public SimpleContainer possibleIntermediateResults;
     // 配方数据
     public MultiStepMatchIO[] processingRecipes;
     public EtherFactoryMultiStepInput[] processingInputs;
@@ -96,6 +97,7 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
             filters[i].whitelist = true;
         }
         possibleResults = new SimpleContainer(ROWS);
+        possibleIntermediateResults = new SimpleContainer(ROWS * COLS);
         processingProgress = new int[ROWS];
         processingRecipes = new MultiStepMatchIO[ROWS];
         processingInputs = new EtherFactoryMultiStepInput[ROWS];
@@ -194,10 +196,15 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
         EtherProcessorRecipeUtil.FactoryStructure factoryStructure = EtherProcessorRecipeUtil.processFactoryInput(ROWS, COLS, inputContainer, slotChips);
         leak = factoryStructure.leakingSpeed;
         boolean[] hasRecipe = new boolean[ROWS];
+        boolean[][] affected = new boolean[ROWS][COLS];
         for (int i = 0; i < factoryStructure.recipes.size(); i++) {
             Optional<MultiStepMatchIO> recipeFor = EtherProcessRecipeManager.getRecipe(level, level.recipeAccess(), factoryStructure.recipes.get(i));
             Integer outputId = factoryStructure.recipes.get(i).outputI();
-            if (recipeFor.isPresent()) {
+            recipeFor.ifPresent(multiStepMatchIO -> multiStepMatchIO.nonOutputProducer().forEach((key, value) -> {
+                possibleIntermediateResults.setItem(key.y * COLS + key.x, value);
+                affected[key.x][key.y] = true;
+            }));
+            if (recipeFor.isPresent() && recipeFor.get().success()) {
                 MultiStepMatchIO currentRecipe = recipeFor.get();
                 hasRecipe[outputId] = true;
                 if (processingRecipes[outputId] != null && processingRecipes[outputId].isSameTo(currentRecipe)) {
@@ -221,12 +228,17 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
                 maxMultiplier[i] = 1;
             }
         }
+        for (int i = 0; i < ROWS; i++)
+            for (int j = 0; j < COLS; j++)
+                if (!affected[i][j])
+                    possibleIntermediateResults.setItem(i * COLS + j, ItemStack.EMPTY);
 
         for (int i = 0; i < ROWS; i++)
             pathMaxDepth[i] = 0;
         for (int i = 0; i < ROWS; i++)
             for (int j = 0; j < COLS; j++)
                 pathBelongings[i][j] = -1;
+
         for (int i = 0; i < ROWS; i++) {
             if (processingInputs[i] != null) {
                 int finalI = i;
