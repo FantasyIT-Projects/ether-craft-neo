@@ -20,17 +20,17 @@ public class DropperThrowerScreen extends DirectionalFilterScreen {
 
     public DropperThrowerScreen(PluginMenuContext<AbstractDirectionalFilterFeature> context, EtherAdaptNodeScreen screen) {
         super(context, screen);
-        FeatureDropperThrower plugin = (FeatureDropperThrower) context.plugin;
-        screen.registerMenuSyncer(new ScreenMenuSyncer<>(() -> plugin.throwCount, v -> {
-            if (throwCountScroll != null)
-                throwCountScroll.setValue(v - 1);
-        }));
     }
 
     @Override
     public void createWidget() {
         super.createWidget();
-        FeatureDropperThrower plugin = (FeatureDropperThrower) this.plugin;
+
+        FeatureDropperThrower plugin = (FeatureDropperThrower) context.plugin;
+        screen.registerMenuSyncer(new ScreenMenuSyncer<>(() -> plugin.throwCount, v -> {
+            if (throwCountScroll != null)
+                throwCountScroll.setValue(v - 1);
+        }));
 
         throwCountScroll = new ScrollableWidget(
                 lx(90), ly(12),

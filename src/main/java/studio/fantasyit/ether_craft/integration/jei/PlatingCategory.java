@@ -1,14 +1,11 @@
 package studio.fantasyit.ether_craft.integration.jei;
 
-import com.mojang.serialization.Codec;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
-import mezz.jei.api.helpers.ICodecHelper;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.IFocusGroup;
-import mezz.jei.api.recipe.IRecipeManager;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import mezz.jei.api.recipe.types.IRecipeType;
 import net.minecraft.ChatFormatting;
@@ -18,6 +15,7 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.context.ContextMap;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.display.SlotDisplayContext;
 import net.neoforged.neoforge.common.crafting.SizedIngredient;
 import org.jetbrains.annotations.Nullable;
@@ -29,7 +27,7 @@ import studio.fantasyit.ether_craft.register.ItemRegistry;
 
 import java.util.List;
 
-public class PlatingCategory implements IRecipeCategory<PlatingRecipe> {
+public class PlatingCategory implements IRecipeCategory<RecipeHolder<PlatingRecipe>> {
     private static final int WIDTH = 130;
     private static final int HEIGHT = 68;
     private static final int SLOT_SIZE = 18;
@@ -55,8 +53,8 @@ public class PlatingCategory implements IRecipeCategory<PlatingRecipe> {
     }
 
     @Override
-    public IRecipeType<PlatingRecipe> getRecipeType() {
-        return JEIPlugin.PLATING_TYPE;
+    public IRecipeType<RecipeHolder<PlatingRecipe>> getRecipeType() {
+        return JEIPlugin.PLATING_TYPE.get();
     }
 
     @Override
@@ -80,10 +78,11 @@ public class PlatingCategory implements IRecipeCategory<PlatingRecipe> {
     }
 
     @Override
-    public void setRecipe(IRecipeLayoutBuilder builder, PlatingRecipe recipe, IFocusGroup focuses) {
+    public void setRecipe(IRecipeLayoutBuilder builder, RecipeHolder<PlatingRecipe> recipeHolder, IFocusGroup focuses) {
         var level = Minecraft.getInstance().level;
         if (level == null) return;
         ContextMap ctx = SlotDisplayContext.fromLevel(level);
+        PlatingRecipe recipe = recipeHolder.value();
 
         List<SizedIngredient> ingredients = recipe.input;
         int count = Math.min(ingredients.size(), MAX_INPUTS);
@@ -105,8 +104,9 @@ public class PlatingCategory implements IRecipeCategory<PlatingRecipe> {
     }
 
     @Override
-    public void draw(PlatingRecipe recipe, IRecipeSlotsView recipeSlotsView,
+    public void draw(RecipeHolder<PlatingRecipe> recipeHolder, IRecipeSlotsView recipeSlotsView,
                      GuiGraphicsExtractor graphics, double mouseX, double mouseY) {
+        PlatingRecipe recipe = recipeHolder.value();
         List<SizedIngredient> ingredients = recipe.input;
         int count = Math.min(ingredients.size(), MAX_INPUTS);
         if (count > 0) {
@@ -133,14 +133,10 @@ public class PlatingCategory implements IRecipeCategory<PlatingRecipe> {
         graphics.textWithWordWrap(font, formulaText, TEXT_X, FORMULA_Y, availableTextWidth, 0xFFAAAAAA);
     }
 
-    @Override
-    public Codec<PlatingRecipe> getCodec(ICodecHelper codecHelper, IRecipeManager recipeManager) {
-        return PlatingRecipe.CODEC.codec();
-    }
 
     @Override
-    public @Nullable Identifier getIdentifier(PlatingRecipe recipe) {
-        return null;
+    public @Nullable Identifier getIdentifier(RecipeHolder<PlatingRecipe> recipe) {
+        return recipe.id().identifier();
     }
 
     private static void drawArrow(GuiGraphicsExtractor graphics, int startX, int endX, int y) {

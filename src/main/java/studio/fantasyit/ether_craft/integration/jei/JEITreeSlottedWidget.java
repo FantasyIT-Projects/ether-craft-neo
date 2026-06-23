@@ -18,9 +18,8 @@ import studio.fantasyit.ether_craft.recipe.factory.render.widget.ViewportInputHa
 import java.util.*;
 
 public class JEITreeSlottedWidget implements ISlottedRecipeWidget, IJeiInputHandler {
-    private static final int VIEW_W = TreeLayout.WIDTH;
-    private static final int VIEW_H = TreeLayout.HEIGHT;
-
+    private final int viewWidth;
+    private final int viewHeight;
     private final TreeDiagramViewport viewport;
     private final ViewportInputHandler inputHandler;
     private final TreeDiagramLayout layout;
@@ -29,10 +28,13 @@ public class JEITreeSlottedWidget implements ISlottedRecipeWidget, IJeiInputHand
     private final Map<String, IRecipeSlotDrawable> slotById = new HashMap<>();
 
     public JEITreeSlottedWidget(TreeDiagramLayout layout,
-                                 List<IRecipeSlotDrawable> allSlots) {
+                                 List<IRecipeSlotDrawable> allSlots,
+                                 int viewWidth, int viewHeight) {
         this.layout = layout;
+        this.viewWidth = viewWidth;
+        this.viewHeight = viewHeight;
         this.allSlots = new ArrayList<>(allSlots);
-        this.viewport = new TreeDiagramViewport(layout.canvasWidth, layout.canvasHeight, VIEW_W, VIEW_H);
+        this.viewport = new TreeDiagramViewport(layout.canvasWidth, layout.canvasHeight, viewWidth, viewHeight);
         this.inputHandler = new ViewportInputHandler(viewport);
         viewport.centerPan();
         this.proxiedSlots = new ArrayList<>(allSlots.size());
@@ -54,7 +56,7 @@ public class JEITreeSlottedWidget implements ISlottedRecipeWidget, IJeiInputHand
 
     @Override
     public ScreenRectangle getArea() {
-        return new ScreenRectangle(0, 0, VIEW_W, VIEW_H);
+        return new ScreenRectangle(0, 0, viewWidth, viewHeight);
     }
 
     @Override
@@ -64,7 +66,7 @@ public class JEITreeSlottedWidget implements ISlottedRecipeWidget, IJeiInputHand
 
     @Override
     public void drawWidget(GuiGraphicsExtractor graphics, double mouseX, double mouseY) {
-        graphics.enableScissor(0, 0, VIEW_W, VIEW_H);
+        graphics.enableScissor(0, 0, viewWidth, viewHeight);
         graphics.pose().pushMatrix();
         graphics.pose().translate((float) viewport.getPanX(), (float) viewport.getPanY());
         graphics.pose().scale((float) viewport.getZoom(), (float) viewport.getZoom());

@@ -1,5 +1,6 @@
 package studio.fantasyit.ether_craft.item;
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
@@ -53,9 +54,12 @@ public class ProcessChipItem extends Item {
         if (id == null) return;
         EtherProcessChipManager.ProcessChipRecord r = EtherProcessChipManager.get(id);
         if (r == null) return;
-        builder.accept(Component.translatable("tooltip.ether_craft.ether_process_chip.max_ether", r.maxEther()));
-        builder.accept(Component.translatable("tooltip.ether_craft.ether_process_chip.ether_decay", r.etherDecay()));
-        builder.accept(Component.translatable("tooltip.ether_craft.ether_process_chip.ether_require", r.etherRequire()));
+        if (tooltipFlag.isAdvanced()) {
+            builder.accept(Component.literal(id.toString()).withStyle(ChatFormatting.DARK_GRAY));
+            builder.accept(Component.translatable("tooltip.ether_craft.ether_process_chip.max_ether", r.maxEther()));
+            builder.accept(Component.translatable("tooltip.ether_craft.ether_process_chip.ether_decay", r.etherDecay()));
+            builder.accept(Component.translatable("tooltip.ether_craft.ether_process_chip.ether_require", r.etherRequire()));
+        }
         builder.accept(Component.translatable("tooltip.ether_craft.ether_process_chip.ether_consume", r.etherConsume()));
         if (r.maxDurability() > 0) {
             Integer stored = itemStack.get(DataComponentRegistry.DURABILITY);

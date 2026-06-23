@@ -40,13 +40,6 @@ public class MainPageProvider extends BaseEtherNodeTabWidgetProvider<MainPageDum
 
     public MainPageProvider(PluginMenuContext<MainPageDummyPlugin> context, EtherAdaptNodeScreen screen) {
         super(context, screen);
-        collectImageAsset(EtherAdaptNodeAsset.SLOT_LARGE, 26, 43);
-        collectImageAsset(EtherAdaptNodeAsset.ETHER_BAR_CTR, 26, 38);
-        collectImageAsset(EtherAdaptNodeAsset.HAMMER, 48, 45);
-        collectImageAsset(EtherAdaptNodeAsset.ICON_UPGRADE, 148, 51);
-        collectTooltipArea(new Rect2i(lx(26), ly(38), EtherAdaptNodeAsset.ETHER_BAR_CTR.w, EtherAdaptNodeAsset.ETHER_BAR_CTR.h),
-                () -> List.of(Component.translatable("menu.ether_craft.ether_bar_tooltip", screen.getMenu().entity.getEther()))
-        );
     }
 
     private MainPageContext ctx() {
@@ -55,6 +48,13 @@ public class MainPageProvider extends BaseEtherNodeTabWidgetProvider<MainPageDum
 
     @Override
     public void createWidget() {
+        collectImageAsset(EtherAdaptNodeAsset.SLOT_LARGE, 26, 43);
+        collectImageAsset(EtherAdaptNodeAsset.ETHER_BAR_CTR, 26, 38);
+        collectImageAsset(EtherAdaptNodeAsset.HAMMER, 48, 45);
+        collectImageAsset(EtherAdaptNodeAsset.ICON_UPGRADE, 148, 51);
+        collectTooltipArea(new Rect2i(lx(26), ly(38), EtherAdaptNodeAsset.ETHER_BAR_CTR.w, EtherAdaptNodeAsset.ETHER_BAR_CTR.h),
+                () -> List.of(Component.translatable("menu.ether_craft.ether_bar_tooltip", screen.getMenu().entity.getEther()))
+        );
         Consumer<Boolean> containerSetFocus = this.screen::setFocused;
         nameEdit = new EditBox(Minecraft.getInstance().font, lx(5), ly(5), 80, 12,
                 Component.translatable("ether_craft.gui.name_placeholder")) {

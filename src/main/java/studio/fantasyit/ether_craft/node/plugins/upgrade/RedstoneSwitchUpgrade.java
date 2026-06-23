@@ -1,13 +1,8 @@
-package studio.fantasyit.ether_craft.node.plugins.feature;
+package studio.fantasyit.ether_craft.node.plugins.upgrade;
 
 import net.minecraft.resources.Identifier;
-import net.minecraft.world.level.storage.ValueInput;
-import net.minecraft.world.level.storage.ValueOutput;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.block.node.EtherAdaptNodeEntity;
-import studio.fantasyit.ether_craft.menu.base.slot.BaseDataSlot;
-import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeContainerMenu;
-import studio.fantasyit.ether_craft.network.c2s.SyncScreenDataC2S;
 import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
 import studio.fantasyit.ether_craft.node.plugins.base.AbstractNodePlugin;
 

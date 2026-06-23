@@ -27,12 +27,7 @@ public class EtherStreamBounceBackCapability implements IStreamCapability {
     @Override
     public boolean onBeforeDestroy(IEtherStreamLike streamEntity, @Nullable HitResult hitResult) {
         if (streamEntity.getEther() > 0) {
-            Vec3 pos;
-            if (hitResult == null || hitResult.getType() == HitResult.Type.MISS) {
-                pos = streamEntity.position();
-            } else {
-                pos = hitResult.getLocation().subtract(streamEntity.deltaMovement().scale(2));
-            }
+            Vec3 pos = streamEntity.position().subtract(streamEntity.deltaMovement());
             streamEntity.recreate(pos, streamEntity.deltaMovement().reverse());
             return false;
         }

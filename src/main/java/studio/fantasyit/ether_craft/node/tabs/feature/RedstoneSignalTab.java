@@ -30,6 +30,10 @@ public class RedstoneSignalTab extends BaseEtherNodeTabWidgetProvider<FeatureRed
 
     public RedstoneSignalTab(PluginMenuContext<FeatureRedstoneSignal> context, EtherAdaptNodeScreen screen) {
         super(context, screen);
+    }
+
+    @Override
+    public void createWidget() {
         screen.registerMenuSyncer(new ScreenMenuSyncer<>(() -> context.plugin.direction, v -> {
             if (directionButton == null) return;
             for (Direction d : Direction.values())
@@ -37,10 +41,6 @@ public class RedstoneSignalTab extends BaseEtherNodeTabWidgetProvider<FeatureRed
             if (v != null)
                 directionButton.get(v).setDown(true);
         }));
-    }
-
-    @Override
-    public void createWidget() {
         directionButton = new HashMap<>();
         for (Direction direction : Direction.values()) {
             IASwitchButton button = new IASwitchButton(

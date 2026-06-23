@@ -67,6 +67,10 @@ public abstract class BaseEtherNodeTabWidgetProvider<T extends AbstractNodePlugi
         return false;
     }
 
+    public void reinit(){
+        tooltipAreas.clear();
+        imageAssets.clear();
+    }
     public void createWidget() {
 
     }

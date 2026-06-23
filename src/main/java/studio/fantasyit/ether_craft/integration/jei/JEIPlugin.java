@@ -1,7 +1,10 @@
 package studio.fantasyit.ether_craft.integration.jei;
 
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
+import mezz.jei.api.recipe.types.IRecipeHolderType;
 import mezz.jei.api.recipe.types.IRecipeType;
 import mezz.jei.api.registration.*;
 import net.minecraft.client.Minecraft;
@@ -9,16 +12,17 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import studio.fantasyit.ether_craft.Config;
 import net.minecraft.world.item.crafting.RecipeHolder;
+import org.jetbrains.annotations.NotNull;
+import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.event.ClientRecipeSyncEvent;
-import studio.fantasyit.ether_craft.recipe.factory.EtherProcessRecipeManager;
 import studio.fantasyit.ether_craft.factory.ExtraRecipeProvider;
 import studio.fantasyit.ether_craft.item.ProcessChipItem;
 import studio.fantasyit.ether_craft.node.NodePluginManager;
 import studio.fantasyit.ether_craft.recipe.crafting.UpgradeShapedRecipe;
 import studio.fantasyit.ether_craft.recipe.factory.EtherProcessFactoryRecipe;
+import studio.fantasyit.ether_craft.recipe.factory.EtherProcessRecipeManager;
 import studio.fantasyit.ether_craft.recipe.plating.PlatingRecipe;
 import studio.fantasyit.ether_craft.register.DataComponentRegistry;
 import studio.fantasyit.ether_craft.register.ItemRegistry;
@@ -29,15 +33,15 @@ import java.util.List;
 
 @JeiPlugin
 public class JEIPlugin implements IModPlugin {
-    public static final IRecipeType<EtherProcessFactoryRecipe> ETHER_PROCESS_TYPE =
-            IRecipeType.create(EtherCraft.MODID, "ether_process", EtherProcessFactoryRecipe.class);
+    public static final IRecipeType<EtherProcessCategory.EtherProcessFactoryRecipeWrapper> ETHER_PROCESS_TYPE =
+            IRecipeType.create(EtherCraft.MODID, "ether_process", EtherProcessCategory.EtherProcessFactoryRecipeWrapper.class);
     public static final IRecipeType<NodePluginInfoRecipe> NODE_PLUGIN_INFO_TYPE =
             IRecipeType.create(EtherCraft.MODID, "node_plugin_info", NodePluginInfoRecipe.class);
-    public static final IRecipeType<PlatingRecipe> PLATING_TYPE =
-            IRecipeType.create(EtherCraft.MODID, "plating", PlatingRecipe.class);
+    public static final Supplier<IRecipeHolderType<@NotNull PlatingRecipe>> PLATING_TYPE =
+            Suppliers.memoize(() -> IRecipeType.create(RecipeTypeRegistry.PLATING_RECIPE.get()));
 
     private record DynamicCategory(
-            IRecipeType<EtherProcessFactoryRecipe> type,
+            IRecipeType<EtherProcessCategory.EtherProcessFactoryRecipeWrapper> type,
             Identifier categoryId
     ) {
     }
@@ -67,12 +71,13 @@ public class JEIPlugin implements IModPlugin {
             String ns = catId.getNamespace();
             String path = catId.getPath().replace('/', '.');
             String uid = "ether_process_" + path;
-            IRecipeType<EtherProcessFactoryRecipe> type =
-                    IRecipeType.create(EtherCraft.MODID, uid, EtherProcessFactoryRecipe.class);
+            IRecipeType<EtherProcessCategory.EtherProcessFactoryRecipeWrapper> type =
+                    IRecipeType.create(EtherCraft.MODID, uid, EtherProcessCategory.EtherProcessFactoryRecipeWrapper.class);
             Component title = Component.translatable(
                     "jei.ether_craft.category." + ns + "." + catId.getPath().replace('/', '.'));
             EtherProcessCategory category = new EtherProcessCategory(guiHelper, type, title,
-                    new ItemStack(provider.getIcon().asItem()));
+                    new ItemStack(provider.getIcon().asItem()),
+                    TreeLayout.WIDTH_SMALL, TreeLayout.HEIGHT_SMALL);
             registration.addRecipeCategories(category);
             dynamicCategories.add(new DynamicCategory(type, catId));
         }
@@ -87,7 +92,7 @@ public class JEIPlugin implements IModPlugin {
         registerNodePluginInfo(registration);
         var platingRecipes = getPlatingRecipes();
         if (!platingRecipes.isEmpty()) {
-            registration.addRecipes(PLATING_TYPE, platingRecipes);
+            registration.addRecipes(PLATING_TYPE.get(), platingRecipes);
         }
 
         registration.addIngredientInfo(
@@ -97,9 +102,9 @@ public class JEIPlugin implements IModPlugin {
         );
 
         for (var dyn : dynamicCategories) {
-            List<EtherProcessFactoryRecipe> catRecipes = EtherProcessRecipeManager.extraRecipes.stream()
+            List<EtherProcessCategory.EtherProcessFactoryRecipeWrapper> catRecipes = EtherProcessRecipeManager.extraRecipes.stream()
                     .filter(e -> e.categoryId().equals(dyn.categoryId))
-                    .map(EtherProcessRecipeManager.ExtraRecipe::recipe)
+                    .map(t -> new EtherProcessCategory.EtherProcessFactoryRecipeWrapper(t.id(), t.recipe()))
                     .toList();
             if (!catRecipes.isEmpty()) {
                 registration.addRecipes(dyn.type, catRecipes);
@@ -117,13 +122,13 @@ public class JEIPlugin implements IModPlugin {
         registration.addRecipes(NODE_PLUGIN_INFO_TYPE, recipes);
     }
 
-    private static List<EtherProcessFactoryRecipe> getEtherProcessRecipes() {
-        List<EtherProcessFactoryRecipe> result = new ArrayList<>();
+    private static List<EtherProcessCategory.EtherProcessFactoryRecipeWrapper> getEtherProcessRecipes() {
+        List<EtherProcessCategory.EtherProcessFactoryRecipeWrapper> result = new ArrayList<>();
 
         var syncedMap = ClientRecipeSyncEvent.getSyncedRecipeMap();
         if (syncedMap != null) {
             for (RecipeHolder<EtherProcessFactoryRecipe> holder : syncedMap.byType(RecipeTypeRegistry.ETHER_PROCESS_FACTORY_RECIPE.get())) {
-                result.add(holder.value());
+                result.add(new EtherProcessCategory.EtherProcessFactoryRecipeWrapper(holder.id().identifier(), holder.value()));
             }
         }
 
@@ -135,7 +140,7 @@ public class JEIPlugin implements IModPlugin {
         if (server != null) {
             for (RecipeHolder<?> holder : server.getRecipeManager().getRecipes()) {
                 if (holder.value() instanceof EtherProcessFactoryRecipe recipe) {
-                    result.add(recipe);
+                    result.add(new EtherProcessCategory.EtherProcessFactoryRecipeWrapper(holder.id().identifier(), recipe));
                 }
             }
         }
@@ -143,13 +148,11 @@ public class JEIPlugin implements IModPlugin {
         return result;
     }
 
-    private static List<PlatingRecipe> getPlatingRecipes() {
-        List<PlatingRecipe> result = new ArrayList<>();
+    private static List<RecipeHolder<PlatingRecipe>> getPlatingRecipes() {
+        List<RecipeHolder<PlatingRecipe>> result = new ArrayList<>();
         var syncedMap = ClientRecipeSyncEvent.getSyncedRecipeMap();
         if (syncedMap != null) {
-            for (RecipeHolder<PlatingRecipe> holder : syncedMap.byType(RecipeTypeRegistry.PLATING_RECIPE.get())) {
-                result.add(holder.value());
-            }
+            result.addAll(syncedMap.byType(RecipeTypeRegistry.PLATING_RECIPE.get()));
         }
 
         if (!result.isEmpty()) {
@@ -159,8 +162,9 @@ public class JEIPlugin implements IModPlugin {
         var server = Minecraft.getInstance().getSingleplayerServer();
         if (server != null) {
             for (RecipeHolder<?> holder : server.getRecipeManager().getRecipes()) {
-                if (holder.value() instanceof PlatingRecipe recipe) {
-                    result.add(recipe);
+                if (holder.value() instanceof PlatingRecipe) {
+                    //noinspection unchecked
+                    result.add((RecipeHolder<PlatingRecipe>) holder);
                 }
             }
         }
@@ -181,7 +185,7 @@ public class JEIPlugin implements IModPlugin {
                 new ItemStack(ItemRegistry.ETHER_ADAPT_NODE_ITEM_LV_2.get()),
                 new ItemStack(ItemRegistry.ETHER_ADAPT_NODE_ITEM_LV_3.get())
         );
-        registration.addCraftingStation(PLATING_TYPE,
+        registration.addCraftingStation(PLATING_TYPE.get(),
                 ProcessChipItem.getStackFor(EtherCraft.id("converging_chip")),
                 new ItemStack(Items.DISPENSER),
                 new ItemStack(ItemRegistry.ETHER_ADAPT_NODE_ITEM_LV_1.get()),

@@ -3,9 +3,12 @@ package studio.fantasyit.ether_craft.node.tabs.function;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.network.chat.Component;
 import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeAsset;
+
+import java.util.List;
 import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeScreen;
 import studio.fantasyit.ether_craft.node.plugins.base.PluginMenuContext;
 import studio.fantasyit.ether_craft.node.plugins.function.FunctionEtherConverter;
@@ -16,7 +19,14 @@ public class EtherConverterScreen extends BaseEtherNodeTabWidgetProvider<Functio
 
     public EtherConverterScreen(PluginMenuContext<FunctionEtherConverter> context, EtherAdaptNodeScreen screen) {
         super(context, screen);
+    }
+
+    @Override
+    public void createWidget() {
         collectImageAsset(EtherAdaptNodeAsset.ETHER_BAR_CTR, 26, 38);
+        collectTooltipArea(new Rect2i(lx(26), ly(38), EtherAdaptNodeAsset.ETHER_BAR_CTR.w, EtherAdaptNodeAsset.ETHER_BAR_CTR.h),
+                () -> List.of(Component.translatable("menu.ether_craft.ether_bar_tooltip", screen.getMenu().entity.getEther()))
+        );
     }
 
     @Override

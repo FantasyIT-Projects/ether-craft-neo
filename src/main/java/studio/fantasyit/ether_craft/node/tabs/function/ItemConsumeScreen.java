@@ -3,9 +3,12 @@ package studio.fantasyit.ether_craft.node.tabs.function;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeAsset;
+
+import java.util.List;
 import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeScreen;
 import studio.fantasyit.ether_craft.node.filter.FilterGuiRegClient;
 import studio.fantasyit.ether_craft.node.plugins.base.PluginMenuContext;
@@ -17,7 +20,6 @@ public class ItemConsumeScreen extends BaseEtherNodeTabWidgetProvider<AbstractIt
 
     public ItemConsumeScreen(PluginMenuContext<AbstractItemConsumeFunction> context, EtherAdaptNodeScreen screen) {
         super(context, screen);
-        collectImageAsset(EtherAdaptNodeAsset.ETHER_BAR_CTR, 26, 38);
     }
 
     @Override
@@ -48,6 +50,10 @@ public class ItemConsumeScreen extends BaseEtherNodeTabWidgetProvider<AbstractIt
     @Override
     public void createWidget() {
         super.createWidget();
+        collectImageAsset(EtherAdaptNodeAsset.ETHER_BAR_CTR, 26, 38);
+        collectTooltipArea(new Rect2i(lx(26), ly(38), EtherAdaptNodeAsset.ETHER_BAR_CTR.w, EtherAdaptNodeAsset.ETHER_BAR_CTR.h),
+                () -> List.of(Component.translatable("menu.ether_craft.ether_bar_tooltip", screen.getMenu().entity.getEther()))
+        );
         FilterGuiRegClient.widget(screen, ()->plugin.filter.whitelist, plugin.installedId);
     }
 }

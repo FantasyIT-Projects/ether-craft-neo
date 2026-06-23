@@ -44,7 +44,9 @@ public class EtherAdaptNodeScreen extends AbstractContainerScreen<@NotNull Ether
     @Override
     protected void init() {
         super.init();
+        syncers.clear();
         if (tabProvider == null) return;
+        tabProvider.reinit();
         tabProvider.createWidget();
         updateTabs();
     }

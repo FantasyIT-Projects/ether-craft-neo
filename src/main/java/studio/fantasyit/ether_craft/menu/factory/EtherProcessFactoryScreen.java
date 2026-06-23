@@ -145,7 +145,7 @@ public class EtherProcessFactoryScreen extends AbstractContainerScreen<@NotNull 
                     if (r == null) continue;
                     int ether = be.currentEther[i][j];
                     int color = 0xff26c6da; //RGB#f57f17
-                    if (ether >= r.maxEther() - r.etherConsume() * 2)
+                    if (ether >= r.etherConsume() * 2 || ether == r.maxEther())
                         color = 0xff81c784; //RGB#81c784
                     if (ether < r.etherConsume())
                         color = 0xffe65100;

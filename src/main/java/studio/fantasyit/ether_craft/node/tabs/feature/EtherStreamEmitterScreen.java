@@ -23,6 +23,13 @@ public class EtherStreamEmitterScreen extends DirectionalFilterScreen {
         super(_context, screen);
         //noinspection rawtypes
         this.context = (FeatureEtherStreamEmitter.MenuContext) (PluginMenuContext) _context;
+    }
+
+
+    @Override
+    public void createWidget() {
+        super.createWidget();
+        FeatureEtherStreamEmitter plugin = (FeatureEtherStreamEmitter) this.plugin;
         screen.registerMenuSyncer(new ScreenMenuSyncer<>(() -> context.plugin.minEther, v -> {
             if (minEtherScroll != null)
                 minEtherScroll.setValue(v - context.scrollMin);
@@ -39,14 +46,6 @@ public class EtherStreamEmitterScreen extends DirectionalFilterScreen {
                 minEtherScroll.setValue(context.plugin.minEther - context.scrollMin);
             }
         }));
-    }
-
-
-    @Override
-    public void createWidget() {
-        super.createWidget();
-        FeatureEtherStreamEmitter plugin = (FeatureEtherStreamEmitter) this.plugin;
-
         minEtherScroll = new ScrollableWidget(
                 lx(90), ly(12),
                 0,

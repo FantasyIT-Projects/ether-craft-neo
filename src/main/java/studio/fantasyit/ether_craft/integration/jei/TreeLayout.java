@@ -20,6 +20,8 @@ public class TreeLayout {
     static final int CHIP_GAP = 1;
     static final int WIDTH = 280;
     static final int HEIGHT = 110;
+    static final int WIDTH_SMALL = 140;
+    static final int HEIGHT_SMALL = 90;
 
     record Entry(String id, int x, int y, SizedIngredient ingredient) {
     }

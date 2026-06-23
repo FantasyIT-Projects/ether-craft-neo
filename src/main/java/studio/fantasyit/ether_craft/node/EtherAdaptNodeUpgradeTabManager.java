@@ -11,7 +11,6 @@ import studio.fantasyit.ether_craft.node.plugins.feature.FeatureEtherStreamEmitt
 import studio.fantasyit.ether_craft.node.plugins.feature.FeatureRedstoneSignal;
 import studio.fantasyit.ether_craft.node.plugins.function.*;
 import studio.fantasyit.ether_craft.node.plugins.feature.DestructionUpgrade;
-import studio.fantasyit.ether_craft.node.plugins.feature.RedstoneSwitchUpgrade;
 import studio.fantasyit.ether_craft.node.tabs.BaseEtherNodeTabWidgetProvider;
 import studio.fantasyit.ether_craft.node.tabs.MainPageProvider;
 import studio.fantasyit.ether_craft.node.tabs.feature.ContainerInteractScreen;
