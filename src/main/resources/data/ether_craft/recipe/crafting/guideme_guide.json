@@ -1,0 +1,22 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "guideme"
+    }
+  ],
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "group": "ether_craft",
+  "ingredients": [
+    "ether_craft:inactivated_ether",
+    "minecraft:book"
+  ],
+  "result": {
+    "count": 1,
+    "id": "guideme:guide",
+    "components": {
+      "guideme:guide_id": "ether_craft:guide"
+    }
+  }
+}
