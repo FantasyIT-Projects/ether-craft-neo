@@ -9,6 +9,10 @@ import java.nio.ByteBuffer;
 
 public class Integrations {
 
+    public static boolean isGuideMeLoaded(){
+        return ModList.get().isLoaded("guideme");
+    }
+
     public static boolean isSodiumLoaded() {
         return ModList.get().isLoaded("sodium");
     }

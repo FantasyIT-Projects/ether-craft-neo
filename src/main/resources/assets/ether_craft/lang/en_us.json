@@ -28,6 +28,9 @@
   "ether_craft.gui.node.function_node_process.show_input_filter": "Using: Show Input Filter",
   "ether_craft.gui.node.function_node_process.result_filter": "Output Filter. When set, only matching recipes are processed.",
   "ether_craft.gui.node.enchanter.level_cost": "Using: Ether: %d",
+  "guide.ether_craft.title": "Ether Craft Guide",
+  "guide.ether_craft.tooltip": "Ether Craft Guide",
+
   "ether_craft_tab_main": "Ether Craft",
   "message.ether_craft.plugin_installed": "Plugin installed",
   "message.ether_craft.plugin_slots_full": "No empty plugin slot available",

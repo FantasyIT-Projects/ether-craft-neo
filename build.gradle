@@ -123,6 +123,9 @@ dependencies {
 //    runtimeOnly "maven.modrinth:sodium:mc26.1.2-0.8.12-neoforge"
 //    runtimeOnly "maven.modrinth:iris:1.10.9+26.1-neoforge"
 
+    compileOnly "org.appliedenergistics:guideme:${guideme_version}:api"
+    runtimeOnly "org.appliedenergistics:guideme:${guideme_version}"
+
     compileOnly "net.caffeinemc:sodium-neoforge-api:0.8.12+mc26.1.2"
     compileOnly "maven.modrinth:iris:1.10.9+26.1-neoforge"
     compileOnly "maven.modrinth:jade:26.1.1+neoforge"

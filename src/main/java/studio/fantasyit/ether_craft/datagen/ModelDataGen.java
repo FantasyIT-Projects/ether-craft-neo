@@ -98,6 +98,11 @@ public class ModelDataGen extends ModelProvider {
             itemModels.itemModelOutput.register(id, new ClientItem(ItemModelUtils.plainModel(identifier), new ClientItem.Properties(false, false, 1)));
         });
 
+        //guide book
+        Identifier guideBook = EtherCraft.id("guide_book");
+        Identifier identifier = ITEM_SIMPLE.create(guideBook.withPrefix("item/"), new TextureMapping().put(TextureSlot.LAYER0, new Material(guideBook.withPrefix("item/"))), itemModels.modelOutput);
+        itemModels.itemModelOutput.register(guideBook, new ClientItem(ItemModelUtils.plainModel(identifier), new ClientItem.Properties(false, false, 1)));
+
         //加工中心 - level-based models
         var processFactory = BlockRegistry.ETHER_PROCESS_FACTORY.get();
         Identifier[] levelModelIds = new Identifier[5];

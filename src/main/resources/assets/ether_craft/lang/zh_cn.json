@@ -27,6 +27,9 @@
   "ether_craft.gui.node.function_node_process.show_input_filter": "当前: 显示输入过滤器",
   "ether_craft.gui.node.function_node_process.result_filter": "输出过滤器。设置后仅处理匹配的配方。",
   "ether_craft.gui.node.enchanter.level_cost": "当前: 以太: %d",
+  "guide.ether_craft.title": "以太工艺指南",
+  "guide.ether_craft.tooltip": "以太工艺指南",
+
   "ether_craft_tab_main": "以太工艺",
   "message.ether_craft.plugin_installed": "已安装插件",
   "message.ether_craft.plugin_slots_full": "没有可用的插件槽位",

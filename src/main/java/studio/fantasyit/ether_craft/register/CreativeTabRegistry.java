@@ -9,6 +9,8 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.factory.EtherProcessChipManager;
+import studio.fantasyit.ether_craft.integration.Integrations;
+import studio.fantasyit.ether_craft.integration.guideme.GuideMeFunctions;
 import studio.fantasyit.ether_craft.item.ProcessChipItem;
 
 public class CreativeTabRegistry {
@@ -19,6 +21,8 @@ public class CreativeTabRegistry {
                     CreativeModeTab.builder().icon(() -> new ItemStack(ItemRegistry.ETHER.get()))
                             .title(Component.translatable(TAB_NAME))
                             .displayItems((pParameter, pOutput) -> {
+                                if (Integrations.isGuideMeLoaded())
+                                    pOutput.accept(GuideMeFunctions.getGuide());
                                 ItemRegistry.ITEMS
                                         .getEntries()
                                         .stream()
