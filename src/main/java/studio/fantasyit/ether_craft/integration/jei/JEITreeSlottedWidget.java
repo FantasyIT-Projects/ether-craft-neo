@@ -18,8 +18,8 @@ import studio.fantasyit.ether_craft.recipe.factory.render.widget.ViewportInputHa
 import java.util.*;
 
 public class JEITreeSlottedWidget implements ISlottedRecipeWidget, IJeiInputHandler {
-    private static final int VIEW_W = 140;
-    private static final int VIEW_H = 90;
+    private static final int VIEW_W = TreeLayout.WIDTH;
+    private static final int VIEW_H = TreeLayout.HEIGHT;
 
     private final TreeDiagramViewport viewport;
     private final ViewportInputHandler inputHandler;
@@ -34,6 +34,7 @@ public class JEITreeSlottedWidget implements ISlottedRecipeWidget, IJeiInputHand
         this.allSlots = new ArrayList<>(allSlots);
         this.viewport = new TreeDiagramViewport(layout.canvasWidth, layout.canvasHeight, VIEW_W, VIEW_H);
         this.inputHandler = new ViewportInputHandler(viewport);
+        viewport.centerPan();
         this.proxiedSlots = new ArrayList<>(allSlots.size());
         for (var slot : allSlots) {
             this.proxiedSlots.add(new ViewportSlotProxy(slot, viewport));

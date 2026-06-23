@@ -55,6 +55,19 @@ public class TreeDiagramViewport {
         clampPan();
     }
 
+    public void centerPan() {
+        if (canvasWidth < viewWidth) {
+            panX = (double) (viewWidth - canvasWidth) / 2.0;
+        } else {
+            panX = 0;
+        }
+        if (canvasHeight < viewHeight) {
+            panY = (double) (viewHeight - canvasHeight) / 2.0;
+        } else {
+            panY = 0;
+        }
+    }
+
     public double getPanX() { return panX; }
     public double getPanY() { return panY; }
     public double getZoom() { return zoom; }

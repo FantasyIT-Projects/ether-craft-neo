@@ -57,6 +57,7 @@ public class TreeDiagramWidget {
         this.layout = layout;
         this.viewport.canvasWidth = layout.canvasWidth;
         this.viewport.canvasHeight = layout.canvasHeight;
+        viewport.centerPan();
     }
 
     public <T> void bindNode(String id, NodeRenderer<T> renderer,

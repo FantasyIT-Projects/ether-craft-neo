@@ -5,22 +5,30 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.display.DisplayContentsFactory;
 import net.neoforged.neoforge.common.crafting.SizedIngredient;
 import studio.fantasyit.ether_craft.recipe.factory.EtherProcessRecipeJson;
-import studio.fantasyit.ether_craft.recipe.factory.render.data.TreeDiagramSpec;
 import studio.fantasyit.ether_craft.recipe.factory.render.data.TreeDiagramLayout;
+import studio.fantasyit.ether_craft.recipe.factory.render.data.TreeDiagramSpec;
 import studio.fantasyit.ether_craft.recipe.factory.render.data.TreeLayoutCalculator;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class TreeLayout {
     static final int SLOT_SIZE = 18;
     static final int SLOT_SIZE_OUTPUT = 22;
     static final int CHIP_GAP = 1;
-    static final int WIDTH = 140;
-    static final int HEIGHT = 90;
+    static final int WIDTH = 280;
+    static final int HEIGHT = 110;
 
-    record Entry(String id, int x, int y, SizedIngredient ingredient) {}
-    record ChipEntry(String parentId, int x, int y, SizedIngredient ingredient) {}
-    record Edge(int fromX, int fromY, int toX, int toY) {}
+    record Entry(String id, int x, int y, SizedIngredient ingredient) {
+    }
+
+    record ChipEntry(String parentId, int x, int y, SizedIngredient ingredient) {
+    }
+
+    record Edge(int fromX, int fromY, int toX, int toY) {
+    }
 
     final List<Entry> inputs = new ArrayList<>();
     final List<ChipEntry> chips = new ArrayList<>();
