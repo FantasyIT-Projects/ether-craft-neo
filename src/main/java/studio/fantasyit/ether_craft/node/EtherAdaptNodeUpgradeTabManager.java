@@ -35,7 +35,6 @@ public class EtherAdaptNodeUpgradeTabManager {
         register(FunctionFurnaceGenerator.ID_BLAST, wrap(ItemConsumeScreen::new));
         register(FunctionStoneGenerator.ID, wrap(ItemConsumeScreen::new));
         register(FunctionMagnet.ID, wrap(MagnetFunctionScreen::new));
-        register(FunctionNodeProcess.ID, wrap(FunctionNodeProcessScreen::new));
         register(FunctionEquipmentConsumeGenerator.ID, wrap(EquipmentConsumeScreen::new));
         register(FunctionEtherConverter.ID, wrap(EtherConverterScreen::new));
         register(FunctionEnchanter.ID, wrap(EnchanterScreen::new));

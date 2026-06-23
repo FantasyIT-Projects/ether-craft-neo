@@ -80,7 +80,6 @@ public class NodePluginManager {
         ALL_PLUGINS.add(new PluginInfo(PluginType.FUNCTION, FunctionFurnaceGenerator.ID_BLAST, FunctionFurnaceGenerator::new, t -> t.is(Items.BLAST_FURNACE), Items.BLAST_FURNACE));
         ALL_PLUGINS.add(new PluginInfo(PluginType.FUNCTION, FunctionStoneGenerator.ID, FunctionStoneGenerator::new, t -> t.is(Items.STONECUTTER), Items.STONECUTTER));
         ALL_PLUGINS.add(new PluginInfo(PluginType.FUNCTION, FunctionMagnet.ID, FunctionMagnet::new, t -> t.is(ItemRegistry.VACUUM_PIPE), ItemRegistry.VACUUM_PIPE.get()));
-        ALL_PLUGINS.add(new PluginInfo(PluginType.FUNCTION, FunctionNodeProcess.ID, FunctionNodeProcess::new, t -> t.is(Items.CRAFTER), Items.CRAFTER));
         ALL_PLUGINS.add(new PluginInfo(PluginType.FUNCTION, FunctionEquipmentConsumeGenerator.ID, FunctionEquipmentConsumeGenerator::new, t -> t.is(Items.GRINDSTONE), Items.GRINDSTONE));
         ALL_PLUGINS.add(new PluginInfo(PluginType.FUNCTION, FunctionEtherConverter.ID, FunctionEtherConverter::new, t -> t.is(ItemRegistry.PROCESS_CHIP_ITEM) && EtherCraft.id("antimatter_producing_chip").equals(t.get(DataComponentRegistry.CHIP_ID)),
                 new ItemStackTemplate(ItemRegistry.PROCESS_CHIP_ITEM, DataComponentPatch.builder().set(DataComponentRegistry.CHIP_ID.get(), EtherCraft.id("antimatter_producing_chip")).set(DataComponents.ITEM_MODEL, EtherCraft.id("antimatter_producing_chip")).build())));

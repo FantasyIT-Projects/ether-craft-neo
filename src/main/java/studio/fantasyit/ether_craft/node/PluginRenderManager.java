@@ -93,11 +93,6 @@ public class PluginRenderManager {
                     state.setSideAtlas(Direction.UP, EtherAdapterNodeAtlas.FUNCTION_MAGNET_TOP.get(dTick));
                 }
         );
-        register(FunctionNodeProcess.ID, (face, dTick, nodeEntity, state, installedPlugin) -> {
-                    state.setSideAtlas(Direction.DOWN, EtherAdapterNodeAtlas.FUNCTION_CRAFTING_BOTTOM);
-                    state.setSideAtlas(Direction.UP, EtherAdapterNodeAtlas.FUNCTION_CRAFTING_TOP);
-                }
-        );
         register(FeatureEtherStreamEmitter.ID, (face, dTick, nodeEntity, state, installedPlugin) ->
                 state.setSideAtlas(face, EtherAdapterNodeAtlas.FEATURE_EMITTER)
         );

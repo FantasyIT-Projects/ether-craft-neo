@@ -189,7 +189,7 @@
   "jei.ether_craft.plugin.ether_craft.redstone_signal": "Outputs a comparator signal based on the node's ether level or inventory fill percentage.",
   "jei.ether_craft.plugin.ether_craft.redstone_switch": "Enables or disables the node based on redstone signal.",
   "jei.ether_craft.plugin.ether_craft.destruction": "Destroys filtered items in the node inventory (overflow mode or all matching items).",
-  "jei.ether_craft.plugin.ether_craft.speed_upgrade": "Increases node processing speed.",
+  "jei.ether_craft.plugin.ether_craft.speed_upgrade": "Increases ether generator's speed.",
   "jei.ether_craft.plugin.ether_craft.ether_stream_speed_up_upgrade": "Increases ether stream travel speed.",
   "jei.ether_craft.plugin.ether_craft.ether_stream_bounce_back_upgrade": "Allows ether streams to bounce back on contact.",
   "jei.ether_craft.plugin.ether_craft.ether_auto_supply_upgrade": "Automatically supplies ether when below threshold.",

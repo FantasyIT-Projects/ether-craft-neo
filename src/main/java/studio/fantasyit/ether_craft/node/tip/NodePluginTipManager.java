@@ -3,16 +3,13 @@ package studio.fantasyit.ether_craft.node.tip;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.tags.ItemTags;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.neoforged.neoforge.common.crafting.DifferenceIngredient;
 import studio.fantasyit.ether_craft.node.plugins.feature.*;
 import studio.fantasyit.ether_craft.node.plugins.function.*;
 import studio.fantasyit.ether_craft.node.plugins.upgrade.*;
-import studio.fantasyit.ether_craft.recipe.node.NodeProcessRecipe;
 import studio.fantasyit.ether_craft.register.ItemRegistry;
 
 import java.util.*;
@@ -105,24 +102,6 @@ public class NodePluginTipManager {
                 ), List.of(), Set.of(TipConcept.ETHER_FLOW, TipConcept.WORLD_INTERACTION)));
         registerTip(EtherStreamBounceBackUpgrade.ID,
                 new TipInfo(List.of(Ingredient.of(Items.SLIME_BALL)), List.of(), Set.of(TipConcept.ETHER_FLOW)));
-
-        scanNodeProcessRecipes(recipeManager);
-    }
-
-    private void scanNodeProcessRecipes(RecipeManager recipeManager) {
-        List<ItemStack> allResults = new ArrayList<>();
-
-        for (RecipeHolder<?> holder : recipeManager.getRecipes()) {
-            if (holder.value() instanceof NodeProcessRecipe recipe) {
-                allResults.add(recipe.result.create());
-            }
-        }
-
-        registerTip(FunctionNodeProcess.ID, new TipInfo(
-                List.of(Ingredient.of(Items.CRAFTER)),
-                allResults,
-                Set.of(TipConcept.CRAFTING)
-        ));
     }
 
     public void registerTip(Identifier pluginId, TipInfo tipInfo) {

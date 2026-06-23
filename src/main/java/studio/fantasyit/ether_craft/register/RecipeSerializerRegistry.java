@@ -9,7 +9,6 @@ import org.jetbrains.annotations.NotNull;
 import studio.fantasyit.ether_craft.recipe.crafting.UpgradeShapedRecipe;
 import studio.fantasyit.ether_craft.recipe.factory.EtherProcessFactoryRecipe;
 import studio.fantasyit.ether_craft.recipe.grid.EtherProcessFactoryGrid;
-import studio.fantasyit.ether_craft.recipe.node.NodeProcessRecipe;
 import studio.fantasyit.ether_craft.recipe.plating.PlatingRecipe;
 
 public class RecipeSerializerRegistry {
@@ -18,11 +17,6 @@ public class RecipeSerializerRegistry {
             recipeSerializerIDeferredHolder.register("ether_process", () -> new RecipeSerializer<>(
                     EtherProcessFactoryRecipe.CODEC,
                     EtherProcessFactoryRecipe.STREAM_CODEC
-            ));
-    public static final DeferredHolder<RecipeSerializer<?>, @NotNull RecipeSerializer<@NotNull NodeProcessRecipe>> NODE_PROCESS_RECIPE_SERIALIZER =
-            recipeSerializerIDeferredHolder.register("node_process", () -> new RecipeSerializer<>(
-                    NodeProcessRecipe.CODEC,
-                    NodeProcessRecipe.STREAM_CODEC
             ));
     public static final DeferredHolder<RecipeSerializer<?>, @NotNull RecipeSerializer<@NotNull EtherProcessFactoryGrid>> ETHER_PROCESS_FACTORY_GRID_SERIALIZER =
             recipeSerializerIDeferredHolder.register("ether_process_factory_grid", () -> new RecipeSerializer<>(

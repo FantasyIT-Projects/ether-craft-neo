@@ -50,7 +50,7 @@ public class PlatingCategory implements IRecipeCategory<PlatingRecipe> {
     public PlatingCategory(IGuiHelper guiHelper) {
         this.icon = guiHelper.createDrawableIngredient(
                 VanillaTypes.ITEM_STACK,
-                ProcessChipItem.getStackFor(EtherCraft.id("energizing_chip"))
+                ProcessChipItem.getStackFor(EtherCraft.id("converging_chip"))
         );
     }
 
