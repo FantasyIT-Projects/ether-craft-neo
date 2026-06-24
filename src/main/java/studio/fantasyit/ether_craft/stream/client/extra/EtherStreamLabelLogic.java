@@ -84,13 +84,17 @@ public class EtherStreamLabelLogic implements IEtherStreamExtraClientLogic {
 
             //因为两个面的文字序不一样，这里需要根据面来计算文字序
             List<EtherStreamLabelData.Segment> renderSegments;
+            double maxLen = 60 * stream.motion.length() * 100;
             if (stream.isDying) {
                 int deathClip = (int) ((60 - stream.deathTick) * stream.motion.length() * 100);
+                if (unclippedTotalWidth > maxLen) {
+                    deathClip += (int) (unclippedTotalWidth - maxLen);
+                }
                 renderSegments = clipSegments(segments, deathClip - 70, font, !textReverse);
             } else {
                 double distanceTraveled = currentPos.distanceTo(stream.startPos);
                 int keepPixels = (int) (distanceTraveled * 100);
-                int clip = Math.max(0, (int) unclippedTotalWidth - keepPixels);
+                int clip = Math.max(0, (int) (unclippedTotalWidth - Math.min(keepPixels, maxLen)));
                 renderSegments = clipSegments(segments, clip - 70, font, textReverse);
             }
 
@@ -108,7 +112,13 @@ public class EtherStreamLabelLogic implements IEtherStreamExtraClientLogic {
             //对于死后的流，需要自己控制移动动画
             if (stream.isDying) {
                 float deathOffset = (60f - stream.deathTick + partialTick) * (float) stream.motion.length() * 100;
-                deathOffset -= (unclippedTotalWidth - totalWidth);
+                float t = unclippedTotalWidth;
+                if (maxLen < unclippedTotalWidth) {
+                    t = 0;
+                    for (EtherStreamLabelData.Segment seg : clipSegments(segments, (int) (unclippedTotalWidth - maxLen) - 70, font, !textReverse))
+                        t += font.width(seg.text()) * seg.scale();
+                }
+                deathOffset -= t - totalWidth;
                 if (steep)
                     poseStack.translate(motion.y > 0 ? deathOffset : -deathOffset, 0, 0);
                 else
@@ -148,9 +158,14 @@ public class EtherStreamLabelLogic implements IEtherStreamExtraClientLogic {
         @Nullable EtherStreamLabelData labelData = (EtherStreamLabelData) entry.getSyncedData(EtherStreamLabelData.ID);
         if (labelData == null) return false;
         Font font = Minecraft.getInstance().font;
+        double maxLen = 60 * entry.motion.length() * 100;
         float totalWidth = 0;
         for (EtherStreamLabelData.Segment seg : labelData.getSegments()) {
             totalWidth += font.width(seg.text()) * seg.scale();
+            if (totalWidth > maxLen) break;
+        }
+        if (totalWidth > maxLen) {
+            totalWidth = (float) maxLen;
         }
         Vec3 farest = currentPos.subtract(entry.motion.normalize().scale(totalWidth * LABEL_SCALE));
         return camera.cullFrustum.pointInFrustum(farest.x, farest.y, farest.z);
