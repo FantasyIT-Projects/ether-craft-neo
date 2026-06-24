@@ -30,6 +30,12 @@ public class AttachmentDataRegistry {
                     .serialize(VirtualEtherStreamHolderManager.CODEC.fieldOf("data"))
                     .build()
     );
+
+    public static final Supplier<AttachmentType<Long>> PICK_UP_BY_STREAM_COOLDOWN = ATTACHMENT_TYPES.register(
+            "pickup_by_stream_cooldown", () -> AttachmentType.builder(() -> 0L)
+                    .serialize(Codec.LONG.fieldOf("pickup_by_stream_cooldown"))
+                    .build()
+    );
     public static final Supplier<AttachmentType<Long>> CARRY_COOLDOWN = ATTACHMENT_TYPES.register(
             "carry_cooldown", () -> AttachmentType.builder(() -> -40L)
                     .serialize(Codec.LONG.fieldOf("carry_cooldown"))

@@ -158,6 +158,10 @@ public class Config {
             .comment("...")
             .defineInRange("ether_stream.ether_glass_prevent_consume", 20, 0, Integer.MAX_VALUE);
 
+    private static final ModConfigSpec.IntValue ETHER_STREAM_DESTROY_THRESHOLD = BUILDER
+            .comment("When more than this many same-source ether streams are in one block, destroy the first one")
+            .defineInRange("ether_stream.destroy_threshold", 100, 1, Integer.MAX_VALUE);
+
     // -- ether_stream.break_block --
 
     private static final ModConfigSpec.IntValue ETHER_STREAM_BREAK_BLOCK_HARDNESS_MULTIPLIER = BUILDER
@@ -370,11 +374,17 @@ public class Config {
     private static final ModConfigSpec.IntValue PLATING_SILENT_STEP_ETHER_PER_TICK = BUILDER
             .comment("Ether consumed per tick when suppressing vibration events")
             .defineInRange("plating.silent_step.ether_per_tick", 1, 0, Integer.MAX_VALUE);
-
     // -- plating.durability_absorption --
+
     private static final ModConfigSpec.IntValue PLATING_DURABILITY_ABSORPTION_ETHER_PER_DURABILITY = BUILDER
             .comment("Ether consumed per durability point absorbed. Minimum 1.")
             .defineInRange("plating.durability_absorption.ether_per_durability", 500, 1, Integer.MAX_VALUE);
+
+    // -- pickup delay after dropped --
+
+    private static final ModConfigSpec.IntValue ITEM_PICK_UP_BY_STREAM_DELAY_AFTER_DROPPED = BUILDER
+            .comment("Delay in ticks before a dropped item can be picked up by ether stream")
+            .defineInRange("item_pick_up_by_stream_delay_after_dropped", 20, 0, 100);
 
 
     static final ModConfigSpec SPEC = BUILDER.build();
@@ -400,6 +410,7 @@ public class Config {
     public static int nodeEmitterMinEtherMin;
     public static int nodeEmitterMinEtherMax;
     public static int etherStreamMaxTick;
+    public static int etherStreamDestroyThreshold;
     public static double etherStreamGlassTransformChance;
     public static double etherStreamConsumptionFactor;
     public static double etherStreamConsumptionByTimeFactor;
@@ -457,6 +468,7 @@ public class Config {
     public static int platingAntiSonicBoomEtherPerBlock;
     public static int platingSilentStepEtherPerTick;
     public static int platingDurabilityAbsorptionEtherPerDurability;
+    public static int itemPickUpByStreamDelayAfterDropped;
 
     @SubscribeEvent
     static void onLoad(final ModConfigEvent event) {
@@ -494,6 +506,7 @@ public class Config {
         nodeEnchanterMaxProgress = NODE_ENCHANTER_MAX_PROGRESS.get();
         etherStorageMultiplier = ETHER_STORAGE_MULTIPLIER.get();
         etherGlassPreventConsume = ETHER_GLASS_PREVENT_CONSUME.get();
+        etherStreamDestroyThreshold = ETHER_STREAM_DESTROY_THRESHOLD.get();
         nodeProcessEtherConsumePreUnmatched = ETHER_PROCESS_ETHER_CONSUME_PRE_UNMATCHED.get();
         etherAutoSupplyThreshold = NODE_AUTO_SUPPLY_THRESHOLD.get();
         etherAutoSupplyEtherPerTick = NODE_AUTO_SUPPLY_ETHER_PER_TICK.get();
@@ -538,5 +551,6 @@ public class Config {
         platingAntiSonicBoomEtherPerBlock = PLATING_ANTI_SONIC_BOOM_ETHER_PER_BLOCK.get();
         platingSilentStepEtherPerTick = PLATING_SILENT_STEP_ETHER_PER_TICK.get();
         platingDurabilityAbsorptionEtherPerDurability = PLATING_DURABILITY_ABSORPTION_ETHER_PER_DURABILITY.get();
+        itemPickUpByStreamDelayAfterDropped = ITEM_PICK_UP_BY_STREAM_DELAY_AFTER_DROPPED.get();
     }
 }

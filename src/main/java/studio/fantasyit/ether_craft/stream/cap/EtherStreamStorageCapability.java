@@ -2,25 +2,25 @@ package studio.fantasyit.ether_craft.stream.cap;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.Container;
 import net.minecraft.world.ContainerHelper;
-import net.minecraft.world.Containers;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
-import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.EntityHitResult;
-import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.*;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
@@ -30,7 +30,9 @@ import net.neoforged.neoforge.transfer.transaction.Transaction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
+import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.EtherCraft;
+import studio.fantasyit.ether_craft.register.AttachmentDataRegistry;
 import studio.fantasyit.ether_craft.stream.EtherConsumer;
 import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
 import studio.fantasyit.ether_craft.util.ContainerOps;
@@ -104,6 +106,9 @@ public class EtherStreamStorageCapability implements IStreamCapability, Containe
         boolean changed = false;
         if (!entities.isEmpty()) {
             for (ItemEntity e : entities) {
+                if (e.hasData(AttachmentDataRegistry.TAKEN_BY_ETHER_STREAM))
+                    if (e.getData(AttachmentDataRegistry.TAKEN_BY_ETHER_STREAM) > e.tickCount)
+                        continue;
                 ItemStack tpItem = e.getItem();
                 if (tpItem.isEmpty()) continue;
                 int toInsert = tpItem.count();
@@ -149,9 +154,26 @@ public class EtherStreamStorageCapability implements IStreamCapability, Containe
 
     @Override
     public void onDestroy(IEtherStreamLike streamEntity, @Nullable HitResult hitResult) {
-        Containers.dropContents(streamEntity.level(), streamEntity.blockPosition(), this);
+        Vec3 _position = streamEntity.position().subtract(streamEntity.deltaMovement());
+        Vec3 position = BlockPos.containing(_position).getCenter();
+        for (int i = 0; i < getContainerSize(); ++i) {
+            dropItemStack(streamEntity.level(), position.x, position.y, position.z, getItem(i));
+        }
     }
 
+
+    public static void dropItemStack(Level level, double x, double y, double z, ItemStack itemStack) {
+        double size = EntityType.ITEM.getWidth();
+        RandomSource random = level.getRandom();
+
+        while (!itemStack.isEmpty()) {
+            ItemEntity entity = new ItemEntity(level, x, y, z, itemStack.split(random.nextInt(21) + 10));
+            entity.setData(AttachmentDataRegistry.TAKEN_BY_ETHER_STREAM, entity.tickCount + Config.itemPickUpByStreamDelayAfterDropped);
+            entity.setDeltaMovement(random.triangle(0.0F, 0.11485000171139836), random.triangle(0.2, 0.11485000171139836), random.triangle(0.0F, 0.11485000171139836));
+            level.addFreshEntity(entity);
+        }
+
+    }
 
     @Override
     public int getContainerSize() {

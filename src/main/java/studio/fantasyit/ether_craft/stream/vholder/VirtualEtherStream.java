@@ -14,6 +14,7 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.block.base.EtherContainer;
+import studio.fantasyit.ether_craft.register.AttachmentDataRegistry;
 import studio.fantasyit.ether_craft.register.BlockRegistry;
 import studio.fantasyit.ether_craft.stream.EtherConsumer;
 import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
@@ -196,27 +197,28 @@ public class VirtualEtherStream implements IEtherStreamLike {
     @Override
     public IEtherStreamLike recreate(Vec3 newPos, Vec3 newMotion) {
         PosDir newPosDir = new PosDir(BlockPos.containing(newPos), Direction.getApproximateNearest(newMotion));
-        VirtualEtherStream newStream = new VirtualEtherStream(
-                holder.nextId++, ether, newPos, newPosDir, newMotion, level, holder
+        IEtherStreamLike stream = level.getData(AttachmentDataRegistry.VESHM).createStream(
+                level, newPosDir, ether, newPos, newMotion
         );
-        newStream.realCanReceiveEther = realCanReceiveEther;
-        newStream.capabilities = this.capabilities;
-        this.capabilities = new ArrayList<>();
-        for (IStreamCapability cap : newStream.capabilities) {
-            cap.setConsumer(newStream.consumer);
+        if (stream instanceof VirtualEtherStream newStream) {
+            newStream.realCanReceiveEther = realCanReceiveEther;
+            newStream.capabilities = this.capabilities;
+            this.capabilities = new ArrayList<>();
+            for (IStreamCapability cap : newStream.capabilities) {
+                cap.setConsumer(newStream.consumer);
+            }
+            newStream.consumer.fromState(this.consumer.toState());
+            newStream.consumer.setIsInEtherGlass(newStream.runIntoEtherGlass);
+            newStream.toSyncData = new ArrayList<>(this.toSyncData);
+            newStream.tickCount = 0;
+            for (IStreamCapability cap : newStream.capabilities) {
+                cap.onRecreate(newStream);
+            }
+            newStream.markToSyncCreation = true;
+            this.ether = 0;
+            this.markToRemove = true;
         }
-        newStream.consumer.fromState(this.consumer.toState());
-        newStream.consumer.setIsInEtherGlass(newStream.runIntoEtherGlass);
-        newStream.toSyncData = new ArrayList<>(this.toSyncData);
-        newStream.tickCount = 0;
-        for (IStreamCapability cap : newStream.capabilities) {
-            cap.onRecreate(newStream);
-        }
-        newStream.markToSyncCreation = true;
-        holder.streams.add(newStream);
-        this.ether = 0;
-        this.markToRemove = true;
-        return newStream;
+        return stream;
     }
 
     @Override

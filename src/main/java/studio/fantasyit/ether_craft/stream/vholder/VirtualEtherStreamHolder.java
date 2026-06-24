@@ -82,8 +82,29 @@ public class VirtualEtherStreamHolder {
             if (!ves.markToRemove)
                 ves.pos = ves.pos.add(ves.motion);
         }
+        mergeAll();
         syncAll();
         streams.removeIf(ves -> ves.markToRemove);
+    }
+
+    private void mergeAll() {
+        if (streams.isEmpty()) return;
+        int maxLen = 0;
+        for (VirtualEtherStream ves : streams) {
+            maxLen = Math.max(maxLen, pos.distManhattan(ves.blockPosition()));
+        }
+        int size = maxLen + 1;
+        int[] streamCountAt = new int[size];
+        for (int i = streams.size() - 1; i >= 0; i--) {
+            VirtualEtherStream ves = streams.get(i);
+            int d = pos.distManhattan(ves.blockPosition());
+            if (d < 0) continue;
+            streamCountAt[d]++;
+            if (streamCountAt[d] > Config.etherStreamDestroyThreshold) {
+                ves.ether = 0;
+                ves.markDead(null);
+            }
+        }
     }
 
     private void tickCollideAll() {

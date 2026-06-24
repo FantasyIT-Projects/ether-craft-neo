@@ -56,9 +56,14 @@ public class PluginRenderManager {
         register(FunctionFurnaceGenerator.ID, generatorLayer);
         register(FunctionStoneGenerator.ID, generatorLayer);
         register(FunctionEquipmentConsumeGenerator.ID, generatorLayer);
-        register(FunctionGrowthAccelerator.ID, (face, dTick, nodeEntity, state, installedPlugin) ->
-                state.setSideAtlas(face, EtherAdapterNodeAtlas.FUNCTION_ACCELERATE)
-        );
+        register(FunctionGrowthAccelerator.ID, (face, dTick, nodeEntity, state, installedPlugin) -> {
+            for (Direction f : Direction.Plane.HORIZONTAL)
+                state.setSideAtlas(f, EtherAdapterNodeAtlas.FUNCTION_ACCELERATE);
+        });
+        register(FunctionGrowthAccelerator.ID_ALL, (face, dTick, nodeEntity, state, installedPlugin) -> {
+            for (Direction f : Direction.Plane.HORIZONTAL)
+                state.setSideAtlas(f, EtherAdapterNodeAtlas.FUNCTION_ACCELERATE);
+        });
         register(FunctionEtherConverter.ID, (face, dTick, nodeEntity, state, installedPlugin) -> {
             state.setSideAtlas(face, EtherAdapterNodeAtlas.FUNCTION_ETHER_CONVERT);
             int workState = nodeEntity.getSyncedPluginData(installedPlugin, FunctionEtherConverter.STATE);
@@ -93,6 +98,10 @@ public class PluginRenderManager {
                     state.setSideAtlas(Direction.UP, EtherAdapterNodeAtlas.FUNCTION_MAGNET_TOP.get(dTick));
                 }
         );
+        register(FunctionEnchanter.ID, (face, dTick, nodeEntity, state, installedPlugin) -> {
+                    state.setSideAtlas(face, EtherAdapterNodeAtlas.FUNCTION_ENCHANT.get(dTick));
+                }
+        );
         register(FeatureEtherStreamEmitter.ID, (face, dTick, nodeEntity, state, installedPlugin) ->
                 state.setSideAtlas(face, EtherAdapterNodeAtlas.FEATURE_EMITTER)
         );
@@ -108,7 +117,7 @@ public class PluginRenderManager {
 
     public void render(Direction key, InstalledPlugin value, EtherAdaptNodeEntity entity, EtherAdapterNodeRenderState state) {
         LocalPlayer p = Minecraft.getInstance().player;
-        int dTick = p == null ? 0 : p.tickCount;
+        int dTick = p == null ? 0 : (p.tickCount / 2);
         if (pluginRenderer.containsKey(value.pluginId())) {
             pluginRenderer.get(value.pluginId()).render(key, dTick, entity, state, value);
         }
