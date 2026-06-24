@@ -13,6 +13,10 @@ public interface IEtherStreamExtraClientLogic {
         return false;
     }
 
+    default boolean shouldAlwaysRender(ClientStreamEntry entry, Vec3 currentPos, CameraRenderState camera) {
+        return false;
+    }
+
     default void onTick(ClientStreamEntry entry) {
     }
 
@@ -28,6 +32,7 @@ public interface IEtherStreamExtraClientLogic {
 
     default void onDetach(ClientStreamEntry entry) {
     }
+
     default void onAttach(ClientStreamEntry entry) {
     }
 }

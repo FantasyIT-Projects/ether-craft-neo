@@ -20,6 +20,7 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.EtherCraft;
+import studio.fantasyit.ether_craft.datapack.AccelerateRepeatCounts;
 import studio.fantasyit.ether_craft.register.Tags;
 import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
 
@@ -77,10 +78,7 @@ public class EtherStreamGrowthAcceleratorCapability implements IStreamCapability
             return;
 
         streamEntity.consumeEther(cost);
-        state.randomTick(level, pos, level.getRandom());
-        if (state.getBlock() instanceof CaveVines && state.getBlock() instanceof BonemealableBlock b)
-            b.performBonemeal(level, level.getRandom(), pos, state);
-
+        AccelerateRepeatCounts.apply(level,pos,state);
         Vec3 center = pos.getCenter();
         level.sendParticles(
                 ParticleTypes.HAPPY_VILLAGER,

@@ -192,6 +192,12 @@ public class Config {
             .comment("Ether consumed per crop block accelerated by Ether Stream Growth Accelerator capability")
             .defineInRange("ether_stream.growth_accelerator.ether_cost", 1000, 1, Integer.MAX_VALUE);
 
+    // -- ether_stream.label --
+
+    private static final ModConfigSpec.DoubleValue ETHER_STREAM_LABEL_MAX_SIZE = BUILDER
+            .comment("Maximum size of label rendered on Ether Stream")
+            .defineInRange("ether_stream.label.max_size", 10, 1, 1e6);
+
     // -- ether_stream.upgrade --
     private static final ModConfigSpec.DoubleValue ETHER_STORAGE_MULTIPLIER = BUILDER
             .comment("The multipiler each ether storage upgrade plugin will provide")
@@ -420,6 +426,7 @@ public class Config {
     public static int etherStreamDamageEtherMultiplier;
     public static int etherStreamDamageConstantCost;
     public static int etherStreamGrowthAcceleratorEtherCost;
+    public static double etherStreamLabelMaxSize;
     public static List<Integer> nodeEnchanterEtherCosts;
     public static int nodeEnchanterMaxProgress;
     public static double etherStorageMultiplier;
@@ -502,6 +509,7 @@ public class Config {
         etherStreamDamageEtherMultiplier = ETHER_STREAM_DAMAGE_ETHER_MULTIPLIER.get();
         etherStreamDamageConstantCost = ETHER_STREAM_DAMAGE_CONSTANT_COST.get();
         etherStreamGrowthAcceleratorEtherCost = ETHER_STREAM_GROWTH_ACCELERATOR_ETHER_COST.get();
+        etherStreamLabelMaxSize = ETHER_STREAM_LABEL_MAX_SIZE.get();
         nodeEnchanterEtherCosts = NODE_ENCHANTER_ETHER_COSTS.get().stream().map(t -> (Integer) t).toList();
         nodeEnchanterMaxProgress = NODE_ENCHANTER_MAX_PROGRESS.get();
         etherStorageMultiplier = ETHER_STORAGE_MULTIPLIER.get();

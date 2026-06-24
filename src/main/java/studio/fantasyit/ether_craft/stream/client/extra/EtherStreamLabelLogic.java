@@ -44,10 +44,13 @@ public class EtherStreamLabelLogic implements IEtherStreamExtraClientLogic {
         List<EtherStreamLabelData.Segment> segments = labelData.getSegments();
         if (segments.isEmpty()) return;
 
+        boolean reverseText = false;
+        if (motion.x + motion.y + motion.z < 0)
+            reverseText = true;
         List<EtherStreamLabelData.Segment> renderSegments = segments;
         if (stream.isDying) {
             int clip = (int) ((60f - stream.deathTick) * stream.motion.length() * 100);
-            renderSegments = clipSegments(segments, clip, font, false);
+            renderSegments = clipSegments(segments, clip, font, reverseText);
             if (renderSegments.isEmpty()) return;
         } else {
             double distanceTraveled = currentPos.distanceTo(stream.startPos);
@@ -56,7 +59,7 @@ public class EtherStreamLabelLogic implements IEtherStreamExtraClientLogic {
             for (EtherStreamLabelData.Segment seg : segments)
                 totalWidth += font.width(seg.text()) * seg.scale();
             int clip = Math.max(0, (int) totalWidth - keepPixels);
-            renderSegments = clipSegments(segments, clip, font, true);
+            renderSegments = clipSegments(segments, clip, font, !reverseText);
             if (renderSegments.isEmpty()) return;
         }
 
@@ -95,7 +98,7 @@ public class EtherStreamLabelLogic implements IEtherStreamExtraClientLogic {
 
             float startX;
             if (steep) {
-                startX = faceNormal == normal ? 0 : -totalWidth;
+                startX = dir.y < 0 ? 0 : -totalWidth;
             } else {
                 startX = faceNormal == normal ? -totalWidth : 0;
             }
@@ -118,6 +121,19 @@ public class EtherStreamLabelLogic implements IEtherStreamExtraClientLogic {
 
             poseStack.popPose();
         }
+    }
+
+    @Override
+    public boolean shouldAlwaysRender(ClientStreamEntry entry, Vec3 currentPos, CameraRenderState camera) {
+        @Nullable EtherStreamLabelData labelData = (EtherStreamLabelData) entry.getSyncedData(EtherStreamLabelData.ID);
+        if (labelData == null) return false;
+        Font font = Minecraft.getInstance().font;
+        float totalWidth = 0;
+        for (EtherStreamLabelData.Segment seg : labelData.getSegments()) {
+            totalWidth += font.width(seg.text()) * seg.scale();
+        }
+        Vec3 farest = currentPos.subtract(entry.motion.normalize().scale(totalWidth * LABEL_SCALE));
+        return camera.cullFrustum.pointInFrustum(farest.x, farest.y, farest.z);
     }
 
     private List<EtherStreamLabelData.Segment> clipSegments(List<EtherStreamLabelData.Segment> segments, int clipPixels, Font font, boolean fromStart) {

@@ -96,9 +96,18 @@ public class ClientVirtualEtherStreamRenderer {
                 double dot = dx * fx + dy * fy + dz * fz;
                 if (dot < -10.0) continue;
 
-                if (!camera.cullFrustum.pointInFrustum(currentPos.x, currentPos.y, currentPos.z))
+                boolean shouldRender = camera.cullFrustum.pointInFrustum(currentPos.x, currentPos.y, currentPos.z);
+                if (!shouldRender) {
+                    for (var logic : stream.attachedLogic) {
+                        if (logic.shouldAlwaysRender(stream, currentPos, camera)) {
+                            shouldRender = true;
+                            break;
+                        }
+                    }
+                }
+                if (!shouldRender) {
                     continue;
-
+                }
                 for (var logic : stream.attachedLogic)
                     logic.onRender(stream, currentPos, camera, poseStack, collector);
             }

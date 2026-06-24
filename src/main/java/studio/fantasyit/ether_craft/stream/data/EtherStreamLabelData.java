@@ -10,6 +10,7 @@ import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.chat.TextColor;
 import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
+import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.EtherCraft;
 
 import java.util.ArrayList;
@@ -59,7 +60,8 @@ public class EtherStreamLabelData implements IEtherStreamSyncedData {
         );
     }
 
-    public record Segment(String text, float scale, @Nullable TextColor color) {}
+    public record Segment(String text, float scale, @Nullable TextColor color) {
+    }
 
     @Nullable
     private List<Segment> parsedSegments;
@@ -110,8 +112,9 @@ public class EtherStreamLabelData implements IEtherStreamSyncedData {
                         switch (key) {
                             case "size" -> {
                                 try {
-                                    scale = Float.parseFloat(val);
-                                } catch (NumberFormatException ignored) {}
+                                    scale = Math.min(Float.parseFloat(val), (float) Config.etherStreamLabelMaxSize);
+                                } catch (NumberFormatException ignored) {
+                                }
                             }
                             case "color" -> {
                                 TextColor parsed = TextColor.parseColor(val).result().orElse(null);

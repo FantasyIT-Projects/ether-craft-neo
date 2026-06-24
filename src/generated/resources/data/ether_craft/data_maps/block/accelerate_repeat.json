@@ -1,0 +1,112 @@
+{
+  "values": {
+    "#minecraft:crops": {
+      "mode": "BONE_MEAL",
+      "repeat": 1
+    },
+    "#minecraft:saplings": {
+      "mode": "BONE_MEAL",
+      "repeat": 1
+    },
+    "minecraft:bamboo": {
+      "mode": "BONE_MEAL",
+      "repeat": 1
+    },
+    "minecraft:bamboo_sapling": {
+      "mode": "BONE_MEAL",
+      "repeat": 1
+    },
+    "minecraft:brown_mushroom": {
+      "mode": "BONE_MEAL",
+      "repeat": 1
+    },
+    "minecraft:budding_amethyst": {
+      "mode": "RANDOM_TICK",
+      "repeat": 2
+    },
+    "minecraft:cactus": {
+      "mode": "RANDOM_TICK",
+      "repeat": 15
+    },
+    "minecraft:cave_vines": {
+      "mode": "BOTH",
+      "repeat": 1
+    },
+    "minecraft:cave_vines_plant": {
+      "mode": "BOTH",
+      "repeat": 1
+    },
+    "minecraft:chorus_flower": {
+      "mode": "RANDOM_TICK",
+      "repeat": 1
+    },
+    "minecraft:cocoa": {
+      "mode": "BONE_MEAL",
+      "repeat": 2
+    },
+    "minecraft:crimson_nylium": {
+      "mode": "BONE_MEAL",
+      "repeat": 1
+    },
+    "minecraft:kelp": {
+      "mode": "BONE_MEAL",
+      "repeat": 1
+    },
+    "minecraft:mangrove_propagule": {
+      "mode": "BONE_MEAL",
+      "repeat": 4
+    },
+    "minecraft:melon_stem": {
+      "mode": "BOTH",
+      "repeat": 1
+    },
+    "minecraft:nether_wart": {
+      "mode": "RANDOM_TICK",
+      "repeat": 10
+    },
+    "minecraft:pitcher_crop": {
+      "mode": "BONE_MEAL",
+      "repeat": 4
+    },
+    "minecraft:pointed_dripstone": {
+      "mode": "RANDOM_TICK",
+      "repeat": 5
+    },
+    "minecraft:pumpkin_stem": {
+      "mode": "BOTH",
+      "repeat": 1
+    },
+    "minecraft:red_mushroom": {
+      "mode": "BONE_MEAL",
+      "repeat": 1
+    },
+    "minecraft:sugar_cane": {
+      "mode": "RANDOM_TICK",
+      "repeat": 15
+    },
+    "minecraft:sweet_berry_bush": {
+      "mode": "BONE_MEAL",
+      "repeat": 3
+    },
+    "minecraft:torchflower_crop": {
+      "mode": "BONE_MEAL",
+      "repeat": 2
+    },
+    "minecraft:twisting_vines": {
+      "mode": "BONE_MEAL",
+      "repeat": 1
+    },
+    "minecraft:vine": {
+      "mode": "RANDOM_TICK",
+      "repeat": 1
+    },
+    "minecraft:warped_nylium": {
+      "mode": "BONE_MEAL",
+      "repeat": 1
+    },
+    "minecraft:weeping_vines": {
+      "mode": "BONE_MEAL",
+      "repeat": 1
+    }
+  }
+}

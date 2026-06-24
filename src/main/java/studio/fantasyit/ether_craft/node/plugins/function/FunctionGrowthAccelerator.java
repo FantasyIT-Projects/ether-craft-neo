@@ -9,6 +9,7 @@ import net.minecraft.world.phys.Vec3;
 import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.block.node.EtherAdaptNodeEntity;
+import studio.fantasyit.ether_craft.datapack.AccelerateRepeatCounts;
 import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
 import studio.fantasyit.ether_craft.node.plugins.base.AbstractNodePlugin;
 import studio.fantasyit.ether_craft.register.Tags;
@@ -43,7 +44,7 @@ public class FunctionGrowthAccelerator extends AbstractNodePlugin {
                         if (nodeEntity.getEther() < etherCost)
                             return;
                         nodeEntity.extractEther(etherCost);
-                        state.randomTick(level, pos, level.getRandom());
+                        AccelerateRepeatCounts.apply(level,pos,state);
                         Vec3 c = pos.getCenter();
                         level.sendParticles(
                                 ParticleTypes.HAPPY_VILLAGER,
