@@ -20,7 +20,7 @@ public interface IEtherStreamExtraClientLogic {
     default void onTick(ClientStreamEntry entry) {
     }
 
-    default void onRender(ClientStreamEntry stream, Vec3 currentPos, CameraRenderState camera, PoseStack poseStack, SubmitNodeCollector collector) {
+    default void onRender(ClientStreamEntry stream, Vec3 currentPos, CameraRenderState camera, PoseStack poseStack, SubmitNodeCollector collector, float partialTick) {
     }
 
     default boolean shouldRender(ClientStreamEntry entry) {

@@ -109,7 +109,7 @@ public class ClientVirtualEtherStreamRenderer {
                     continue;
                 }
                 for (var logic : stream.attachedLogic)
-                    logic.onRender(stream, currentPos, camera, poseStack, collector);
+                    logic.onRender(stream, currentPos, camera, poseStack, collector, partialTick);
             }
         }
 
@@ -131,7 +131,7 @@ public class ClientVirtualEtherStreamRenderer {
                 continue;
 
             for (var logic : stream.attachedLogic)
-                logic.onRender(stream, currentPos, camera, poseStack, collector);
+                logic.onRender(stream, currentPos, camera, poseStack, collector, partialTick);
         }
     }
 }

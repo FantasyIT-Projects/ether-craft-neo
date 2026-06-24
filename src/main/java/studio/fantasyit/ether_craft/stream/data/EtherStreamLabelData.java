@@ -16,6 +16,7 @@ import studio.fantasyit.ether_craft.EtherCraft;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 public class EtherStreamLabelData implements IEtherStreamSyncedData {
     public static final Identifier ID = EtherCraft.id("label");
@@ -65,6 +66,7 @@ public class EtherStreamLabelData implements IEtherStreamSyncedData {
 
     @Nullable
     private List<Segment> parsedSegments;
+    @Nullable Float width = null;
 
     public List<Segment> getSegments() {
         if (parsedSegments == null) {
@@ -141,5 +143,12 @@ public class EtherStreamLabelData implements IEtherStreamSyncedData {
             segments.add(new Segment(buffer.toString(), scale, color));
         }
         return segments;
+    }
+
+    public float getFullWidthIfAbsent(Supplier<Float> getter) {
+        if (width == null) {
+            width = getter.get();
+        }
+        return width;
     }
 }

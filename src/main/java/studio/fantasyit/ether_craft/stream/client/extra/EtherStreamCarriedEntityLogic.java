@@ -74,7 +74,7 @@ public class EtherStreamCarriedEntityLogic implements IEtherStreamExtraClientLog
     }
 
     @Override
-    public void onRender(ClientStreamEntry stream, Vec3 pos, CameraRenderState camera, PoseStack poseStack, SubmitNodeCollector collector) {
+    public void onRender(ClientStreamEntry stream, Vec3 pos, CameraRenderState camera, PoseStack poseStack, SubmitNodeCollector collector, float partialTick) {
         EtherStreamCarryingEntityData data = (EtherStreamCarryingEntityData)
                 stream.getSyncedData(EtherStreamCarryingEntityData.ID);
         if (data == null) return;

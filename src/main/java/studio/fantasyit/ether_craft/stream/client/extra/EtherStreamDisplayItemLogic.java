@@ -22,7 +22,7 @@ public class EtherStreamDisplayItemLogic implements IEtherStreamExtraClientLogic
     }
 
     @Override
-    public void onRender(ClientStreamEntry stream, Vec3 currentPos, CameraRenderState camera, PoseStack poseStack, SubmitNodeCollector collector) {
+    public void onRender(ClientStreamEntry stream, Vec3 currentPos, CameraRenderState camera, PoseStack poseStack, SubmitNodeCollector collector, float partialTick) {
         EtherStreamDisplayItemData syncedData = (EtherStreamDisplayItemData) stream.getSyncedData(EtherStreamDisplayItemData.ID);
         if (syncedData == null) return;
         ItemStack is = syncedData.itemStack();

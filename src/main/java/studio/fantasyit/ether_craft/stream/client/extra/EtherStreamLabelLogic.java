@@ -34,7 +34,7 @@ public class EtherStreamLabelLogic implements IEtherStreamExtraClientLogic {
     }
 
     @Override
-    public void onRender(ClientStreamEntry stream, Vec3 currentPos, CameraRenderState camera, PoseStack poseStack, SubmitNodeCollector collector) {
+    public void onRender(ClientStreamEntry stream, Vec3 currentPos, CameraRenderState camera, PoseStack poseStack, SubmitNodeCollector collector, float partialTick) {
         @Nullable EtherStreamLabelData labelData = (EtherStreamLabelData) stream.getSyncedData(EtherStreamLabelData.ID);
         if (labelData == null) return;
         Vec3 motion = stream.motion;
@@ -44,30 +44,15 @@ public class EtherStreamLabelLogic implements IEtherStreamExtraClientLogic {
         List<EtherStreamLabelData.Segment> segments = labelData.getSegments();
         if (segments.isEmpty()) return;
 
-        boolean reverseText = false;
-        if (motion.x + motion.y + motion.z < 0)
-            reverseText = true;
-        List<EtherStreamLabelData.Segment> renderSegments = segments;
-        if (stream.isDying) {
-            int clip = (int) ((60f - stream.deathTick) * stream.motion.length() * 100);
-            renderSegments = clipSegments(segments, clip, font, reverseText);
-            if (renderSegments.isEmpty()) return;
-        } else {
-            double distanceTraveled = currentPos.distanceTo(stream.startPos);
-            int keepPixels = (int) (distanceTraveled * 100);
-            float totalWidth = 0;
+        //先计算没有clip的完整字符串长度，后续备用
+        float unclippedTotalWidth = labelData.getFullWidthIfAbsent(() -> {
+            float u = 0;
             for (EtherStreamLabelData.Segment seg : segments)
-                totalWidth += font.width(seg.text()) * seg.scale();
-            int clip = Math.max(0, (int) totalWidth - keepPixels);
-            renderSegments = clipSegments(segments, clip, font, !reverseText);
-            if (renderSegments.isEmpty()) return;
-        }
+                u += font.width(seg.text()) * seg.scale();
+            return u;
+        });
 
-        float totalWidth = 0;
-        for (EtherStreamLabelData.Segment seg : renderSegments) {
-            totalWidth += font.width(seg.text()) * seg.scale();
-        }
-
+        //这里先判断一手是不是竖直的流，如果是的话，需要添加额外的变换
         Vec3 dir = motion.normalize();
         Vec3 up = new Vec3(0.0, 1.0, 0.0);
         boolean steep = Math.abs(dir.dot(up)) > 0.707;
@@ -80,7 +65,6 @@ public class EtherStreamLabelLogic implements IEtherStreamExtraClientLogic {
 
         for (Vec3 faceNormal : new Vec3[]{normal, normal.scale(-1)}) {
             poseStack.pushPose();
-
             poseStack.translate(
                     currentPos.x - camera.pos.x,
                     currentPos.y - camera.pos.y,
@@ -92,15 +76,51 @@ public class EtherStreamLabelLogic implements IEtherStreamExtraClientLogic {
                     new org.joml.Vector3f((float) faceNormal.x, (float) faceNormal.y, (float) faceNormal.z));
             poseStack.mulPose(rotation);
             if (steep) {
-                poseStack.mulPose(new Quaternionf().rotateZ((float) Math.toRadians(faceNormal == normal ? -90 : 90)));
+                poseStack.mulPose(new Quaternionf().rotateZ((float) Math.toRadians(90)));
             }
             poseStack.scale(LABEL_SCALE, -LABEL_SCALE, LABEL_SCALE);
+
+            boolean textReverse = steep ? (motion.y > 0) : faceNormal.equals(normal);
+
+            //因为两个面的文字序不一样，这里需要根据面来计算文字序
+            List<EtherStreamLabelData.Segment> renderSegments;
+            if (stream.isDying) {
+                int deathClip = (int) ((60 - stream.deathTick) * stream.motion.length() * 100);
+                renderSegments = clipSegments(segments, deathClip - 70, font, !textReverse);
+            } else {
+                double distanceTraveled = currentPos.distanceTo(stream.startPos);
+                int keepPixels = (int) (distanceTraveled * 100);
+                int clip = Math.max(0, (int) unclippedTotalWidth - keepPixels);
+                renderSegments = clipSegments(segments, clip - 70, font, textReverse);
+            }
+
+            if (renderSegments.isEmpty()) {
+                poseStack.popPose();
+                continue;
+            }
+
+            //裁剪后的实际的长度（计算文本对齐用）
+            float totalWidth = 0;
+            for (EtherStreamLabelData.Segment seg : renderSegments) {
+                totalWidth += font.width(seg.text()) * seg.scale();
+            }
+
+            //对于死后的流，需要自己控制移动动画
+            if (stream.isDying) {
+                float deathOffset = (60f - stream.deathTick + partialTick) * (float) stream.motion.length() * 100;
+                deathOffset -= (unclippedTotalWidth - totalWidth);
+                if (steep)
+                    poseStack.translate(motion.y > 0 ? deathOffset : -deathOffset, 0, 0);
+                else
+                    poseStack.translate(faceNormal.equals(normal) ? deathOffset : -deathOffset, 0, 0);
+            }
+
 
             float startX;
             if (steep) {
                 startX = dir.y < 0 ? 0 : -totalWidth;
             } else {
-                startX = faceNormal == normal ? -totalWidth : 0;
+                startX = faceNormal.equals(normal) ? -totalWidth : 0;
             }
 
             float cursor = startX;
@@ -162,8 +182,15 @@ public class EtherStreamLabelLogic implements IEtherStreamExtraClientLogic {
             } else {
                 float unscaledClip = remaining / seg.scale();
                 if (fromStart) {
-                    String prefix = font.plainSubstrByWidth(seg.text(), (int) unscaledClip);
-                    String remainingText = seg.text().substring(prefix.length());
+                    String prefix = font.plainSubstrByWidth(seg.text(), (int) Math.ceil(unscaledClip));
+                    String remainingText;
+                    if (unscaledClip < 1e-3)
+                        remainingText = seg.text();
+                    else if (prefix.length() >= seg.text().length())
+                        remainingText = "";
+                    else
+                        remainingText = seg.text().substring(prefix.length() + 1);
+
                     if (!remainingText.isEmpty())
                         result.add(new EtherStreamLabelData.Segment(remainingText, seg.scale(), seg.color()));
                     for (int j = i + 1; j < segments.size(); j++) result.add(segments.get(j));
