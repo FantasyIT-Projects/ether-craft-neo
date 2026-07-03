@@ -118,8 +118,16 @@ public class EtherStreamCarryEntityCapability implements IStreamCapability {
             }
             if (entity.noPhysics)
                 return false;
+
+            if (entity.isVehicle()) {
+                entity.ejectPassengers();
+            }
+            if (entity.isPassenger()) {
+                entity.stopRiding();
+            }
+
             streamEntity.setSyncedData(new EtherStreamCarryingEntityData(
-                    entity.getUUID(), entity.getId(), streamEntity.getPosDir(), streamEntity.getStreamId()));
+                    entity.getUUID(), entity.getId(), streamEntity.getPosDir(), playerOnly, streamEntity.getStreamId()));
             cachedEntity = entity;
             entity.noPhysics = true;
             entity.setInvulnerable(true);
@@ -135,7 +143,7 @@ public class EtherStreamCarryEntityCapability implements IStreamCapability {
 
     public void forceTakeEntity(IEtherStreamLike streamEntity, Entity entity) {
         streamEntity.setSyncedData(new EtherStreamCarryingEntityData(
-                entity.getUUID(), entity.getId(), streamEntity.getPosDir(), streamEntity.getStreamId()));
+                entity.getUUID(), entity.getId(), streamEntity.getPosDir(), playerOnly, streamEntity.getStreamId()));
         cachedEntity = entity;
         entity.noPhysics = true;
         entity.setInvulnerable(true);

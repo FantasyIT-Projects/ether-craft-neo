@@ -44,8 +44,8 @@ public class EtherProcessFactoryBlock extends BaseBlock {
 
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
-        if (!level.isClientSide()) {
-            player.openMenu((EtherProcessFactoryEntity) level.getBlockEntity(pos), pos);
+        if (!level.isClientSide() && level.getBlockEntity(pos) instanceof EtherProcessFactoryEntity epfe) {
+            player.openMenu(epfe , pos);
         }
         return InteractionResult.SUCCESS;
     }

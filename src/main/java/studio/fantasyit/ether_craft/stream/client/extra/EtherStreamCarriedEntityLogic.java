@@ -10,6 +10,7 @@ import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.block.state.BlockState;
@@ -53,7 +54,7 @@ public class EtherStreamCarriedEntityLogic implements IEtherStreamExtraClientLog
         }
 
         AABB bb = new AABB(currentPos.subtract(1.5), currentPos.add(1.3));
-        HitResult entityHit = ProjectileUtil.getEntityHitResult(level, clientEntity, currentPos, to, bb, t -> !t.is(clientEntity), 0.5f);
+        HitResult entityHit = ProjectileUtil.getEntityHitResult(level, clientEntity, currentPos, to, bb, t -> !t.is(clientEntity) && (!data.playerOnly() || t instanceof Player), 0.0f);
         if (entityHit != null) {
             hitResult = entityHit;
         }

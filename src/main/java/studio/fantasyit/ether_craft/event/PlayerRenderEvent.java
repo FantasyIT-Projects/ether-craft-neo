@@ -35,5 +35,4 @@ public class PlayerRenderEvent {
         if (shouldHide == null || !shouldHide) return;
         event.setCanceled(true);
     }
-
 }
