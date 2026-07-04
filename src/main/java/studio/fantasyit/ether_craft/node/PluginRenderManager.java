@@ -75,11 +75,11 @@ public class PluginRenderManager {
             state.setSideAtlas(face, EtherAdapterNodeAtlas.FUNCTION_EQUIPMENT_CONSUME);
             int workState = nodeEntity.getSyncedPluginData(installedPlugin, FunctionEquipmentConsumeGenerator.STATE);
             if (workState == 1) {
-                state.setSideAtlas(face, EtherAdapterNodeAtlas.FUNCTION_EQUIPMENT_CONSUME_WORKING.get(dTick));
+                state.addOverlay(face, EtherAdapterNodeAtlas.FUNCTION_EQUIPMENT_CONSUME_WORKING.get(dTick));
             }
             long maxEther = nodeEntity.getMaxEther();
             if (maxEther != 0)
-                state.addOverlay(face, EtherAdapterNodeAtlas.ETHER_FILL.get((int) Math.min((nodeEntity.getEther() * 10 / maxEther), 10)));
+                state.addOverlay(face, EtherAdapterNodeAtlas.ETHER_FILL.get((int) Math.min((nodeEntity.getEther() * 10 / maxEther), 9)));
             else
                 state.addOverlay(face, EtherAdapterNodeAtlas.ETHER_FILL.get(9));
         });

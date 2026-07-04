@@ -71,12 +71,18 @@ public class EtherAdapterNodeRenderState extends BlockEntityRenderState {
                 Direction dir = Direction.values()[i];
                 submitNodeCollector.submitCustomGeometry(
                         poseStack,
-                        RenderTypes.textPolygonOffset(atlasUV.atlas),
+                        RenderTypes.textPolygonOffset(blankFace.atlas),
                         (pose, buffer) -> {
                             renderFace(
                                     dir, pose, buffer, light, overlay,
                                     blankFace.u0, blankFace.v0, blankFace.u1, blankFace.v1
                             );
+                        }
+                );
+                submitNodeCollector.submitCustomGeometry(
+                        poseStack,
+                        RenderTypes.textPolygonOffset(atlasUV.atlas),
+                        (pose, buffer) -> {
                             renderFace(
                                     dir, pose, buffer, light, overlay,
                                     atlasUV.u0, atlasUV.v0, atlasUV.u1, atlasUV.v1

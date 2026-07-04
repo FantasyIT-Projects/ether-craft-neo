@@ -17,7 +17,6 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.neoforged.neoforge.client.model.generators.blockstate.CustomBlockStateModelBuilder;
-import net.neoforged.neoforge.client.model.generators.template.ExtendedModelTemplateBuilder;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.block.factory.EtherProcessFactoryBlock;
 import studio.fantasyit.ether_craft.block.glass.render.EtherGlassUnbakedModel;
@@ -151,34 +150,11 @@ public class ModelDataGen extends ModelProvider {
         Identifier[] levelModelIds = new Identifier[5];
 
         for (int level = 1; level <= 4; level++) {
-            int rowV = (level - 1) * 4;
-            TextureSlot texSlot = TextureSlot.create("tex", TextureSlot.TEXTURE);
-
-            ExtendedModelTemplateBuilder builder = ExtendedModelTemplateBuilder.builder()
-                    .parent(Identifier.withDefaultNamespace("block/cube"))
-                    .requiredTextureSlot(texSlot)
-                    .requiredTextureSlot(TextureSlot.PARTICLE)
-                    .element(elem -> elem
-                            .from(0, 0, 0).to(16, 16, 16)
-                            .face(Direction.UP, face -> face.texture(texSlot)
-                                    .uvs(0, rowV, 4, rowV + 4).cullface(Direction.UP))
-                            .face(Direction.DOWN, face -> face.texture(texSlot)
-                                    .uvs(8, rowV, 12, rowV + 4).cullface(Direction.DOWN))
-                            .face(Direction.NORTH, face -> face.texture(texSlot)
-                                    .uvs(4, rowV, 8, rowV + 4).cullface(Direction.NORTH))
-                            .face(Direction.SOUTH, face -> face.texture(texSlot)
-                                    .uvs(4, rowV, 8, rowV + 4).cullface(Direction.SOUTH))
-                            .face(Direction.WEST, face -> face.texture(texSlot)
-                                    .uvs(4, rowV, 8, rowV + 4).cullface(Direction.WEST))
-                            .face(Direction.EAST, face -> face.texture(texSlot)
-                                    .uvs(4, rowV, 8, rowV + 4).cullface(Direction.EAST)));
-
-            String suffix = "_lv_" + level;
             TextureMapping texMapping = new TextureMapping()
-                    .put(texSlot, new Material(EtherCraft.id("block/factory/ether_process_factory")))
-                    .put(TextureSlot.PARTICLE, new Material(EtherCraft.id("block/factory/ether_process_factory_breaking")));
-            levelModelIds[level] = builder.build().createWithSuffix(
-                    processFactory, suffix, texMapping, blockModels.modelOutput);
+                    .put(T0, new Material(EtherCraft.id("block/factory/ether_process_factory_lv" + level)))
+                    .put(TextureSlot.PARTICLE, new Material(EtherCraft.id("block/factory/ether_process_factory_breaking_lv" + level)));
+            levelModelIds[level] = BLOCK_FACES.createWithSuffix(
+                    processFactory, "_lv_" + level, texMapping, blockModels.modelOutput);
         }
 
         blockModels.blockStateOutput.accept(
