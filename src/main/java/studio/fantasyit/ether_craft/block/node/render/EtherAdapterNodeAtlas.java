@@ -84,10 +84,14 @@ public class EtherAdapterNodeAtlas {
         }
     }
 
-    private static final GridSplitter MAIN_MACHINE_ATLAS = new GridSplitter(16, 256, 256, EtherCraft.id("textures/block/ether_adapt_node_atlas.png"));
+    private static final GridSplitter MAIN_MACHINE_ATLAS = new GridSplitter(16, 256, 256, EtherCraft.id("textures/block/node/ether_adapt_node_atlas.png"));
 
+    public static final AtlasUV BLANK_FACE_LV1 = MAIN_MACHINE_ATLAS.next();
+    public static final AtlasUV BLANK_FACE_LV2 = MAIN_MACHINE_ATLAS.next();
+    public static final AtlasUV BLANK_FACE_LV3 = MAIN_MACHINE_ATLAS.next();
+    public static final GroupAtlasUV BLANK_FACE = new GroupAtlasUV(BLANK_FACE_LV1, BLANK_FACE_LV2, BLANK_FACE_LV3);
 
-    public static final AtlasUV FEATURE_EMITTER = MAIN_MACHINE_ATLAS.skip(3).next();
+    public static final AtlasUV FEATURE_EMITTER = MAIN_MACHINE_ATLAS.next();
     public static final AtlasUV FEATURE_DROPPER = MAIN_MACHINE_ATLAS.next();
     public static final AtlasUV FEATURE_INTERACT_EXTRACT = MAIN_MACHINE_ATLAS.next();
     public static final AtlasUV FEATURE_INTERACT_INSERT = MAIN_MACHINE_ATLAS.next();

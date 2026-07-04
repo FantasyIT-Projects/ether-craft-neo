@@ -38,6 +38,11 @@ public class EtherAdapterNodeRenderState extends BlockEntityRenderState {
 
     List<EtherAdapterNodeAtlas.AtlasUV> overlays = new ArrayList<>();
     List<Direction> overlayDirections = new ArrayList<>();
+    EtherAdapterNodeAtlas.AtlasUV blankFace = EtherAdapterNodeAtlas.BLANK_FACE_LV1;
+
+    public void setLevel(int level) {
+        blankFace = EtherAdapterNodeAtlas.BLANK_FACE.get(level - 1);
+    }
 
     public int getNeighborLight(Level level, BlockPos pos) {
         int sky = level.getBrightness(LightLayer.SKY, pos);
@@ -67,10 +72,16 @@ public class EtherAdapterNodeRenderState extends BlockEntityRenderState {
                 submitNodeCollector.submitCustomGeometry(
                         poseStack,
                         RenderTypes.textPolygonOffset(atlasUV.atlas),
-                        (pose, buffer) -> renderFace(
-                                dir, pose, buffer, light, overlay,
-                                atlasUV.u0, atlasUV.v0, atlasUV.u1, atlasUV.v1
-                        )
+                        (pose, buffer) -> {
+                            renderFace(
+                                    dir, pose, buffer, light, overlay,
+                                    blankFace.u0, blankFace.v0, blankFace.u1, blankFace.v1
+                            );
+                            renderFace(
+                                    dir, pose, buffer, light, overlay,
+                                    atlasUV.u0, atlasUV.v0, atlasUV.u1, atlasUV.v1
+                            );
+                        }
                 );
             }
         }

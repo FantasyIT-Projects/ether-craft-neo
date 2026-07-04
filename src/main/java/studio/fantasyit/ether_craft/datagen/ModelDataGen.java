@@ -21,6 +21,7 @@ import net.neoforged.neoforge.client.model.generators.template.ExtendedModelTemp
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.block.factory.EtherProcessFactoryBlock;
 import studio.fantasyit.ether_craft.block.glass.render.EtherGlassUnbakedModel;
+import studio.fantasyit.ether_craft.block.node.EtherAdaptNodeBlock;
 import studio.fantasyit.ether_craft.item.renderer.AnswerItemOverlaySMR;
 import studio.fantasyit.ether_craft.register.BlockRegistry;
 import studio.fantasyit.ether_craft.register.ItemRegistry;
@@ -103,7 +104,49 @@ public class ModelDataGen extends ModelProvider {
         Identifier identifier = ITEM_SIMPLE.create(guideBook.withPrefix("item/"), new TextureMapping().put(TextureSlot.LAYER0, new Material(guideBook.withPrefix("item/"))), itemModels.modelOutput);
         itemModels.itemModelOutput.register(guideBook, new ClientItem(ItemModelUtils.plainModel(identifier), new ClientItem.Properties(false, false, 1)));
 
-        //加工中心 - level-based models
+        generateProcessFactoryModels(blockModels, itemModels);
+
+
+        //发射器
+        Identifier modelLoc = BLOCK_FACES_PROVIDER.create(BlockRegistry.ETHER_STREAM_EMITTER.get(), blockModels.modelOutput);
+        Variant variant = new Variant(modelLoc);
+        blockModels.blockStateOutput.accept(
+                MultiVariantGenerator.dispatch(
+                        BlockRegistry.ETHER_STREAM_EMITTER.get(),
+                        BlockModelGenerators.variant(variant)
+                ).with(
+                        PropertyDispatch.modify(BlockStateProperties.FACING)
+                                .select(Direction.NORTH, BlockModelGenerators.NOP)
+                                .select(Direction.SOUTH, BlockModelGenerators.Y_ROT_180)
+                                .select(Direction.WEST, BlockModelGenerators.Y_ROT_270)
+                                .select(Direction.EAST, BlockModelGenerators.Y_ROT_90)
+                                .select(Direction.UP, BlockModelGenerators.X_ROT_270)
+                                .select(Direction.DOWN, BlockModelGenerators.X_ROT_90)
+                )
+        );
+
+        generateAdaptNodeModels(blockModels, itemModels);
+
+        blockModels.createTrivialCube(BlockRegistry.ETHER_BLOCK.get());
+        blockModels.createTrivialCube(BlockRegistry.ETHER_ORE.get());
+        blockModels.createTrivialCube(BlockRegistry.DEEPSLATE_ETHER_ORE.get());
+        blockModels.createTrivialCube(BlockRegistry.NETHER_ETHER_ORE.get());
+        blockModels.createTrivialCube(BlockRegistry.INACTIVATED_ETHER_BLOCK.get());
+        blockModels.createTrivialCube(BlockRegistry.SMOOTH_INACTIVATED_ETHER_BLOCK.get());
+
+        blockModels.blockStateOutput.accept(
+                MultiVariantGenerator.dispatch(BlockRegistry.CHEESE_BLOCK.get(),
+                        BlockModelGenerators.variant(new Variant(EtherCraft.id("block/cheese_block"))))
+        );
+
+        // 以太玻璃 - 连接纹理
+        var etherGlassCustom = MultiVariant.of(new CustomBlockStateModelBuilder.Simple(new EtherGlassUnbakedModel()));
+        blockModels.blockStateOutput.accept(
+                MultiVariantGenerator.dispatch(BlockRegistry.ETHER_GLASS.get(), etherGlassCustom)
+        );
+    }
+
+    private void generateProcessFactoryModels(BlockModelGenerators blockModels, ItemModelGenerators itemModels) {
         var processFactory = BlockRegistry.ETHER_PROCESS_FACTORY.get();
         Identifier[] levelModelIds = new Identifier[5];
 
@@ -132,8 +175,8 @@ public class ModelDataGen extends ModelProvider {
 
             String suffix = "_lv_" + level;
             TextureMapping texMapping = new TextureMapping()
-                    .put(texSlot, TextureMapping.getBlockTexture(processFactory))
-                    .put(TextureSlot.PARTICLE, new Material(EtherCraft.id("block/ether_process_factory_breaking")));
+                    .put(texSlot, new Material(EtherCraft.id("block/factory/ether_process_factory")))
+                    .put(TextureSlot.PARTICLE, new Material(EtherCraft.id("block/factory/ether_process_factory_breaking")));
             levelModelIds[level] = builder.build().createWithSuffix(
                     processFactory, suffix, texMapping, blockModels.modelOutput);
         }
@@ -159,50 +202,36 @@ public class ModelDataGen extends ModelProvider {
         itemModels.itemModelOutput.accept(
                 ItemRegistry.ETHER_PROCESS_FACTORY_ITEM_LV_4.get(),
                 ItemModelUtils.plainModel(levelModelIds[4]));
+    }
 
+    private void generateAdaptNodeModels(BlockModelGenerators blockModels, ItemModelGenerators itemModels) {
+        var adaptNode = BlockRegistry.ETHER_ADAPT_NODE.get();
+        Identifier[] levelModelIds = new Identifier[4];
 
-        //发射器
-        Identifier modelLoc = BLOCK_FACES_PROVIDER.create(BlockRegistry.ETHER_STREAM_EMITTER.get(), blockModels.modelOutput);
-        Variant variant = new Variant(modelLoc);
-        blockModels.blockStateOutput.accept(
-                MultiVariantGenerator.dispatch(
-                        BlockRegistry.ETHER_STREAM_EMITTER.get(),
-                        BlockModelGenerators.variant(variant)
-                ).with(
-                        PropertyDispatch.modify(BlockStateProperties.FACING)
-                                .select(Direction.NORTH, BlockModelGenerators.NOP)
-                                .select(Direction.SOUTH, BlockModelGenerators.Y_ROT_180)
-                                .select(Direction.WEST, BlockModelGenerators.Y_ROT_270)
-                                .select(Direction.EAST, BlockModelGenerators.Y_ROT_90)
-                                .select(Direction.UP, BlockModelGenerators.X_ROT_270)
-                                .select(Direction.DOWN, BlockModelGenerators.X_ROT_90)
-                )
-        );
-
-        Variant variantEan = new Variant(EtherCraft.id("block/ether_adapt_node"));
-        blockModels.blockStateOutput.accept(
-                MultiVariantGenerator.dispatch(
-                        BlockRegistry.ETHER_ADAPT_NODE.get(),
-                        BlockModelGenerators.variant(variantEan)
-                )
-        );
-
-        blockModels.createTrivialCube(BlockRegistry.ETHER_BLOCK.get());
-        blockModels.createTrivialCube(BlockRegistry.ETHER_ORE.get());
-        blockModels.createTrivialCube(BlockRegistry.DEEPSLATE_ETHER_ORE.get());
-        blockModels.createTrivialCube(BlockRegistry.NETHER_ETHER_ORE.get());
-        blockModels.createTrivialCube(BlockRegistry.INACTIVATED_ETHER_BLOCK.get());
-        blockModels.createTrivialCube(BlockRegistry.SMOOTH_INACTIVATED_ETHER_BLOCK.get());
+        for (int level = 1; level <= 3; level++) {
+            TextureMapping texMapping = new TextureMapping()
+                    .put(TextureSlot.ALL, new Material(EtherCraft.id("block/node/ether_adapt_node_lv" + level)));
+            levelModelIds[level] = ModelTemplates.CUBE_ALL.createWithSuffix(
+                    adaptNode, "_lv_" + level, texMapping, blockModels.modelOutput);
+        }
 
         blockModels.blockStateOutput.accept(
-                MultiVariantGenerator.dispatch(BlockRegistry.CHEESE_BLOCK.get(),
-                        BlockModelGenerators.variant(new Variant(EtherCraft.id("block/cheese_block"))))
-        );
+                MultiVariantGenerator.dispatch(adaptNode)
+                        .with(PropertyDispatch.initial(EtherAdaptNodeBlock.LEVEL)
+                                .generate(level -> {
+                                    int clamped = Math.min(Math.max(level, 1), 3);
+                                    return BlockModelGenerators.variant(
+                                            new Variant(levelModelIds[clamped]));
+                                })));
 
-        // 以太玻璃 - 连接纹理
-        var etherGlassCustom = MultiVariant.of(new CustomBlockStateModelBuilder.Simple(new EtherGlassUnbakedModel()));
-        blockModels.blockStateOutput.accept(
-                MultiVariantGenerator.dispatch(BlockRegistry.ETHER_GLASS.get(), etherGlassCustom)
-        );
+        itemModels.itemModelOutput.accept(
+                ItemRegistry.ETHER_ADAPT_NODE_ITEM_LV_1.get(),
+                ItemModelUtils.plainModel(levelModelIds[1]));
+        itemModels.itemModelOutput.accept(
+                ItemRegistry.ETHER_ADAPT_NODE_ITEM_LV_2.get(),
+                ItemModelUtils.plainModel(levelModelIds[2]));
+        itemModels.itemModelOutput.accept(
+                ItemRegistry.ETHER_ADAPT_NODE_ITEM_LV_3.get(),
+                ItemModelUtils.plainModel(levelModelIds[3]));
     }
 }

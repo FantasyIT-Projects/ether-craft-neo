@@ -1,7 +1,52 @@
 {
   "variants": {
-    "": {
-      "model": "ether_craft:block/ether_adapt_node"
+    "level=0": {
+      "model": "ether_craft:block/ether_adapt_node_lv_1"
+    },
+    "level=1": {
+      "model": "ether_craft:block/ether_adapt_node_lv_1"
+    },
+    "level=10": {
+      "model": "ether_craft:block/ether_adapt_node_lv_3"
+    },
+    "level=11": {
+      "model": "ether_craft:block/ether_adapt_node_lv_3"
+    },
+    "level=12": {
+      "model": "ether_craft:block/ether_adapt_node_lv_3"
+    },
+    "level=13": {
+      "model": "ether_craft:block/ether_adapt_node_lv_3"
+    },
+    "level=14": {
+      "model": "ether_craft:block/ether_adapt_node_lv_3"
+    },
+    "level=15": {
+      "model": "ether_craft:block/ether_adapt_node_lv_3"
+    },
+    "level=2": {
+      "model": "ether_craft:block/ether_adapt_node_lv_2"
+    },
+    "level=3": {
+      "model": "ether_craft:block/ether_adapt_node_lv_3"
+    },
+    "level=4": {
+      "model": "ether_craft:block/ether_adapt_node_lv_3"
+    },
+    "level=5": {
+      "model": "ether_craft:block/ether_adapt_node_lv_3"
+    },
+    "level=6": {
+      "model": "ether_craft:block/ether_adapt_node_lv_3"
+    },
+    "level=7": {
+      "model": "ether_craft:block/ether_adapt_node_lv_3"
+    },
+    "level=8": {
+      "model": "ether_craft:block/ether_adapt_node_lv_3"
+    },
+    "level=9": {
+      "model": "ether_craft:block/ether_adapt_node_lv_3"
     }
   }
 }

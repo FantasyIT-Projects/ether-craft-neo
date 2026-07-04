@@ -77,7 +77,7 @@
     }
   ],
   "textures": {
-    "particle": "ether_craft:block/ether_process_factory_breaking",
-    "tex": "ether_craft:block/ether_process_factory"
+    "particle": "ether_craft:block/factory/ether_process_factory_breaking",
+    "tex": "ether_craft:block/factory/ether_process_factory"
   }
 }
