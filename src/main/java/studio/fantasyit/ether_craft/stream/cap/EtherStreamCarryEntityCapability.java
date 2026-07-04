@@ -185,10 +185,19 @@ public class EtherStreamCarryEntityCapability implements IStreamCapability {
     public static void dropEntityTo(Level level, Vec3 dropPlayerPos, Vec3 motion, Entity entity) {
         Vec3 subtract = dropPlayerPos.subtract(motion.normalize().scale(0.5));
         dropPlayerPos = new Vec3(Math.floor(subtract.x) + 0.5, dropPlayerPos.y, Math.floor(subtract.z) + 0.5);
-        Vec3 realDraggedAt = dropPlayerPos.subtract(0, entity.getEyeHeight(), 0);
-        BlockPos below = BlockPos.containing(realDraggedAt);
-        if (level.getBlockState(below).isEmpty()) {
-            dropPlayerPos = realDraggedAt;
+        BlockPos currentBlockPos = BlockPos.containing((dropPlayerPos));
+        int maxY = currentBlockPos.getY();
+        int minY = (int) Math.floor(dropPlayerPos.y - entity.getEyeHeight());
+        int suitableY = minY;
+        for (int y = minY; y <= maxY; y++) {
+            if (!level.getBlockState(new BlockPos(currentBlockPos.getX(), y - 1, currentBlockPos.getZ())).isEmpty()) {
+                suitableY = y;
+            }
+        }
+        if (suitableY == minY) {
+            dropPlayerPos = dropPlayerPos.subtract(0, entity.getEyeHeight(), 0);
+        } else {
+            dropPlayerPos = new Vec3(dropPlayerPos.x, suitableY, dropPlayerPos.z);
         }
         entity.setDeltaMovement(Vec3.ZERO);
         entity.fallDistance = 0;
