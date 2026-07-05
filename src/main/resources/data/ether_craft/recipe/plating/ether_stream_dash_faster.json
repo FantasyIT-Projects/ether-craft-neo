@@ -4,7 +4,7 @@
     {"ingredient": "minecraft:dispenser", "count": 1},
     {"ingredient": "ether_craft:ether_glass", "count": 1},
     {"ingredient": "minecraft:minecart", "count": 1},
-    {"ingredient": "minecraft:golden_rail", "count": 1}
+    {"ingredient": "minecraft:powered_rail", "count": 1}
   ],
   "filter": "ether_craft:wrench",
   "effect": "ether_craft:ether_stream_dash_faster",

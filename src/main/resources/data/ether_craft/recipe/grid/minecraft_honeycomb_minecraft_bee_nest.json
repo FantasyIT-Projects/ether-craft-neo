@@ -1,8 +1,7 @@
 {
   "type": "ether_craft:ether_process_factory_grid",
   "target": {
-    "id": "ether_craft:vacuum_pipe",
-    "count": 1
+    "id": "minecraft:honeycomb"
   },
   "entries": [
     {
@@ -12,8 +11,8 @@
         "id": "ether_craft:process_chip",
         "count": 1,
         "components": {
-          "ether_craft:ether_process_chip_id": "ether_craft:separator_chip",
-          "minecraft:item_model": "ether_craft:separator_chip"
+          "ether_craft:ether_process_chip_id": "ether_craft:cutting_chip",
+          "minecraft:item_model": "ether_craft:cutting_chip"
         }
       }
     },
@@ -24,8 +23,8 @@
         "id": "ether_craft:process_chip",
         "count": 1,
         "components": {
-          "ether_craft:ether_process_chip_id": "ether_craft:heating_chip",
-          "minecraft:item_model": "ether_craft:heating_chip"
+          "ether_craft:ether_process_chip_id": "ether_craft:separator_chip",
+          "minecraft:item_model": "ether_craft:separator_chip"
         }
       }
     },
@@ -36,74 +35,14 @@
         "id": "ether_craft:process_chip",
         "count": 1,
         "components": {
-          "ether_craft:ether_process_chip_id": "ether_craft:stamping_chip",
-          "minecraft:item_model": "ether_craft:stamping_chip"
+          "ether_craft:ether_process_chip_id": "ether_craft:separator_chip",
+          "minecraft:item_model": "ether_craft:separator_chip"
         }
       }
     },
     {
       "x": 3,
-      "y": 0,
-      "item": {
-        "id": "ether_craft:process_chip",
-        "count": 1,
-        "components": {
-          "ether_craft:ether_process_chip_id": "ether_craft:molding_chip",
-          "minecraft:item_model": "ether_craft:molding_chip"
-        }
-      }
-    },
-    {
-      "x": 4,
-      "y": 0,
-      "item": {
-        "id": "ether_craft:process_chip",
-        "count": 1,
-        "components": {
-          "ether_craft:ether_process_chip_id": "ether_craft:molding_chip",
-          "minecraft:item_model": "ether_craft:molding_chip"
-        }
-      }
-    },
-    {
-      "x": 5,
-      "y": 0,
-      "item": {
-        "id": "ether_craft:process_chip",
-        "count": 1,
-        "components": {
-          "ether_craft:ether_process_chip_id": "ether_craft:separator_chip",
-          "minecraft:item_model": "ether_craft:separator_chip"
-        }
-      }
-    },
-    {
-      "x": 6,
-      "y": 0,
-      "item": {
-        "id": "ether_craft:process_chip",
-        "count": 1,
-        "components": {
-          "ether_craft:ether_process_chip_id": "ether_craft:separator_chip",
-          "minecraft:item_model": "ether_craft:separator_chip"
-        }
-      }
-    },
-    {
-      "x": 7,
-      "y": 0,
-      "item": {
-        "id": "ether_craft:process_chip",
-        "count": 1,
-        "components": {
-          "ether_craft:ether_process_chip_id": "ether_craft:separator_chip",
-          "minecraft:item_model": "ether_craft:separator_chip"
-        }
-      }
-    },
-    {
-      "x": 8,
-      "y": 0,
+      "y": 1,
       "item": {
         "id": "ether_craft:process_chip",
         "count": 1,
@@ -120,8 +59,8 @@
         "id": "ether_craft:process_chip",
         "count": 1,
         "components": {
-          "ether_craft:ether_process_chip_id": "ether_craft:cutting_chip",
-          "minecraft:item_model": "ether_craft:cutting_chip"
+          "ether_craft:ether_process_chip_id": "ether_craft:separator_chip",
+          "minecraft:item_model": "ether_craft:separator_chip"
         }
       }
     },
@@ -138,7 +77,7 @@
       }
     },
     {
-      "x": 2,
+      "x": 3,
       "y": 2,
       "item": {
         "id": "ether_craft:process_chip",
@@ -156,8 +95,8 @@
         "id": "ether_craft:process_chip",
         "count": 1,
         "components": {
-          "ether_craft:ether_process_chip_id": "ether_craft:separator_chip",
-          "minecraft:item_model": "ether_craft:separator_chip"
+          "ether_craft:ether_process_chip_id": "ether_craft:molding_chip",
+          "minecraft:item_model": "ether_craft:molding_chip"
         }
       }
     },
@@ -210,43 +149,7 @@
       }
     },
     {
-      "x": 4,
-      "y": 3,
-      "item": {
-        "id": "ether_craft:process_chip",
-        "count": 1,
-        "components": {
-          "ether_craft:ether_process_chip_id": "ether_craft:separator_chip",
-          "minecraft:item_model": "ether_craft:separator_chip"
-        }
-      }
-    },
-    {
       "x": 0,
-      "y": 4,
-      "item": {
-        "id": "ether_craft:process_chip",
-        "count": 1,
-        "components": {
-          "ether_craft:ether_process_chip_id": "ether_craft:separator_chip",
-          "minecraft:item_model": "ether_craft:separator_chip"
-        }
-      }
-    },
-    {
-      "x": 1,
-      "y": 4,
-      "item": {
-        "id": "ether_craft:process_chip",
-        "count": 1,
-        "components": {
-          "ether_craft:ether_process_chip_id": "ether_craft:cutting_chip",
-          "minecraft:item_model": "ether_craft:cutting_chip"
-        }
-      }
-    },
-    {
-      "x": 2,
       "y": 4,
       "item": {
         "id": "ether_craft:process_chip",
@@ -258,6 +161,30 @@
       }
     },
     {
+      "x": 1,
+      "y": 4,
+      "item": {
+        "id": "ether_craft:process_chip",
+        "count": 1,
+        "components": {
+          "ether_craft:ether_process_chip_id": "ether_craft:anima_infusing_chip",
+          "minecraft:item_model": "ether_craft:anima_infusing_chip"
+        }
+      }
+    },
+    {
+      "x": 2,
+      "y": 4,
+      "item": {
+        "id": "ether_craft:process_chip",
+        "count": 1,
+        "components": {
+          "ether_craft:ether_process_chip_id": "ether_craft:separator_chip",
+          "minecraft:item_model": "ether_craft:separator_chip"
+        }
+      }
+    },
+    {
       "x": 3,
       "y": 4,
       "item": {
@@ -271,6 +198,54 @@
     },
     {
       "x": 4,
+      "y": 4,
+      "item": {
+        "id": "ether_craft:process_chip",
+        "count": 1,
+        "components": {
+          "ether_craft:ether_process_chip_id": "ether_craft:converging_chip",
+          "minecraft:item_model": "ether_craft:converging_chip"
+        }
+      }
+    },
+    {
+      "x": 5,
+      "y": 4,
+      "item": {
+        "id": "ether_craft:process_chip",
+        "count": 1,
+        "components": {
+          "ether_craft:ether_process_chip_id": "ether_craft:separator_chip",
+          "minecraft:item_model": "ether_craft:separator_chip"
+        }
+      }
+    },
+    {
+      "x": 6,
+      "y": 4,
+      "item": {
+        "id": "ether_craft:process_chip",
+        "count": 1,
+        "components": {
+          "ether_craft:ether_process_chip_id": "ether_craft:separator_chip",
+          "minecraft:item_model": "ether_craft:separator_chip"
+        }
+      }
+    },
+    {
+      "x": 7,
+      "y": 4,
+      "item": {
+        "id": "ether_craft:process_chip",
+        "count": 1,
+        "components": {
+          "ether_craft:ether_process_chip_id": "ether_craft:separator_chip",
+          "minecraft:item_model": "ether_craft:separator_chip"
+        }
+      }
+    },
+    {
+      "x": 8,
       "y": 4,
       "item": {
         "id": "ether_craft:process_chip",
@@ -284,11 +259,11 @@
   ],
   "inputs": [
     {
-      "ingredient": "ether_craft:inactivated_ether",
-      "count": 2
+      "ingredient": "#c:flowers",
+      "count": 1
     },
     {
-      "ingredient": "ether_craft:ether_glass",
+      "ingredient": "minecraft:bee_nest",
       "count": 1
     }
   ]
