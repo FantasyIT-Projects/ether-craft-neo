@@ -30,6 +30,7 @@ import studio.fantasyit.ether_craft.register.ItemRegistry;
 import studio.fantasyit.ether_craft.register.Tags;
 import studio.fantasyit.ether_craft.stream.PosDir;
 import studio.fantasyit.ether_craft.stream.cap.IStreamCapability;
+import studio.fantasyit.ether_craft.util.LevelUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -68,7 +69,7 @@ public class VirtualEtherStreamHolder {
         for (VirtualEtherStream ves : streams) {
             if (ves.markToRemove) continue;
             BlockPos streamBlockPos = ves.blockPosition();
-            if (!level.isLoaded(streamBlockPos)) {
+            if (!LevelUtil.isLoadedIgnoreHeight(level, streamBlockPos)) {
                 return true;
             }
         }

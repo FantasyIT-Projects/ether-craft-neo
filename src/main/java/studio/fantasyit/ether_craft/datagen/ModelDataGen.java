@@ -157,14 +157,22 @@ public class ModelDataGen extends ModelProvider {
                     processFactory, "_lv_" + level, texMapping, blockModels.modelOutput);
         }
 
+
         blockModels.blockStateOutput.accept(
                 MultiVariantGenerator.dispatch(processFactory)
                         .with(PropertyDispatch.initial(EtherProcessFactoryBlock.LEVEL)
                                 .generate(level -> {
-                                    int clamped = Math.min(Math.max(level, 1), 4);
-                                    return BlockModelGenerators.variant(
-                                            new Variant(levelModelIds[clamped]));
-                                })));
+                                    int clamped = Math.clamp(level, 1, 4);
+                                    return BlockModelGenerators.variant(new Variant(levelModelIds[clamped]));
+                                })
+                        ).with(PropertyDispatch.modify(EtherProcessFactoryBlock.FACING)
+                                .select(Direction.NORTH, BlockModelGenerators.NOP)
+                                .select(Direction.SOUTH, BlockModelGenerators.Y_ROT_180)
+                                .select(Direction.WEST, BlockModelGenerators.Y_ROT_270)
+                                .select(Direction.EAST, BlockModelGenerators.Y_ROT_90)
+                                .select(Direction.UP, BlockModelGenerators.NOP)
+                                .select(Direction.DOWN, BlockModelGenerators.NOP)
+                        ));
 
         itemModels.itemModelOutput.accept(
                 ItemRegistry.ETHER_PROCESS_FACTORY_ITEM_LV_1.get(),
@@ -195,7 +203,7 @@ public class ModelDataGen extends ModelProvider {
                 MultiVariantGenerator.dispatch(adaptNode)
                         .with(PropertyDispatch.initial(EtherAdaptNodeBlock.LEVEL)
                                 .generate(level -> {
-                                    int clamped = Math.min(Math.max(level, 1), 3);
+                                    int clamped = Math.clamp(level, 1, 3);
                                     return BlockModelGenerators.variant(
                                             new Variant(levelModelIds[clamped]));
                                 })));

@@ -41,6 +41,7 @@ import studio.fantasyit.ether_craft.stream.cap.IStreamCapability;
 import studio.fantasyit.ether_craft.stream.client.data.EntityStreamClientManager;
 import studio.fantasyit.ether_craft.stream.data.IEtherStreamSyncedData;
 import studio.fantasyit.ether_craft.stream.data.SyncedEtherStreamDataManager;
+import studio.fantasyit.ether_craft.util.LevelUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -162,6 +163,7 @@ public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
     @Override
     public void tick() {
         super.tick();
+        BlockPos blockPos = blockPosition();
         if (this.level().isClientSide()) {
             this.ether = this.entityData.get(ETHER_COUNT);
             List<IEtherStreamSyncedData> synced = this.entityData.get(SYNCED_DATA);
@@ -175,7 +177,7 @@ public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
             tailZ[tailHead] = this.getZ();
             tailSize[tailHead] = getSize();
         } else {
-            if (!level().isLoaded(this.blockPosition())) {
+            if (!LevelUtil.isLoadedIgnoreHeight(level(), blockPos)) {
                 return;
             }
 
@@ -208,7 +210,7 @@ public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
 
         if (!this.level().isClientSide()) {
             BlockPos oldBlock = BlockPos.containing(this.getX() - vec3.x, this.getY() - vec3.y, this.getZ() - vec3.z);
-            BlockPos newBlock = this.blockPosition();
+            BlockPos newBlock = blockPos;
             boolean wasGlass = level().getBlockState(oldBlock).is(BlockRegistry.ETHER_GLASS);
             boolean isGlass = level().getBlockState(newBlock).is(BlockRegistry.ETHER_GLASS);
             if (wasGlass != isGlass) {

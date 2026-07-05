@@ -21,6 +21,7 @@ import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
 import studio.fantasyit.ether_craft.stream.PosDir;
 import studio.fantasyit.ether_craft.stream.cap.IStreamCapability;
 import studio.fantasyit.ether_craft.stream.data.IEtherStreamSyncedData;
+import studio.fantasyit.ether_craft.util.LevelUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -166,7 +167,7 @@ public class VirtualEtherStream implements IEtherStreamLike {
     }
 
     public void tick() {
-        if (!level.isLoaded(this.blockPosition())) {
+        if (!LevelUtil.isLoadedIgnoreHeight(level, this.blockPosition())) {
             return;
         }
 
