@@ -472,15 +472,10 @@
       "count": 1
     },
     {
-      "neoforge:ingredient_type": "neoforge:components",
-      "items": "ether_craft:process_chip",
-      "components": {
-        "minecraft:item_model": "ether_craft:high_heating_chip",
-        "ether_craft:ether_process_chip_id": "ether_craft:high_heating_chip"
-      }
+      "chip": "high_heating_chip"
     },
     {
-      "ingredient": "minecraft:netherite_upgrade_smithing_template",
+      "ingredient": "ether_craft:ether_dust",
       "count": 1
     }
   ]

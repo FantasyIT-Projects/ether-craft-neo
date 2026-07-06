@@ -30,6 +30,7 @@ public class EtherAdapterNodeBlockEntityRender implements BlockEntityRenderer<Et
     @Override
     public void extractRenderState(EtherAdaptNodeEntity blockEntity, EtherAdapterNodeRenderState state, float partialTicks, Vec3 cameraPosition, ModelFeatureRenderer.@Nullable CrumblingOverlay breakProgress) {
         EtherAdapterNodeRenderState.extractBase(blockEntity, state, breakProgress);
+        state.setLevel(blockEntity.getBlockState().getValueOrElse(EtherAdaptNodeBlock.LEVEL, 1));
         state.blockState = blockEntity.getBlockState();
         state.extractPackedLight(blockEntity.getLevel(), blockEntity.getBlockPos(), blockEntity);
         Direction fd = blockEntity.getBlockState().getValueOrElse(EtherAdaptNodeBlock.FACING, Direction.NORTH);

@@ -58,6 +58,7 @@ public class ModelDataGen extends ModelProvider {
     protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerators itemModels) {
         itemModels.generateFlatItem(ItemRegistry.PROCESS_CHIP_ITEM.get(), ITEM_SIMPLE);
         itemModels.generateFlatItem(ItemRegistry.DIRECT_INPUT_ITEM_CHIP.get(), ITEM_SIMPLE);
+        itemModels.generateFlatItem(ItemRegistry.LOGO.get(), ITEM_SIMPLE);
         itemModels.generateFlatItem(ItemRegistry.ETHER.get(), ITEM_SIMPLE);
         itemModels.generateFlatItem(ItemRegistry.ETHER_CREATIVE.get(), ITEM_SIMPLE);
         itemModels.generateFlatItem(ItemRegistry.WRENCH.get(), ITEM_SIMPLE);
@@ -151,9 +152,14 @@ public class ModelDataGen extends ModelProvider {
 
         for (int level = 1; level <= 4; level++) {
             TextureMapping texMapping = new TextureMapping()
-                    .put(T0, new Material(EtherCraft.id("block/factory/ether_process_factory_lv" + level)))
+                    .put(TextureSlot.NORTH, new Material(EtherCraft.id("block/factory/lv" + level + "/ether_process_factory_lv" + level + "_front")))
+                    .put(TextureSlot.SOUTH, new Material(EtherCraft.id("block/factory/lv" + level + "/ether_process_factory_lv" + level + "_back")))
+                    .put(TextureSlot.EAST, new Material(EtherCraft.id("block/factory/lv" + level + "/ether_process_factory_lv" + level + "_right")))
+                    .put(TextureSlot.WEST, new Material(EtherCraft.id("block/factory/lv" + level + "/ether_process_factory_lv" + level + "_left")))
+                    .put(TextureSlot.UP, new Material(EtherCraft.id("block/factory/lv" + level + "/ether_process_factory_lv" + level + "_top")))
+                    .put(TextureSlot.DOWN, new Material(EtherCraft.id("block/factory/lv" + level + "/ether_process_factory_lv" + level + "_bottom")))
                     .put(TextureSlot.PARTICLE, new Material(EtherCraft.id("block/factory/ether_process_factory_breaking_lv" + level)));
-            levelModelIds[level] = BLOCK_FACES.createWithSuffix(
+            levelModelIds[level] = ModelTemplates.CUBE.createWithSuffix(
                     processFactory, "_lv_" + level, texMapping, blockModels.modelOutput);
         }
 

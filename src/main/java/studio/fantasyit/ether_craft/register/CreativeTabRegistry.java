@@ -27,7 +27,7 @@ public class CreativeTabRegistry {
                                         .getEntries()
                                         .stream()
                                         .map(DeferredHolder::get)
-                                        .filter(item -> !(item instanceof ProcessChipItem))
+                                        .filter(item -> !(item instanceof ProcessChipItem) && item != ItemRegistry.LOGO.get())
                                         .forEach(pOutput::accept);
                                 EtherProcessChipManager.foreach((id, r) -> {
                                     pOutput.accept(ProcessChipItem.getStackFor(id));

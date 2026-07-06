@@ -4,9 +4,13 @@ import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
+import mezz.jei.api.constants.VanillaTypes;
+import mezz.jei.api.recipe.IRecipeManager;
 import mezz.jei.api.recipe.types.IRecipeHolderType;
 import mezz.jei.api.recipe.types.IRecipeType;
 import mezz.jei.api.registration.*;
+import mezz.jei.api.runtime.IIngredientManager;
+import mezz.jei.api.runtime.IJeiRuntime;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -217,5 +221,24 @@ public class JEIPlugin implements IModPlugin {
                 UpgradeShapedRecipe.class,
                 new UpgradeShapedRecipeExtension()
         );
+    }
+
+    @Override
+    public void onRuntimeAvailable(IJeiRuntime jeiRuntime) {
+        IIngredientManager ingredientManager = jeiRuntime.getIngredientManager();
+        ingredientManager.removeIngredientsAtRuntime(
+                VanillaTypes.ITEM_STACK,
+                List.of(new ItemStack(ItemRegistry.LOGO.get()))
+        );
+
+        IRecipeManager recipeManager = jeiRuntime.getRecipeManager();
+        List<EtherProcessCategory.EtherProcessFactoryRecipeWrapper> toHide =
+                recipeManager.createRecipeLookup(ETHER_PROCESS_TYPE)
+                        .get()
+                        .filter(r -> r.id().equals(EtherCraft.id("ether_process/extra/logo")))
+                        .toList();
+        if (!toHide.isEmpty()) {
+            recipeManager.hideRecipes(ETHER_PROCESS_TYPE, toHide);
+        }
     }
 }
