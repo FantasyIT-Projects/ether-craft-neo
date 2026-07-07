@@ -1,7 +1,9 @@
 package studio.fantasyit.ether_craft.plating.helper;
 
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import studio.fantasyit.ether_craft.plating.data.PlatingData;
 import studio.fantasyit.ether_craft.plating.data.ProgressingPlatingData;
@@ -18,6 +20,14 @@ public class PlatingUtil {
 
     public static boolean canExtractEther(ItemStack stack, int amount) {
         return getEther(stack) >= amount && hasPlating(stack);
+    }
+
+
+    public static boolean extractEtherWithEntityContext(LivingEntity living, ItemStack stack, int amount) {
+        if (living instanceof Player p)
+            if (p.isCreative())
+                return true;
+        return extractEther(stack, amount);
     }
 
     public static boolean extractEther(ItemStack stack, int amount) {

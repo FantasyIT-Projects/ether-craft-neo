@@ -27,7 +27,7 @@ public class EtherStreamBreakPlatingEffect implements IPlatingEffect, IPlatingRi
         if (!(entity.level() instanceof ServerLevel level)) return;
         if (data.isCd(level)) return;
         if (!PlatingUtil.canExtractEther(stack, Config.platingEtherStreamBreakEtherCost)) return;
-        PlatingUtil.extractEther(stack, Config.platingEtherStreamBreakEtherCost);
+        PlatingUtil.extractEtherWithEntityContext(entity, stack, Config.platingEtherStreamBreakEtherCost);
         int streamEther = (int) Math.max(1, data.effect());
 
         Vec3 pos = entity.getEyePosition();

@@ -83,6 +83,11 @@ public class EtherAdaptNodeBlock extends BaseBlock {
     }
 
     @Override
+    protected int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos, Direction direction) {
+        return getSignal(state, level, pos, direction.getOpposite());
+    }
+
+    @Override
     public @Nullable BlockEntity newBlockEntity(BlockPos blockPos, BlockState blockState) {
         return new EtherAdaptNodeEntity(blockPos, blockState);
     }

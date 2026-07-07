@@ -22,7 +22,12 @@ import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.event.ClientRecipeSyncEvent;
 import studio.fantasyit.ether_craft.factory.ExtraRecipeProvider;
+import studio.fantasyit.ether_craft.integration.jei.screen.FactoryGhostIngredientReceiver;
+import studio.fantasyit.ether_craft.integration.jei.screen.NodeGhostIngredientReceiver;
 import studio.fantasyit.ether_craft.item.ProcessChipItem;
+import studio.fantasyit.ether_craft.menu.base.BaseMenu;
+import studio.fantasyit.ether_craft.menu.factory.EtherProcessFactoryScreen;
+import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeScreen;
 import studio.fantasyit.ether_craft.node.NodePluginManager;
 import studio.fantasyit.ether_craft.recipe.crafting.UpgradeShapedRecipe;
 import studio.fantasyit.ether_craft.recipe.factory.EtherProcessFactoryRecipe;
@@ -221,6 +226,12 @@ public class JEIPlugin implements IModPlugin {
                 UpgradeShapedRecipe.class,
                 new UpgradeShapedRecipeExtension()
         );
+    }
+
+    @Override
+    public void registerGuiHandlers(IGuiHandlerRegistration registration) {
+        registration.addGhostIngredientHandler(EtherAdaptNodeScreen.class, new NodeGhostIngredientReceiver());
+        registration.addGhostIngredientHandler(EtherProcessFactoryScreen.class, new FactoryGhostIngredientReceiver());
     }
 
     @Override

@@ -30,7 +30,7 @@ public class AntiDarknessPlatingEffect implements IPlatingEffect, IPlatingMobEff
                 && !event.getEffectInstance().is(MobEffects.BLINDNESS))
             return;
         if (!PlatingUtil.canExtractEther(stack, Config.platingAntiDarknessEtherPerBlock)) return;
-        PlatingUtil.extractEther(stack, Config.platingAntiDarknessEtherPerBlock);
+        PlatingUtil.extractEtherWithEntityContext(entity, stack, Config.platingAntiDarknessEtherPerBlock);
         event.setResult(MobEffectEvent.Applicable.Result.DO_NOT_APPLY);
     }
 
@@ -38,7 +38,7 @@ public class AntiDarknessPlatingEffect implements IPlatingEffect, IPlatingMobEff
     public void apply(IPlatingEffect effect, PlatingData data, ItemStack stack, LivingEntity entity, PlayerTickEvent.Post event) {
         if (!(entity instanceof Player player)) return;
         if (!PlatingUtil.canExtractEther(stack, Config.platingAntiDarknessEtherPerTick)) return;
-        PlatingUtil.extractEther(stack, Config.platingAntiDarknessEtherPerTick);
+        PlatingUtil.extractEtherWithEntityContext(entity, stack, Config.platingAntiDarknessEtherPerTick);
         player.addEffect(new MobEffectInstance(MobEffects.NIGHT_VISION, 220, 0, false, false));
     }
 

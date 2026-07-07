@@ -37,7 +37,7 @@ public class BreakToInventoryPlatingEffect implements IPlatingEffect, IPlatingBl
         }
         event.getDrops().removeAll(absorbed);
         if (!absorbed.isEmpty()) {
-            PlatingUtil.extractEther(stack, Config.platingBreakToInvEtherPerBlock);
+            PlatingUtil.extractEtherWithEntityContext(entity, stack, Config.platingBreakToInvEtherPerBlock);
         }
     }
 }

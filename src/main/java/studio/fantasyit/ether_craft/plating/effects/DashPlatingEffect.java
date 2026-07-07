@@ -10,9 +10,7 @@ import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.plating.data.PlatingData;
 import studio.fantasyit.ether_craft.plating.helper.PlatingUtil;
-import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import studio.fantasyit.ether_craft.plating.trigger.event.IPlatingKeyTrigger;
-import studio.fantasyit.ether_craft.plating.trigger.event.IPlatingRightClickTrigger;
 
 public class DashPlatingEffect implements IPlatingEffect, IPlatingKeyTrigger {
     public static final Identifier ID = EtherCraft.id("dash");
@@ -33,7 +31,7 @@ public class DashPlatingEffect implements IPlatingEffect, IPlatingKeyTrigger {
         if (data.isCd(level)) return;
 
         if (!PlatingUtil.canExtractEther(stack, Config.platingDashEtherCost)) return;
-        PlatingUtil.extractEther(stack, Config.platingDashEtherCost);
+        PlatingUtil.extractEtherWithEntityContext(entity, stack, Config.platingDashEtherCost);
 
         Vec3 look = entity.getLookAngle();
         double distance = data.effect() * 0.5;

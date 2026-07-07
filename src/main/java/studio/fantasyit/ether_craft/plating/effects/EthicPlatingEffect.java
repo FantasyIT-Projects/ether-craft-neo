@@ -41,7 +41,7 @@ public class EthicPlatingEffect implements IPlatingEffect, IPlatingAttackTrigger
         if (!PlatingUtil.canExtractEther(stack, Config.platingEthicEtherPerUse)) return;
 
         if (target instanceof IronGolem golem) {
-            PlatingUtil.extractEther(stack, Config.platingEthicEtherPerUse);
+            PlatingUtil.extractEtherWithEntityContext(entity, stack, Config.platingEthicEtherPerUse);
             event.setCanceled(true);
             if (!data.isCd(level)) {
                 golem.setTarget(null);
@@ -51,7 +51,7 @@ public class EthicPlatingEffect implements IPlatingEffect, IPlatingAttackTrigger
         }
 
         if (target instanceof TamableAnimal tamable) {
-            PlatingUtil.extractEther(stack, Config.platingEthicEtherPerUse);
+            PlatingUtil.extractEtherWithEntityContext(entity, stack, Config.platingEthicEtherPerUse);
             event.setCanceled(true);
             if (!data.isCd(level)) {
                 tamable.setTarget(null);
@@ -69,7 +69,7 @@ public class EthicPlatingEffect implements IPlatingEffect, IPlatingAttackTrigger
 
             if (data.isCd(level))
                 return;
-            PlatingUtil.extractEther(stack, Config.platingEthicEtherPerUse);
+            PlatingUtil.extractEtherWithEntityContext(entity, stack, Config.platingEthicEtherPerUse);
             LootTable lootTable = level.getServer().reloadableRegistries().getLootTable(lootTableKey.get());
             LootParams lootParams = new LootParams.Builder(level)
                     .withParameter(LootContextParams.THIS_ENTITY, animal)

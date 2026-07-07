@@ -3,7 +3,6 @@ package studio.fantasyit.ether_craft.plating.effects;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.BlocksAttacks;
@@ -13,9 +12,7 @@ import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.plating.data.PlatingData;
 import studio.fantasyit.ether_craft.plating.helper.PlatingUtil;
 import studio.fantasyit.ether_craft.plating.trigger.event.IPlatingBlockingTrigger;
-import studio.fantasyit.ether_craft.plating.trigger.inst.IEffectStartAndEndTrigger;
 import studio.fantasyit.ether_craft.plating.trigger.inst.IInstanceTrigger;
-import studio.fantasyit.ether_craft.register.DataComponentRegistry;
 
 import java.util.List;
 import java.util.Optional;
@@ -53,7 +50,7 @@ public class BlockPlatingEffect implements IPlatingEffect, IInstanceTrigger,IPla
     @Override
     public void apply(IPlatingEffect effect, PlatingData data, ItemStack stack, LivingEntity entity, LivingShieldBlockEvent event) {
         if (!event.getBlocked()) return;
-        PlatingUtil.extractEther(stack, Config.platingBlockEtherPerTick);
+        PlatingUtil.extractEtherWithEntityContext(entity, stack, Config.platingBlockEtherPerTick);
         if (!PlatingUtil.canExtractEther(stack, Config.platingBlockEtherPerTick)) {
             removeBlocking(stack);
         }

@@ -25,7 +25,7 @@ public class DamagePlatingEffect implements IPlatingEffect, IPlatingAttackTrigge
         if (!(target instanceof LivingEntity living)) return;
         if (!(entity instanceof Player player)) return;
         if (!PlatingUtil.canExtractEther(stack, 1)) return;
-        PlatingUtil.extractEther(stack, 1);
+        PlatingUtil.extractEtherWithEntityContext(entity, stack, 1);
         living.hurt(living.damageSources().playerAttack(player), (float) data.effect());
         event.setCanceled(true);
     }

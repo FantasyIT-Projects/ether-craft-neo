@@ -26,10 +26,10 @@ public class ItemStackMixin {
 
         int etherCost = amount * Config.platingDurabilityAbsorptionEtherPerDurability;
         if (ether >= etherCost) {
-            PlatingUtil.extractEther(self, etherCost);
+            PlatingUtil.extractEtherWithEntityContext(player, self, etherCost);
             ci.cancel();
         } else {
-            PlatingUtil.extractEther(self, ether);
+            PlatingUtil.extractEtherWithEntityContext(player, self, ether);
         }
     }
 }

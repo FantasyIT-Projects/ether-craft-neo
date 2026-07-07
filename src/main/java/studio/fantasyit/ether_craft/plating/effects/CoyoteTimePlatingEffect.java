@@ -34,7 +34,7 @@ public class CoyoteTimePlatingEffect implements IPlatingEffect, IPlatingVirtualW
         if (entity.getY() + movement.y - 1 > jumpStartAt.getY()) {
             return jumpStartAt.getY();
         }
-        PlatingUtil.extractEther(stack, Config.platingCoyoteTimeEtherPerJump);
+        PlatingUtil.extractEtherWithEntityContext(entity, stack, Config.platingCoyoteTimeEtherPerJump);
         return jumpStartAt.getY();
     }
 

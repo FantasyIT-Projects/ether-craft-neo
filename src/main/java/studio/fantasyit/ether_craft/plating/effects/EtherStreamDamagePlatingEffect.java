@@ -27,7 +27,7 @@ public class EtherStreamDamagePlatingEffect implements IPlatingEffect, IPlatingR
         if (!(entity.level() instanceof ServerLevel level)) return;
         if (data.isCd(level)) return;
         if (!PlatingUtil.canExtractEther(stack, Config.platingEtherStreamDamageEtherCost)) return;
-        PlatingUtil.extractEther(stack, Config.platingEtherStreamDamageEtherCost);
+        PlatingUtil.extractEtherWithEntityContext(entity, stack, Config.platingEtherStreamDamageEtherCost);
         int ether = PlatingUtil.getEther(stack);
         int streamEther = (int) Math.max(1, data.effect());
 

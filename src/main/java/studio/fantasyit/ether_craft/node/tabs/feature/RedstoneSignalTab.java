@@ -130,9 +130,9 @@ public class RedstoneSignalTab extends BaseEtherNodeTabWidgetProvider<FeatureRed
             EtherAdaptNodeAsset.BTN_ICON_REDSTONE.blit(graphics, revertButton.getX(), revertButton.getY());
         }
         if (modeButton.isDown()) {
-            EtherAdaptNodeAsset.BTN_ICON_ETHER.blit(graphics, modeButton.getX(), modeButton.getY());
-        } else {
             EtherAdaptNodeAsset.BTN_ICON_CONTAINER.blit(graphics, modeButton.getX(), modeButton.getY());
+        } else {
+            EtherAdaptNodeAsset.BTN_ICON_ETHER.blit(graphics, modeButton.getX(), modeButton.getY());
         }
     }
 

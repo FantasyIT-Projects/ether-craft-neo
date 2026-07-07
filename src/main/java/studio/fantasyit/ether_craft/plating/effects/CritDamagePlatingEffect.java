@@ -25,6 +25,6 @@ public class CritDamagePlatingEffect implements IPlatingEffect, IPlatingCritDama
         if (!PlatingUtil.canExtractEther(stack, Config.platingCritDamageEtherPerAttack)) return;
 
         event.setDamageMultiplier(event.getDamageMultiplier() + (float) data.effect());
-        PlatingUtil.extractEther(stack, Config.platingCritDamageEtherPerAttack);
+        PlatingUtil.extractEtherWithEntityContext(entity, stack, Config.platingCritDamageEtherPerAttack);
     }
 }

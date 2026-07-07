@@ -25,7 +25,7 @@ public class SilentStepPlatingEffect implements IPlatingEffect, IPlatingGameEven
                 || event.getVanillaEvent().is(GameEventTags.IGNORE_VIBRATIONS_SNEAKING)) {
             if (entity.equals(event.getContext().sourceEntity())) {
                 if (!PlatingUtil.canExtractEther(stack, Config.platingSilentStepEtherPerTick)) return;
-                PlatingUtil.extractEther(stack, Config.platingSilentStepEtherPerTick);
+                PlatingUtil.extractEtherWithEntityContext(entity, stack, Config.platingSilentStepEtherPerTick);
                 event.setCanceled(true);
             }
         }

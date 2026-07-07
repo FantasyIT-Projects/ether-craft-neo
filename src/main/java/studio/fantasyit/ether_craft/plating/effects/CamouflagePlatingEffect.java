@@ -52,7 +52,7 @@ public class CamouflagePlatingEffect implements IPlatingEffect, IPlatingTickEqui
 
         if (!state.isActive()) {
             if (newTicks >= Config.platingCamouflageStandDuration) {
-                PlatingUtil.extractEther(stack, Config.platingCamouflageEtherCost);
+                PlatingUtil.extractEtherWithEntityContext(entity, stack, Config.platingCamouflageEtherCost);
                 if (PlatingUtil.getEther(stack) > 0)
                     activate(player, player.blockPosition(), player.getYRot(), pos);
             } else {

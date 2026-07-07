@@ -26,7 +26,7 @@ public class CritPlatingEffect implements IPlatingEffect, IPlatingCritTrigger {
         double chance = data.effect();
         if (entity.getRandom().nextDouble() < chance) {
             event.setCriticalHit(true);
-            PlatingUtil.extractEther(stack, Config.platingCritEtherPerAttack);
+            PlatingUtil.extractEtherWithEntityContext(entity, stack, Config.platingCritEtherPerAttack);
         }
     }
 }

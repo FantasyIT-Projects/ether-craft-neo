@@ -23,7 +23,7 @@ public class NoGravityPlatingEffect implements IPlatingEffect, IPlatingArrowShot
     public void apply(IPlatingEffect effect, PlatingData data, ItemStack stack, LivingEntity entity, EntityJoinLevelEvent event) {
         if (!(event.getEntity() instanceof AbstractArrow arrow)) return;
         if (!PlatingUtil.canExtractEther(stack, Config.platingNoGravityEtherPerArrow)) return;
-        PlatingUtil.extractEther(stack, Config.platingNoGravityEtherPerArrow);
+        PlatingUtil.extractEtherWithEntityContext(entity, stack, Config.platingNoGravityEtherPerArrow);
         arrow.setNoGravity(true);
     }
 }

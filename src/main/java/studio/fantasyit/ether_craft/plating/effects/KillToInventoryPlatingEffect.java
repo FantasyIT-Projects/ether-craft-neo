@@ -37,7 +37,7 @@ public class KillToInventoryPlatingEffect implements IPlatingEffect, IPlatingKil
         }
         event.getDrops().removeAll(absorbed);
         if (!absorbed.isEmpty()) {
-            PlatingUtil.extractEther(stack, Config.platingKillToInvEtherPerKill);
+            PlatingUtil.extractEtherWithEntityContext(entity, stack, Config.platingKillToInvEtherPerKill);
         }
     }
 }

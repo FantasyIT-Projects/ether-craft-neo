@@ -2,6 +2,7 @@ package studio.fantasyit.ether_craft.node.plugins.feature;
 
 import com.mojang.serialization.Codec;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import studio.fantasyit.ether_craft.EtherCraft;
@@ -45,14 +46,20 @@ public class FeatureRedstoneSignal extends AbstractDirectionalFeature {
             int unlocked = nodeEntity.nodeProperty.slotUnlock;
             if (unlocked <= 0) return revert ? 15 : 0;
             int filled = 0;
+            int total = 0;
             for (int i = 0; i < unlocked; i++) {
-                if (!nodeEntity.normalStorage.getItem(i).isEmpty())
-                    filled++;
+                ItemStack it = nodeEntity.normalStorage.getItem(i);
+                if (!it.isEmpty()) {
+                    filled += it.count();
+                    total += it.getMaxStackSize();
+                } else {
+                    total += 64;
+                }
             }
             if (revert)
-                return 15 - filled * 15 / unlocked;
+                return 15 - filled * 15 / total;
             else
-                return filled * 15 / unlocked;
+                return (int) Math.ceil(filled * 15.0 / total);
         }
     }
 

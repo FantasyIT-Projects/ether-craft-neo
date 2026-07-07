@@ -29,6 +29,6 @@ public class HeadHuntPlatingEffect implements IPlatingEffect, IPlatingKillTrigge
 //        Level level = target.level();
 //        ItemEntity headEntity = new ItemEntity(level, target.getX(), target.getY(), target.getZ(), head.copy());
 //        event.getDrops().add(headEntity);
-//        PlatingUtil.extractEther(stack, Config.platingHeadHuntEtherPerKill);
+//        PlatingUtil.extractEtherWithEntityContext(stack, Config.platingHeadHuntEtherPerKill);
     }
 }

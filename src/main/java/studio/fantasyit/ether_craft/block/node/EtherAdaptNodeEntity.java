@@ -83,7 +83,13 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
         super(ETHER_NODE_ENTITY.get(), worldPosition, blockState);
         nodeProperty = new NodeProperty();
         etherStorage = new EtherSlotSyncContainer(this);
-        normalStorage = new RangeLimitPlaceContainer(new SimpleContainer(27), 0);
+        normalStorage = new RangeLimitPlaceContainer(new SimpleContainer(27) {
+            @Override
+            public void setChanged() {
+                super.setChanged();
+                markUpdate = true;
+            }
+        }, 0);
         normalStorageFilter = new ItemFilter(27, this::setChanged);
         normalHandler = VanillaContainerWrapper.of(normalStorage);
         functionStorage = new EtherPluginUpgradeContainer(1, NodePluginManager.FUNCTION_TYPE, this);
@@ -539,7 +545,7 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
 
     public int getAnalogOutputSignal(Direction direction) {
         for (AbstractNodePlugin plugin : getPlugins()) {
-            if (plugin instanceof FeatureRedstoneSignal rss && rss.revert) {
+            if (plugin instanceof FeatureRedstoneSignal rss) {
                 if (rss.direction == direction) {
                     return rss.getSignal();
                 }

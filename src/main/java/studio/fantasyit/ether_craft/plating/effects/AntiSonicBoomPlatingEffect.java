@@ -23,7 +23,7 @@ public class AntiSonicBoomPlatingEffect implements IPlatingEffect, IPlatingLivin
     public void apply(IPlatingEffect effect, PlatingData data, ItemStack stack, LivingEntity entity, LivingIncomingDamageEvent event) {
         if (!event.getSource().is(DamageTypes.SONIC_BOOM)) return;
         if (!PlatingUtil.canExtractEther(stack, Config.platingAntiSonicBoomEtherPerBlock)) return;
-        PlatingUtil.extractEther(stack, Config.platingAntiSonicBoomEtherPerBlock);
+        PlatingUtil.extractEtherWithEntityContext(entity, stack, Config.platingAntiSonicBoomEtherPerBlock);
         double reduction = data.effect();
         if (reduction >= 1.0) {
             event.setCanceled(true);
