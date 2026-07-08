@@ -99,7 +99,7 @@ public class EtherStreamCarryEntityCapability implements IStreamCapability {
     public void getConsumption(EtherConsumer consumer, IEtherStreamLike entity) {
         EtherStreamCarryingEntityData data = getCarriedData(entity);
         if (data != null)
-            consumer.addBaseFactor(0.005);
+            consumer.addBaseFactor(0.005f);
     }
 
     @Override

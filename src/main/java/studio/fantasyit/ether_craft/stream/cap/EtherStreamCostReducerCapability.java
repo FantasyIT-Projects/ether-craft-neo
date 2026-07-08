@@ -48,7 +48,7 @@ public class EtherStreamCostReducerCapability implements IStreamCapability {
 
     @Override
     public void getConsumption(EtherConsumer consumer, IEtherStreamLike entity) {
-        consumer.multiplyGlobalFactor(1.0 / Math.pow(2, levels));
+        consumer.multiplyGlobalFactor((float) (1.0 / Math.pow(2, levels)));
     }
 
     @Override

@@ -80,13 +80,13 @@ public class EtherStreamStorageCapability implements IStreamCapability, Containe
 
     @Override
     public void getConsumption(EtherConsumer consumer, IEtherStreamLike entity) {
-        double consumption = 0;
-        double scale = 0.1;
+        float consumption = 0;
+        float scale = 0.1f;
         for (ItemStack i : itemStack) {
             consumption += 1;
-            scale += 0.2;
+            scale += 0.2f;
             if (!i.isEmpty()) {
-                consumption += (double) i.count() / i.getMaxStackSize();
+                consumption += (float) i.count() / i.getMaxStackSize();
             }
         }
         consumer.addConsumption((int) Math.ceil(consumption * scale));

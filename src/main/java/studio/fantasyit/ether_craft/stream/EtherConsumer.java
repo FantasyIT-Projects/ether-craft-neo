@@ -11,17 +11,17 @@ import studio.fantasyit.ether_craft.stream.cap.IStreamCapability;
 import java.util.List;
 
 public class EtherConsumer {
-    private double baseFactor;
-    private double factorByTime;
+    private float baseFactor;
+    private float factorByTime;
     private int capConsumptionSum;
-    private double globalFactor;
+    private float globalFactor;
     private boolean isInEtherGlass;
     private boolean dirty = true;
 
     public int getTotalConsumption(int ether, int tickCount) {
         if (isInEtherGlass)
             tickCount = 0;
-        double factor = baseFactor + factorByTime * tickCount;
+        float factor = baseFactor + factorByTime * tickCount;
         int amount = (int) Math.ceil(Math.ceil(Math.ceil(factor * ether) + capConsumptionSum) * globalFactor);
         if (isInEtherGlass)
             amount -= Config.etherGlassPreventConsume;
@@ -37,11 +37,11 @@ public class EtherConsumer {
     }
 
     public void recompute(IEtherStreamLike iEtherStreamLike, List<IStreamCapability> caps) {
-        this.baseFactor = Config.etherStreamConsumptionFactor;
-        this.factorByTime = Config.etherStreamConsumptionByTimeFactor;
-        this.factorByTime *= iEtherStreamLike.deltaMovement().length() / 0.055;
+        this.baseFactor = (float) Config.etherStreamConsumptionFactor;
+        this.factorByTime = (float) Config.etherStreamConsumptionByTimeFactor;
+        this.factorByTime *= (float) (iEtherStreamLike.deltaMovement().length() / 0.055);
         this.capConsumptionSum = 0;
-        this.globalFactor = 1.0;
+        this.globalFactor = 1.0f;
         for (IStreamCapability cap : caps) {
             cap.getConsumption(this, iEtherStreamLike);
         }
@@ -52,15 +52,15 @@ public class EtherConsumer {
         this.capConsumptionSum += amount;
     }
 
-    public void addBaseFactor(double d) {
+    public void addBaseFactor(float d) {
         this.baseFactor += d;
     }
 
-    public void addFactorByTime(double d) {
+    public void addFactorByTime(float d) {
         this.factorByTime += d;
     }
 
-    public void multiplyGlobalFactor(double d) {
+    public void multiplyGlobalFactor(float d) {
         this.globalFactor *= d;
     }
 
@@ -82,21 +82,21 @@ public class EtherConsumer {
         this.dirty = true;
     }
 
-    public record State(double baseFactor, double factorByTime, int capConsumptionSum, double globalFactor,
+    public record State(float baseFactor, float factorByTime, int capConsumptionSum, float globalFactor,
                         boolean isInEtherGlass) {
         public static final Codec<State> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-                Codec.DOUBLE.fieldOf("baseFactor").forGetter(State::baseFactor),
-                Codec.DOUBLE.fieldOf("factorByTime").forGetter(State::factorByTime),
+                Codec.FLOAT.fieldOf("baseFactor").forGetter(State::baseFactor),
+                Codec.FLOAT.fieldOf("factorByTime").forGetter(State::factorByTime),
                 Codec.INT.fieldOf("capConsumptionSum").forGetter(State::capConsumptionSum),
-                Codec.DOUBLE.fieldOf("globalFactor").forGetter(State::globalFactor),
+                Codec.FLOAT.fieldOf("globalFactor").forGetter(State::globalFactor),
                 Codec.BOOL.fieldOf("isInEtherGlass").forGetter(State::isInEtherGlass)
         ).apply(instance, State::new));
 
         public static final StreamCodec<RegistryFriendlyByteBuf, State> STREAM_CODEC = StreamCodec.composite(
-                ByteBufCodecs.DOUBLE, State::baseFactor,
-                ByteBufCodecs.DOUBLE, State::factorByTime,
+                ByteBufCodecs.FLOAT, State::baseFactor,
+                ByteBufCodecs.FLOAT, State::factorByTime,
                 ByteBufCodecs.INT, State::capConsumptionSum,
-                ByteBufCodecs.DOUBLE, State::globalFactor,
+                ByteBufCodecs.FLOAT, State::globalFactor,
                 ByteBufCodecs.BOOL, State::isInEtherGlass,
                 State::new
         );

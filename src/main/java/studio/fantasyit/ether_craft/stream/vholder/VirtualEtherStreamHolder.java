@@ -17,6 +17,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 import studio.fantasyit.ether_craft.Config;
@@ -282,7 +283,7 @@ public class VirtualEtherStreamHolder {
                 }
             }
             EtherStreamCreateS2C payload = new EtherStreamCreateS2C(posDir, createEntries);
-            PacketDistributor.sendToPlayersInDimension(level, payload);
+            sendToNearbyPlayers(level, payload);
         }
 
         if (!collectedToRemove.isEmpty()) {
@@ -304,7 +305,7 @@ public class VirtualEtherStreamHolder {
                 VirtualEtherStream ves = findStreamById(id);
                 if (ves == null) continue;
                 EtherStreamSyncDataS2C payload = new EtherStreamSyncDataS2C(posDir, id, ves.toSyncData);
-                PacketDistributor.sendToPlayersInDimension(level, payload);
+                sendToNearbyPlayers(level, payload);
             }
         }
 
@@ -323,8 +324,18 @@ public class VirtualEtherStreamHolder {
             }
             if (!updateEntries.isEmpty()) {
                 EtherStreamUpdateS2C payload = new EtherStreamUpdateS2C(posDir, updateEntries);
-                PacketDistributor.sendToPlayersInDimension(level, payload);
+                sendToNearbyPlayers(level, payload);
             }
+        }
+    }
+
+    private void sendToNearbyPlayers(ServerLevel level, CustomPacketPayload payload) {
+        if (Config.etherStreamSyncDistance <= 0) {
+            PacketDistributor.sendToPlayersInDimension(level, payload);
+        } else {
+            PacketDistributor.sendToPlayersNear(level, null,
+                    pos.getCenter().x, pos.getCenter().y, pos.getCenter().z,
+                    Config.etherStreamSyncDistance, payload);
         }
     }
 
