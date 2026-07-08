@@ -34,7 +34,7 @@ import java.util.function.Function;
 
 public class EtherAdaptNodeBlock extends BaseBlock {
     public static final EnumProperty<@NotNull Direction> FACING = BlockStateProperties.FACING;
-    public static final IntegerProperty LEVEL = BlockStateProperties.LEVEL;
+    public static final IntegerProperty LEVEL = IntegerProperty.create("level", 1, 3);;
 
     public static Function<Identifier, @NotNull EtherAdaptNodeBlock> constructWithLevel(int level) {
         return identifier -> new EtherAdaptNodeBlock(identifier, level);

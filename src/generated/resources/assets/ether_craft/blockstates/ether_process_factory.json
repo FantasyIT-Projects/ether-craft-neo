@@ -1,28 +1,7 @@
 {
   "variants": {
-    "facing=down,level=0": {
-      "model": "ether_craft:block/ether_process_factory_lv_1"
-    },
     "facing=down,level=1": {
       "model": "ether_craft:block/ether_process_factory_lv_1"
-    },
-    "facing=down,level=10": {
-      "model": "ether_craft:block/ether_process_factory_lv_4"
-    },
-    "facing=down,level=11": {
-      "model": "ether_craft:block/ether_process_factory_lv_4"
-    },
-    "facing=down,level=12": {
-      "model": "ether_craft:block/ether_process_factory_lv_4"
-    },
-    "facing=down,level=13": {
-      "model": "ether_craft:block/ether_process_factory_lv_4"
-    },
-    "facing=down,level=14": {
-      "model": "ether_craft:block/ether_process_factory_lv_4"
-    },
-    "facing=down,level=15": {
-      "model": "ether_craft:block/ether_process_factory_lv_4"
     },
     "facing=down,level=2": {
       "model": "ether_craft:block/ether_process_factory_lv_2"
@@ -33,51 +12,8 @@
     "facing=down,level=4": {
       "model": "ether_craft:block/ether_process_factory_lv_4"
     },
-    "facing=down,level=5": {
-      "model": "ether_craft:block/ether_process_factory_lv_4"
-    },
-    "facing=down,level=6": {
-      "model": "ether_craft:block/ether_process_factory_lv_4"
-    },
-    "facing=down,level=7": {
-      "model": "ether_craft:block/ether_process_factory_lv_4"
-    },
-    "facing=down,level=8": {
-      "model": "ether_craft:block/ether_process_factory_lv_4"
-    },
-    "facing=down,level=9": {
-      "model": "ether_craft:block/ether_process_factory_lv_4"
-    },
-    "facing=east,level=0": {
-      "model": "ether_craft:block/ether_process_factory_lv_1",
-      "y": 90
-    },
     "facing=east,level=1": {
       "model": "ether_craft:block/ether_process_factory_lv_1",
-      "y": 90
-    },
-    "facing=east,level=10": {
-      "model": "ether_craft:block/ether_process_factory_lv_4",
-      "y": 90
-    },
-    "facing=east,level=11": {
-      "model": "ether_craft:block/ether_process_factory_lv_4",
-      "y": 90
-    },
-    "facing=east,level=12": {
-      "model": "ether_craft:block/ether_process_factory_lv_4",
-      "y": 90
-    },
-    "facing=east,level=13": {
-      "model": "ether_craft:block/ether_process_factory_lv_4",
-      "y": 90
-    },
-    "facing=east,level=14": {
-      "model": "ether_craft:block/ether_process_factory_lv_4",
-      "y": 90
-    },
-    "facing=east,level=15": {
-      "model": "ether_craft:block/ether_process_factory_lv_4",
       "y": 90
     },
     "facing=east,level=2": {
@@ -92,49 +28,8 @@
       "model": "ether_craft:block/ether_process_factory_lv_4",
       "y": 90
     },
-    "facing=east,level=5": {
-      "model": "ether_craft:block/ether_process_factory_lv_4",
-      "y": 90
-    },
-    "facing=east,level=6": {
-      "model": "ether_craft:block/ether_process_factory_lv_4",
-      "y": 90
-    },
-    "facing=east,level=7": {
-      "model": "ether_craft:block/ether_process_factory_lv_4",
-      "y": 90
-    },
-    "facing=east,level=8": {
-      "model": "ether_craft:block/ether_process_factory_lv_4",
-      "y": 90
-    },
-    "facing=east,level=9": {
-      "model": "ether_craft:block/ether_process_factory_lv_4",
-      "y": 90
-    },
-    "facing=north,level=0": {
-      "model": "ether_craft:block/ether_process_factory_lv_1"
-    },
     "facing=north,level=1": {
       "model": "ether_craft:block/ether_process_factory_lv_1"
-    },
-    "facing=north,level=10": {
-      "model": "ether_craft:block/ether_process_factory_lv_4"
-    },
-    "facing=north,level=11": {
-      "model": "ether_craft:block/ether_process_factory_lv_4"
-    },
-    "facing=north,level=12": {
-      "model": "ether_craft:block/ether_process_factory_lv_4"
-    },
-    "facing=north,level=13": {
-      "model": "ether_craft:block/ether_process_factory_lv_4"
-    },
-    "facing=north,level=14": {
-      "model": "ether_craft:block/ether_process_factory_lv_4"
-    },
-    "facing=north,level=15": {
-      "model": "ether_craft:block/ether_process_factory_lv_4"
     },
     "facing=north,level=2": {
       "model": "ether_craft:block/ether_process_factory_lv_2"
@@ -145,51 +40,8 @@
     "facing=north,level=4": {
       "model": "ether_craft:block/ether_process_factory_lv_4"
     },
-    "facing=north,level=5": {
-      "model": "ether_craft:block/ether_process_factory_lv_4"
-    },
-    "facing=north,level=6": {
-      "model": "ether_craft:block/ether_process_factory_lv_4"
-    },
-    "facing=north,level=7": {
-      "model": "ether_craft:block/ether_process_factory_lv_4"
-    },
-    "facing=north,level=8": {
-      "model": "ether_craft:block/ether_process_factory_lv_4"
-    },
-    "facing=north,level=9": {
-      "model": "ether_craft:block/ether_process_factory_lv_4"
-    },
-    "facing=south,level=0": {
-      "model": "ether_craft:block/ether_process_factory_lv_1",
-      "y": 180
-    },
     "facing=south,level=1": {
       "model": "ether_craft:block/ether_process_factory_lv_1",
-      "y": 180
-    },
-    "facing=south,level=10": {
-      "model": "ether_craft:block/ether_process_factory_lv_4",
-      "y": 180
-    },
-    "facing=south,level=11": {
-      "model": "ether_craft:block/ether_process_factory_lv_4",
-      "y": 180
-    },
-    "facing=south,level=12": {
-      "model": "ether_craft:block/ether_process_factory_lv_4",
-      "y": 180
-    },
-    "facing=south,level=13": {
-      "model": "ether_craft:block/ether_process_factory_lv_4",
-      "y": 180
-    },
-    "facing=south,level=14": {
-      "model": "ether_craft:block/ether_process_factory_lv_4",
-      "y": 180
-    },
-    "facing=south,level=15": {
-      "model": "ether_craft:block/ether_process_factory_lv_4",
       "y": 180
     },
     "facing=south,level=2": {
@@ -204,49 +56,8 @@
       "model": "ether_craft:block/ether_process_factory_lv_4",
       "y": 180
     },
-    "facing=south,level=5": {
-      "model": "ether_craft:block/ether_process_factory_lv_4",
-      "y": 180
-    },
-    "facing=south,level=6": {
-      "model": "ether_craft:block/ether_process_factory_lv_4",
-      "y": 180
-    },
-    "facing=south,level=7": {
-      "model": "ether_craft:block/ether_process_factory_lv_4",
-      "y": 180
-    },
-    "facing=south,level=8": {
-      "model": "ether_craft:block/ether_process_factory_lv_4",
-      "y": 180
-    },
-    "facing=south,level=9": {
-      "model": "ether_craft:block/ether_process_factory_lv_4",
-      "y": 180
-    },
-    "facing=up,level=0": {
-      "model": "ether_craft:block/ether_process_factory_lv_1"
-    },
     "facing=up,level=1": {
       "model": "ether_craft:block/ether_process_factory_lv_1"
-    },
-    "facing=up,level=10": {
-      "model": "ether_craft:block/ether_process_factory_lv_4"
-    },
-    "facing=up,level=11": {
-      "model": "ether_craft:block/ether_process_factory_lv_4"
-    },
-    "facing=up,level=12": {
-      "model": "ether_craft:block/ether_process_factory_lv_4"
-    },
-    "facing=up,level=13": {
-      "model": "ether_craft:block/ether_process_factory_lv_4"
-    },
-    "facing=up,level=14": {
-      "model": "ether_craft:block/ether_process_factory_lv_4"
-    },
-    "facing=up,level=15": {
-      "model": "ether_craft:block/ether_process_factory_lv_4"
     },
     "facing=up,level=2": {
       "model": "ether_craft:block/ether_process_factory_lv_2"
@@ -257,51 +68,8 @@
     "facing=up,level=4": {
       "model": "ether_craft:block/ether_process_factory_lv_4"
     },
-    "facing=up,level=5": {
-      "model": "ether_craft:block/ether_process_factory_lv_4"
-    },
-    "facing=up,level=6": {
-      "model": "ether_craft:block/ether_process_factory_lv_4"
-    },
-    "facing=up,level=7": {
-      "model": "ether_craft:block/ether_process_factory_lv_4"
-    },
-    "facing=up,level=8": {
-      "model": "ether_craft:block/ether_process_factory_lv_4"
-    },
-    "facing=up,level=9": {
-      "model": "ether_craft:block/ether_process_factory_lv_4"
-    },
-    "facing=west,level=0": {
-      "model": "ether_craft:block/ether_process_factory_lv_1",
-      "y": 270
-    },
     "facing=west,level=1": {
       "model": "ether_craft:block/ether_process_factory_lv_1",
-      "y": 270
-    },
-    "facing=west,level=10": {
-      "model": "ether_craft:block/ether_process_factory_lv_4",
-      "y": 270
-    },
-    "facing=west,level=11": {
-      "model": "ether_craft:block/ether_process_factory_lv_4",
-      "y": 270
-    },
-    "facing=west,level=12": {
-      "model": "ether_craft:block/ether_process_factory_lv_4",
-      "y": 270
-    },
-    "facing=west,level=13": {
-      "model": "ether_craft:block/ether_process_factory_lv_4",
-      "y": 270
-    },
-    "facing=west,level=14": {
-      "model": "ether_craft:block/ether_process_factory_lv_4",
-      "y": 270
-    },
-    "facing=west,level=15": {
-      "model": "ether_craft:block/ether_process_factory_lv_4",
       "y": 270
     },
     "facing=west,level=2": {
@@ -313,26 +81,6 @@
       "y": 270
     },
     "facing=west,level=4": {
-      "model": "ether_craft:block/ether_process_factory_lv_4",
-      "y": 270
-    },
-    "facing=west,level=5": {
-      "model": "ether_craft:block/ether_process_factory_lv_4",
-      "y": 270
-    },
-    "facing=west,level=6": {
-      "model": "ether_craft:block/ether_process_factory_lv_4",
-      "y": 270
-    },
-    "facing=west,level=7": {
-      "model": "ether_craft:block/ether_process_factory_lv_4",
-      "y": 270
-    },
-    "facing=west,level=8": {
-      "model": "ether_craft:block/ether_process_factory_lv_4",
-      "y": 270
-    },
-    "facing=west,level=9": {
       "model": "ether_craft:block/ether_process_factory_lv_4",
       "y": 270
     }

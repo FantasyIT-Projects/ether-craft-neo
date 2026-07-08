@@ -1,52 +1,58 @@
 {
   "variants": {
-    "level=0": {
-      "model": "ether_craft:block/ether_adapt_node_lv_1"
+    "facing=down,level=1": {
+      "type": "ether_craft:ether_adapt_node"
     },
-    "level=1": {
-      "model": "ether_craft:block/ether_adapt_node_lv_1"
+    "facing=down,level=2": {
+      "type": "ether_craft:ether_adapt_node"
     },
-    "level=10": {
-      "model": "ether_craft:block/ether_adapt_node_lv_3"
+    "facing=down,level=3": {
+      "type": "ether_craft:ether_adapt_node"
     },
-    "level=11": {
-      "model": "ether_craft:block/ether_adapt_node_lv_3"
+    "facing=east,level=1": {
+      "type": "ether_craft:ether_adapt_node"
     },
-    "level=12": {
-      "model": "ether_craft:block/ether_adapt_node_lv_3"
+    "facing=east,level=2": {
+      "type": "ether_craft:ether_adapt_node"
     },
-    "level=13": {
-      "model": "ether_craft:block/ether_adapt_node_lv_3"
+    "facing=east,level=3": {
+      "type": "ether_craft:ether_adapt_node"
     },
-    "level=14": {
-      "model": "ether_craft:block/ether_adapt_node_lv_3"
+    "facing=north,level=1": {
+      "type": "ether_craft:ether_adapt_node"
     },
-    "level=15": {
-      "model": "ether_craft:block/ether_adapt_node_lv_3"
+    "facing=north,level=2": {
+      "type": "ether_craft:ether_adapt_node"
     },
-    "level=2": {
-      "model": "ether_craft:block/ether_adapt_node_lv_2"
+    "facing=north,level=3": {
+      "type": "ether_craft:ether_adapt_node"
     },
-    "level=3": {
-      "model": "ether_craft:block/ether_adapt_node_lv_3"
+    "facing=south,level=1": {
+      "type": "ether_craft:ether_adapt_node"
     },
-    "level=4": {
-      "model": "ether_craft:block/ether_adapt_node_lv_3"
+    "facing=south,level=2": {
+      "type": "ether_craft:ether_adapt_node"
     },
-    "level=5": {
-      "model": "ether_craft:block/ether_adapt_node_lv_3"
+    "facing=south,level=3": {
+      "type": "ether_craft:ether_adapt_node"
     },
-    "level=6": {
-      "model": "ether_craft:block/ether_adapt_node_lv_3"
+    "facing=up,level=1": {
+      "type": "ether_craft:ether_adapt_node"
     },
-    "level=7": {
-      "model": "ether_craft:block/ether_adapt_node_lv_3"
+    "facing=up,level=2": {
+      "type": "ether_craft:ether_adapt_node"
     },
-    "level=8": {
-      "model": "ether_craft:block/ether_adapt_node_lv_3"
+    "facing=up,level=3": {
+      "type": "ether_craft:ether_adapt_node"
     },
-    "level=9": {
-      "model": "ether_craft:block/ether_adapt_node_lv_3"
+    "facing=west,level=1": {
+      "type": "ether_craft:ether_adapt_node"
+    },
+    "facing=west,level=2": {
+      "type": "ether_craft:ether_adapt_node"
+    },
+    "facing=west,level=3": {
+      "type": "ether_craft:ether_adapt_node"
     }
   }
 }

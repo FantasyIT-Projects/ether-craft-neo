@@ -21,6 +21,7 @@ import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.block.factory.EtherProcessFactoryBlock;
 import studio.fantasyit.ether_craft.block.glass.render.EtherGlassUnbakedModel;
 import studio.fantasyit.ether_craft.block.node.EtherAdaptNodeBlock;
+import studio.fantasyit.ether_craft.block.node.render.EtherAdaptNodeUnbakedModel;
 import studio.fantasyit.ether_craft.item.renderer.AnswerItemOverlaySMR;
 import studio.fantasyit.ether_craft.register.BlockRegistry;
 import studio.fantasyit.ether_craft.register.ItemRegistry;
@@ -204,15 +205,6 @@ public class ModelDataGen extends ModelProvider {
             levelModelIds[level] = ModelTemplates.CUBE_ALL.createWithSuffix(
                     adaptNode, "_lv_" + level, texMapping, blockModels.modelOutput);
         }
-
-        blockModels.blockStateOutput.accept(
-                MultiVariantGenerator.dispatch(adaptNode)
-                        .with(PropertyDispatch.initial(EtherAdaptNodeBlock.LEVEL)
-                                .select(1, BlockModelGenerators.variant(new Variant(levelModelIds[1])))
-                                .select(2, BlockModelGenerators.variant(new Variant(levelModelIds[2])))
-                                .select(3, BlockModelGenerators.variant(new Variant(levelModelIds[3])))
-                        )
-        );
         itemModels.itemModelOutput.accept(
                 ItemRegistry.ETHER_ADAPT_NODE_ITEM_LV_1.get(),
                 ItemModelUtils.plainModel(levelModelIds[1]));
@@ -222,5 +214,12 @@ public class ModelDataGen extends ModelProvider {
         itemModels.itemModelOutput.accept(
                 ItemRegistry.ETHER_ADAPT_NODE_ITEM_LV_3.get(),
                 ItemModelUtils.plainModel(levelModelIds[3]));
+        blockModels.blockStateOutput.accept(
+                MultiVariantGenerator.dispatch(BlockRegistry.ETHER_ADAPT_NODE.get(),
+                                MultiVariant.of(new CustomBlockStateModelBuilder.Simple(new EtherAdaptNodeUnbakedModel()))
+                        )
+                        .with(PropertyDispatch.modify(EtherAdaptNodeBlock.LEVEL).generate(t -> BlockModelGenerators.NOP))
+                        .with(PropertyDispatch.modify(EtherAdaptNodeBlock.FACING).generate(t -> BlockModelGenerators.NOP))
+        );
     }
 }

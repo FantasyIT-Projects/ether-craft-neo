@@ -54,6 +54,7 @@ import studio.fantasyit.ether_craft.node.plugins.base.AbstractNodePlugin;
 import studio.fantasyit.ether_craft.node.plugins.feature.AbstractDirectionalFeature;
 import studio.fantasyit.ether_craft.node.plugins.feature.FeatureRedstoneSignal;
 import studio.fantasyit.ether_craft.register.ItemRegistry;
+import studio.fantasyit.ether_craft.util.RenderUtil;
 import studio.fantasyit.ether_craft.util.SerializeUtil;
 
 import java.util.*;
@@ -476,14 +477,30 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
     }
 
     public void fromNetwork(Map<Direction, InstalledPlugin> pluginDirection, @Nullable InstalledPlugin functionPlugin, Map<InstalledPlugin, Map<Identifier, Integer>> pluginValue, int maxEther, int slotUnlock) {
+        Map<Direction, InstalledPlugin> featureAttachedDirection1 = new HashMap<>(featureAttachedDirection);
         featureAttachedDirection.clear();
         featureAttachedDirection.putAll(pluginDirection);
+        @Nullable InstalledPlugin lastFunctionPlugin = this.functionPlugin;
         this.functionPlugin = functionPlugin;
         this.syncedPluginData.clear();
         this.syncedPluginData.putAll(pluginValue);
         this.nodeProperty.maxEther = maxEther;
         this.nodeProperty.slotUnlock = slotUnlock;
         this.normalStorage.setAccessibleCount(slotUnlock);
+        boolean changed = false;
+        for (Map.Entry<Direction, InstalledPlugin> entry : featureAttachedDirection1.entrySet()) {
+            if (!featureAttachedDirection.containsKey(entry.getKey())) {
+                changed = true;
+                break;
+            }
+            if (!featureAttachedDirection.get(entry.getKey()).equals(entry.getValue())) {
+                changed = true;
+                break;
+            }
+        }
+        if (changed || !Objects.equals(lastFunctionPlugin, functionPlugin)) {
+            RenderUtil.dirtyBlockPos(getBlockPos());
+        }
     }
 
     public boolean allowInteract(ItemResource resource) {
@@ -623,5 +640,4 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
             }
         });
     }
-
 }

@@ -26,7 +26,7 @@ import studio.fantasyit.ether_craft.block.base.BaseBlock;
 import studio.fantasyit.ether_craft.register.ItemRegistry;
 
 public class EtherProcessFactoryBlock extends BaseBlock {
-    public static final IntegerProperty LEVEL = BlockStateProperties.LEVEL;
+    public static final IntegerProperty LEVEL = IntegerProperty.create("level", 1, 4);
     public static final EnumProperty<Direction> FACING = BlockStateProperties.FACING;
 
     public EtherProcessFactoryBlock(Identifier identifier) {

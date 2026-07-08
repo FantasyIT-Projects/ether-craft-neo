@@ -115,6 +115,9 @@ public class PluginRenderManager {
         pluginRenderer.put(id, (d, _, _, s, ip) -> s.setSideAtlas(d, renderer));
     }
 
+    public boolean has(InstalledPlugin value){
+        return pluginRenderer.containsKey(value.pluginId());
+    }
     public void render(Direction key, InstalledPlugin value, EtherAdaptNodeEntity entity, EtherAdapterNodeRenderState state) {
         LocalPlayer p = Minecraft.getInstance().player;
         int dTick = p == null ? 0 : (p.tickCount / 2);
