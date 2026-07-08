@@ -31,7 +31,8 @@ public class VirtualEtherStream implements IEtherStreamLike {
     Vec3 pos;
     final Level level;
     final Direction direction;
-    final Vec3 startPos;
+    final float startOffset;
+    final float startSpeed;
     final Vec3 motion;
     final PosDir posDir;
 
@@ -51,17 +52,19 @@ public class VirtualEtherStream implements IEtherStreamLike {
     List<IEtherStreamSyncedData> toSyncData = new ArrayList<>();
     final VirtualEtherStreamHolder holder;
 
-    public VirtualEtherStream(int streamId, int ether, Vec3 startPos, PosDir posDir, Vec3 motion, Level level, VirtualEtherStreamHolder holder) {
+    public VirtualEtherStream(int streamId, int ether, PosDir posDir, float startOffset, float startSpeed, Level level, VirtualEtherStreamHolder holder) {
+        this.startOffset = startOffset;
+        this.startSpeed = startSpeed;
         this.streamId = streamId;
         this.ether = ether;
         this.level = level;
-        this.motion = motion;
+        this.motion = posDir.dir().getUnitVec3().scale(startSpeed);
         this.holder = holder;
         this.markToSyncCreation = true;
-        this.startPos = this.pos = startPos;
+        this.pos = posDir.pos().getCenter().add(posDir.dir().getUnitVec3().scale(startOffset));
         this.direction = posDir.dir();
         this.posDir = posDir;
-        BlockState blockState = level.getBlockState(BlockPos.containing(startPos));
+        BlockState blockState = level.getBlockState(BlockPos.containing(this.pos));
         this.setRunIntoEtherGlass(blockState.is(BlockRegistry.ETHER_GLASS));
         this.onRunIntoNewBlock(null, null, blockPosition(), blockState);
     }
@@ -100,6 +103,11 @@ public class VirtualEtherStream implements IEtherStreamLike {
     @Override
     public int getEther() {
         return ether;
+    }
+
+    @Override
+    public float getSpeed() {
+        return startSpeed;
     }
 
     @Override
@@ -195,11 +203,10 @@ public class VirtualEtherStream implements IEtherStreamLike {
         }
     }
 
-    @Override
-    public IEtherStreamLike recreate(Vec3 newPos, Vec3 newMotion) {
-        PosDir newPosDir = new PosDir(BlockPos.containing(newPos), Direction.getApproximateNearest(newMotion));
+    public IEtherStreamLike recreate(BlockPos pos, Direction direction, float offset, float speed) {
+        PosDir newPosDir = new PosDir(pos, direction);
         IEtherStreamLike stream = level.getData(AttachmentDataRegistry.VESHM).createStream(
-                level, newPosDir, ether, newPos, newMotion
+                level, newPosDir, ether, offset, speed
         );
         if (stream instanceof VirtualEtherStream newStream) {
             newStream.realCanReceiveEther = realCanReceiveEther;
@@ -265,8 +272,8 @@ public class VirtualEtherStream implements IEtherStreamLike {
         return new VirtualEtherStreamData(
                 streamId,
                 pos,
-                startPos,
-                motion,
+                startOffset,
+                startSpeed,
                 posDir,
                 ether,
                 tickCount,
@@ -280,9 +287,9 @@ public class VirtualEtherStream implements IEtherStreamLike {
         VirtualEtherStream ves = new VirtualEtherStream(
                 data.streamId(),
                 data.ether(),
-                data.startPos(),
                 data.posDir(),
-                data.motion(),
+                data.startOffset(),
+                data.startSpeed(),
                 level,
                 holder
         );

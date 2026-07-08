@@ -2,6 +2,7 @@ package studio.fantasyit.ether_craft.stream.vholder;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
@@ -17,7 +18,6 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 import studio.fantasyit.ether_craft.Config;
@@ -52,13 +52,13 @@ public class VirtualEtherStreamHolder {
         this.posDir = posDir;
     }
 
-    public VirtualEtherStream createStream(int ether, Vec3 pos, Vec3 motion) {
+    public VirtualEtherStream createStream(int ether, float offset, float speed) {
         VirtualEtherStream ves = new VirtualEtherStream(
                 nextId++,
                 ether,
-                pos,
                 posDir,
-                motion,
+                offset,
+                speed,
                 level,
                 this
         );
@@ -273,8 +273,8 @@ public class VirtualEtherStreamHolder {
                     }
                     createEntries.add(new EtherStreamCreateS2C.StreamEntry(
                             ves.streamId,
-                            ves.startPos,
-                            ves.motion,
+                            ves.startOffset,
+                            ves.startSpeed,
                             ves.ether,
                             ves.tickCount,
                             ves.consumer.toState(),
@@ -356,8 +356,8 @@ public class VirtualEtherStreamHolder {
             }
             entries.add(new EtherStreamCreateS2C.StreamEntry(
                     ves.streamId,
-                    ves.startPos,
-                    ves.motion,
+                    ves.startOffset,
+                    ves.startSpeed,
                     ves.ether,
                     ves.tickCount,
                     ves.consumer.toState(),

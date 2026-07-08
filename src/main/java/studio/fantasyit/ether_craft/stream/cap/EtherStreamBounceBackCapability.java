@@ -1,6 +1,7 @@
 package studio.fantasyit.ether_craft.stream.cap;
 
 import com.mojang.serialization.Codec;
+import net.minecraft.core.BlockPos;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
@@ -14,6 +15,7 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
+import studio.fantasyit.ether_craft.stream.vholder.VirtualEtherStream;
 
 public class EtherStreamBounceBackCapability implements IStreamCapability {
     public static final Identifier ID = EtherCraft.id("bounce_back");
@@ -26,9 +28,12 @@ public class EtherStreamBounceBackCapability implements IStreamCapability {
 
     @Override
     public boolean onBeforeDestroy(IEtherStreamLike streamEntity, @Nullable HitResult hitResult) {
-        if (streamEntity.getEther() > 0) {
-            Vec3 pos = streamEntity.position().subtract(streamEntity.deltaMovement());
-            streamEntity.recreate(pos, streamEntity.deltaMovement().reverse());
+        if (streamEntity.getEther() > 0 && streamEntity instanceof VirtualEtherStream ves && streamEntity.tickCount() > 1) {
+            Vec3 dm = streamEntity.deltaMovement().reverse();
+            Vec3 pos = streamEntity.position().add(dm);
+            BlockPos createPos = BlockPos.containing(pos);
+            double distanceAlongDm = (pos.subtract(createPos.getCenter())).dot(dm) / dm.length();
+            ves.recreate(createPos, streamEntity.getDirection().getOpposite(), (float) distanceAlongDm, ves.getSpeed());
             return false;
         }
         return true;

@@ -10,6 +10,7 @@ import org.jetbrains.annotations.Nullable;
 import studio.fantasyit.ether_craft.entity.stream.EtherStreamEntity;
 import studio.fantasyit.ether_craft.network.s2c.EtherStreamCreateS2C;
 import studio.fantasyit.ether_craft.stream.EtherConsumer;
+import studio.fantasyit.ether_craft.stream.PosDir;
 import studio.fantasyit.ether_craft.stream.client.extra.EtherStreamClientLogicManager;
 import studio.fantasyit.ether_craft.stream.client.extra.IEtherStreamExtraClientLogic;
 import studio.fantasyit.ether_craft.stream.data.IEtherStreamSyncedData;
@@ -56,14 +57,14 @@ public class ClientStreamEntry {
         return removed;
     }
 
-    public ClientStreamEntry(@Nullable EtherStreamCreateS2C.StreamEntry entry) {
-        if (entry != null) {
+    public ClientStreamEntry(@Nullable PosDir posDir, @Nullable EtherStreamCreateS2C.StreamEntry entry) {
+        if (entry != null && posDir != null) {
             this.id = entry.streamId();
-            this.startPos = entry.startPos();
-            this.motion = entry.motion();
+            this.startPos = posDir.pos().getCenter().add(posDir.dir().getUnitVec3().scale(entry.startOffset()));
+            this.motion = posDir.dir().getUnitVec3().scale(entry.startSpeed());
             this.startTickCount = entry.tickCount();
             this.tickCount = entry.tickCount();
-            this.currentPos = entry.startPos().add(entry.motion().scale(entry.tickCount()));
+            this.currentPos = startPos.add(motion.scale(entry.tickCount()));
             this.ether = entry.ether();
             this.consumer.fromState(entry.consumerState());
             this.syncedData = new Object2ObjectOpenHashMap<>();
@@ -81,7 +82,7 @@ public class ClientStreamEntry {
     }
 
     public static ClientStreamEntry fromEntity(EtherStreamEntity entity) {
-        ClientStreamEntry entry = new ClientStreamEntry((EtherStreamCreateS2C.StreamEntry) null);
+        ClientStreamEntry entry = new ClientStreamEntry(null, null);
         entry.id = entity.getId();
         entry.startPos = entity.position();
         entry.motion = entity.getDeltaMovement();

@@ -119,6 +119,11 @@ public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
     }
 
     @Override
+    public float getSpeed() {
+        return (float) deltaMovement().length();
+    }
+
+    @Override
     public int getCanConveyEther() {
         if (realCanReceiveEther != -1 && realCanReceiveEther < ether)
             return realCanReceiveEther;
@@ -346,29 +351,6 @@ public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
     @Override
     public @NonNull Direction getDirection() {
         return Direction.getApproximateNearest(getDeltaMovement());
-    }
-
-    @Override
-    public IEtherStreamLike recreate(Vec3 newPos, Vec3 newMotion) {
-        EtherStreamEntity newEntity = create(level(), this.ether, newPos, newMotion);
-        newEntity.realCanReceiveEther = realCanReceiveEther;
-        newEntity.capabilities = this.capabilities;
-        this.capabilities = new ArrayList<>();
-        for (IStreamCapability cap : newEntity.capabilities) {
-            cap.setConsumer(newEntity.consumer);
-        }
-        newEntity.consumer.fromState(this.consumer.toState());
-        newEntity.toSyncData = new ArrayList<>(this.toSyncData);
-        newEntity.entityData.set(SYNCED_DATA, new ArrayList<>(this.toSyncData));
-        for (IStreamCapability cap : newEntity.capabilities) {
-            cap.onRecreate(newEntity);
-        }
-        if (level() instanceof ServerLevel serverLevel) {
-            serverLevel.addFreshEntity(newEntity);
-        }
-        this.ether = 0;
-        this.discard();
-        return newEntity;
     }
 
     @Override

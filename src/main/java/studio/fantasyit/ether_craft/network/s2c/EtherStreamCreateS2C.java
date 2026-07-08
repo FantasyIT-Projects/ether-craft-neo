@@ -29,8 +29,8 @@ public record EtherStreamCreateS2C(
 
     public record StreamEntry(
             int streamId,
-            Vec3 startPos,
-            Vec3 motion,
+            float startOffset,
+            float startSpeed,
             int ether,
             int tickCount,
             EtherConsumer.State consumerState,
@@ -59,8 +59,8 @@ public record EtherStreamCreateS2C(
 
     private static final StreamCodec<RegistryFriendlyByteBuf, StreamEntry> STREAM_ENTRY_CODEC = StreamCodec.composite(
             ByteBufCodecs.VAR_INT, StreamEntry::streamId,
-            VEC3_CODEC, StreamEntry::startPos,
-            VEC3_CODEC, StreamEntry::motion,
+            ByteBufCodecs.FLOAT, StreamEntry::startOffset,
+            ByteBufCodecs.FLOAT, StreamEntry::startSpeed,
             ByteBufCodecs.VAR_INT, StreamEntry::ether,
             ByteBufCodecs.VAR_INT, StreamEntry::tickCount,
             EtherConsumer.State.STREAM_CODEC, StreamEntry::consumerState,

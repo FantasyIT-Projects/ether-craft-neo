@@ -5,7 +5,6 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import studio.fantasyit.ether_craft.register.AttachmentDataRegistry;
 import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
@@ -54,9 +53,9 @@ public class VirtualEtherStreamHolderManager {
         return holders.get(posDir);
     }
 
-    public IEtherStreamLike createStream(Level level, PosDir posDir, int ether, Vec3 pos, Vec3 motion) {
+    public IEtherStreamLike createStream(Level level, PosDir posDir, int ether, float offset, float speed) {
         VirtualEtherStreamHolder holder = this.getHolderOrCreate((ServerLevel) level, posDir);
-        return holder.createStream(ether, pos, motion);
+        return holder.createStream(ether, offset, speed);
     }
 
     public boolean canCreateStream(PosDir posDir) {

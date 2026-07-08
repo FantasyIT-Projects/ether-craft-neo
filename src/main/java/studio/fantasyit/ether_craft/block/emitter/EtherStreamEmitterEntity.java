@@ -44,15 +44,14 @@ public class EtherStreamEmitterEntity extends BaseEtherContainerBlockEntity impl
         if (this.getEther() > 1000) {
             if (level instanceof net.minecraft.server.level.ServerLevel serverLevel) {
                 @org.jetbrains.annotations.NotNull Direction targetDirection = this.getBlockState().getValue(EtherAdaptNodeBlock.FACING);
-                Vec3 dir = targetDirection.getUnitVec3().multiply(0.55f, 0.55f, 0.55f);
                 PosDir posDir = new PosDir(this.getBlockPos(), targetDirection);
 
                 VirtualEtherStreamHolderManager veshm = VirtualEtherStreamHolderManager.get(serverLevel);
                 if (veshm.canCreateStream(posDir)) {
                     IEtherStreamLike stream = veshm.createStream(
                             serverLevel, posDir, (int) this.getEther(),
-                            this.getBlockPos().getCenter().add(dir),
-                            dir.multiply(0.1f, 0.1f, 0.1f)
+                            0.55f,
+                            0.055f
                     );
 
                     EtherStreamStorageCapability itemStorage = new EtherStreamStorageCapability(this.inputContainer.getContainerSize());

@@ -50,7 +50,7 @@ public class ClientVESHData {
         ClientVESHEntry entry = createOrGet(msg.posDir());
         for (EtherStreamCreateS2C.StreamEntry se : msg.entries()) {
             if (!entry.streams.containsKey(se.streamId())) {
-                entry.addStream(se.streamId(), new ClientStreamEntry(se));
+                entry.addStream(se.streamId(), new ClientStreamEntry(msg.posDir(), se));
             }
         }
     }

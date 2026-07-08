@@ -15,8 +15,8 @@ import java.util.List;
 public record VirtualEtherStreamData(
         int streamId,
         Vec3 pos,
-        Vec3 startPos,
-        Vec3 motion,
+        float startOffset,
+        float startSpeed,
         PosDir posDir,
         int ether,
         int tickCount,
@@ -27,8 +27,8 @@ public record VirtualEtherStreamData(
     public static final Codec<VirtualEtherStreamData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.INT.fieldOf("streamId").forGetter(VirtualEtherStreamData::streamId),
             Vec3.CODEC.fieldOf("pos").forGetter(VirtualEtherStreamData::pos),
-            Vec3.CODEC.fieldOf("startPos").forGetter(VirtualEtherStreamData::startPos),
-            Vec3.CODEC.fieldOf("motion").forGetter(VirtualEtherStreamData::motion),
+            Codec.FLOAT.fieldOf("startOffset").forGetter(VirtualEtherStreamData::startOffset),
+            Codec.FLOAT.fieldOf("startSpeed").forGetter(VirtualEtherStreamData::startSpeed),
             PosDir.CODEC.fieldOf("posDir").forGetter(VirtualEtherStreamData::posDir),
             Codec.INT.fieldOf("ether").forGetter(VirtualEtherStreamData::ether),
             Codec.INT.fieldOf("tickCount").forGetter(VirtualEtherStreamData::tickCount),

@@ -60,24 +60,23 @@ public class FeatureEtherStreamEmitter extends AbstractDirectionalFilterFeature 
         if (direction != null && nodeEntity.getEther() >= minEther) {
             long sendWith = Math.min(Integer.MAX_VALUE, nodeEntity.getEther());
             nodeEntity.extractEther(sendWith);
-            Vec3 dir = direction.getUnitVec3().multiply(0.55f, 0.55f, 0.55f);
             PosDir posDir = new PosDir(nodeEntity.getBlockPos(), direction);
             if (!(nodeEntity.getLevel() instanceof net.minecraft.server.level.ServerLevel serverLevel)) return false;
 
             VirtualEtherStreamHolderManager veshm = VirtualEtherStreamHolderManager.get(serverLevel);
             if (!veshm.canCreateStream(posDir)) return false;
-            Vec3 spd = direction.getUnitVec3().multiply(0.055f, 0.055f, 0.055f);
+            float spd = 0.055f;
             for (int i = 0; i < nodeEntity.featureUpgradeStorage.getContainerSize(); i++) {
                 @Nullable Identifier plugin = nodeEntity.featureUpgradeStorage.getPluginId(i);
                 if (EtherStreamSpeedUpUpgrade.ID.equals(plugin)) {
-                    spd = spd.multiply(2f, 2f, 2f);
+                    spd *= 2f;
                 } else if (EtherStreamSpeedDownUpgrade.ID.equals(plugin)) {
-                    spd = spd.multiply(0.5f, 0.5f, 0.5f);
+                    spd *= 0.5f;
                 }
             }
             IEtherStreamLike stream = veshm.createStream(
                     serverLevel, posDir, (int) sendWith,
-                    nodeEntity.getBlockPos().getCenter().add(dir),
+                    0.55f,
                     spd
             );
 
