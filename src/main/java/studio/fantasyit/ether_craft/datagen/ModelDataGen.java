@@ -167,10 +167,10 @@ public class ModelDataGen extends ModelProvider {
         blockModels.blockStateOutput.accept(
                 MultiVariantGenerator.dispatch(processFactory)
                         .with(PropertyDispatch.initial(EtherProcessFactoryBlock.LEVEL)
-                                .generate(level -> {
-                                    int clamped = Math.clamp(level, 1, 4);
-                                    return BlockModelGenerators.variant(new Variant(levelModelIds[clamped]));
-                                })
+                                .select(1, BlockModelGenerators.variant(new Variant(levelModelIds[1])))
+                                .select(2, BlockModelGenerators.variant(new Variant(levelModelIds[2])))
+                                .select(3, BlockModelGenerators.variant(new Variant(levelModelIds[3])))
+                                .select(4, BlockModelGenerators.variant(new Variant(levelModelIds[4])))
                         ).with(PropertyDispatch.modify(EtherProcessFactoryBlock.FACING)
                                 .select(Direction.NORTH, BlockModelGenerators.NOP)
                                 .select(Direction.SOUTH, BlockModelGenerators.Y_ROT_180)
@@ -208,12 +208,11 @@ public class ModelDataGen extends ModelProvider {
         blockModels.blockStateOutput.accept(
                 MultiVariantGenerator.dispatch(adaptNode)
                         .with(PropertyDispatch.initial(EtherAdaptNodeBlock.LEVEL)
-                                .generate(level -> {
-                                    int clamped = Math.clamp(level, 1, 3);
-                                    return BlockModelGenerators.variant(
-                                            new Variant(levelModelIds[clamped]));
-                                })));
-
+                                .select(1, BlockModelGenerators.variant(new Variant(levelModelIds[1])))
+                                .select(2, BlockModelGenerators.variant(new Variant(levelModelIds[2])))
+                                .select(3, BlockModelGenerators.variant(new Variant(levelModelIds[3])))
+                        )
+        );
         itemModels.itemModelOutput.accept(
                 ItemRegistry.ETHER_ADAPT_NODE_ITEM_LV_1.get(),
                 ItemModelUtils.plainModel(levelModelIds[1]));
