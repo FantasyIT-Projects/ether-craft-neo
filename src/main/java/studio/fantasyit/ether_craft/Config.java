@@ -307,6 +307,9 @@ public class Config {
     private static final ModConfigSpec.DoubleValue PLATING_TRACKING_RANGE = BUILDER
             .comment("Search radius in blocks for arrow tracking")
             .defineInRange("plating.tracking.range", 16.0, 0, 32);
+    private static final ModConfigSpec.BooleanValue PLATING_TRACKING_IGNORE_PLAYER = BUILDER
+            .comment("If true, arrows will not track players")
+            .define("plating.tracking.ignore_player", true);
 
     // -- plating.break_to_inv --
     private static final ModConfigSpec.IntValue PLATING_BREAK_TO_INV_ETHER_PER_BLOCK = BUILDER
@@ -374,6 +377,9 @@ public class Config {
     private static final ModConfigSpec.IntValue PLATING_ETHIC_CD = BUILDER
             .comment("Cd of ethical action")
             .defineInRange("plating.ethic.cd", 20, 0, Integer.MAX_VALUE);
+    private static final ModConfigSpec.BooleanValue PLATING_ETHIC_MUTE_SOUND = BUILDER
+            .comment("If true, mute the sound effect when Ethic plating triggers")
+            .define("plating.ethic.mute_sound", false);
 
     // -- plating.anti_sonic_boom --
     private static final ModConfigSpec.IntValue PLATING_ANTI_SONIC_BOOM_ETHER_PER_BLOCK = BUILDER
@@ -460,6 +466,7 @@ public class Config {
     public static int platingHeadHuntEtherPerKill;
     public static int platingTrackingEtherPerArrow;
     public static double platingTrackingRange;
+    public static boolean platingTrackingIgnorePlayer;
     public static int platingBreakToInvEtherPerBlock;
     public static int platingKillToInvEtherPerKill;
     public static int platingStoneAbsorbEtherPerBlock;
@@ -477,6 +484,7 @@ public class Config {
     public static int platingAntiDarknessEtherPerTick;
     public static int platingEthicEtherPerUse;
     public static int platingEthicCD;
+    public static boolean platingEthicMuteSound;
     public static int platingAntiSonicBoomEtherPerBlock;
     public static int platingSilentStepEtherPerTick;
     public static int platingDurabilityAbsorptionEtherPerDurability;
@@ -545,6 +553,7 @@ public class Config {
         platingHeadHuntEtherPerKill = PLATING_HEAD_HUNT_ETHER_PER_KILL.get();
         platingTrackingEtherPerArrow = PLATING_TRACKING_ETHER_PER_ARROW.get();
         platingTrackingRange = PLATING_TRACKING_RANGE.get();
+        platingTrackingIgnorePlayer = PLATING_TRACKING_IGNORE_PLAYER.get();
         platingBreakToInvEtherPerBlock = PLATING_BREAK_TO_INV_ETHER_PER_BLOCK.get();
         platingKillToInvEtherPerKill = PLATING_KILL_TO_INV_ETHER_PER_KILL.get();
         platingStoneAbsorbEtherPerBlock = PLATING_STONE_ABSORB_ETHER_PER_BLOCK.get();
@@ -562,6 +571,7 @@ public class Config {
         platingAntiDarknessEtherPerTick = PLATING_ANTI_DARKNESS_ETHER_PER_TICK.get();
         platingEthicEtherPerUse = PLATING_ETHIC_ETHER_PER_USE.get();
         platingEthicCD = PLATING_ETHIC_CD.get();
+        platingEthicMuteSound = PLATING_ETHIC_MUTE_SOUND.get();
         platingAntiSonicBoomEtherPerBlock = PLATING_ANTI_SONIC_BOOM_ETHER_PER_BLOCK.get();
         platingSilentStepEtherPerTick = PLATING_SILENT_STEP_ETHER_PER_TICK.get();
         platingDurabilityAbsorptionEtherPerDurability = PLATING_DURABILITY_ABSORPTION_ETHER_PER_DURABILITY.get();

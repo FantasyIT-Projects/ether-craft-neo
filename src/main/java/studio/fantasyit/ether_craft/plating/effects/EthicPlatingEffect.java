@@ -81,7 +81,8 @@ public class EthicPlatingEffect implements IPlatingEffect, IPlatingAttackTrigger
             lootTable.getRandomItems(lootParams, animal.getLootTableSeed(), itemStack -> animal.spawnAtLocation(level, itemStack));
             animal.setLastHurtByMob(null);
             animal.setTarget(null);
-            level.playSound(null, entity.blockPosition(), SoundEvents.CHICKEN_EGG, SoundSource.AMBIENT, 1.0F, 1.0F);
+            if (!Config.platingEthicMuteSound)
+                level.playSound(null, entity.blockPosition(), SoundEvents.CHICKEN_EGG, SoundSource.AMBIENT, 1.0F, 1.0F);
             PlatingUtil.updatePlatingData(stack, data.copyWithCoolDown(level, Config.platingEthicCD));
         }
     }

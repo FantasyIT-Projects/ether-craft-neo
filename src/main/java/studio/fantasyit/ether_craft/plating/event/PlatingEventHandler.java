@@ -24,6 +24,7 @@ import net.neoforged.neoforge.event.level.BlockDropsEvent;
 import net.neoforged.neoforge.event.level.block.BreakBlockEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.plating.data.TrackingData;
 import studio.fantasyit.ether_craft.plating.helper.PlatingEventHelper;
@@ -153,6 +154,7 @@ public class PlatingEventHandler {
                 if (tamableAnimal.getOwnerReference() != null)
                     continue;
             }
+            if (Config.platingTrackingIgnorePlayer && entity instanceof Player) continue;
             if (entity == owner) continue;
             if (!entity.isAlive()) continue;
 
