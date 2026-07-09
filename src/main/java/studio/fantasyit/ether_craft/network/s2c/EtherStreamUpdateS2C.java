@@ -7,12 +7,14 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.Identifier;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.stream.EtherConsumer;
 import studio.fantasyit.ether_craft.stream.PosDir;
 import studio.fantasyit.ether_craft.stream.client.data.ClientVESHDataGetter;
 
 import java.util.List;
+import java.util.Optional;
 
 public record EtherStreamUpdateS2C(
         PosDir posDir,
@@ -22,11 +24,11 @@ public record EtherStreamUpdateS2C(
             Identifier.fromNamespaceAndPath(EtherCraft.MODID, "ether_stream_update")
     );
 
-    public record StreamEntry(int streamId, int ether, EtherConsumer.State consumerState) {
+    public record StreamEntry(int streamId, int ether, Optional<EtherConsumer.State> consumerState) {
         public static final StreamCodec<RegistryFriendlyByteBuf, StreamEntry> CODEC = StreamCodec.composite(
                 ByteBufCodecs.INT, StreamEntry::streamId,
                 ByteBufCodecs.INT, StreamEntry::ether,
-                EtherConsumer.State.STREAM_CODEC, StreamEntry::consumerState,
+                ByteBufCodecs.optional(EtherConsumer.State.STREAM_CODEC), StreamEntry::consumerState,
                 StreamEntry::new
         );
     }

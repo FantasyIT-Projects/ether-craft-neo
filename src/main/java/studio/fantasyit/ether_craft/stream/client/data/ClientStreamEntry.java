@@ -18,6 +18,7 @@ import studio.fantasyit.ether_craft.stream.data.IEtherStreamSyncedData;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public class ClientStreamEntry {
     public Vec3 startPos = Vec3.ZERO;
@@ -105,9 +106,9 @@ public class ClientStreamEntry {
         return entry;
     }
 
-    public void updateFromServer(int ether, EtherConsumer.State consumerState) {
+    public void updateFromServer(int ether, Optional<EtherConsumer.State> consumerState) {
         this.ether = ether;
-        this.consumer.fromState(consumerState);
+        consumerState.ifPresent(this.consumer::fromState);
     }
 
     public void tick(Level level) {

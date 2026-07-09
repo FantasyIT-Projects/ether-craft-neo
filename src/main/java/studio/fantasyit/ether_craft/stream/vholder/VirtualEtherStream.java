@@ -40,6 +40,7 @@ public class VirtualEtherStream implements IEtherStreamLike {
     public boolean markToRemove = false;
     public boolean markToSyncData = false;
     public boolean needsEtherSync = false;
+    public boolean needsEtherConsumerSync = false;
     public boolean runIntoEtherGlass = false;
 
     List<IStreamCapability> capabilities = new ArrayList<>();
@@ -67,6 +68,8 @@ public class VirtualEtherStream implements IEtherStreamLike {
         BlockState blockState = level.getBlockState(BlockPos.containing(this.pos));
         this.setRunIntoEtherGlass(blockState.is(BlockRegistry.ETHER_GLASS));
         this.onRunIntoNewBlock(null, null, blockPosition(), blockState);
+        this.needsEtherConsumerSync = false;
+        this.needsEtherSync = false;
     }
 
     @Override
@@ -182,6 +185,7 @@ public class VirtualEtherStream implements IEtherStreamLike {
         if (this.consumer.isDirty()) {
             this.consumer.recompute(this, this.capabilities);
             this.needsEtherSync = true;
+            this.needsEtherConsumerSync = true;
         }
 
 
@@ -265,7 +269,9 @@ public class VirtualEtherStream implements IEtherStreamLike {
     public void setRunIntoEtherGlass(boolean isEtherGlass2) {
         runIntoEtherGlass = isEtherGlass2;
         this.consumer.setIsInEtherGlass(isEtherGlass2);
+        this.consumer.recompute(this, this.capabilities);
         needsEtherSync = true;
+        needsEtherConsumerSync = true;
     }
 
     VirtualEtherStreamData toData() {

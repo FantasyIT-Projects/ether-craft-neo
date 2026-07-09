@@ -255,7 +255,7 @@ public class VirtualEtherStreamHolder {
                     collectedToSyncData.add(ves.streamId);
                     ves.markToSyncData = false;
                 }
-                if (ves.needsEtherSync) {
+                if (ves.needsEtherSync && ves.ether > 0) {
                     collectedToSyncEtherConsume.add(ves.streamId);
                     ves.needsEtherSync = false;
                 }
@@ -318,8 +318,9 @@ public class VirtualEtherStreamHolder {
                 EtherStreamUpdateS2C.StreamEntry streamEntry = new EtherStreamUpdateS2C.StreamEntry(
                         ves.streamId,
                         ves.ether,
-                        ves.consumer.toState()
+                        ves.needsEtherConsumerSync ? Optional.of(ves.consumer.toState()) : Optional.empty()
                 );
+                ves.needsEtherConsumerSync = false;
                 updateEntries.add(streamEntry);
             }
             if (!updateEntries.isEmpty()) {
