@@ -9,7 +9,12 @@
     {
       "id": "I1",
       "item": {
-        "chip": "high_heating_chip"
+        "neoforge:ingredient_type": "neoforge:components",
+        "items": "ether_craft:process_chip",
+        "components": {
+          "minecraft:item_model": "ether_craft:high_heating_chip",
+          "ether_craft:ether_process_chip_id": "ether_craft:high_heating_chip"
+        }
       },
       "next": "P13"
     },
