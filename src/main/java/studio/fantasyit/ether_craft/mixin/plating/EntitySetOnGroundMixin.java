@@ -44,32 +44,18 @@ public abstract class EntitySetOnGroundMixin {
             });
             Vec3 fPos = position().add(movement);
             ether_craft$lastOnGroundPos = BlockPos.containing(fPos);
-            if (player.level().isClientSide()) {
-                CoyoteTimeAudioPlayer.stop(player);
-            }
             return result;
         }
         double ey = getY();
         double[] provided = {result.y};
-        boolean[] coyoteActive = {false};
         PlatingEventHelper.forEachPlatingOnEquipment(player, (a, b, c) -> {
             if (a instanceof IPlatingVirtualWalkableProvider vwp) {
                 int i = vwp.providerVirtualWalkableAt(b, c, player.level(), player, player.blockPosition().below(), ether_craft$lastOnGroundPos, movement);
                 double df = (i + 1) - ey;
                 if (provided[0] < df) provided[0] = df;
-                if (a instanceof CoyoteTimePlatingEffect && i != Integer.MIN_VALUE) {
-                    coyoteActive[0] = true;
-                }
             }
         });
         provided[0] = Math.min(0, provided[0]);
-        if (player.level().isClientSide()) {
-            if (coyoteActive[0]) {
-                CoyoteTimeAudioPlayer.start(player);
-            } else {
-                CoyoteTimeAudioPlayer.stop(player);
-            }
-        }
         return new Vec3(result.x, provided[0], result.z);
     }
 }
