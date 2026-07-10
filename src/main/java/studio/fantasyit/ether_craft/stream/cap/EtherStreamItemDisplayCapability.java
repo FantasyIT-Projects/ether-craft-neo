@@ -49,9 +49,18 @@ public class EtherStreamItemDisplayCapability implements IStreamCapability {
     }
 
     @Override
+    public void firstTick(IEtherStreamLike streamEntity) {
+        updateDisplayItem(streamEntity, 0);
+    }
+
+    @Override
     public void tick(IEtherStreamLike streamEntity) {
         if (streamEntity.tickCount() % 10 != 0) return;
         int idx = streamEntity.tickCount() / 10;
+        updateDisplayItem(streamEntity, idx);
+    }
+
+    private void updateDisplayItem(IEtherStreamLike streamEntity, int idx) {
         Optional<IStreamCapability> capability = streamEntity.getCapability(EtherStreamStorageCapability.ID);
         ItemStack ni = ItemStack.EMPTY;
         if (capability.isPresent()) {
@@ -71,7 +80,7 @@ public class EtherStreamItemDisplayCapability implements IStreamCapability {
                 }
             }
             if (!depItem.isEmpty()) {
-                ni = depItem.get(idx % depItem.size());
+                ni = depItem.get(Math.abs(idx) % depItem.size());
             }
         }
 

@@ -8,6 +8,8 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.Pose;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
@@ -131,6 +133,9 @@ public class EtherStreamCarryEntityCapability implements IStreamCapability {
             cachedEntity = entity;
             entity.noPhysics = true;
             entity.setInvulnerable(true);
+            if (entity instanceof Player player) {
+                player.setForcedPose(Pose.STANDING);
+            }
             streamEntity.dirtyConsumer();
             if (cachedEntity instanceof ServerPlayer sp) {
                 sp.sendSystemMessage(Component.translatable("mount.onboard", Component.translatable("key.sneak")), true);
@@ -147,6 +152,9 @@ public class EtherStreamCarryEntityCapability implements IStreamCapability {
         cachedEntity = entity;
         entity.noPhysics = true;
         entity.setInvulnerable(true);
+        if (entity instanceof Player player) {
+            player.setForcedPose(Pose.STANDING);
+        }
         streamEntity.dirtyConsumer();
     }
 
@@ -208,6 +216,9 @@ public class EtherStreamCarryEntityCapability implements IStreamCapability {
             entity.setInvisible(false);
         } else {
             entity.setPos(dropPlayerPos.x, dropPlayerPos.y, dropPlayerPos.z);
+        }
+        if (entity instanceof Player player) {
+            player.setForcedPose(null);
         }
     }
 

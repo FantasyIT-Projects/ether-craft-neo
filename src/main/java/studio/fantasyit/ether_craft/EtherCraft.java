@@ -29,6 +29,7 @@ public class EtherCraft
         DataComponentRegistry.register(modEventBus);
         EntityRegistry.register(modEventBus);
         EntityDataSerializerRegistry.register(modEventBus);
+        SoundRegistry.register(modEventBus);
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
     }
     public static Identifier id(String path){
