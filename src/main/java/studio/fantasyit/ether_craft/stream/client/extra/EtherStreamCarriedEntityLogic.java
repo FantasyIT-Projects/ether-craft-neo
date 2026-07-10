@@ -45,8 +45,6 @@ public class EtherStreamCarriedEntityLogic implements IEtherStreamExtraClientLog
         clientEntity.setPos(currentPos.x, currentPos.y - clientEntity.getEyeHeight(), currentPos.z);
         clientEntity.setDeltaMovement(entry.motion);
 
-        clientEntity.setData(AttachmentDataRegistry.TAKEN_BY_ETHER_STREAM, clientEntity.tickCount + 1);
-
         Vec3 to = currentPos.add(entry.motion);
         HitResult hitResult = level.clipIncludingBorder(new ClipContext(currentPos, to, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, clientEntity));
         if (hitResult.getType() != HitResult.Type.MISS) {

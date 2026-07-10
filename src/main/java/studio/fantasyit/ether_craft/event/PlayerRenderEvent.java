@@ -23,7 +23,7 @@ public class PlayerRenderEvent {
             @Override
             public <T extends Avatar & ClientAvatarEntity> void accept(T entity, AvatarRenderState renderState) {
                 if (entity.hasData(TAKEN_BY_ETHER_STREAM))
-                    renderState.setRenderData(SHOULD_HIDE, entity.getData(TAKEN_BY_ETHER_STREAM) >= entity.tickCount);
+                    renderState.setRenderData(SHOULD_HIDE, entity.getData(TAKEN_BY_ETHER_STREAM));
             }
         });
     }

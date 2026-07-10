@@ -106,8 +106,8 @@ public class EtherStreamStorageCapability implements IStreamCapability, Containe
         boolean changed = false;
         if (!entities.isEmpty()) {
             for (ItemEntity e : entities) {
-                if (e.hasData(AttachmentDataRegistry.TAKEN_BY_ETHER_STREAM))
-                    if (e.getData(AttachmentDataRegistry.TAKEN_BY_ETHER_STREAM) > e.tickCount)
+                if (e.hasData(AttachmentDataRegistry.CD_TO_TAKE_BY_ETHER_STREAM))
+                    if (e.getData(AttachmentDataRegistry.CD_TO_TAKE_BY_ETHER_STREAM) > e.tickCount)
                         continue;
                 ItemStack tpItem = e.getItem();
                 if (tpItem.isEmpty()) continue;
@@ -168,7 +168,7 @@ public class EtherStreamStorageCapability implements IStreamCapability, Containe
 
         while (!itemStack.isEmpty()) {
             ItemEntity entity = new ItemEntity(level, x, y, z, itemStack.split(random.nextInt(21) + 10));
-            entity.setData(AttachmentDataRegistry.TAKEN_BY_ETHER_STREAM, entity.tickCount + Config.itemPickUpByStreamDelayAfterDropped);
+            entity.setData(AttachmentDataRegistry.CD_TO_TAKE_BY_ETHER_STREAM, entity.tickCount + Config.itemPickUpByStreamDelayAfterDropped);
             entity.setDeltaMovement(random.triangle(0.0F, 0.11485000171139836), random.triangle(0.2, 0.11485000171139836), random.triangle(0.0F, 0.11485000171139836));
             level.addFreshEntity(entity);
         }

@@ -118,7 +118,7 @@ public class EtherStreamCarryEntityCapability implements IStreamCapability {
                 if (source.isEmpty() || source.get().equals(this.source))
                     return false;
             }
-            if (entity.noPhysics)
+            if (entity.hasData(AttachmentDataRegistry.TAKEN_BY_ETHER_STREAM) && entity.getData(AttachmentDataRegistry.TAKEN_BY_ETHER_STREAM))
                 return false;
 
             if (entity.isVehicle()) {
@@ -133,6 +133,7 @@ public class EtherStreamCarryEntityCapability implements IStreamCapability {
             cachedEntity = entity;
             entity.noPhysics = true;
             entity.setInvulnerable(true);
+            entity.setData(AttachmentDataRegistry.TAKEN_BY_ETHER_STREAM, true);
             if (entity instanceof Player player) {
                 player.setForcedPose(Pose.STANDING);
             }
@@ -152,6 +153,7 @@ public class EtherStreamCarryEntityCapability implements IStreamCapability {
         cachedEntity = entity;
         entity.noPhysics = true;
         entity.setInvulnerable(true);
+        entity.setData(AttachmentDataRegistry.TAKEN_BY_ETHER_STREAM, true);
         if (entity instanceof Player player) {
             player.setForcedPose(Pose.STANDING);
         }
@@ -210,6 +212,7 @@ public class EtherStreamCarryEntityCapability implements IStreamCapability {
         entity.setDeltaMovement(Vec3.ZERO);
         entity.fallDistance = 0;
         entity.setInvulnerable(false);
+        entity.setData(AttachmentDataRegistry.TAKEN_BY_ETHER_STREAM, false);
         if (entity.level() instanceof ServerLevel) {
             entity.teleportTo(dropPlayerPos.x, dropPlayerPos.y, dropPlayerPos.z);
             entity.setOldPosAndRot();

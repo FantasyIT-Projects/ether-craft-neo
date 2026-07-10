@@ -14,6 +14,7 @@ import studio.fantasyit.ether_craft.plating.data.PlatingData;
 import studio.fantasyit.ether_craft.plating.helper.PlatingUtil;
 import studio.fantasyit.ether_craft.plating.trigger.event.IPlatingKeyTrigger;
 import studio.fantasyit.ether_craft.plating.trigger.event.IPlatingRightClickTrigger;
+import studio.fantasyit.ether_craft.register.AttachmentDataRegistry;
 import studio.fantasyit.ether_craft.stream.cap.EtherStreamCarryEntityCapability;
 
 public class EtherStreamDashPlatingEffect implements IPlatingEffect, IPlatingRightClickTrigger, IPlatingKeyTrigger {
@@ -28,7 +29,7 @@ public class EtherStreamDashPlatingEffect implements IPlatingEffect, IPlatingRig
         return Config.platingEtherStreamDashSpeed;
     }
 
-    protected int getEtherContains(PlatingData platingData){
+    protected int getEtherContains(PlatingData platingData) {
         return (int) platingData.effect();
     }
 
@@ -42,7 +43,8 @@ public class EtherStreamDashPlatingEffect implements IPlatingEffect, IPlatingRig
         if (!(entity.level() instanceof ServerLevel level)) return true;
         if (data.isCd(level)) return true;
         if (!PlatingUtil.canExtractEther(stack, Config.platingEtherStreamDashEtherCost)) return true;
-        if (entity.noPhysics) return true;
+        if (entity.hasData(AttachmentDataRegistry.TAKEN_BY_ETHER_STREAM) && entity.getData(AttachmentDataRegistry.TAKEN_BY_ETHER_STREAM))
+            return true;
         PlatingUtil.extractEtherWithEntityContext(entity, stack, Config.platingEtherStreamDashEtherCost);
         int streamEther = Math.max(1, getEtherContains(data));
 

@@ -12,4 +12,6 @@ public interface IPlatingVirtualWalkableProvider {
     int providerVirtualWalkableAt(PlatingData data, ItemStack stack, Level level, LivingEntity entity, BlockPos pos, @Nullable BlockPos lastGroundPos, Vec3 movement);
 
     void tickOnBlock(PlatingData data, ItemStack stack, Level level, LivingEntity entity, BlockPos pos);
+
+    void tickOnNotAvailable(PlatingData data, ItemStack stack, Level level, LivingEntity entity, BlockPos pos);
 }

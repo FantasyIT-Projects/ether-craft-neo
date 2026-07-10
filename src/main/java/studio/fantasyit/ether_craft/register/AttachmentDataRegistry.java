@@ -54,8 +54,15 @@ public class AttachmentDataRegistry {
                     .build()
     );
 
-    public static final Supplier<AttachmentType<Integer>> TAKEN_BY_ETHER_STREAM = ATTACHMENT_TYPES.register(
-            "taken_by_ether_stream", () -> AttachmentType.builder(() -> 0)
+    public static final Supplier<AttachmentType<Boolean>> TAKEN_BY_ETHER_STREAM = ATTACHMENT_TYPES.register(
+            "taken_by_ether_stream", () -> AttachmentType.builder(() -> false)
+                    .sync(ByteBufCodecs.BOOL)
+                    .build()
+    );
+
+    public static final Supplier<AttachmentType<Integer>> CD_TO_TAKE_BY_ETHER_STREAM = ATTACHMENT_TYPES.register(
+            "cooldown_untile_taken_by_ether_stream", () -> AttachmentType.builder(() -> 0)
+                    .sync(ByteBufCodecs.INT)
                     .build()
     );
     public static final Supplier<AttachmentType<CamouflageState>> CAMOUFLAGE_STATE = ATTACHMENT_TYPES.register(

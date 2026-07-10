@@ -60,8 +60,14 @@ public class CoyoteTimePlatingEffect implements IPlatingEffect, IPlatingVirtualW
     public void tickOnBlock(PlatingData data, ItemStack stack, Level level, LivingEntity entity, BlockPos pos) {
         if (data.hasCd()) {
             PlatingUtil.updatePlatingData(stack, data.copyClearCoolDown());
-            if (entity instanceof Player player)
+            if (entity instanceof Player player && player.level().isClientSide())
                 CoyoteTimeAudioPlayer.stop(player);
         }
+    }
+
+    @Override
+    public void tickOnNotAvailable(PlatingData data, ItemStack stack, Level level, LivingEntity entity, BlockPos pos) {
+        if (entity instanceof Player player && player.level().isClientSide())
+            CoyoteTimeAudioPlayer.stop(player);
     }
 }

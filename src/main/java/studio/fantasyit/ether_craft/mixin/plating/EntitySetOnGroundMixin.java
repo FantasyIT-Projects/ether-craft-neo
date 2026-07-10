@@ -4,14 +4,11 @@ import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
-import studio.fantasyit.ether_craft.plating.client.CoyoteTimeAudioPlayer;
-import studio.fantasyit.ether_craft.plating.effects.CoyoteTimePlatingEffect;
 import studio.fantasyit.ether_craft.plating.helper.PlatingEventHelper;
 import studio.fantasyit.ether_craft.plating.trigger.IPlatingVirtualWalkableProvider;
 
@@ -35,8 +32,13 @@ public abstract class EntitySetOnGroundMixin {
     @ModifyReturnValue(method = "collide", at = @At(value = "RETURN"))
     private Vec3 ether_craft$virtual_ground_supplier(Vec3 result, Vec3 movement) {
         if (!(((Object) this) instanceof Player player)) return result;
-        if (player.getAbilities().flying) return result;
-        if (movement.y >= 0) return result;
+        if (player.getAbilities().flying || movement.y >= 0) {
+            PlatingEventHelper.forEachPlatingOnEquipment(player, (a, b, c) -> {
+                if (a instanceof IPlatingVirtualWalkableProvider vwp)
+                    vwp.tickOnNotAvailable(b, c, player.level(), player, blockPosition());
+            });
+            return result;
+        }
         if (result.y > movement.y) {
             PlatingEventHelper.forEachPlatingOnEquipment(player, (a, b, c) -> {
                 if (a instanceof IPlatingVirtualWalkableProvider vwp)
