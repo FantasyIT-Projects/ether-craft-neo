@@ -21,6 +21,7 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.register.AttachmentDataRegistry;
+import studio.fantasyit.ether_craft.register.Tags;
 import studio.fantasyit.ether_craft.stream.EtherConsumer;
 import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
 import studio.fantasyit.ether_craft.stream.data.EtherStreamCarryingEntityData;
@@ -106,6 +107,9 @@ public class EtherStreamCarryEntityCapability implements IStreamCapability {
 
     @Override
     public boolean hitEntity(ServerLevel level, IEtherStreamLike streamEntity, EntityHitResult hit, Entity entity) {
+        if (entity.is(Tags.ETHER_STREAM_CANNOT_CARRY))
+            return false;
+
         if (playerOnly && !(entity instanceof ServerPlayer))
             return true;
 

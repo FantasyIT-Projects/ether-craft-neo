@@ -18,5 +18,6 @@ public class Tags {
     public static final TagKey<Block> CROP_ACCELERATABLE =TagKey.create(Registries.BLOCK,EtherCraft.id("crop_acceleratable"));
     public static final TagKey<Item> PLANT_FLOATING =TagKey.create(Registries.ITEM,EtherCraft.id("plant_floating"));
     public static final TagKey<EntityType<?>> ETHER_STREAM_PASS_THROUGH_ENTITY =TagKey.create(Registries.ENTITY_TYPE,EtherCraft.id("ether_stream_pass_through"));
+    public static final TagKey<EntityType<?>> ETHER_STREAM_CANNOT_CARRY =TagKey.create(Registries.ENTITY_TYPE,EtherCraft.id("ether_stream_cannot_carry"));
     public static final TagKey<Block> STONE_ABSORBABLE =TagKey.create(Registries.BLOCK,EtherCraft.id("stone_absorbable"));
 }

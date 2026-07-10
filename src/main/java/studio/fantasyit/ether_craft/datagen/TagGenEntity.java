@@ -6,6 +6,7 @@ import net.minecraft.data.tags.EntityTypeTagsProvider;
 import net.minecraft.world.entity.EntityType;
 import org.jetbrains.annotations.NotNull;
 import studio.fantasyit.ether_craft.EtherCraft;
+import studio.fantasyit.ether_craft.register.EntityRegistry;
 import studio.fantasyit.ether_craft.register.Tags;
 
 import java.util.concurrent.CompletableFuture;
@@ -22,6 +23,10 @@ public class TagGenEntity extends EntityTypeTagsProvider {
                 .add(EntityType.SPECTRAL_ARROW)
                 .add(EntityType.ENDER_PEARL)
                 .add(EntityType.EYE_OF_ENDER)
-                .add(EntityType.WIND_CHARGE);
+                .add(EntityType.WIND_CHARGE)
+                .add(EntityRegistry.ETHER_STREAM_ENTITY.get());
+
+        tag(Tags.ETHER_STREAM_CANNOT_CARRY)
+                .add(EntityRegistry.ETHER_STREAM_ENTITY.get());
     }
 }

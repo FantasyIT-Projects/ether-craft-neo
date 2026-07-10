@@ -4,6 +4,7 @@
     "minecraft:spectral_arrow",
     "minecraft:ender_pearl",
     "minecraft:eye_of_ender",
-    "minecraft:wind_charge"
+    "minecraft:wind_charge",
+    "ether_craft:ether_stream"
   ]
 }
