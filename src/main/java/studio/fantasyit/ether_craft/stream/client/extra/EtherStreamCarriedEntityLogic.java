@@ -52,7 +52,13 @@ public class EtherStreamCarriedEntityLogic implements IEtherStreamExtraClientLog
         }
 
         AABB bb = new AABB(currentPos.subtract(1.5), currentPos.add(1.3));
-        HitResult entityHit = ProjectileUtil.getEntityHitResult(level, clientEntity, currentPos, to, bb, t -> !t.is(clientEntity) && (!data.playerOnly() || t instanceof Player), 0.0f);
+        HitResult entityHit = ProjectileUtil.getEntityHitResult(level, clientEntity, currentPos, to, bb, t ->
+                (
+                        !t.is(clientEntity) &&//不是自身
+                                !t.is(Tags.ETHER_STREAM_CANNOT_CARRY) &&//反向过滤器
+                                (!data.playerOnly() || t instanceof Player) &&//符合类型
+                                Boolean.TRUE.equals(t.getExistingDataOrNull(AttachmentDataRegistry.TAKEN_BY_ETHER_STREAM.get())//没被携带
+                                )), 0.0f);
         if (entityHit != null) {
             hitResult = entityHit;
         }
