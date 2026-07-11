@@ -108,7 +108,7 @@ public class EtherStreamCarryEntityCapability implements IStreamCapability {
     @Override
     public boolean hitEntity(ServerLevel level, IEtherStreamLike streamEntity, EntityHitResult hit, Entity entity) {
         if (entity.is(Tags.ETHER_STREAM_CANNOT_CARRY))
-            return false;
+            return true;
 
         if (playerOnly && !(entity instanceof ServerPlayer))
             return true;
@@ -123,7 +123,7 @@ public class EtherStreamCarryEntityCapability implements IStreamCapability {
                     return false;
             }
             if (entity.hasData(AttachmentDataRegistry.TAKEN_BY_ETHER_STREAM) && entity.getData(AttachmentDataRegistry.TAKEN_BY_ETHER_STREAM))
-                return false;
+                return true;
 
             if (entity.isVehicle()) {
                 entity.ejectPassengers();
