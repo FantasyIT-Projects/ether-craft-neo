@@ -45,7 +45,8 @@ public class EtherStreamCarryEntityCapability implements IStreamCapability {
     private Entity cachedEntity;
 
     private BlockPos source;
-    private final boolean playerOnly;
+    private boolean playerOnly;
+    private int startCarryTick = -1;
 
     public EtherStreamCarryEntityCapability(BlockPos source) {
         this(source, false);
@@ -138,6 +139,7 @@ public class EtherStreamCarryEntityCapability implements IStreamCapability {
             entity.noPhysics = true;
             entity.setInvulnerable(true);
             entity.setData(AttachmentDataRegistry.TAKEN_BY_ETHER_STREAM, true);
+            startCarryTick = streamEntity.tickCount();
             if (entity instanceof Player player) {
                 player.setForcedPose(Pose.STANDING);
             }
@@ -148,7 +150,18 @@ public class EtherStreamCarryEntityCapability implements IStreamCapability {
             return true;
         }
 
-        return data.entityUUID().equals(entity.getUUID());
+
+        if (data.entityUUID().equals(entity.getUUID()))
+            return true;
+
+        if (startCarryTick != -1 && startCarryTick + 30 > streamEntity.tickCount())
+            return true;
+
+        long cooldown = entity.getData(AttachmentDataRegistry.CARRY_COOLDOWN.get());
+        if (level.getGameTime() - cooldown < 40)
+            return true;
+
+        return false;
     }
 
     public void forceTakeEntity(IEtherStreamLike streamEntity, Entity entity) {
@@ -158,6 +171,7 @@ public class EtherStreamCarryEntityCapability implements IStreamCapability {
         entity.noPhysics = true;
         entity.setInvulnerable(true);
         entity.setData(AttachmentDataRegistry.TAKEN_BY_ETHER_STREAM, true);
+        startCarryTick = streamEntity.tickCount();
         if (entity instanceof Player player) {
             player.setForcedPose(Pose.STANDING);
         }
@@ -236,10 +250,19 @@ public class EtherStreamCarryEntityCapability implements IStreamCapability {
 
     @Override
     public void serialize(ValueOutput output) {
+        if (source != null)
+            output.store("source", BlockPos.CODEC, source);
+        output.putInt("carryStart", startCarryTick);
+        output.putBoolean("playerOnly", playerOnly);
     }
 
     @Override
     public void deserialize(ValueInput input) {
+        input.read("source", BlockPos.CODEC).ifPresent(sourcePos -> {
+            this.source = sourcePos;
+        });
+        startCarryTick = input.getIntOr("startCarryTick", -1);
+        playerOnly = input.getBooleanOr("playerOnly", false);
     }
 
     private EtherStreamCarryingEntityData getCarriedData(IEtherStreamLike streamEntity) {
