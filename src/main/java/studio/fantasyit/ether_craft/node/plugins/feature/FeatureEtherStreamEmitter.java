@@ -5,7 +5,6 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
-import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
 import org.jetbrains.annotations.Nullable;
 import studio.fantasyit.ether_craft.Config;
@@ -53,7 +52,8 @@ public class FeatureEtherStreamEmitter extends AbstractDirectionalFilterFeature 
 
     @Override
     public void tickOutput() {
-        queueWithCd(ID, 5, this::process);
+        if (direction != null)
+            queueWithCd(ID, 5, this::process);
     }
 
     private boolean process() {

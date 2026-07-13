@@ -36,14 +36,16 @@ public class FeatureContainerInteract extends AbstractDirectionalFilterFeature {
 
     @Override
     public void tickInput() {
-        if (extractMode)
-            queueWithCd(ID, 1, this::process);
+        if (direction != null)
+            if (extractMode)
+                queueWithCd(ID, 1, this::process);
     }
 
     @Override
     public void tickOutput() {
-        if (!extractMode)
-            queueWithCd(ID, 1, this::process);
+        if (direction != null)
+            if (!extractMode)
+                queueWithCd(ID, 1, this::process);
     }
 
     private boolean process() {
