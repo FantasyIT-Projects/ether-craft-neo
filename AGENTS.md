@@ -24,22 +24,6 @@ When viewing **ANY file within this project** or **ANY class from external depen
 
 This requirement exists because the IDE MCP tools understand Java semantics, resolve symbols correctly, navigate inheritance hierarchies, and decompile class files — capabilities that raw filesystem tools lack. Using raw tools on Java source will produce incomplete, misleading, or flat-out wrong results.
 
-## CRITICAL: Subagent Usage
-
-**THIS IS NON-NEGOTIABLE. USING THE WRONG SUBAGENT TYPE MEANS INCOMPLETE OR INCORRECT RESULTS.**
-
-When dispatching subagents (via the `Task` tool):
-
-- **ALWAYS use `subagent_type = "general"`. NEVER use `"explore"`.** The `explore` agent is inferior — it lacks the full toolset, cannot use IDEA MCP tools properly, and routinely produces incomplete, misleading results. Do not even consider it.
-
-- **All subagents MUST use IDEA MCP tools** (`idea_read_file`, `idea_search_symbol`, `idea_get_symbol_info`, etc.) for reading or inspecting any Java source (project files or dependencies). Subagents are bound by the same Tool Usage Mandate above. When giving a subagent its task prompt, **you MUST explicitly instruct it** to use IDEA MCP tools for all file reads and symbol searches, and to never fall back to filesystem read tools.
-
-- **To create a read-only subagent**, instruct it in the prompt: "You are a read-only agent. Do not create, edit, or write any files." The `general` agent will respect this. There is no need to use `explore` for read-only work — `general` with a read-only directive is always the correct choice.
-
-- **Subagent prompts must contain**: (1) a clear instruction to use IDEA MCP tools exclusively for Java source, (2) the specific task and expected output format, (3) whether file editing is permitted or forbidden.
-
-**YOU ARE NEVER PERMITTED TO USE `subagent_type = "explore"`. PRETEND IT DOES NOT EXIST.**
-
 ## Build & Run
 
 Java 25 is required. Use the IDE MCP build tool to compile and verify code:
