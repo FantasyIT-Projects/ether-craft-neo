@@ -84,7 +84,7 @@ public class Config {
 
     private static final ModConfigSpec.IntValue NODE_ETHER_CONVERTER_COEFFICIENT = BUILDER
             .comment("Ether generated per item consumed by the Ether Converter function plugin")
-            .defineInRange("node.ether_converter.coefficient", 100, 1, Integer.MAX_VALUE);
+            .defineInRange("node.ether_converter.coefficient", 1000, 1, Integer.MAX_VALUE);
 
     // -- node.equipment_generator --
 
