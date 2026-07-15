@@ -36,6 +36,8 @@ public class EtherStreamDamageCapability implements IStreamCapability {
         return cap;
     }));
 
+    int cdUntilTick = 0;
+
     private final List<ItemStack> weapons = new ArrayList<>();
 
     public void addWeapon(ItemStack weapon) {
@@ -58,6 +60,7 @@ public class EtherStreamDamageCapability implements IStreamCapability {
     @Override
     public boolean hitEntity(ServerLevel level, IEtherStreamLike streamEntity, EntityHitResult hit, Entity entity) {
         if (weapons.isEmpty()) return false;
+        if (streamEntity.tickCount() < cdUntilTick) return false;
 
         ItemStack bestWeapon = findBestWeapon();
         if (bestWeapon.isEmpty()) return false;
@@ -78,7 +81,7 @@ public class EtherStreamDamageCapability implements IStreamCapability {
         fakePlayer.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
 
         streamEntity.consumeEther(cost);
-
+        cdUntilTick = streamEntity.tickCount() + 10;
         return true;
     }
 
@@ -109,11 +112,13 @@ public class EtherStreamDamageCapability implements IStreamCapability {
     @Override
     public void serialize(ValueOutput output) {
         output.store("weapons", ItemStack.OPTIONAL_CODEC.listOf(), weapons);
+        output.putInt("cdUntilTick", cdUntilTick);
     }
 
     @Override
     public void deserialize(ValueInput input) {
         weapons.clear();
         input.read("weapons", ItemStack.OPTIONAL_CODEC.listOf()).ifPresent(weapons::addAll);
+        cdUntilTick = input.getIntOr("cdUntilTick", 0);
     }
 }
