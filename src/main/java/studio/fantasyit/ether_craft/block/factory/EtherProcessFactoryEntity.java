@@ -150,6 +150,13 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
         //向所有的以太消耗组件填充以太（填充机制：轮询优先填满）
 
         for (int k = 0; k < pressureBonus; k++) {
+            for (int i = 0; i < ROWS; i++) {
+                for (int j = 0; j < COLS; j++) {
+                    if (slotChips[i][j] == null)
+                        continue;
+                    slotChips[i][j].tick();
+                }
+            }
             for (int i = 0; i < COLS * ROWS; ++i) {
                 if (getEther() == 0)
                     break;
@@ -160,13 +167,6 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
                 if (slotChips[row][col] == null)
                     continue;
                 etherCap.setEther(slotChips[row][col].addEther(etherCap.getEther()));
-            }
-            for (int i = 0; i < ROWS; i++) {
-                for (int j = 0; j < COLS; j++) {
-                    if (slotChips[i][j] == null)
-                        continue;
-                    slotChips[i][j].tick();
-                }
             }
         }
         long totalCapacity = 0;

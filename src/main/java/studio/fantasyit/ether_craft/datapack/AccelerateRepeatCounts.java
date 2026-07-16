@@ -42,6 +42,8 @@ public record AccelerateRepeatCounts(Mode mode, int repeat) {
         if (data.mode == Mode.BONE_MEAL || data.mode == Mode.BOTH) {
             if (block instanceof BonemealableBlock b) {
                 for (int i = 0; i < data.repeat; i++) {
+                    if (!b.isValidBonemealTarget(level, blockPos, blockState)) continue;
+                    if (!b.isBonemealSuccess(level, level.getRandom(), blockPos, blockState)) continue;
                     b.performBonemeal(level, level.getRandom(), blockPos, blockState);
                     blockState = level.getBlockState(blockPos);
                 }
