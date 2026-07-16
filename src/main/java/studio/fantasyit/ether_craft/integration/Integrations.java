@@ -30,4 +30,8 @@ public class Integrations {
         if (!isIrisLoaded()) return false;
         return IrisApiWrapper.isIrisHasShaderLoaded();
     }
+
+    public static boolean hasPowerTool(){
+        return ModList.get().isLoaded("powertool");
+    }
 }

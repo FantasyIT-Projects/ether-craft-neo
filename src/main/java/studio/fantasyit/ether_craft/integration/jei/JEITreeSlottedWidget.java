@@ -6,10 +6,12 @@ import mezz.jei.api.gui.inputs.IJeiInputHandler;
 import mezz.jei.api.gui.inputs.IJeiUserInput;
 import mezz.jei.api.gui.inputs.RecipeSlotUnderMouse;
 import mezz.jei.api.gui.widgets.ISlottedRecipeWidget;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.navigation.ScreenPosition;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import org.lwjgl.glfw.GLFW;
+import studio.fantasyit.ether_craft.integration.Integrations;
 import studio.fantasyit.ether_craft.recipe.factory.render.data.TreeDiagramLayout;
 import studio.fantasyit.ether_craft.recipe.factory.render.widget.EdgeBatchRenderer;
 import studio.fantasyit.ether_craft.recipe.factory.render.widget.TreeDiagramViewport;
@@ -28,8 +30,8 @@ public class JEITreeSlottedWidget implements ISlottedRecipeWidget, IJeiInputHand
     private final Map<String, IRecipeSlotDrawable> slotById = new HashMap<>();
 
     public JEITreeSlottedWidget(TreeDiagramLayout layout,
-                                 List<IRecipeSlotDrawable> allSlots,
-                                 int viewWidth, int viewHeight) {
+                                List<IRecipeSlotDrawable> allSlots,
+                                int viewWidth, int viewHeight) {
         this.layout = layout;
         this.viewWidth = viewWidth;
         this.viewHeight = viewHeight;
@@ -66,7 +68,13 @@ public class JEITreeSlottedWidget implements ISlottedRecipeWidget, IJeiInputHand
 
     @Override
     public void drawWidget(GuiGraphicsExtractor graphics, double mouseX, double mouseY) {
-        graphics.enableScissor(0, 0, viewWidth, viewHeight);
+        boolean noScissor = false;
+        if (Integrations.hasPowerTool() && graphics.guiRenderState != Minecraft.getInstance().gameRenderer.getGameRenderState().guiRenderState) {
+            noScissor = true;
+        }
+
+        if (!noScissor)
+            graphics.enableScissor(0, 0, viewWidth, viewHeight);
         graphics.pose().pushMatrix();
         graphics.pose().translate((float) viewport.getPanX(), (float) viewport.getPanY());
         graphics.pose().scale((float) viewport.getZoom(), (float) viewport.getZoom());
@@ -78,7 +86,8 @@ public class JEITreeSlottedWidget implements ISlottedRecipeWidget, IJeiInputHand
         }
 
         graphics.pose().popMatrix();
-        graphics.disableScissor();
+        if (!noScissor)
+            graphics.disableScissor();
     }
 
     @Override
@@ -122,14 +131,14 @@ public class JEITreeSlottedWidget implements ISlottedRecipeWidget, IJeiInputHand
 
     @Override
     public boolean handleMouseScrolled(double mouseX, double mouseY,
-                                        double scrollDeltaX, double scrollDeltaY) {
+                                       double scrollDeltaX, double scrollDeltaY) {
         return inputHandler.handleMouseScrolled(mouseX, mouseY, scrollDeltaY);
     }
 
     @Override
     public boolean handleMouseDragged(double mouseX, double mouseY,
-                                       InputConstants.Key mouseKey,
-                                       double dragX, double dragY) {
+                                      InputConstants.Key mouseKey,
+                                      double dragX, double dragY) {
         return inputHandler.handleMouseDragged(mouseX, mouseY,
                 mouseKey.getValue(), dragX, dragY);
     }
