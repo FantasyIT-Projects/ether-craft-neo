@@ -60,7 +60,6 @@ public class EtherStreamDamageCapability implements IStreamCapability {
     @Override
     public boolean hitEntity(ServerLevel level, IEtherStreamLike streamEntity, EntityHitResult hit, Entity entity) {
         if (weapons.isEmpty()) return false;
-        if (streamEntity.tickCount() < cdUntilTick) return false;
 
         ItemStack bestWeapon = findBestWeapon();
         if (bestWeapon.isEmpty()) return false;
@@ -68,6 +67,7 @@ public class EtherStreamDamageCapability implements IStreamCapability {
         Weapon weapon = bestWeapon.get(DataComponents.WEAPON);
         if (weapon == null) return false;
 
+        if (streamEntity.tickCount() < cdUntilTick) return true;
         int damage = weapon.itemDamagePerAttack();
         int cost = Math.max(1, damage * Config.etherStreamDamageEtherMultiplier + Config.etherStreamDamageConstantCost);
 
