@@ -26,7 +26,7 @@ public class DebugAddEvent {
         public void display(DebugScreenDisplayer debugScreenDisplayer, @Nullable Level serverLevel, @Nullable LevelChunk levelChunk, @Nullable LevelChunk levelChunk1) {
             Level level = Minecraft.getInstance().level;
             int totalSize = 0;
-            ClientVESHData clientVESHData = ClientVESHData.get(level);
+            ClientVESHData clientVESHData = ClientVESHData.getWithCurrentLevel(level);
             for (ClientVESHEntry entry : clientVESHData.getEntries().values()) {
                 totalSize += entry.streams.size();
             }

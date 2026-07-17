@@ -37,6 +37,6 @@ public record EtherStreamSyncDataS2C(PosDir posDir, int streamId,
     );
 
     public void handle(IPayloadContext ctx) {
-        ctx.enqueueWork(() -> ClientVESHData.get(ctx.player().level()).handleSync(this));
+        ctx.enqueueWork(() -> ClientVESHData.getWithCurrentLevel(ctx.player().level()).handleSync(this));
     }
 }

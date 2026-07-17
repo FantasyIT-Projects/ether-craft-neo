@@ -19,7 +19,7 @@ public class ClientTickEvent {
         if (event.getLevel().isClientSide()) {
             Minecraft mc = Minecraft.getInstance();
             if (mc.level == null) return;
-            ClientVESHData.get(mc.level).tick();
+            ClientVESHData.getWithCurrentLevel(mc.level).tick();
             EntityStreamClientManager.tick();
         }
     }

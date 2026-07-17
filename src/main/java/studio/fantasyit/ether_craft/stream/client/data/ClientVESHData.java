@@ -16,8 +16,6 @@ import studio.fantasyit.ether_craft.stream.data.IEtherStreamSyncedData;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.WeakHashMap;
 
 public class ClientVESHData {
     private final Object2ObjectOpenHashMap<PosDir, ClientVESHEntry> entries = new Object2ObjectOpenHashMap<>();
@@ -36,7 +34,7 @@ public class ClientVESHData {
         this.level = new WeakReference<>(level);
     }
 
-    public ClientVESHEntry createOrGet(PosDir posDir) {
+    private ClientVESHEntry createOrGet(PosDir posDir) {
         if (entries.containsKey(posDir))
             return entries.get(posDir);
         ClientVESHEntry entry = new ClientVESHEntry(posDir);
@@ -67,9 +65,10 @@ public class ClientVESHData {
     }
 
     public void handleDying(EtherStreamSetDyingS2C msg) {
-        if (level.get() == null) return;
+        Level lv = level.get();
+        if (lv == null) return;
         ClientVESHEntry entry = createOrGet(msg.posDir());
-        long levelTime = Minecraft.getInstance().level.getGameTime();
+        long levelTime = lv.getGameTime();
         for (int sid : msg.entries()) {
             ClientStreamEntry current = entry.streams.get(sid);
             if (current == null) continue;
@@ -140,15 +139,19 @@ public class ClientVESHData {
         return entries;
     }
 
-    public static ClientVESHData get(Level level) {
-        return CACHE.computeIfAbsent(level, ClientVESHData::new);
+    public static ClientVESHData getWithCurrentLevel(Level level) {
+        Level ll = lastLevel.get();
+        if (ll == null || ll != level || CACHE == null) {
+            lastLevel = new WeakReference<>(level);
+            CACHE = new ClientVESHData(level);
+        }
+        return CACHE;
     }
 
-    public static void remove(Level level) {
-        CACHE.remove(level);
-    }
+    public static final ClientVESHData DUMMY = new ClientVESHData(null);
 
-    private static final Map<Level, ClientVESHData> CACHE = new WeakHashMap<>();
+    private static WeakReference<Level> lastLevel = new WeakReference<>(null);
+    private static ClientVESHData CACHE = null;
 
     public List<ClientVESHEntry> getEntriesIterable() {
         return entriesIterable;

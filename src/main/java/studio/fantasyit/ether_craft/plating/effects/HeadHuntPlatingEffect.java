@@ -23,7 +23,7 @@ public class HeadHuntPlatingEffect implements IPlatingEffect, IPlatingKillTrigge
 //        double chance = data.effect();
 //        if (entity.getRandom().nextDouble() >= chance) return;
 //
-//        ItemStack head = HEAD_MAP.get(target.getType());
+//        ItemStack head = HEAD_MAP.getWithCurrentLevel(target.getType());
 //        if (head == null || head.isEmpty()) return;
 //
 //        Level level = target.level();

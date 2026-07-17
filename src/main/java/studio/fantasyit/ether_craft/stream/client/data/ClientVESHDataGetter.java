@@ -6,7 +6,7 @@ import net.minecraft.world.level.Level;
 public class ClientVESHDataGetter {
     public static ClientVESHData get() {
         Level level = Minecraft.getInstance().level;
-        if (level == null) return new ClientVESHData(level);
-        return ClientVESHData.get(level);
+        if (level == null) return ClientVESHData.DUMMY;
+        return ClientVESHData.getWithCurrentLevel(level);
     }
 }

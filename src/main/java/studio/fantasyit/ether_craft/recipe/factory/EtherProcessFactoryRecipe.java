@@ -27,7 +27,7 @@ public class EtherProcessFactoryRecipe implements Recipe<@NotNull EtherFactoryRe
     public final TreeLike<Integer, List<DelayedIngredient>> process;
     public final List<SizedIngredient> input;
     public final List<ItemStackTemplate> output;
-    //每个 input 条目对应的配方树节点ID（与 recipeInputNodeIds.get(j) = input 列表第j项的树节点ID）
+    //每个 input 条目对应的配方树节点ID（与 recipeInputNodeIds.getWithCurrentLevel(j) = input 列表第j项的树节点ID）
     public final List<Integer> inputNodeIds;
 
     public static MapCodec<EtherProcessFactoryRecipe> CODEC = EtherProcessRecipeJson.MAP_CODEC.xmap(
