@@ -78,9 +78,9 @@ public class VirtualEtherStreamHolderManager {
         }
     }
 
-    public void syncAllToPlayer(ServerPlayer player) {
+    public void syncAndStratTrackingByPlayer(ServerPlayer player) {
         for (Map.Entry<PosDir, VirtualEtherStreamHolder> entry : holders.entrySet()) {
-            entry.getValue().syncToPlayer(player);
+            entry.getValue().syncAndStartTrackingByPlayer(player);
         }
     }
 

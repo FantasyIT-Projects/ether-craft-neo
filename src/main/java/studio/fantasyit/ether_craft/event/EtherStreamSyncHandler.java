@@ -14,7 +14,7 @@ public class EtherStreamSyncHandler {
     public static void onEntityJoinLevel(EntityJoinLevelEvent event) {
         if (event.getEntity() instanceof ServerPlayer player && event.getLevel() instanceof ServerLevel level) {
             VirtualEtherStreamHolderManager mgr = VirtualEtherStreamHolderManager.get(level);
-            mgr.syncAllToPlayer(player);
+            mgr.syncAndStratTrackingByPlayer(player);
         }
     }
 }

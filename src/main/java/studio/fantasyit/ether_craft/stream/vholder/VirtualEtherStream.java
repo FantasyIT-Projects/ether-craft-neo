@@ -23,9 +23,7 @@ import studio.fantasyit.ether_craft.stream.cap.IStreamCapability;
 import studio.fantasyit.ether_craft.stream.data.IEtherStreamSyncedData;
 import studio.fantasyit.ether_craft.util.LevelUtil;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public class VirtualEtherStream implements IEtherStreamLike {
     Vec3 pos;
@@ -53,6 +51,8 @@ public class VirtualEtherStream implements IEtherStreamLike {
     List<IEtherStreamSyncedData> toSyncData = new ArrayList<>();
     final VirtualEtherStreamHolder holder;
 
+    HashSet<Integer> trackingPlayers = new HashSet<>();
+
     public VirtualEtherStream(int streamId, int ether, PosDir posDir, float startOffset, float startSpeed, Level level, VirtualEtherStreamHolder holder) {
         this.startOffset = startOffset;
         this.startSpeed = startSpeed;
@@ -70,6 +70,12 @@ public class VirtualEtherStream implements IEtherStreamLike {
         this.onRunIntoNewBlock(null, null, blockPosition(), blockState);
         this.needsEtherConsumerSync = false;
         this.needsEtherSync = false;
+        if (level instanceof ServerLevel sl) {
+            sl.getServer().getPlayerList().getPlayers().forEach(player -> {
+                if (player.distanceToSqr(pos) <= Config.etherStreamSyncDistance * Config.etherStreamSyncDistance)
+                    trackingPlayers.add(player.getId());
+            });
+        }
     }
 
     @Override

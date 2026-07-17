@@ -144,6 +144,10 @@ public class ClientVESHData {
         return CACHE.computeIfAbsent(level, ClientVESHData::new);
     }
 
+    public static void remove(Level level) {
+        CACHE.remove(level);
+    }
+
     private static final Map<Level, ClientVESHData> CACHE = new WeakHashMap<>();
 
     public List<ClientVESHEntry> getEntriesIterable() {
