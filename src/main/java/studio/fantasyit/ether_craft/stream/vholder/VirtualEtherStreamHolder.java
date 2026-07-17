@@ -140,6 +140,7 @@ public class VirtualEtherStreamHolder {
 
         for (int i = 0, size = streams.size(); i < size; i++) {
             VirtualEtherStream ves = streams.get(i);
+            if (ves.markToRemove) continue;
             Vec3 oldPos = ves.pos;
             Vec3 newPos = oldPos.add(ves.motion);
 
