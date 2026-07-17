@@ -49,7 +49,7 @@ public class PluginRenderManager {
 
             long maxEther = nodeEntity.getMaxEther();
             if (maxEther != 0)
-                state.addOverlay(face, EtherAdapterNodeAtlas.ETHER_FILL.get((int) Math.min((nodeEntity.getEther() * 10 / maxEther), 10)));
+                state.addOverlay(face, EtherAdapterNodeAtlas.ETHER_FILL.get((int) Math.min((nodeEntity.getEther() * 10 / maxEther), 9)));
             else
                 state.addOverlay(face, EtherAdapterNodeAtlas.ETHER_FILL.get(9));
         };
@@ -115,9 +115,10 @@ public class PluginRenderManager {
         pluginRenderer.put(id, (d, _, _, s, ip) -> s.setSideAtlas(d, renderer));
     }
 
-    public boolean has(InstalledPlugin value){
+    public boolean has(InstalledPlugin value) {
         return pluginRenderer.containsKey(value.pluginId());
     }
+
     public void render(Direction key, InstalledPlugin value, EtherAdaptNodeEntity entity, EtherAdapterNodeRenderState state) {
         LocalPlayer p = Minecraft.getInstance().player;
         int dTick = p == null ? 0 : (p.tickCount / 2);

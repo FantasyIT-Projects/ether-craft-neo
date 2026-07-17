@@ -7,17 +7,14 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.jetbrains.annotations.NotNull;
-import org.jspecify.annotations.Nullable;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.block.base.EtherContainer;
 
 public record SyncBlockEtherValueS2C(
         long ether,
-        BlockPos pos,
-        Identifier levelId
+        BlockPos pos
 ) implements CustomPacketPayload {
     public static final CustomPacketPayload.Type<@NotNull SyncBlockEtherValueS2C> TYPE = new CustomPacketPayload.Type<>(
             Identifier.fromNamespaceAndPath(
@@ -30,8 +27,6 @@ public record SyncBlockEtherValueS2C(
             SyncBlockEtherValueS2C::ether,
             BlockPos.STREAM_CODEC,
             SyncBlockEtherValueS2C::pos,
-            Identifier.STREAM_CODEC,
-            SyncBlockEtherValueS2C::levelId,
             SyncBlockEtherValueS2C::new
     );
 
@@ -41,13 +36,11 @@ public record SyncBlockEtherValueS2C(
     }
 
     public void handle(IPayloadContext iPayloadContext) {
-        iPayloadContext.enqueueWork(()->{
+        iPayloadContext.enqueueWork(() -> {
             Level level = iPayloadContext.player().level();
-            if(level.dimension().identifier().equals(levelId)){
-                EtherContainer capability = level.getCapability(EtherContainer.ETHER_CONTAINER, pos);
-                if(capability != null){
-                    capability.setEtherNoUpdate(ether);
-                }
+            EtherContainer capability = level.getCapability(EtherContainer.ETHER_CONTAINER, pos);
+            if (capability != null) {
+                capability.setEtherNoUpdate(ether);
             }
         });
 

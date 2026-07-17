@@ -269,5 +269,9 @@
 
   "jade.ether_craft.adapt_node.level": "Level: LV %s",
   "jade.ether_craft.adapt_node.ether": "Ether: %s/%s",
-  "jade.ether_craft.adapt_node.plugins": "Upgrade Slots: %d"
+  "jade.ether_craft.adapt_node.plugin_list": "Plugins:",
+
+  "jade.ether_craft.process_factory.ether": "Ether: %d",
+  "jade.ether_craft.process_factory.pressure": "Pressure: x%d",
+  "jade.ether_craft.process_factory.leak": "Leak: %d/t"
 }

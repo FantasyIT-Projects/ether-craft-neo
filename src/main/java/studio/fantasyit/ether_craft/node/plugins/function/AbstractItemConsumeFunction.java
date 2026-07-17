@@ -51,6 +51,7 @@ public abstract class AbstractItemConsumeFunction extends AbstractNodePlugin {
     public void modifyNodeProperty(NodeProperty nodeProperty) {
         if (nodeProperty.slotUnlock == 0)
             nodeProperty.slotUnlock = 1;
+        nodeProperty.specialRenderer = true;
     }
 
     abstract boolean accepts(ItemResource stack);

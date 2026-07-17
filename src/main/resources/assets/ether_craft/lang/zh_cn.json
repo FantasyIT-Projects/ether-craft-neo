@@ -264,5 +264,9 @@
 
   "jade.ether_craft.adapt_node.level": "等级: LV %s",
   "jade.ether_craft.adapt_node.ether": "以太: %s/%s",
-  "jade.ether_craft.adapt_node.plugins": "升级槽位: %d"
+  "jade.ether_craft.adapt_node.plugin_list": "插件:",
+
+  "jade.ether_craft.process_factory.ether": "以太: %d",
+  "jade.ether_craft.process_factory.pressure": "压力倍率: x%d",
+  "jade.ether_craft.process_factory.leak": "泄漏: %d/t"
 }

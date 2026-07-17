@@ -409,6 +409,11 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
         return NodePluginManager.Instance.get(plugin.pluginId(), this, plugin);
     }
 
+    @Override
+    public boolean shouldSync() {
+        return nodeProperty.specialRenderer;
+    }
+
     public int getUpgradeCount() {
         int level = getBlockState().getValueOrElse(EtherAdaptNodeBlock.LEVEL, 1);
         return Config.nodeUpgradeSlots.get(level - 1);

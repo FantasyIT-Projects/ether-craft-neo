@@ -19,6 +19,7 @@ import studio.fantasyit.ether_craft.block.node.EtherSlotSyncContainer;
 import studio.fantasyit.ether_craft.menu.base.BaseContainerMenu;
 import studio.fantasyit.ether_craft.menu.base.BaseMenu;
 import studio.fantasyit.ether_craft.menu.base.IFilterSwitchable;
+import studio.fantasyit.ether_craft.menu.base.ether.EtherContainerSyncer;
 import studio.fantasyit.ether_craft.menu.base.slot.BaseDataSlot;
 import studio.fantasyit.ether_craft.menu.base.slot.FilterSlot;
 import studio.fantasyit.ether_craft.menu.factory.slot.SingleStackSlot;
@@ -44,6 +45,7 @@ public class EtherAdaptNodeContainerMenu extends BaseMenu<EtherAdaptNodeEntity> 
     public final AbstractNodePlugin plugin;
     public final InstalledPlugin installedPlugin;
     public final List<Slot> toDrawSlot = new ArrayList<>();
+    private final EtherContainerSyncer syncer;
     public PluginMenuContext context;
     public int machineSlotStart = -1;
 
@@ -160,6 +162,7 @@ public class EtherAdaptNodeContainerMenu extends BaseMenu<EtherAdaptNodeEntity> 
                     entity.nodeProperty.slotUnlock
             ));
         }
+        this.syncer = new EtherContainerSyncer(this.entity, this::addDataSlot);
     }
 
     @Override

@@ -8,6 +8,7 @@ public class NodeProperty {
 
     public boolean enableFilter;
     public boolean itemifyEther;
+    public boolean specialRenderer;
 
     public NodeProperty() {
         reset();
@@ -18,5 +19,6 @@ public class NodeProperty {
         this.slotUnlock = 0;
         this.enableFilter = false;
         this.itemifyEther = false;
+        this.specialRenderer = false;
     }
 }

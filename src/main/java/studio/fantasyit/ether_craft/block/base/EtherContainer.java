@@ -1,5 +1,7 @@
 package studio.fantasyit.ether_craft.block.base;
 
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.neoforge.capabilities.BlockCapability;
 import net.neoforged.neoforge.network.PacketDistributor;
@@ -72,15 +74,21 @@ public interface EtherContainer {
         return Math.max(0, validateMax(amount + getEther()) - getEther());
     }
 
+    default boolean shouldSync() {
+        return false;
+    }
+
     default void syncClient() {
-//        BlockEntity be = be();
-//        if (be.getLevel() == null || be.getLevel().isClientSide()) return;
-//        PacketDistributor.sendToAllPlayers(
-//                new SyncBlockEtherValueS2C(
-//                        getEther(),
-//                        be.getBlockPos(),
-//                        be.getLevel().dimension().identifier()
-//                )
-//        );
+        if (!shouldSync()) return;
+        BlockEntity be = be();
+        if (be.getLevel() == null || be.getLevel().isClientSide()) return;
+        PacketDistributor.sendToPlayersTrackingChunk(
+                (ServerLevel) be.getLevel(),
+                ChunkPos.containing(be.getBlockPos()),
+                new SyncBlockEtherValueS2C(
+                        getEther(),
+                        be.getBlockPos()
+                )
+        );
     }
 }

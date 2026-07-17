@@ -16,6 +16,7 @@ import studio.fantasyit.ether_craft.block.factory.EtherProcessFactoryEntity;
 import studio.fantasyit.ether_craft.factory.FactoryLevelDef;
 import studio.fantasyit.ether_craft.menu.base.BaseContainerMenu;
 import studio.fantasyit.ether_craft.menu.base.IFilterSwitchable;
+import studio.fantasyit.ether_craft.menu.base.ether.EtherContainerSyncer;
 import studio.fantasyit.ether_craft.menu.base.ether.EtherSlot;
 import studio.fantasyit.ether_craft.menu.base.slot.BaseDataSlot;
 import studio.fantasyit.ether_craft.menu.base.slot.BaseSlot;
@@ -44,6 +45,7 @@ public class EtherProcessFactoryContainerMenu extends BaseContainerMenu<@NotNull
     public Set<Identifier> selectedChips = new HashSet<>();
     public Inventory playerInventory;
     public int playerSlotStart;
+    private EtherContainerSyncer syncer;
 
     public EtherProcessFactoryContainerMenu(int windowId, Player player, BlockPos pos) {
         super(windowId, player, pos, ETHER_PROCESS_FACTORY_CONTAINER.get());
@@ -56,7 +58,6 @@ public class EtherProcessFactoryContainerMenu extends BaseContainerMenu<@NotNull
         internalAndOutputSlots = new ArrayList<>();
         filterSlots = new ArrayList<>();
         FactoryLevelDef factoryDef = entity.getLevelDef();
-
         addSlotArea(entity.container, 0, factoryDef.posInput().x + 1, factoryDef.posInput().y + 1, 1, 18, entity.ROWS, 18,
                 (a, b, c, d, e, f) -> new FactoryInputSlot(a, b, c, d, entity.internalContainer, f * internalSlots / inputSlots),
                 (s, i, j) -> mainUiSlots.add(s)
@@ -122,6 +123,7 @@ public class EtherProcessFactoryContainerMenu extends BaseContainerMenu<@NotNull
         machineSlotEnd = this.slots.size();
 
         addDataSlot(new BaseDataSlot(() -> quickPlaceChipSlotId, (v) -> quickPlaceChipSlotId = v));
+        this.syncer = new EtherContainerSyncer(this.entity, this::addDataSlot);
     }
 
     @Override
