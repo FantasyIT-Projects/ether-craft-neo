@@ -36,14 +36,12 @@ public class AttachmentDataRegistry {
                     .serialize(Codec.LONG.fieldOf("pickup_by_stream_cooldown"))
                     .build()
     );
-    public static final Supplier<AttachmentType<Long>> CARRY_COOLDOWN = ATTACHMENT_TYPES.register(
-            "carry_cooldown", () -> AttachmentType.builder(() -> -40L)
-                    .serialize(Codec.LONG.fieldOf("carry_cooldown"))
+    public static final Supplier<AttachmentType<Integer>> CARRY_COOLDOWN = ATTACHMENT_TYPES.register(
+            "carry_cooldown", () -> AttachmentType.builder(() -> -40)
                     .build()
     );
     public static final Supplier<AttachmentType<Optional<BlockPos>>> CARRY_COOLDOWN_SOURCE = ATTACHMENT_TYPES.register(
             "carry_cooldown_source", () -> AttachmentType.builder((Supplier<Optional<BlockPos>>) Optional::empty)
-                    .serialize(BlockPos.CODEC.optionalFieldOf("carry_cooldown_source"))
                     .build()
     );
 

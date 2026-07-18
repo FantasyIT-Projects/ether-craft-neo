@@ -73,22 +73,32 @@ public class EtherStreamCarryEntityCapability implements IStreamCapability {
         if (cachedEntity != null && cachedEntity.getUUID().equals(data.entityUUID())) {
             if (cachedEntity instanceof ServerPlayer sp && sp.isShiftKeyDown()) {
                 EtherStreamCarryEntityCapability.dropEntityTo(sp.level(), streamEntity.position(), streamEntity.deltaMovement(), sp);
-                sp.setData(AttachmentDataRegistry.CARRY_COOLDOWN.get(), sp.level().getGameTime());
+                sp.setData(AttachmentDataRegistry.CARRY_COOLDOWN.get(), sp.tickCount);
                 sp.setData(AttachmentDataRegistry.CARRY_COOLDOWN_SOURCE.get(), Optional.empty());
                 streamEntity.clearSyncedData(EtherStreamCarryingEntityData.ID);
+                streamEntity.dirtyConsumer();
                 return;
             }
         }
+        // 存在UU，而且cached是空
         if (cachedEntity == null || !cachedEntity.getUUID().equals(data.entityUUID())) {
             if (streamEntity.level() instanceof ServerLevel sl) {
                 cachedEntity = sl.getEntity(data.entityUUID());
             }
         }
 
-        if (cachedEntity == null || !cachedEntity.isAlive() || cachedEntity.isRemoved()
-                || cachedEntity.level() != streamEntity.level()) {
+        // 实体没了？ 清空恢复数据
+        if (cachedEntity == null || !cachedEntity.isAlive() || cachedEntity.isRemoved()) {
             streamEntity.clearSyncedData(EtherStreamCarryingEntityData.ID);
+            streamEntity.dirtyConsumer();
             cachedEntity = null;
+            return;
+        }
+        //维度变化 ： 原地走一遍释放实体流程
+        if (cachedEntity.level() != null && cachedEntity.level() != streamEntity.level()) {
+            dropEntityTo(cachedEntity.level(), cachedEntity.position(), Vec3.ZERO, cachedEntity);
+            streamEntity.clearSyncedData(EtherStreamCarryingEntityData.ID);
+            streamEntity.dirtyConsumer();
             return;
         }
 
@@ -117,11 +127,11 @@ public class EtherStreamCarryEntityCapability implements IStreamCapability {
         EtherStreamCarryingEntityData data = getCarriedData(streamEntity);
 
         if (data == null) {
-            long cooldown = entity.getData(AttachmentDataRegistry.CARRY_COOLDOWN.get());
-            if (level.getGameTime() - cooldown < 40) {
+            int cooldown = entity.getData(AttachmentDataRegistry.CARRY_COOLDOWN.get());
+            if (entity.tickCount - cooldown < 40) {
                 Optional<BlockPos> source = entity.getData(AttachmentDataRegistry.CARRY_COOLDOWN_SOURCE);
                 if (source.isEmpty() || source.get().equals(this.source))
-                    return false;
+                    return true;
             }
             if (entity.hasData(AttachmentDataRegistry.TAKEN_BY_ETHER_STREAM) && entity.getData(AttachmentDataRegistry.TAKEN_BY_ETHER_STREAM))
                 return true;
@@ -157,8 +167,8 @@ public class EtherStreamCarryEntityCapability implements IStreamCapability {
         if (startCarryTick != -1 && startCarryTick + 30 > streamEntity.tickCount())
             return true;
 
-        long cooldown = entity.getData(AttachmentDataRegistry.CARRY_COOLDOWN.get());
-        if (level.getGameTime() - cooldown < 40)
+        int cooldown = entity.getData(AttachmentDataRegistry.CARRY_COOLDOWN.get());
+        if (entity.tickCount - cooldown < 40)
             return true;
 
         return false;
@@ -205,7 +215,7 @@ public class EtherStreamCarryEntityCapability implements IStreamCapability {
             }
             Vec3 motion = streamEntity.deltaMovement();
             dropEntityTo(streamEntity.level(), dropPlayerPos, motion, entity);
-            entity.setData(AttachmentDataRegistry.CARRY_COOLDOWN.get(), entity.level().getGameTime());
+            entity.setData(AttachmentDataRegistry.CARRY_COOLDOWN.get(), entity.tickCount);
             entity.setData(AttachmentDataRegistry.CARRY_COOLDOWN_SOURCE.get(), Optional.of(source));
         }
     }
