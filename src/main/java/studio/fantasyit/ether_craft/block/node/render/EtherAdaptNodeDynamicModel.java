@@ -84,10 +84,10 @@ public class EtherAdaptNodeDynamicModel implements DynamicBlockStateModel {
             case DOWN -> new BakedQuad(
                     new Vector3f(u0, 0, 1 - v0), new Vector3f(u0, 0, 1 - v1),
                     new Vector3f(u1, 0, 1 - v1), new Vector3f(u1, 0, 1 - v0),
-                    packUV(sprite, 1 - u0, v0),
-                    packUV(sprite, 1 - u0, v1),
-                    packUV(sprite, 1 - u1, v1),
-                    packUV(sprite, 1 - u1, v0),
+                    packUV(sprite, u0, v0),
+                    packUV(sprite, u0, v1),
+                    packUV(sprite, u1, v1),
+                    packUV(sprite, u1, v0),
                     face, matInfo);
             case UP -> new BakedQuad(
                     new Vector3f(u0, 1, 1 - v1), new Vector3f(u0, 1, 1 - v0),
@@ -181,7 +181,7 @@ public class EtherAdaptNodeDynamicModel implements DynamicBlockStateModel {
 
         @Override
         public boolean useAmbientOcclusion() {
-            return false;
+            return true;
         }
 
         @Override
