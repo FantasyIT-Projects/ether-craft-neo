@@ -2,13 +2,15 @@
   "required": true,
   "minVersion": "0.8",
   "package": "studio.fantasyit.ether_craft.mixin",
+  "plugin": "studio.fantasyit.ether_craft.integration.IntegrationMixinControlPlugin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
     "plating.EntitySetOnGroundMixin",
     "plating.ItemStackMixin"
   ],
   "client": [
-    "BufferBuilderAccessor"
+    "BufferBuilderAccessor",
+    "pt.JEIRecipeDisplayScreenMixin"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -31,14 +31,15 @@ public class JEITreeSlottedWidget implements ISlottedRecipeWidget, IJeiInputHand
 
     public JEITreeSlottedWidget(TreeDiagramLayout layout,
                                 List<IRecipeSlotDrawable> allSlots,
-                                int viewWidth, int viewHeight) {
+                                int viewWidth, int viewHeight, boolean center) {
         this.layout = layout;
         this.viewWidth = viewWidth;
         this.viewHeight = viewHeight;
         this.allSlots = new ArrayList<>(allSlots);
         this.viewport = new TreeDiagramViewport(layout.canvasWidth, layout.canvasHeight, viewWidth, viewHeight);
         this.inputHandler = new ViewportInputHandler(viewport);
-        viewport.centerPan();
+        if (center)
+            viewport.centerPan();
         this.proxiedSlots = new ArrayList<>(allSlots.size());
         for (var slot : allSlots) {
             this.proxiedSlots.add(new ViewportSlotProxy(slot, viewport));

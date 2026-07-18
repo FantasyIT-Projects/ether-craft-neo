@@ -124,6 +124,11 @@ public class EtherProcessCategory implements IRecipeCategory<EtherProcessCategor
 
     @Override
     public void createRecipeExtras(IRecipeExtrasBuilder builder, EtherProcessCategory.EtherProcessFactoryRecipeWrapper recipeWrapper, IFocusGroup focuses) {
+        createRecipeExtras(builder, recipeWrapper, focuses, false);
+
+    }
+
+    public void createRecipeExtras(IRecipeExtrasBuilder builder, EtherProcessCategory.EtherProcessFactoryRecipeWrapper recipeWrapper, IFocusGroup focuses, boolean ext) {
         EtherProcessFactoryRecipe recipe = recipeWrapper.recipe;
         IRecipeSlotDrawablesView slotsView = builder.getRecipeSlots();
         List<IRecipeSlotDrawable> inputSlots = slotsView.getSlots(RecipeIngredientRole.INPUT);
@@ -138,7 +143,7 @@ public class EtherProcessCategory implements IRecipeCategory<EtherProcessCategor
         TreeDiagramLayout layout = TreeLayoutCalculator.compute(spec);
         TreeLayout treeLayout = TreeLayout.compute(recipe.json);
 
-        JEITreeSlottedWidget widget = new JEITreeSlottedWidget(layout, allSlots, this.width, this.height);
+        JEITreeSlottedWidget widget = new JEITreeSlottedWidget(layout, allSlots, this.width, this.height, !ext);
 
         int idx = 0;
         for (TreeLayout.Entry e : treeLayout.inputs) {
@@ -166,7 +171,6 @@ public class EtherProcessCategory implements IRecipeCategory<EtherProcessCategor
                 idx++;
             }
         }
-
         builder.addSlottedWidget(widget, allSlots);
         builder.addInputHandler(widget);
     }

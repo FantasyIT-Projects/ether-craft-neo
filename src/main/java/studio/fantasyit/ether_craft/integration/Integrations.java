@@ -2,6 +2,9 @@ package studio.fantasyit.ether_craft.integration;
 
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.neoforged.fml.ModList;
+import net.neoforged.fml.loading.FMLLoader;
+import net.neoforged.fml.loading.LoadingModList;
+import net.neoforged.fml.loading.moddiscovery.ModFileInfo;
 import studio.fantasyit.ether_craft.integration.iris.IrisApiWrapper;
 import studio.fantasyit.ether_craft.integration.sodium.SodiumIntegration;
 
@@ -9,7 +12,7 @@ import java.nio.ByteBuffer;
 
 public class Integrations {
 
-    public static boolean isGuideMeLoaded(){
+    public static boolean isGuideMeLoaded() {
         return ModList.get().isLoaded("guideme");
     }
 
@@ -31,7 +34,12 @@ public class Integrations {
         return IrisApiWrapper.isIrisHasShaderLoaded();
     }
 
-    public static boolean hasPowerTool(){
+    public static boolean hasPowerTool() {
         return ModList.get().isLoaded("powertool");
+    }
+
+    public static boolean hasPowerToolLoading() {
+        ModFileInfo pt =  FMLLoader.getCurrent().getLoadingModList().getModFileById("powertool");
+        return (pt != null);
     }
 }
