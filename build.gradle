@@ -13,6 +13,7 @@ repositories {
     flatDir {
         dir 'libs'
     }
+    maven { url 'https://jitpack.io' }
     maven {
         url "https://maven.blamejared.com"
     }
@@ -135,7 +136,7 @@ dependencies {
     runtimeOnly "maven.modrinth:jade:26.1.1+neoforge"
     runtimeOnly "curse.maven:jade-324717:8068368"
 
-    compileOnly "libs:powertool:1.5.14"
+    compileOnly 'com.github.teaconmc:PowerTool:1.5.14'
     // Example mod dependency using a mod jar from ./libs with a flat dir repository
     // This maps to ./libs/coolmod-${mc_version}-${coolmod_version}.jar
     // The group id is ignored when searching -- in this case, it is "blank"
