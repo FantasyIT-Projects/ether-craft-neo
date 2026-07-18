@@ -52,6 +52,9 @@ public class EtherAdaptNodeContainerMenu extends BaseMenu<EtherAdaptNodeEntity> 
     public static EtherAdaptNodeContainerMenu readFromNetwork(int windowId, Player player, RegistryFriendlyByteBuf data) {
         BlockPos pos = data.readBlockPos();
         InstalledPlugin installedPlugin = InstalledPlugin.readNullable(data);
+        if(!(player.level().getBlockEntity(pos) instanceof EtherAdaptNodeEntity)) {
+            return null;
+        }
         return new EtherAdaptNodeContainerMenu(windowId, player, pos, installedPlugin);
     }
 
