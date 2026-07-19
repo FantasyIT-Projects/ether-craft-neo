@@ -10,6 +10,7 @@ import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.block.node.EtherAdaptNodeEntity;
 import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
+import studio.fantasyit.ether_craft.node.plugins.upgrade.IGeneratorAdjuster;
 
 public class FunctionFurnaceGenerator extends AbstractItemConsumeFunction {
     public static Identifier ID = EtherCraft.id("generator/furnace");
@@ -26,19 +27,25 @@ public class FunctionFurnaceGenerator extends AbstractItemConsumeFunction {
     }
 
     @Override
-    ItemStack onConsumeItem(ItemStack itemStack) {
+    IGeneratorAdjuster.AdjustedParameters onConsumeItem(ItemStack itemStack) {
         if (itemStack.getCraftingRemainder() != null) {
             try (Transaction t = Transaction.openRoot()) {
                 if (nodeEntity.insert(ItemResource.of(itemStack.getCraftingRemainder()), 1, t) == 0)
-                    return itemStack;
+                    return new IGeneratorAdjuster.AdjustedParameters(0, 0);
                 t.commit();
             }
         }
-        ItemStack remainStack = itemStack.copyWithCount(itemStack.getCount() - 1);
         int factor = Config.nodeFurnaceBurnTimeFactor;
         if (this.installedId.pluginId().equals(ID_BLAST))
             factor = Config.nodeBlastFurnaceBurnTimeFactor;
-        this.remainBurnTicks = itemStack.getBurnTime(null, nodeEntity.getLevel().fuelValues()) / factor;
+
+        int pt;
+        if (this.installedId.pluginId().equals(ID_BLAST))
+            pt = Config.nodeBlastFurnaceEtherPerTick;
+        else
+            pt = Config.nodeFurnaceEtherPerTick;
+
+        int bt = itemStack.getBurnTime(null, nodeEntity.getLevel().fuelValues()) / factor;
 
         if (itemStack.is(ItemTags.LOGS) || itemStack.is(ItemTags.PLANKS))
             nodeEntity.setSyncedPluginData(installedId, WORKING_MATERIAL, WorkingMaterial.WOOD.ordinal());
@@ -49,15 +56,8 @@ public class FunctionFurnaceGenerator extends AbstractItemConsumeFunction {
         else
             nodeEntity.setSyncedPluginData(installedId, WORKING_MATERIAL, WorkingMaterial.ANY.ordinal());
 
-        return remainStack;
-    }
-
-    @Override
-    void onBurnTick() {
-        if (this.installedId.pluginId().equals(ID_BLAST))
-            nodeEntity.receiveEther(Config.nodeBlastFurnaceEtherPerTick);
-        else
-            nodeEntity.receiveEther(Config.nodeFurnaceEtherPerTick);
+        itemStack.shrink(1);
+        return new IGeneratorAdjuster.AdjustedParameters(bt, pt);
     }
 
     @Override

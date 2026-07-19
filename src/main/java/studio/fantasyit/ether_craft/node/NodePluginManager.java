@@ -119,6 +119,7 @@ public class NodePluginManager {
         ALL_PLUGINS.add(new PluginInfo(PluginType.UPGRADE, EtherStreamBounceBackUpgrade.ID, EtherStreamBounceBackUpgrade::new, t -> t.is(Items.SLIME_BALL), Items.SLIME_BALL));
         ALL_PLUGINS.add(new PluginInfo(PluginType.UPGRADE, EtherStreamDisplayItemUpgrade.ID, EtherStreamDisplayItemUpgrade::new, t -> t.is(Items.ITEM_FRAME), Items.ITEM_FRAME));
         ALL_PLUGINS.add(new PluginInfo(PluginType.UPGRADE, SpeedUpgrade.ID, SpeedUpgrade::new, t -> t.is(Items.AMETHYST_SHARD), Items.AMETHYST_SHARD));
+        ALL_PLUGINS.add(new PluginInfo(PluginType.UPGRADE, SpeedDownUpgrade.ID, SpeedDownUpgrade::new, t -> t.is(Items.LAPIS_LAZULI), Items.LAPIS_LAZULI));
         ALL_PLUGINS.add(new PluginInfo(PluginType.UPGRADE, EtherStreamGlassTransformUpgrade.ID, EtherStreamGlassTransformUpgrade::new, t -> t.is(ItemRegistry.ETHER_GLASS_ITEM.get()), ItemRegistry.ETHER_GLASS_ITEM.get()));
     }
 

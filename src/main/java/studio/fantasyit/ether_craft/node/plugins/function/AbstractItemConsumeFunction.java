@@ -21,16 +21,15 @@ import studio.fantasyit.ether_craft.node.NodeProperty;
 import studio.fantasyit.ether_craft.node.filter.FilterGuiRegCommon;
 import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
 import studio.fantasyit.ether_craft.node.plugins.base.AbstractNodePlugin;
-import studio.fantasyit.ether_craft.node.plugins.upgrade.SpeedUpgrade;
+import studio.fantasyit.ether_craft.node.plugins.upgrade.IGeneratorAdjuster;
 import studio.fantasyit.ether_craft.util.ContainerOps;
-
-import java.util.Objects;
 
 public abstract class AbstractItemConsumeFunction extends AbstractNodePlugin {
     public static final Identifier WORKING_MATERIAL = EtherCraft.id("generator/material");
     public ItemFilter filter = new ItemFilter(21, nodeEntity::setChanged);
     public SimpleContainer container = new SimpleContainer(1);
     public int remainBurnTicks = 0;
+    public int generatePreTick = 0;
 
     public enum WorkingMaterial {
         IDLE,
@@ -56,9 +55,7 @@ public abstract class AbstractItemConsumeFunction extends AbstractNodePlugin {
 
     abstract boolean accepts(ItemResource stack);
 
-    abstract ItemStack onConsumeItem(ItemStack itemStack);
-
-    abstract void onBurnTick();
+    abstract IGeneratorAdjuster.AdjustedParameters onConsumeItem(ItemStack itemStack);
 
     @Override
     public void tickWork() {
@@ -76,22 +73,23 @@ public abstract class AbstractItemConsumeFunction extends AbstractNodePlugin {
             }
         }
 
-        if (remainBurnTicks == 0 && !container.getItem(0).isEmpty()) {
-            ItemStack toConsumeItemStack = container.getItem(0);
+        if (remainBurnTicks <= 0 && !container.getItem(0).isEmpty()) {
+            ItemStack toConsumeItemStack = container.getItem(0).copy();
             if (accepts(ItemResource.of(toConsumeItemStack))) {
-                ItemStack newStack = onConsumeItem(toConsumeItemStack);
-                container.setItem(0, newStack);
-                onBurnTick();
+                IGeneratorAdjuster.AdjustedParameters parameter = onConsumeItem(toConsumeItemStack);
+                container.setItem(0, toConsumeItemStack);
+                for (int i = 0; i < nodeEntity.featureUpgradeStorage.getContainerSize(); i++) {
+                    if (nodeEntity.featureUpgradeStorage.hasPlugin(i) && nodeEntity.featureUpgradeStorage.getPlugin(i) instanceof IGeneratorAdjuster iga) {
+                        parameter = iga.adjust(parameter);
+                    }
+                }
+                generatePreTick = parameter.preTick();
+                remainBurnTicks = parameter.burnTicks();
+                nodeEntity.receiveEther(generatePreTick);
             }
         } else {
-            int count = 1;
-            for (int i = 0; i < nodeEntity.featureUpgradeStorage.getContainerSize(); i++) {
-                if (Objects.equals(nodeEntity.featureUpgradeStorage.getPluginId(i), SpeedUpgrade.ID)) {
-                    count++;
-                }
-            }
-            for (int i = 0; i < count && remainBurnTicks > 0; i++) {
-                onBurnTick();
+            if (remainBurnTicks > 0) {
+                nodeEntity.receiveEther(generatePreTick);
                 remainBurnTicks--;
             }
         }
@@ -108,6 +106,7 @@ public abstract class AbstractItemConsumeFunction extends AbstractNodePlugin {
     public void saveAdditional(ValueOutput output) {
         output.store("container", ItemStack.OPTIONAL_CODEC.listOf(), ContainerOps.containerToItemList(container));
         output.store("remainBurnTicks", Codec.INT, remainBurnTicks);
+        output.store("generatePreTick", Codec.INT, generatePreTick);
         filter.serialize(output.child("filter"));
     }
 
@@ -115,6 +114,7 @@ public abstract class AbstractItemConsumeFunction extends AbstractNodePlugin {
     public void loadAdditional(ValueInput input) {
         input.read("container", ItemStack.OPTIONAL_CODEC.listOf()).ifPresent(l -> ContainerOps.fillContainerByItemList(container, l));
         input.read("remainBurnTicks", Codec.INT).ifPresent(i -> remainBurnTicks = i);
+        input.read("preTick", Codec.INT).ifPresent(i -> generatePreTick = i);
         filter.deserialize(input.childOrEmpty("filter"));
     }
 

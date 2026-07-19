@@ -1,22 +1,17 @@
 package studio.fantasyit.ether_craft.node.plugins.function;
 
-import com.mojang.serialization.Codec;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.storage.ValueInput;
-import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.transfer.item.ItemResource;
-import net.neoforged.neoforge.transfer.transaction.Transaction;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.block.node.EtherAdaptNodeEntity;
 import studio.fantasyit.ether_craft.datapack.StoneGeneratorRatio;
 import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
+import studio.fantasyit.ether_craft.node.plugins.upgrade.IGeneratorAdjuster;
 
 public class FunctionStoneGenerator extends AbstractItemConsumeFunction {
     public static Identifier ID = EtherCraft.id("generator/stone");
-
-    int ept = 0;
 
     public FunctionStoneGenerator(EtherAdaptNodeEntity nodeEntity, InstalledPlugin ID) {
         super(nodeEntity, ID);
@@ -28,32 +23,19 @@ public class FunctionStoneGenerator extends AbstractItemConsumeFunction {
     }
 
     @Override
-    ItemStack onConsumeItem(ItemStack itemStack) {
-        if (itemStack.getCraftingRemainder() != null) {
-            try (Transaction t = Transaction.openRoot()) {
-                if (nodeEntity.insert(ItemResource.of(itemStack.getCraftingRemainder()), 1, t) == 0)
-                    return itemStack;
-                t.commit();
-            }
-        }
+    IGeneratorAdjuster.AdjustedParameters onConsumeItem(ItemStack itemStack) {
         StoneGeneratorRatio stoneGeneratorRatio = StoneGeneratorRatio.get(itemStack);
         if (stoneGeneratorRatio == null)
-            return itemStack;
-        ItemStack remainStack = itemStack.copyWithCount(itemStack.getCount() - 1);
-        this.remainBurnTicks = stoneGeneratorRatio.burnTicks();
-        ept = stoneGeneratorRatio.etherPerTick();
+            return new IGeneratorAdjuster.AdjustedParameters(0, 0);
+        int ept = stoneGeneratorRatio.etherPerTick();
 
         if (itemStack.is(Items.COBBLED_DEEPSLATE) || itemStack.is(Items.BASALT))
             nodeEntity.setSyncedPluginData(installedId, WORKING_MATERIAL, WorkingMaterial.DEEPSLATE.ordinal());
         else
             nodeEntity.setSyncedPluginData(installedId, WORKING_MATERIAL, WorkingMaterial.STONE.ordinal());
 
-        return remainStack;
-    }
-
-    @Override
-    void onBurnTick() {
-        nodeEntity.receiveEther(ept);
+        itemStack.shrink(1);
+        return new IGeneratorAdjuster.AdjustedParameters(stoneGeneratorRatio.burnTicks(), ept);
     }
 
     @Override
@@ -61,17 +43,5 @@ public class FunctionStoneGenerator extends AbstractItemConsumeFunction {
         super.tickWork();
         if (remainBurnTicks == 0 && nodeEntity.getSyncedPluginData(installedId, WORKING_MATERIAL) != WorkingMaterial.IDLE.ordinal())
             nodeEntity.setSyncedPluginData(installedId, WORKING_MATERIAL, WorkingMaterial.IDLE.ordinal());
-    }
-
-    @Override
-    public void loadAdditional(ValueInput input) {
-        super.loadAdditional(input);
-        ept = input.read("ept", Codec.INT).orElse(0);
-    }
-
-    @Override
-    public void saveAdditional(ValueOutput output) {
-        super.saveAdditional(output);
-        output.store("ept", Codec.INT, ept);
     }
 }

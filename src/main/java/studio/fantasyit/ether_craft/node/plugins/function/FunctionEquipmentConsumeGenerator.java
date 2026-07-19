@@ -16,13 +16,13 @@ import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.block.node.EtherAdaptNodeEntity;
 import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
+import studio.fantasyit.ether_craft.node.plugins.upgrade.IGeneratorAdjuster;
 import studio.fantasyit.ether_craft.register.Tags;
 
 public class FunctionEquipmentConsumeGenerator extends AbstractItemConsumeFunction {
     public static Identifier ID = EtherCraft.id("generator/equipment");
     public static final Identifier STATE = EtherCraft.id("generator/ether_converter_state");
 
-    int etherToGenerate = 0;
 
     public FunctionEquipmentConsumeGenerator(EtherAdaptNodeEntity nodeEntity, InstalledPlugin ID) {
         super(nodeEntity, ID);
@@ -34,8 +34,9 @@ public class FunctionEquipmentConsumeGenerator extends AbstractItemConsumeFuncti
     }
 
     @Override
-    ItemStack onConsumeItem(ItemStack itemStack) {
+    IGeneratorAdjuster.AdjustedParameters onConsumeItem(ItemStack itemStack) {
         int enchantBonus = 0;
+        int etherToGenerate = 0;
         for (Object2IntMap.Entry<Holder<Enchantment>> entry : EnchantmentHelper.getEnchantmentsForCrafting(itemStack).entrySet()) {
             if (entry.getKey().is(EnchantmentTags.CURSE)) continue;
 
@@ -49,15 +50,11 @@ public class FunctionEquipmentConsumeGenerator extends AbstractItemConsumeFuncti
                 enchantBonus += (1 << level);
         }
         etherToGenerate = enchantBonus * Config.nodeEquipmentGeneratorCoefficient + Config.nodeEquipmentGeneratorBaseAmount;
-        remainBurnTicks = Config.nodeEquipmentGeneratorBurnTick;
         nodeEntity.setSyncedPluginData(installedId, WORKING_MATERIAL, WorkingMaterial.ANY.ordinal());
-        return ItemStack.EMPTY;
+        itemStack.shrink(1);
+        return new IGeneratorAdjuster.AdjustedParameters(Config.nodeEquipmentGeneratorBurnTick, etherToGenerate);
     }
 
-    @Override
-    void onBurnTick() {
-        nodeEntity.receiveEther(etherToGenerate);
-    }
 
     @Override
     public void tickWork() {
@@ -66,17 +63,5 @@ public class FunctionEquipmentConsumeGenerator extends AbstractItemConsumeFuncti
             nodeEntity.setSyncedPluginData(installedId, WORKING_MATERIAL, WorkingMaterial.IDLE.ordinal());
 
         nodeEntity.setSyncedPluginData(installedId, STATE, remainBurnTicks > 0 ? 1 : 0);
-    }
-
-    @Override
-    public void loadAdditional(ValueInput input) {
-        super.loadAdditional(input);
-        etherToGenerate = input.read("etherToGenerate", Codec.INT).orElse(0);
-    }
-
-    @Override
-    public void saveAdditional(ValueOutput output) {
-        super.saveAdditional(output);
-        output.store("etherToGenerate", Codec.INT, etherToGenerate);
     }
 }

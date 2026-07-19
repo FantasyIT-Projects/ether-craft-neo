@@ -134,7 +134,7 @@ public class Config {
 
     private static final ModConfigSpec.IntValue NODE_ENCHANTER_MAX_PROGRESS = BUILDER
             .comment("Max progress ticks for Enchanter plugin to complete enchanting (20 ticks = 1 second)")
-            .defineInRange("node.enchanter.max_progress", 100, 1, Integer.MAX_VALUE);
+            .defineInRange("node.enchanter.max_progress", 20, 1, Integer.MAX_VALUE);
 
     // ===== ether_stream — Ether Stream entity =====
 
