@@ -159,7 +159,7 @@ public class ModelDataGen extends ModelProvider {
                     .put(TextureSlot.WEST, new Material(EtherCraft.id("block/factory/lv" + level + "/ether_process_factory_lv" + level + "_left")))
                     .put(TextureSlot.UP, new Material(EtherCraft.id("block/factory/lv" + level + "/ether_process_factory_lv" + level + "_top")))
                     .put(TextureSlot.DOWN, new Material(EtherCraft.id("block/factory/lv" + level + "/ether_process_factory_lv" + level + "_bottom")))
-                    .put(TextureSlot.PARTICLE, new Material(EtherCraft.id("block/factory/ether_process_factory_breaking_lv" + level)));
+                    .put(TextureSlot.PARTICLE, new Material(EtherCraft.id("block/factory/lv" + level + "/ether_process_factory_lv" + level + "_front")));
             levelModelIds[level] = ModelTemplates.CUBE.createWithSuffix(
                     processFactory, "_lv_" + level, texMapping, blockModels.modelOutput);
         }

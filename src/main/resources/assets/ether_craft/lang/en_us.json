@@ -273,5 +273,9 @@
 
   "jade.ether_craft.process_factory.ether": "Ether: %d",
   "jade.ether_craft.process_factory.pressure": "Pressure: x%d",
-  "jade.ether_craft.process_factory.leak": "Leak: %d/t"
+  "jade.ether_craft.process_factory.leak": "Leak: %d/t",
+
+  "config.jade.plugin_ether_craft.ether_adapt_node": "Ether Adapt Node",
+  "config.jade.plugin_ether_craft.plating_item_entity": "Plating Item Entity",
+  "config.jade.plugin_ether_craft.ether_process_factory": "Ether Process Factory"
 }

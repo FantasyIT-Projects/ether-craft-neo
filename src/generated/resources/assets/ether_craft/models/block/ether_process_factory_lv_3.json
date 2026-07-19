@@ -4,7 +4,7 @@
     "down": "ether_craft:block/factory/lv3/ether_process_factory_lv3_bottom",
     "east": "ether_craft:block/factory/lv3/ether_process_factory_lv3_right",
     "north": "ether_craft:block/factory/lv3/ether_process_factory_lv3_front",
-    "particle": "ether_craft:block/factory/ether_process_factory_breaking_lv3",
+    "particle": "ether_craft:block/factory/lv3/ether_process_factory_lv3_front",
     "south": "ether_craft:block/factory/lv3/ether_process_factory_lv3_back",
     "up": "ether_craft:block/factory/lv3/ether_process_factory_lv3_top",
     "west": "ether_craft:block/factory/lv3/ether_process_factory_lv3_left"

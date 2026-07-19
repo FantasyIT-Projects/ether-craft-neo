@@ -268,5 +268,9 @@
 
   "jade.ether_craft.process_factory.ether": "以太: %d",
   "jade.ether_craft.process_factory.pressure": "压力倍率: x%d",
-  "jade.ether_craft.process_factory.leak": "泄漏: %d/t"
+  "jade.ether_craft.process_factory.leak": "泄漏: %d/t",
+
+  "config.jade.plugin_ether_craft.ether_adapt_node": "以太适配节点",
+  "config.jade.plugin_ether_craft.plating_item_entity": "镀层物品实体",
+  "config.jade.plugin_ether_craft.ether_process_factory": "以太处理工厂"
 }

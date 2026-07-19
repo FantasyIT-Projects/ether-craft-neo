@@ -6,7 +6,6 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
@@ -23,7 +22,10 @@ import studio.fantasyit.ether_craft.stream.cap.IStreamCapability;
 import studio.fantasyit.ether_craft.stream.data.IEtherStreamSyncedData;
 import studio.fantasyit.ether_craft.util.LevelUtil;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
 
 public class VirtualEtherStream implements IEtherStreamLike {
     Vec3 pos;
@@ -324,10 +326,6 @@ public class VirtualEtherStream implements IEtherStreamLike {
                 setRunIntoEtherGlass(isEtherGlass2);
             }
         }
-
-        if (newState.is(Blocks.GLASS)) {
-            if (level.getRandom().nextDouble() <= Config.etherStreamGlassTransformChance)
-                level.setBlockAndUpdate(newPos, BlockRegistry.ETHER_GLASS.get().defaultBlockState());
-        }
+        capabilities.forEach(t -> t.runIntoNewBlock(this, oldPos, oldState, newPos, newState));
     }
 }

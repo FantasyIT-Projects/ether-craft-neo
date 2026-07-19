@@ -1,5 +1,6 @@
 package studio.fantasyit.ether_craft.stream;
 
+import com.mojang.datafixers.util.Unit;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
@@ -24,7 +25,8 @@ public class CapabilityFactoryManager {
         register(EtherStreamCostReducerCapability.ID, EtherStreamCostReducerCapability::new, EtherStreamCostReducerCapability.CODEC);
         register(EtherStreamPlatingCapability.ID, EtherStreamPlatingCapability::new, EtherStreamPlatingCapability.CODEC);
         register(EtherStreamBounceBackCapability.ID, EtherStreamBounceBackCapability::new, EtherStreamBounceBackCapability.CODEC);
-        register(EtherStreamItemDisplayCapability.ID,EtherStreamItemDisplayCapability::new,EtherStreamItemDisplayCapability.CODEC);
+        register(EtherStreamItemDisplayCapability.ID, EtherStreamItemDisplayCapability::new, EtherStreamItemDisplayCapability.CODEC);
+        register(EtherStreamTransformGlassCapability.ID, EtherStreamTransformGlassCapability::new, Codec.EMPTY.xmap(t -> new EtherStreamTransformGlassCapability(), t -> Unit.INSTANCE).codec());
     }
 
     public static <T extends IStreamCapability> void register(Identifier id, Supplier<T> factory, Codec<T> codec) {

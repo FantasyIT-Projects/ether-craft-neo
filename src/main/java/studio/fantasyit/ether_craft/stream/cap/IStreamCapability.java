@@ -46,4 +46,8 @@ public interface IStreamCapability extends ValueIOSerializable {
 
     default void onRecreate(IEtherStreamLike newStream) {
     }
+
+    default void runIntoNewBlock(IEtherStreamLike streamEntity,@Nullable BlockPos oldPos, @Nullable BlockState oldState, BlockPos newPos, BlockState newState){
+
+    };
 }

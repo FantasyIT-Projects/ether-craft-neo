@@ -8,6 +8,7 @@ import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import studio.fantasyit.ether_craft.EtherCraft;
+import studio.fantasyit.ether_craft.attachment.LevelMuteSources;
 import studio.fantasyit.ether_craft.plating.data.CamouflageState;
 import studio.fantasyit.ether_craft.plating.data.TrackingData;
 import studio.fantasyit.ether_craft.plating.trigger.data.TriggerOnNotExistRecord;
@@ -71,6 +72,10 @@ public class AttachmentDataRegistry {
 
     public static final Supplier<AttachmentType<TrackingData>> ARROW_TRACKING = ATTACHMENT_TYPES.register(
             "arrow_tracking", () -> AttachmentType.builder(() -> new TrackingData(0.0, 0.0)).sync(TrackingData.STREAM_CODEC).build()
+    );
+
+    public static final Supplier<AttachmentType<LevelMuteSources>> LEVEL_MUTE_SOURCE = ATTACHMENT_TYPES.register(
+            "chunk_mute_source", () -> AttachmentType.builder(() -> new LevelMuteSources()).sync(LevelMuteSources.STREAM_CODEC_PARTIAL).build()
     );
 
     public static void register(IEventBus modbus) {

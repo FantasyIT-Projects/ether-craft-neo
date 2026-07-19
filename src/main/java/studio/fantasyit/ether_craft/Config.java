@@ -211,6 +211,15 @@ public class Config {
             .comment("The ether consumed per tick before the node process upgrade is matched")
             .defineInRange("node.process.ether_consume_pre_unmatched", 1, 0, Integer.MAX_VALUE);
 
+    // -- node.mute --
+
+    private static final ModConfigSpec.IntValue NODE_MUTE_RANGE = BUILDER
+            .comment("Range around a node within which mute credits are checked")
+            .defineInRange("node.mute.range", 16, 1, 256);
+    private static final ModConfigSpec.IntValue NODE_MUTE_ETHER_COST_PER_TICK = BUILDER
+            .comment("Ether consumed per tick for mute plugin")
+            .defineInRange("node.mute.ether_per_tick", 5, 0, Integer.MAX_VALUE);
+
     // -- node.auto_supply --
 
     private static final ModConfigSpec.IntValue NODE_AUTO_SUPPLY_THRESHOLD = BUILDER
@@ -489,6 +498,8 @@ public class Config {
     public static int platingSilentStepEtherPerTick;
     public static int platingDurabilityAbsorptionEtherPerDurability;
     public static int itemPickUpByStreamDelayAfterDropped;
+    public static int nodeMuteRange;
+    public static int nodeMuteEtherCostPreTick;
 
     @SubscribeEvent
     static void onLoad(final ModConfigEvent event) {
@@ -576,5 +587,7 @@ public class Config {
         platingSilentStepEtherPerTick = PLATING_SILENT_STEP_ETHER_PER_TICK.get();
         platingDurabilityAbsorptionEtherPerDurability = PLATING_DURABILITY_ABSORPTION_ETHER_PER_DURABILITY.get();
         itemPickUpByStreamDelayAfterDropped = ITEM_PICK_UP_BY_STREAM_DELAY_AFTER_DROPPED.get();
+        nodeMuteRange = NODE_MUTE_RANGE.get();
+        nodeMuteEtherCostPreTick = NODE_MUTE_ETHER_COST_PER_TICK.get();
     }
 }

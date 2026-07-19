@@ -86,6 +86,7 @@ public class NodePluginManager {
         ALL_PLUGINS.add(new PluginInfo(PluginType.FUNCTION, FunctionGrowthAccelerator.ID, FunctionGrowthAccelerator::new, t -> t.is(Items.BONE_MEAL), Items.BONE_MEAL));
         ALL_PLUGINS.add(new PluginInfo(PluginType.FUNCTION, FunctionGrowthAccelerator.ID_ALL, FunctionGrowthAccelerator::new, t -> t.is(Items.SCULK_CATALYST), Items.SCULK_CATALYST));
         ALL_PLUGINS.add(new PluginInfo(PluginType.FUNCTION, FunctionEnchanter.ID, FunctionEnchanter::new, t -> t.is(Items.ENCHANTING_TABLE), Items.ENCHANTING_TABLE));
+        ALL_PLUGINS.add(new PluginInfo(PluginType.FUNCTION, FunctionMute.ID, FunctionMute::new, t -> t.is(Items.NOTE_BLOCK), Items.NOTE_BLOCK));
         ALL_PLUGINS.add(new PluginInfo(PluginType.FUNCTION, FunctionCreativeEther.ID_FUNC, FunctionCreativeEther::new, t -> t.is(ItemRegistry.ETHER_CREATIVE), ItemRegistry.ETHER_CREATIVE.get()));
         ALL_PLUGINS.add(new PluginInfo(PluginType.FUNCTION, EtherStreamPlatingUpgrade.ID, EtherStreamPlatingUpgrade::new, t -> t.is(ItemRegistry.PROCESS_CHIP_ITEM) && EtherCraft.id("converging_chip").equals(t.get(DataComponentRegistry.CHIP_ID)),
                 new ItemStackTemplate(ItemRegistry.PROCESS_CHIP_ITEM, DataComponentPatch.builder().set(DataComponentRegistry.CHIP_ID.get(), EtherCraft.id("converging_chip")).set(DataComponents.ITEM_MODEL, EtherCraft.id("converging_chip")).build())));
@@ -118,6 +119,7 @@ public class NodePluginManager {
         ALL_PLUGINS.add(new PluginInfo(PluginType.UPGRADE, EtherStreamBounceBackUpgrade.ID, EtherStreamBounceBackUpgrade::new, t -> t.is(Items.SLIME_BALL), Items.SLIME_BALL));
         ALL_PLUGINS.add(new PluginInfo(PluginType.UPGRADE, EtherStreamDisplayItemUpgrade.ID, EtherStreamDisplayItemUpgrade::new, t -> t.is(Items.ITEM_FRAME), Items.ITEM_FRAME));
         ALL_PLUGINS.add(new PluginInfo(PluginType.UPGRADE, SpeedUpgrade.ID, SpeedUpgrade::new, t -> t.is(Items.AMETHYST_SHARD), Items.AMETHYST_SHARD));
+        ALL_PLUGINS.add(new PluginInfo(PluginType.UPGRADE, EtherStreamGlassTransformUpgrade.ID, EtherStreamGlassTransformUpgrade::new, t -> t.is(ItemRegistry.ETHER_GLASS_ITEM.get()), ItemRegistry.ETHER_GLASS_ITEM.get()));
     }
 
     public NodePluginManager() {

@@ -18,7 +18,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.ShelfBlock;
 import net.minecraft.world.level.block.entity.ShelfBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -216,16 +215,14 @@ public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
         if (!this.level().isClientSide()) {
             BlockPos oldBlock = BlockPos.containing(this.getX() - vec3.x, this.getY() - vec3.y, this.getZ() - vec3.z);
             BlockPos newBlock = blockPos;
-            boolean wasGlass = level().getBlockState(oldBlock).is(BlockRegistry.ETHER_GLASS);
-            boolean isGlass = level().getBlockState(newBlock).is(BlockRegistry.ETHER_GLASS);
+            BlockState oldState = level().getBlockState(oldBlock);
+            BlockState newState = level().getBlockState(newBlock);
+            boolean wasGlass = oldState.is(BlockRegistry.ETHER_GLASS);
+            boolean isGlass = newState.is(BlockRegistry.ETHER_GLASS);
             if (wasGlass != isGlass) {
                 setRunIntoEtherGlass(isGlass);
             }
-            if (!newBlock.equals(oldBlock) && level().getBlockState(newBlock).is(Blocks.GLASS)) {
-                if (level().getRandom().nextDouble() <= Config.etherStreamGlassTransformChance) {
-                    level().setBlockAndUpdate(newBlock, BlockRegistry.ETHER_GLASS.get().defaultBlockState());
-                }
-            }
+            capabilities.forEach(t -> t.runIntoNewBlock(this, oldBlock, oldState, newBlock, newState));
         }
     }
 
