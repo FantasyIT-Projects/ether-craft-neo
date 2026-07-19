@@ -7,8 +7,6 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.level.block.BonemealableBlock;
-import net.minecraft.world.level.block.CaveVines;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
@@ -78,7 +76,7 @@ public class EtherStreamGrowthAcceleratorCapability implements IStreamCapability
             return;
 
         streamEntity.consumeEther(cost);
-        AccelerateRepeatCounts.apply(level,pos,state);
+        AccelerateRepeatCounts.apply(level, pos, state);
         Vec3 center = pos.getCenter();
         level.sendParticles(
                 ParticleTypes.HAPPY_VILLAGER,
@@ -99,6 +97,19 @@ public class EtherStreamGrowthAcceleratorCapability implements IStreamCapability
 
     @Override
     public boolean hitBlock(ServerLevel level, IEtherStreamLike streamEntity, BlockHitResult hit, BlockState blockState) {
+        BlockPos pos = hit.getBlockPos();
+        BlockState state = level.getBlockState(pos);
+        if (!allowAll) {
+            if (!state.is(Tags.CROP_ACCELERATABLE))
+                return false;
+        }
+
+        int cost = Config.etherStreamGrowthAcceleratorEtherCost;
+        if (streamEntity.getEther() < cost)
+            return false;
+
+        streamEntity.consumeEther(cost);
+        AccelerateRepeatCounts.apply(level, pos, state);
         return false;
     }
 

@@ -190,6 +190,7 @@
   "jei.ether_craft.plugin.ether_craft.redstone_switch": "根据红石信号启用或禁用节点。",
   "jei.ether_craft.plugin.ether_craft.destruction": "销毁节点物品栏中匹配过滤器的物品（溢出模式或全部匹配物品）。",
   "jei.ether_craft.plugin.ether_craft.speed_upgrade": "提升以太生成器的速度。",
+  "jei.ether_craft.plugin.ether_craft.speed_down_upgrade": "降低以太生成器的速度。",
   "jei.ether_craft.plugin.ether_craft.ether_stream_speed_up_upgrade": "提升以太流移动速度。",
   "jei.ether_craft.plugin.ether_craft.ether_stream_speed_down_upgrade": "降低以太流移动速度。",
   "jei.ether_craft.plugin.ether_craft.ether_stream_bounce_back_upgrade": "允许以太流在接触时反弹。",
