@@ -63,7 +63,7 @@ public class FunctionMagnet extends AbstractNodePlugin {
         if (shapeX + shapeY + shapeZ == 1 && centerX == 0 && centerY == 0 && centerZ == 0)
             return;
         if (nodeEntity.getLevel() != null) {
-            List<ItemEntity> ie = nodeEntity.getLevel().getEntitiesOfClass(ItemEntity.class, new AABB(nodeEntity.getBlockPos()).move(centerX, centerY, centerZ).inflate(shapeX, shapeY, shapeZ));
+            List<ItemEntity> ie = nodeEntity.getLevel().getEntitiesOfClass(ItemEntity.class, new AABB(nodeEntity.getBlockPos()).move(centerX, centerY, centerZ).inflate(shapeX - 1, shapeY - 1, shapeZ - 1));
             for (ItemEntity itemEntity : ie) {
                 int toConsumePreStack = Config.nodeMagnetEtherPerStack * itemEntity.blockPosition().distManhattan(nodeEntity.getBlockPos());
                 if (nodeEntity.getEther() < toConsumePreStack)
