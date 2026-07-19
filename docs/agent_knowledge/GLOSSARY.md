@@ -115,7 +115,7 @@
 | Blast Furnace Generator     | 高炉以太生成器   | 高炉 | `generator/blast` |
 | Stone Generator             | 切石机以太生成器  | 切石机 | `generator/stone` |
 | Magnet                      | 磁铁        | 真空管道 | `magnet` |
-| Node Process                | 节点加工      | 合成器 | `node_process` |
+| Mute                        | 静音         | 音符盒 | `mute` |
 | Equipment Consume Generator | 装备消耗以太生成器 | 砂轮 | `generator/equipment` |
 | Ether Converter             | 以太转换器     | 龙蛋 | `generator/ether_converter` |
 | Growth Accelerator          | 作物催熟      | 骨粉 | `growth_accelerator` |

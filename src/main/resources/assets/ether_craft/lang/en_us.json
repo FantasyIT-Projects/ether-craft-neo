@@ -202,7 +202,7 @@
   "jei.ether_craft.plugin.ether_craft.ether_auto_supply_upgrade": "Automatically supplies ether when below threshold.",
   "jei.ether_craft.plugin.ether_craft.ether_stream_plating_upgrade": "Allows ether streams to apply plating to items.",
   "jei.ether_craft.plugin.ether_craft.redstone_switch_revert": "Enables or disables the node based on redstone signal (reversed logic).",
-  "jei.ether_craft.plugin.ether_craft.mute": "Mutes ether stream vibration from this node.",
+  "jei.ether_craft.plugin.ether_craft.mute": "Mutes all vibration in a region around the node.",
   "jei.ether_craft.plugin.ether_craft.glass_transform_upgrade": "Allows ether streams to transform glass blocks on contact.",
   "jei.ether_craft.node_plugin_info.concepts": "Concepts:",
   "tip.ether_craft.concept.ether_flow": "Ether Flow",

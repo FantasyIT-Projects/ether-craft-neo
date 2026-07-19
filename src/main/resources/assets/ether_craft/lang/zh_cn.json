@@ -196,7 +196,7 @@
   "jei.ether_craft.plugin.ether_craft.ether_auto_supply_upgrade": "以太低于阈值时自动补充。",
   "jei.ether_craft.plugin.ether_craft.ether_stream_plating_upgrade": "允许以太流为物品镀层。",
   "jei.ether_craft.plugin.ether_craft.redstone_switch_revert": "根据红石信号反转启用或禁用节点。",
-  "jei.ether_craft.plugin.ether_craft.mute": "静音此节点的以太流振动。",
+  "jei.ether_craft.plugin.ether_craft.mute": "使节点附近一片区域的一切静音。",
   "jei.ether_craft.plugin.ether_craft.glass_transform_upgrade": "允许以太流在接触时转化玻璃方块。",
   "jei.ether_craft.node_plugin_info.concepts": "概念:",
   "tip.ether_craft.concept.ether_flow": "以太流",
