@@ -16,6 +16,10 @@
   "block.ether_craft.inactivated_ether_block": "Inactivated Ether Block",
   "block.ether_craft.smooth_inactivated_ether_block": "Smooth Inactivated Ether Block",
   "block.ether_craft.cheese_block": "Cheese",
+  "block.ether_craft.ether_deco_1": "Ether Deco 1",
+  "block.ether_craft.ether_deco_2": "Ether Deco 2",
+  "block.ether_craft.ether_deco_3": "Ether Deco 3",
+  "block.ether_craft.ether_deco_4": "Ether Deco 4",
 
   "ether_craft.gui.node.container_interact.extract": "Using: Extract",
   "ether_craft.gui.node.container_interact.insert": "Using: Insert",
@@ -52,6 +56,10 @@
   "item.ether_craft.ether_glass": "Ether Glass",
   "item.ether_craft.inactivated_ether_block": "Inactivated Ether Block",
   "item.ether_craft.smooth_inactivated_ether_block": "Smooth Inactivated Ether Block",
+  "item.ether_craft.ether_deco_1": "Ether Deco 1",
+  "item.ether_craft.ether_deco_2": "Ether Deco 2",
+  "item.ether_craft.ether_deco_3": "Ether Deco 3",
+  "item.ether_craft.ether_deco_4": "Ether Deco 4",
 
   "item.ether_craft.process_chip": "Process Chip",
   "item.ether_craft.wrench": "Wrench",

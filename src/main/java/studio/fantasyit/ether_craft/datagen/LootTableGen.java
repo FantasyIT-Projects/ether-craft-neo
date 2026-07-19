@@ -48,6 +48,10 @@ public class LootTableGen extends LootTableProvider {
             dropSelf(BlockRegistry.ETHER_GLASS.get());
             dropSelf(BlockRegistry.INACTIVATED_ETHER_BLOCK.get());
             dropSelf(BlockRegistry.SMOOTH_INACTIVATED_ETHER_BLOCK.get());
+            dropSelf(BlockRegistry.ETHER_DECO_1.get());
+            dropSelf(BlockRegistry.ETHER_DECO_2.get());
+            dropSelf(BlockRegistry.ETHER_DECO_3.get());
+            dropSelf(BlockRegistry.ETHER_DECO_4.get());
         }
 
         private LootItemCondition.Builder hasPlating() {
@@ -75,7 +79,11 @@ public class LootTableGen extends LootTableProvider {
                     BlockRegistry.NETHER_ETHER_ORE.get(),
                     BlockRegistry.ETHER_GLASS.get(),
                     BlockRegistry.INACTIVATED_ETHER_BLOCK.get(),
-                    BlockRegistry.SMOOTH_INACTIVATED_ETHER_BLOCK.get()
+                    BlockRegistry.SMOOTH_INACTIVATED_ETHER_BLOCK.get(),
+                    BlockRegistry.ETHER_DECO_1.get(),
+                    BlockRegistry.ETHER_DECO_2.get(),
+                    BlockRegistry.ETHER_DECO_3.get(),
+                    BlockRegistry.ETHER_DECO_4.get()
             );
         }
     }

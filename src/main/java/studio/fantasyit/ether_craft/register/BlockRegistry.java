@@ -30,6 +30,11 @@ public class BlockRegistry {
     public static final DeferredHolder<Block, @NotNull Block> SMOOTH_INACTIVATED_ETHER_BLOCK = BLOCKS.register("smooth_inactivated_ether_block", r -> new Block(Block.Properties.of().strength(5f).requiresCorrectToolForDrops().sound(SoundType.STONE).setId(ResourceKey.create(BuiltInRegistries.BLOCK.key(), r))));
     public static final DeferredHolder<Block, @NotNull CheeseBlock> CHEESE_BLOCK = BLOCKS.register("cheese_block", r -> new CheeseBlock(Block.Properties.of().strength(0.5f).sound(SoundType.WOOL).noOcclusion().setId(ResourceKey.create(BuiltInRegistries.BLOCK.key(), r))));
 
+    public static final DeferredHolder<Block, @NotNull Block> ETHER_DECO_1 = BLOCKS.register("ether_deco_1", r -> new Block(Block.Properties.of().strength(1.5f).sound(SoundType.STONE).setId(ResourceKey.create(BuiltInRegistries.BLOCK.key(), r))));
+    public static final DeferredHolder<Block, @NotNull Block> ETHER_DECO_2 = BLOCKS.register("ether_deco_2", r -> new Block(Block.Properties.of().strength(1.5f).sound(SoundType.STONE).setId(ResourceKey.create(BuiltInRegistries.BLOCK.key(), r))));
+    public static final DeferredHolder<Block, @NotNull Block> ETHER_DECO_3 = BLOCKS.register("ether_deco_3", r -> new Block(Block.Properties.of().strength(1.5f).sound(SoundType.STONE).setId(ResourceKey.create(BuiltInRegistries.BLOCK.key(), r))));
+    public static final DeferredHolder<Block, @NotNull Block> ETHER_DECO_4 = BLOCKS.register("ether_deco_4", r -> new Block(Block.Properties.of().strength(1.5f).sound(SoundType.STONE).setId(ResourceKey.create(BuiltInRegistries.BLOCK.key(), r))));
+
     public static void register(IEventBus modbus) {
         BLOCKS.register(modbus);
     }

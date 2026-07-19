@@ -134,6 +134,10 @@ public class ModelDataGen extends ModelProvider {
         blockModels.createTrivialCube(BlockRegistry.NETHER_ETHER_ORE.get());
         blockModels.createTrivialCube(BlockRegistry.INACTIVATED_ETHER_BLOCK.get());
         blockModels.createTrivialCube(BlockRegistry.SMOOTH_INACTIVATED_ETHER_BLOCK.get());
+        blockModels.createTrivialCube(BlockRegistry.ETHER_DECO_1.get());
+        blockModels.createTrivialCube(BlockRegistry.ETHER_DECO_2.get());
+        blockModels.createTrivialCube(BlockRegistry.ETHER_DECO_3.get());
+        blockModels.createTrivialCube(BlockRegistry.ETHER_DECO_4.get());
 
         blockModels.blockStateOutput.accept(
                 MultiVariantGenerator.dispatch(BlockRegistry.CHEESE_BLOCK.get(),

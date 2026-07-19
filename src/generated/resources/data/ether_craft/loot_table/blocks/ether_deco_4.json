@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "condition": "minecraft:survives_explosion"
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "ether_craft:ether_deco_4"
+        }
+      ],
+      "rolls": 1.0
+    }
+  ],
+  "random_sequence": "ether_craft:blocks/ether_deco_4"
+}
