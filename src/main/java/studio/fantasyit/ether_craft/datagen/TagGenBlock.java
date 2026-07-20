@@ -74,6 +74,13 @@ public class TagGenBlock extends TagsProvider<Block> {
         cropBuilder.addElement(BuiltInRegistries.BLOCK.getKey(Blocks.KELP_PLANT));
         cropBuilder.addElement(BuiltInRegistries.BLOCK.getKey(Blocks.CHORUS_FLOWER));
 
+        getOrCreateRawBuilder(Tags.ETHER_STREAM_SKIP_BREAKING)
+                .addElement(BuiltInRegistries.BLOCK.getKey(Blocks.GLASS))
+                .addElement(BlockRegistry.ETHER_GLASS.getId())
+                .addElement(BlockRegistry.ETHER_PROCESS_FACTORY.getKey().identifier())
+                .addElement(BlockRegistry.ETHER_STREAM_EMITTER.getKey().identifier())
+                .addElement(BlockRegistry.ETHER_ADAPT_NODE.getKey().identifier());
+
         getOrCreateRawBuilder(Tags.STONE_ABSORBABLE)
                 .addElement(BuiltInRegistries.BLOCK.getKey(Blocks.STONE))
                 .addElement(BuiltInRegistries.BLOCK.getKey(Blocks.COBBLESTONE))
