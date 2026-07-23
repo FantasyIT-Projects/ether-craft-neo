@@ -278,6 +278,7 @@ public class VirtualEtherStreamHolder {
             for (int id : collectedToCreate) {
                 VirtualEtherStream ves = findStreamById(id);
                 if (ves != null) {
+                    ves.trackingPlayers.addAll(trackingPlayers);
                     if (ves.consumer.isDirty()) {
                         ves.consumer.recompute(ves, ves.capabilities);
                     }
