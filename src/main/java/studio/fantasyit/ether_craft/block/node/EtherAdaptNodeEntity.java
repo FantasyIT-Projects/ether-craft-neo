@@ -316,6 +316,64 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
         return normalHandler.extract(index - 1, resource, amount, transaction);
     }
 
+    public boolean canAcceptNormalItem(int slot, ItemStack stack) {
+        if (stack.is(ItemRegistry.ETHER))
+            return false;
+        if (slot >= nodeProperty.slotUnlock)
+            return false;
+        if (nodeProperty.enableFilter) {
+            ItemStack filterStack = normalStorageFilter.getItem(slot);
+            if (!filterStack.isEmpty() && !stack.is(filterStack.getItem()))
+                return false;
+        }
+        return true;
+    }
+
+    public boolean canAcceptAnySlot(ItemStack stack) {
+        for (int s = 0; s < nodeProperty.slotUnlock; s++) {
+            if (!canAcceptNormalItem(s, stack))
+                continue;
+            ItemStack exist = normalStorage.getItem(s);
+            if (exist.isEmpty())
+                return true;
+            if (ItemStack.isSameItemSameComponents(stack, exist)
+                    && exist.getCount() < stack.getMaxStackSize())
+                return true;
+        }
+        return false;
+    }
+
+    public ItemStack insertItemToNormal(ItemStack stack) {
+        int remain = stack.getCount();
+        int maxStack = stack.getMaxStackSize();
+        int unlock = nodeProperty.slotUnlock;
+        for (int s = 0; s < unlock && remain > 0; s++) {
+            ItemStack exist = normalStorage.getItem(s);
+            if (exist.isEmpty())
+                continue;
+            if (!ItemStack.isSameItemSameComponents(stack, exist))
+                continue;
+            int space = maxStack - exist.getCount();
+            if (space <= 0)
+                continue;
+            int add = Math.min(remain, space);
+            exist.grow(add);
+            remain -= add;
+        }
+        for (int s = 0; s < unlock && remain > 0; s++) {
+            if (!normalStorage.getItem(s).isEmpty())
+                continue;
+            if (!canAcceptNormalItem(s, stack))
+                continue;
+            int place = Math.min(remain, maxStack);
+            normalStorage.setItem(s, stack.copyWithCount(place));
+            remain -= place;
+        }
+        if (remain == 0)
+            return ItemStack.EMPTY;
+        return stack.copyWithCount(remain);
+    }
+
     public ItemStack extractWithPredicate(Predicate<ItemResource> predicate, TransactionContext transaction, int maxAmount) {
         ItemResource re = ItemResource.of(ItemRegistry.ETHER);
         if (nodeProperty.itemifyEther && predicate.test(re)) {

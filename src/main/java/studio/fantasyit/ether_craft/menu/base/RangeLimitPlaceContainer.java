@@ -76,6 +76,36 @@ public class RangeLimitPlaceContainer implements Container, ValueIOSerializable 
         return slot < accessibleCount && container.canPlaceItem(slot, itemStack);
     }
 
+    public ItemStack addItem(ItemStack stack) {
+        int remain = stack.getCount();
+        int maxStack = stack.getMaxStackSize();
+        for (int s = 0; s < getContainerSize() && remain > 0; s++) {
+            if (!canPlaceItem(s, stack))
+                continue;
+            ItemStack exist = getItem(s);
+            if (exist.isEmpty())
+                continue;
+            if (!ItemStack.isSameItemSameComponents(stack, exist))
+                continue;
+            int space = maxStack - exist.getCount();
+            if (space <= 0)
+                continue;
+            int add = Math.min(remain, space);
+            exist.grow(add);
+            remain -= add;
+        }
+        for (int s = 0; s < getContainerSize() && remain > 0; s++) {
+            if (!canPlaceItem(s, stack))
+                continue;
+            if (!getItem(s).isEmpty())
+                continue;
+            int place = Math.min(remain, maxStack);
+            setItem(s, stack.copyWithCount(place));
+            remain -= place;
+        }
+        return remain == 0 ? ItemStack.EMPTY : stack.copyWithCount(remain);
+    }
+
     @Override
     public void serialize(ValueOutput output) {
         output.store("accessibleCount", Codec.INT, accessibleCount);

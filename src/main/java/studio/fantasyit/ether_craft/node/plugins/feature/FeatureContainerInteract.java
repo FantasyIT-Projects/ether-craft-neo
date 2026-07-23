@@ -3,7 +3,9 @@ package studio.fantasyit.ether_craft.node.plugins.feature;
 import com.mojang.serialization.Codec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.capabilities.Capabilities;
@@ -59,6 +61,14 @@ public class FeatureContainerInteract extends AbstractDirectionalFilterFeature {
             return true;
         }
         BlockPos targetPos = nodeEntity.getBlockPos().relative(direction);
+        BlockEntity be = level.getBlockEntity(targetPos);
+        if (be instanceof EtherAdaptNodeEntity targetNode) {
+            if (extractMode)
+                fastTransfer(targetNode, nodeEntity);
+            else
+                fastTransfer(nodeEntity, targetNode);
+            return true;
+        }
         ResourceHandler<ItemResource> adjacentHandler = level.getCapability(
                 Capabilities.Item.BLOCK,
                 targetPos,
@@ -74,6 +84,52 @@ public class FeatureContainerInteract extends AbstractDirectionalFilterFeature {
             tryTransfer(nodeEntity, adjacentHandler, nodeEntity);
         }
         return true;
+    }
+
+    private void fastTransfer(EtherAdaptNodeEntity fromNode, EtherAdaptNodeEntity toNode) {
+        long costPerItem = Config.nodeContainerInteractEtherPerItem;
+        int maxTransfer = (int) (nodeEntity.getEther() / costPerItem);
+
+        if (fromNode.nodeProperty.itemifyEther) {
+            ItemStack etherStack = fromNode.etherStorage.removeItem(0, maxTransfer);
+            if (!etherStack.isEmpty()) {
+                ItemStack remaining = toNode.etherStorage.insertItemStack(etherStack);
+                int transferred = etherStack.getCount() - remaining.getCount();
+                if (!remaining.isEmpty())
+                    fromNode.etherStorage.setItem(0, remaining);
+                if (transferred > 0) {
+                    nodeEntity.extractEther((long) transferred * costPerItem);
+                    fromNode.setChanged();
+                    toNode.setChanged();
+                    return;
+                }
+            }
+        }
+
+        for (int slot = 0; slot < fromNode.normalStorage.getContainerSize(); slot++) {
+            ItemStack stack = fromNode.normalStorage.getItem(slot);
+            if (stack.isEmpty())
+                continue;
+            if (!filter.accepts(stack))
+                continue;
+            if (!fromNode.allowInteract(ItemResource.of(stack)))
+                continue;
+            if (!toNode.canAcceptAnySlot(stack))
+                continue;
+
+            int toExtract = Math.min(stack.getCount(), maxTransfer);
+            ItemStack extracted = fromNode.normalStorage.removeItem(slot, toExtract);
+            ItemStack remaining = toNode.insertItemToNormal(extracted);
+            int inserted = extracted.getCount() - remaining.getCount();
+            if (!remaining.isEmpty())
+                fromNode.normalStorage.addItem(remaining);
+            if (inserted > 0) {
+                nodeEntity.extractEther((long) inserted * costPerItem);
+                fromNode.setChanged();
+                toNode.setChanged();
+                return;
+            }
+        }
     }
 
     private void tryTransfer(ResourceHandler<ItemResource> fromHandler, ResourceHandler<ItemResource> targetHandler, EtherContainer etherSource) {

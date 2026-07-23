@@ -19,6 +19,7 @@ public class ItemFilter implements Container, ValueIOSerializable {
     protected int size;
     public boolean whitelist;
     ItemStack[] items;
+    private boolean allEmpty = true;
 
     public ItemFilter(int size, Runnable changed) {
         this.save = changed;
@@ -27,6 +28,15 @@ public class ItemFilter implements Container, ValueIOSerializable {
         for (int i = 0; i < size; i++) {
             items[i] = ItemStack.EMPTY;
         }
+    }
+
+    private void updateAllEmpty() {
+        for (ItemStack item : items)
+            if (!item.isEmpty()) {
+                allEmpty = false;
+                return;
+            }
+        allEmpty = true;
     }
 
     @Override
@@ -48,6 +58,7 @@ public class ItemFilter implements Container, ValueIOSerializable {
     public @NotNull ItemStack removeItem(int p_18942_, int p_18943_) {
         if (!items[p_18942_].isEmpty()) {
             ItemStack ret = items[p_18942_].split(p_18943_);
+            updateAllEmpty();
             this.setChanged();
             return ret;
         }
@@ -59,6 +70,7 @@ public class ItemFilter implements Container, ValueIOSerializable {
         if (!items[p_18951_].isEmpty()) {
             ItemStack itemStack = items[p_18951_];
             items[p_18951_] = ItemStack.EMPTY;
+            updateAllEmpty();
             return itemStack;
         }
         return ItemStack.EMPTY;
@@ -67,6 +79,7 @@ public class ItemFilter implements Container, ValueIOSerializable {
     @Override
     public void setItem(int p_18944_, ItemStack p_18945_) {
         setItemNoTrigger(p_18944_, p_18945_);
+        updateAllEmpty();
         this.setChanged();
     }
 
@@ -87,6 +100,7 @@ public class ItemFilter implements Container, ValueIOSerializable {
     @Override
     public void clearContent() {
         Arrays.fill(items, ItemStack.EMPTY);
+        allEmpty = true;
         this.setChanged();
     }
 
@@ -96,22 +110,30 @@ public class ItemFilter implements Container, ValueIOSerializable {
     }
 
 
-    public boolean accepts(ItemResource stack) {
+    public boolean accepts(ItemStack stack) {
+        if (!whitelist && allEmpty)
+            return true;
         for (int i = 0; i < size; i++)
             if (acceptsAt(stack, i))
                 return true;
-        if (!whitelist && Arrays.stream(items).allMatch(ItemStack::isEmpty))
-            return true;
         return false;
     }
 
-    public boolean acceptsAt(ItemResource stack, int index) {
+    public boolean accepts(ItemResource stack) {
+        return accepts(stack.toStack());
+    }
+
+    public boolean acceptsAt(ItemStack stack, int index) {
         if (items[index].isEmpty())
             return false;
         if (whitelist)
-            return ItemStack.isSameItemSameComponents(stack.toStack(), items[index]);
+            return ItemStack.isSameItemSameComponents(stack, items[index]);
         else
-            return !ItemStack.isSameItemSameComponents(stack.toStack(), items[index]);
+            return !ItemStack.isSameItemSameComponents(stack, items[index]);
+    }
+
+    public boolean acceptsAt(ItemResource stack, int index) {
+        return acceptsAt(stack.toStack(), index);
     }
 
     public boolean acceptsAtAllowEmpty(ItemResource stack, int index) {
@@ -133,6 +155,7 @@ public class ItemFilter implements Container, ValueIOSerializable {
     public void deserialize(ValueInput input) {
         whitelist = input.getBooleanOr("whitelist", false);
         input.read("filter", ItemStack.OPTIONAL_CODEC.listOf()).ifPresent(l -> ContainerOps.fillContainerByItemList(this, l));
+        updateAllEmpty();
     }
 
     public List<ItemStack> getItemList() {
