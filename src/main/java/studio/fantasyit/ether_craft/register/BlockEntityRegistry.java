@@ -13,7 +13,6 @@ import studio.fantasyit.ether_craft.block.node.EtherAdaptNodeEntity;
 public class BlockEntityRegistry {
     public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES_TYPE = DeferredRegister.create(BuiltInRegistries.BLOCK_ENTITY_TYPE, EtherCraft.MODID);
     public static final DeferredHolder<BlockEntityType<?>, @NotNull BlockEntityType<@NotNull EtherProcessFactoryEntity>> ETHER_PROCESS_FACTORY_ENTITY = BLOCK_ENTITIES_TYPE.register("ether_process_factory", () -> new BlockEntityType<>(EtherProcessFactoryEntity::new, BlockRegistry.ETHER_PROCESS_FACTORY.get()));
-    public static final DeferredHolder<BlockEntityType<?>, @NotNull BlockEntityType<@NotNull EtherAdaptNodeEntity>> ETHER_STREAM_EMITTER_ENTITY = BLOCK_ENTITIES_TYPE.register("ether_stream_emitter", () -> new BlockEntityType<>(EtherAdaptNodeEntity::new, BlockRegistry.ETHER_STREAM_EMITTER.get()));
     public static final DeferredHolder<BlockEntityType<?>, @NotNull BlockEntityType<@NotNull EtherAdaptNodeEntity>> ETHER_NODE_ENTITY = BLOCK_ENTITIES_TYPE.register("ether_node", () -> new BlockEntityType<>(EtherAdaptNodeEntity::new, BlockRegistry.ETHER_ADAPT_NODE.get()));
     public static void register(IEventBus eventBus) {
         BLOCK_ENTITIES_TYPE.register(eventBus);

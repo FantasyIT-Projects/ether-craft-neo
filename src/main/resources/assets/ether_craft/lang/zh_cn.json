@@ -1,7 +1,6 @@
 {
   "block.ether_craft.ether_adapt_node": "以太适应节点",
   "block.ether_craft.ether_process_factory": "以太加工中心",
-  "block.ether_craft.ether_stream_emitter": "以太流发射器",
   "block.ether_craft.ether_glass": "以太玻璃",
   "key.categories.ether_craft.category": "以太工艺",
   "key.ether_craft.see_through_glass": "穿透玻璃查看",
@@ -47,7 +46,6 @@
   "item.ether_craft.ether_process_factory_lv_2": "以太加工中心 (LV 2)",
   "item.ether_craft.ether_process_factory_lv_3": "以太加工中心 (LV 3)",
   "item.ether_craft.ether_process_factory_lv_4": "以太加工中心 (LV 4)",
-  "item.ether_craft.ether_stream_emitter": "以太流发射器",
   "item.ether_craft.ether_block": "以太块",
   "item.ether_craft.ether_ore": "以太矿石",
   "item.ether_craft.deepslate_ether_ore": "深层以太矿石",
@@ -162,7 +160,6 @@
   "jei.ether_craft.plugin.ether_craft.magnet": "将附近物品吸引到节点物品栏。",
   "jei.ether_craft.plugin.ether_craft.generator.equipment": "消耗装备物品产生以太能量。",
   "jei.ether_craft.plugin.ether_craft.generator.ether_converter": "将输入物品转换为以太能量。",
-  "jei.ether_craft.plugin.ether_craft.ether_stream_emitter": "从节点发射以太流。",
   "jei.ether_craft.plugin.ether_craft.dropper_thrower": "像投掷器一样从节点物品栏投掷物品。",
   "jei.ether_craft.plugin.ether_craft.container_interact": "允许节点与相邻容器交互。",
   "jei.ether_craft.plugin.ether_craft.storage_upgrade": "增加节点的内部存储容量。",

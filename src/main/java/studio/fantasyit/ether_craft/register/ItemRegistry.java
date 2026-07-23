@@ -53,7 +53,6 @@ public class ItemRegistry {
             .stacksTo(64)
             .food(new FoodProperties.Builder().nutrition(2).saturationModifier(1f).alwaysEdible().build(), CHEESE_CONSUMABLE)
             .setId(ResourceKey.create(Registries.ITEM, i))));
-    public static final DeferredHolder<Item, @NotNull Item> ETHER_STREAM_EMITTER_ITEM = block(BlockRegistry.ETHER_STREAM_EMITTER);
     public static final DeferredHolder<Item, @NotNull Item> ETHER_PROCESS_FACTORY_ITEM_LV_1 = ITEMS.register("ether_process_factory_lv_1", EtherProcessFactoryBlockItem.withLevel(1));
     public static final DeferredHolder<Item, @NotNull Item> ETHER_PROCESS_FACTORY_ITEM_LV_2 = ITEMS.register("ether_process_factory_lv_2", EtherProcessFactoryBlockItem.withLevel(2));
     public static final DeferredHolder<Item, @NotNull Item> ETHER_PROCESS_FACTORY_ITEM_LV_3 = ITEMS.register("ether_process_factory_lv_3", EtherProcessFactoryBlockItem.withLevel(3));

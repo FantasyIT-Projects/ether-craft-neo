@@ -65,6 +65,7 @@ import static studio.fantasyit.ether_craft.register.BlockEntityRegistry.ETHER_NO
 
 public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler<@NotNull ItemResource>, EtherContainer, ITickable, IWorldRenderBE {
     private final ResourceHandler<ItemResource> normalHandler;
+    private long ether;
     private boolean markUpdate = true;
     public final NodeProperty nodeProperty;
     public final EtherSlotSyncContainer etherStorage;
@@ -184,6 +185,16 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
     }
 
     @Override
+    public long getEther() {
+        return ether;
+    }
+
+    @Override
+    public void setEtherNoUpdate(long amount) {
+        this.ether = validateMax(amount);
+    }
+
+    @Override
     public long getMaxEther() {
         return nodeProperty.maxEther;
     }
@@ -191,6 +202,7 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
     @Override
     protected void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
+        input.read("ether", Codec.LONG).ifPresent(v -> ether = v);
         input.read("name", Codec.STRING).ifPresent(n -> {
             name = n;
             toRenderName = name.isEmpty() ? null : Component.literal(name);
@@ -212,6 +224,7 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
     @Override
     protected void saveAdditional(ValueOutput output) {
         super.saveAdditional(output);
+        output.store("ether", Codec.LONG, ether);
         output.store("name", Codec.STRING, name);
         functionStorage.saveAddition(output.child("functionStorage"));
         featureUpgradeStorage.saveAddition(output.child("featureUpgradeStorage"));

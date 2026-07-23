@@ -317,6 +317,8 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
             for (int i = 0; i < l.size(); i++)
                 processingProgress[i] = l.get(i);
         });
+        for (int i = 0; i < ROWS; i++)
+            filters[i].deserialize(input.childOrEmpty("filter_" + i));
         super.loadAdditional(input);
     }
 
@@ -324,6 +326,8 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
     protected void saveAdditional(ValueOutput output) {
         output.store("name", Codec.STRING, name);
         output.store("progress", Codec.INT.listOf(), Arrays.stream(processingProgress).boxed().toList());
+        for (int i = 0; i < ROWS; i++)
+            filters[i].serialize(output.child("filter_" + i));
         super.saveAdditional(output);
     }
 

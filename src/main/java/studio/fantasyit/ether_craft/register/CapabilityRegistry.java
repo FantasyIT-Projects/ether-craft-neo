@@ -17,14 +17,12 @@ public class CapabilityRegistry {
                 EtherContainer.ETHER_CONTAINER,
                 (level, pos, state, be, side) -> (EtherContainer) be,
                 BlockRegistry.ETHER_PROCESS_FACTORY.get(),
-                BlockRegistry.ETHER_STREAM_EMITTER.get(),
                 BlockRegistry.ETHER_ADAPT_NODE.get()
         );
         event.registerBlock(
                 Capabilities.Item.BLOCK,
                 (level, pos, state, be, side) -> (ResourceHandler<ItemResource>) be,
                 BlockRegistry.ETHER_PROCESS_FACTORY.get(),
-                BlockRegistry.ETHER_STREAM_EMITTER.get(),
                 BlockRegistry.ETHER_ADAPT_NODE.get()
         );
     }

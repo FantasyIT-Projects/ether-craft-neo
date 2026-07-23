@@ -107,25 +107,6 @@ public class ModelDataGen extends ModelProvider {
 
         generateProcessFactoryModels(blockModels, itemModels);
 
-
-        //发射器
-        Identifier modelLoc = BLOCK_FACES_PROVIDER.create(BlockRegistry.ETHER_STREAM_EMITTER.get(), blockModels.modelOutput);
-        Variant variant = new Variant(modelLoc);
-        blockModels.blockStateOutput.accept(
-                MultiVariantGenerator.dispatch(
-                        BlockRegistry.ETHER_STREAM_EMITTER.get(),
-                        BlockModelGenerators.variant(variant)
-                ).with(
-                        PropertyDispatch.modify(BlockStateProperties.FACING)
-                                .select(Direction.NORTH, BlockModelGenerators.NOP)
-                                .select(Direction.SOUTH, BlockModelGenerators.Y_ROT_180)
-                                .select(Direction.WEST, BlockModelGenerators.Y_ROT_270)
-                                .select(Direction.EAST, BlockModelGenerators.Y_ROT_90)
-                                .select(Direction.UP, BlockModelGenerators.X_ROT_270)
-                                .select(Direction.DOWN, BlockModelGenerators.X_ROT_90)
-                )
-        );
-
         generateAdaptNodeModels(blockModels, itemModels);
 
         blockModels.createTrivialCube(BlockRegistry.ETHER_BLOCK.get());

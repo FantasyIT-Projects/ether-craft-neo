@@ -1,5 +1,6 @@
 package studio.fantasyit.ether_craft.block.base;
 
+import com.mojang.serialization.Codec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.CompoundContainer;
 import net.minecraft.world.SimpleContainer;
@@ -30,6 +31,7 @@ public class BaseEtherContainerBlockEntity extends BlockEntity implements Resour
     public final int input;
     public final int internal;
     public final int output;
+    private long ether;
     private final SnapshotJournal<@NotNull Long> etherJournal;
     private final boolean extractableInput;
 
@@ -59,7 +61,18 @@ public class BaseEtherContainerBlockEntity extends BlockEntity implements Resour
     }
 
     @Override
+    public long getEther() {
+        return ether;
+    }
+
+    @Override
+    public void setEtherNoUpdate(long amount) {
+        this.ether = validateMax(amount);
+    }
+
+    @Override
     protected void loadAdditional(ValueInput input) {
+        input.read("ether", Codec.LONG).ifPresent(v -> ether = v);
         input.read("content", ItemStack.OPTIONAL_CODEC.listOf()).ifPresent(l ->
                 ContainerOps.fillContainerByItemList(container, l));
         super.loadAdditional(input);
@@ -67,6 +80,7 @@ public class BaseEtherContainerBlockEntity extends BlockEntity implements Resour
 
     @Override
     protected void saveAdditional(ValueOutput output) {
+        output.store("ether", Codec.LONG, ether);
         output.store("content", ItemStack.OPTIONAL_CODEC.listOf(), ContainerOps.containerToItemList(container));
         super.saveAdditional(output);
     }

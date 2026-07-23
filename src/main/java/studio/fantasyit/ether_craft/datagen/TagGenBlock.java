@@ -30,12 +30,10 @@ public class TagGenBlock extends TagsProvider<Block> {
                 .addElement(BlockRegistry.ETHER_GLASS.getId());
         getOrCreateRawBuilder(Tags.ETHER_MACHINE)
                 .addElement(BlockRegistry.ETHER_PROCESS_FACTORY.getKey().identifier())
-                .addElement(BlockRegistry.ETHER_STREAM_EMITTER.getKey().identifier())
                 .addElement(BlockRegistry.ETHER_ADAPT_NODE.getKey().identifier());
 
         getOrCreateRawBuilder(Tags.ETHER_WRENCHABLE)
                 .addElement(BlockRegistry.ETHER_PROCESS_FACTORY.getKey().identifier())
-                .addElement(BlockRegistry.ETHER_STREAM_EMITTER.getKey().identifier())
                 .addElement(BlockRegistry.ETHER_ADAPT_NODE.getKey().identifier())
                 .addElement(BlockRegistry.ETHER_GLASS.getKey().identifier())
                 .addElement(BlockRegistry.ETHER_BLOCK.getKey().identifier())
@@ -44,7 +42,6 @@ public class TagGenBlock extends TagsProvider<Block> {
 
         getOrCreateRawBuilder(BlockTags.MINEABLE_WITH_PICKAXE)
                 .addElement(BlockRegistry.ETHER_PROCESS_FACTORY.getKey().identifier())
-                .addElement(BlockRegistry.ETHER_STREAM_EMITTER.getKey().identifier())
                 .addElement(BlockRegistry.ETHER_ADAPT_NODE.getKey().identifier())
                 .addElement(BlockRegistry.ETHER_GLASS.getKey().identifier())
                 .addElement(BlockRegistry.ETHER_BLOCK.getKey().identifier())
@@ -78,7 +75,6 @@ public class TagGenBlock extends TagsProvider<Block> {
                 .addElement(BuiltInRegistries.BLOCK.getKey(Blocks.GLASS))
                 .addElement(BlockRegistry.ETHER_GLASS.getId())
                 .addElement(BlockRegistry.ETHER_PROCESS_FACTORY.getKey().identifier())
-                .addElement(BlockRegistry.ETHER_STREAM_EMITTER.getKey().identifier())
                 .addElement(BlockRegistry.ETHER_ADAPT_NODE.getKey().identifier());
 
         getOrCreateRawBuilder(Tags.STONE_ABSORBABLE)

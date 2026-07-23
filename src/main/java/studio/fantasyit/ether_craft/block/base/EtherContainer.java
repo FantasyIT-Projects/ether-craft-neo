@@ -7,9 +7,6 @@ import net.neoforged.neoforge.capabilities.BlockCapability;
 import net.neoforged.neoforge.network.PacketDistributor;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.network.s2c.SyncBlockEtherValueS2C;
-import studio.fantasyit.ether_craft.register.AttachmentDataRegistry;
-
-import java.util.Optional;
 
 public interface EtherContainer {
     BlockCapability<EtherContainer, Void> ETHER_CONTAINER =
@@ -22,9 +19,7 @@ public interface EtherContainer {
         return (BlockEntity) this;
     }
 
-    default long getEther() {
-        return Optional.ofNullable(be().getExistingDataOrNull(AttachmentDataRegistry.ETHER_CONTAINER)).orElse(0L);
-    }
+    long getEther();
 
     default long getMaxEther() {
         return 0;
@@ -45,10 +40,7 @@ public interface EtherContainer {
             syncClient();
     }
 
-    default void setEtherNoUpdate(long amount) {
-        amount = validateMax(amount);
-        be().setData(AttachmentDataRegistry.ETHER_CONTAINER, amount);
-    }
+    void setEtherNoUpdate(long amount);
 
     default void receiveEther(long amount) {
         setEther(getEther() + amount);
