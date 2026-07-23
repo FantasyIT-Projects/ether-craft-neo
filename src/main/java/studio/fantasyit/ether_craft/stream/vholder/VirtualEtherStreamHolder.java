@@ -79,7 +79,13 @@ public class VirtualEtherStreamHolder {
     }
 
     public void tick() {
-        for (int i = 0, size = streams.size(); i < size; i++) streams.get(i).tick();
+        for (VirtualEtherStream stream : streams)
+            if (!LevelUtil.isLoadedIgnoreHeight(level, stream.blockPosition()))
+                return;
+
+        for (int i = 0, size = streams.size(); i < size; i++) {
+            streams.get(i).tick();
+        }
         tickCollideAll();
         for (VirtualEtherStream ves : streams) {
             if (!ves.markToRemove)

@@ -24,7 +24,7 @@ public class FunctionMagnet extends AbstractNodePlugin {
     public static final Identifier ID = EtherCraft.id("magnet");
     public static final Identifier SYNC_VALUE = EtherCraft.id("magnet_function_feature/sync");
     public int centerX = 0, centerY = 0, centerZ = 0;
-    public int shapeX = 0, shapeY = 0, shapeZ = 0;
+    public int shapeX = 1, shapeY = 1, shapeZ = 1;
     public ItemFilter filter;
 
     public FunctionMagnet(EtherAdaptNodeEntity nodeEntity, InstalledPlugin installedId) {
@@ -37,7 +37,7 @@ public class FunctionMagnet extends AbstractNodePlugin {
         super.loadAdditional(input);
         filter.deserialize(input);
         centerX = input.getIntOr("centerX", 0);
-        centerY = input.getIntOr("centerY", 1);
+        centerY = input.getIntOr("centerY", 0);
         centerZ = input.getIntOr("centerZ", 0);
         shapeX = input.getIntOr("shapeX", 1);
         shapeY = input.getIntOr("shapeY", 1);

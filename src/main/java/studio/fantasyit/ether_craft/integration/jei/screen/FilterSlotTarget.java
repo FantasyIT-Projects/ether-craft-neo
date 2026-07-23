@@ -16,7 +16,7 @@ public record FilterSlotTarget<I>(int menu, int i, int x, int y) implements IGho
     @Override
     public void accept(@NonNull I ingredient) {
         if (ingredient instanceof ItemStack it) {
-            ClientPacketDistributor.sendToServer(new SetFilterSlotC2S(menu, i, it));
+            ClientPacketDistributor.sendToServer(new SetFilterSlotC2S(i, 0, it));
         }
     }
 

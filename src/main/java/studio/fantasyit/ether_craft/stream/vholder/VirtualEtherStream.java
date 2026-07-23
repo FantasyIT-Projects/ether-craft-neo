@@ -186,10 +186,6 @@ public class VirtualEtherStream implements IEtherStreamLike {
     }
 
     public void tick() {
-        if (!LevelUtil.isLoadedIgnoreHeight(level, this.blockPosition())) {
-            return;
-        }
-
         if (this.consumer.isDirty()) {
             this.consumer.recompute(this, this.capabilities);
             this.needsEtherSync = true;

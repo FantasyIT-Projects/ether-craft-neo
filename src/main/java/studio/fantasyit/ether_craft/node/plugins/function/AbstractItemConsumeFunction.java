@@ -66,7 +66,7 @@ public abstract class AbstractItemConsumeFunction extends AbstractNodePlugin {
                             accepts(stack) && container.canPlaceItem(0, stack.toStack()) && filter.accepts(stack),
                     transaction, remain
             );
-            if (!toPlace.isEmpty() && oItemStack.getCount() + toPlace.getCount() <= toPlace.getMaxStackSize()) {
+            if (!toPlace.isEmpty() && (oItemStack.isEmpty() || ItemStack.isSameItemSameComponents(oItemStack, toPlace)) && oItemStack.getCount() + toPlace.getCount() <= toPlace.getMaxStackSize()) {
                 ItemStack newStack = oItemStack.isEmpty() ? toPlace.copy() : oItemStack.copyWithCount(oItemStack.getCount() + toPlace.getCount());
                 container.setItem(0, newStack);
                 transaction.commit();

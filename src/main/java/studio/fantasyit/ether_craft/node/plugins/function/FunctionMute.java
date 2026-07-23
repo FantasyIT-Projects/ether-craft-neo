@@ -19,9 +19,9 @@ public class FunctionMute extends AbstractNodePlugin {
     public static final Identifier SYNC_RY = EtherCraft.id("mute/ry");
     public static final Identifier SYNC_RZ = EtherCraft.id("mute/rz");
 
-    public int rx = Config.nodeMuteMaxRange;
-    public int ry = Config.nodeMuteMaxRange;
-    public int rz = Config.nodeMuteMaxRange;
+    public int rx = 1;
+    public int ry = 1;
+    public int rz = 1;
 
     public FunctionMute(EtherAdaptNodeEntity nodeEntity, InstalledPlugin installedId) {
         super(nodeEntity, installedId);
@@ -30,9 +30,9 @@ public class FunctionMute extends AbstractNodePlugin {
     @Override
     public void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
-        rx = input.getIntOr("rx", Config.nodeMuteMaxRange);
-        ry = input.getIntOr("ry", Config.nodeMuteMaxRange);
-        rz = input.getIntOr("rz", Config.nodeMuteMaxRange);
+        rx = input.getIntOr("rx", 1);
+        ry = input.getIntOr("ry", 1);
+        rz = input.getIntOr("rz", 1);
     }
 
     @Override
