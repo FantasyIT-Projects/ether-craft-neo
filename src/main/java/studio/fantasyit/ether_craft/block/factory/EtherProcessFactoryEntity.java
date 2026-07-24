@@ -78,6 +78,9 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
     public int pressureBonus = 1;
     public int leak = 0;
     boolean markUpdate = false;
+    boolean chipLayoutDirty = false;
+    final boolean[] inputDirty;
+    final ItemStack[] lastInputStacks;
     public String name = "";
     public Component toRenderName = null;
 
@@ -108,6 +111,9 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
         pathMaxDepth = new int[ROWS];
         currentEther = new int[ROWS][COLS];
         maxMultiplier = new int[ROWS];
+        inputDirty = new boolean[ROWS];
+        lastInputStacks = new ItemStack[ROWS];
+        Arrays.fill(lastInputStacks, ItemStack.EMPTY);
     }
 
     public FactoryLevelDef getLevelDef() {
@@ -136,6 +142,8 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
                     continue;
                 if (itemStack.isEmpty() && originalChip == null)
                     continue;
+                //芯片布局变化时，完整重新计算所有配方
+                chipLayoutDirty = true;
                 long o = 0;
                 if (originalChip != null)
                     o = originalChip.ether;
@@ -190,16 +198,51 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
         } else {
             pressureBonus = 1;
         }
+        //物品变化检测
+        for (int i = 0; i < ROWS; i++) {
+            ItemStack current = inputContainer.getItem(i);
+            if (!ItemStack.matches(lastInputStacks[i], current)) {
+                inputDirty[i] = true;
+                lastInputStacks[i] = current.copy();
+            }
+        }
     }
 
-    public void updateRecipe(ServerLevel level) {
+    public void updateRecipe(ServerLevel level, boolean inputChangeOnly) {
         EtherProcessorRecipeUtil.FactoryStructure factoryStructure = EtherProcessorRecipeUtil.processFactoryInput(ROWS, COLS, inputContainer, slotChips);
         leak = factoryStructure.leakingSpeed;
         boolean[] hasRecipe = new boolean[ROWS];
         boolean[][] affected = new boolean[ROWS][COLS];
         for (int i = 0; i < factoryStructure.recipes.size(); i++) {
-            Optional<MultiStepMatchIO> recipeFor = EtherProcessRecipeManager.getRecipe(level, level.recipeAccess(), factoryStructure.recipes.get(i));
-            Integer outputId = factoryStructure.recipes.get(i).outputI();
+            EtherFactoryMultiStepInput candidate = factoryStructure.recipes.get(i);
+            Integer outputId = candidate.outputI();
+
+            if (inputChangeOnly && processingRecipes[outputId] != null) {
+                MultiStepMatchIO existingRecipe = processingRecipes[outputId];
+                int[] matching = EtherProcessorRecipeUtil.getToCostCountByInputAndIngredient(
+                        candidate.inputs(), existingRecipe.inputs());
+                if (Arrays.stream(matching).noneMatch(t -> t == -1)) {
+                    existingRecipe.nonOutputProducer().forEach((key, value) -> {
+                        possibleIntermediateResults.setItem(key.y * COLS + key.x, value);
+                        affected[key.x][key.y] = true;
+                    });
+                    hasRecipe[outputId] = true;
+                    processingInputs[outputId] = candidate;
+                    continue;
+                }
+            }
+            if (inputChangeOnly) {
+                boolean hasChanged = false;
+                for (int iid : candidate.inputIds()) {
+                    if (inputDirty[iid]) {
+                        hasChanged = true;
+                        break;
+                    }
+                }
+                if (!hasChanged) continue;
+            }
+
+            Optional<MultiStepMatchIO> recipeFor = EtherProcessRecipeManager.getRecipe(level, level.recipeAccess(), candidate);
             recipeFor.ifPresent(multiStepMatchIO -> multiStepMatchIO.nonOutputProducer().forEach((key, value) -> {
                 possibleIntermediateResults.setItem(key.y * COLS + key.x, value);
                 affected[key.x][key.y] = true;
@@ -213,7 +256,7 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
                 processingRecipes[outputId] = currentRecipe;
                 processingProgress[outputId] = 0;
                 maxMultiplier[outputId] = currentRecipe.maxStepMultiplier();
-                processingInputs[outputId] = factoryStructure.recipes.get(i);
+                processingInputs[outputId] = candidate;
                 possibleResults.setItem(outputId, currentRecipe.outputs().stream().findFirst().orElse(ItemStack.EMPTY));
             } else {
                 hasRecipe[outputId] = false;
@@ -264,6 +307,7 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
                     internalContainer.setChanged();
                     slotChips[i][j] = null;
                     setChanged();
+                    chipLayoutDirty = true;
                 }
             }
         }
@@ -296,15 +340,29 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
         if (changed) {
             setChanged();
         }
+        if (chipLayoutDirty) {
+            updateRecipe((ServerLevel) level, false);
+            chipLayoutDirty = false;
+            Arrays.fill(inputDirty, false);
+        } else if (hasInputDirty()) {
+            updateRecipe((ServerLevel) level, true);
+            Arrays.fill(inputDirty, false);
+        }
         if (markUpdate) {
             markUpdate = false;
-            updateRecipe((ServerLevel) level);
             if (!name.isEmpty() && level instanceof ServerLevel sl)
                 PacketDistributor.sendToPlayersInDimension(sl, new SyncBlockNameS2C(getBlockPos(), name));
         }
         if (leak > 0) {
             extractEther(leak * 20L * pressureBonus);
         }
+    }
+
+    private boolean hasInputDirty() {
+        for (int i = 0; i < ROWS; i++)
+            if (inputDirty[i])
+                return true;
+        return false;
     }
 
     @Override
