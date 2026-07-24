@@ -323,7 +323,9 @@ public class VirtualEtherStream implements IEtherStreamLike {
                 setRunIntoEtherGlass(isEtherGlass2);
             }
         }
-        capabilities.forEach(t -> t.runIntoNewBlock(this, oldPos, oldState, newPos, newState));
+        for (IStreamCapability cap : capabilities) {
+            cap.runIntoNewBlock(this, oldPos, oldState, newPos, newState);
+        }
     }
 
     public void addTrackingPlayer(Integer id) {

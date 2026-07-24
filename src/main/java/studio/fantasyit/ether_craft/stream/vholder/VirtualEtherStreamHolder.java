@@ -8,6 +8,7 @@ import net.minecraft.core.Vec3i;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -48,6 +49,7 @@ public class VirtualEtherStreamHolder {
     Int2IntOpenHashMap trackingPlayers = new Int2IntOpenHashMap();
     int nextId = 0;
     private boolean lastHadStreamInUnloadedChunk = false;
+    private int holderMaxDistance;
 
     public VirtualEtherStreamHolder(PosDir posDir, @NotNull ServerLevel level) {
         this.level = level;
@@ -85,55 +87,30 @@ public class VirtualEtherStreamHolder {
         return lastHadStreamInUnloadedChunk;
     }
 
-    private int computeMaxBlockDist() {
-        if (streams.isEmpty()) return 0;
-        double maxDist = 0;
-        switch (direction) {
-            case UP, DOWN -> {
-                double base = pos.getY() + 0.5;
-                for (var ves : streams) {
-                    if (ves.markToRemove) continue;
-                    double d = Math.abs(ves.pos.y - base) + Math.abs(ves.motion.y);
-                    if (d > maxDist) maxDist = d;
-                }
-            }
-            case WEST, EAST -> {
-                double base = pos.getX() + 0.5;
-                for (var ves : streams) {
-                    if (ves.markToRemove) continue;
-                    double d = Math.abs(ves.pos.x - base) + Math.abs(ves.motion.x);
-                    if (d > maxDist) maxDist = d;
-                }
-            }
-            case NORTH, SOUTH -> {
-                double base = pos.getZ() + 0.5;
-                for (var ves : streams) {
-                    if (ves.markToRemove) continue;
-                    double d = Math.abs(ves.pos.z - base) + Math.abs(ves.motion.z);
-                    if (d > maxDist) maxDist = d;
-                }
-            }
-        }
-        return (int) Math.ceil(maxDist);
-    }
-
     public void tick() {
         if (streams.isEmpty()) return;
-        int maxBlockDist = computeMaxBlockDist();
-        lastHadStreamInUnloadedChunk = hasStreamInUnloadedChunk(maxBlockDist);
+        lastHadStreamInUnloadedChunk = hasStreamInUnloadedChunk(holderMaxDistance);
         if (lastHadStreamInUnloadedChunk) return;
 
+        updateTracking();
         for (int i = 0, size = streams.size(); i < size; i++) {
             streams.get(i).tick();
         }
-        tickCollideAll(maxBlockDist);
+        tickCollideAll(holderMaxDistance);
+        int nxtMaxDist = 0;
         for (VirtualEtherStream ves : streams) {
-            if (!ves.markToRemove)
+            if (!ves.markToRemove) {
                 ves.pos = ves.pos.add(ves.motion);
+                int distance = ves.blockPosition().distManhattan(posDir.pos()) + Mth.ceil(ves.startSpeed);
+                if (distance > nxtMaxDist) {
+                    nxtMaxDist = distance;
+                }
+            }
         }
+        holderMaxDistance = nxtMaxDist + 1;
         mergeAll();
         syncAll();
-        updateTracking();
+        updateNoLongerTracking();
         streams.removeIf(ves -> ves.markToRemove);
     }
 
@@ -289,7 +266,7 @@ public class VirtualEtherStreamHolder {
 
     private void updateTracking() {
         for (VirtualEtherStream ves : streams) {
-            if (ves.markToRemove || ves.trackingDirty) {
+            if (ves.trackingDirty) {
                 for (int i : ves.trackingPlayers)
                     trackingPlayers.put(i, trackingPlayers.get(i) - 1);
             }
@@ -297,6 +274,16 @@ public class VirtualEtherStreamHolder {
                 for (int i : ves.trackingPlayers)
                     trackingPlayers.put(i, trackingPlayers.get(i) + 1);
                 ves.trackingInitial = false;
+            }
+            ves.trackingDirty = false;
+        }
+    }
+
+    private void updateNoLongerTracking() {
+        for (VirtualEtherStream ves : streams) {
+            if (ves.markToRemove) {
+                for (int i : ves.trackingPlayers)
+                    trackingPlayers.put(i, trackingPlayers.get(i) - 1);
             }
             ves.trackingDirty = false;
         }
@@ -470,5 +457,15 @@ public class VirtualEtherStreamHolder {
             VirtualEtherStream ves = VirtualEtherStream.fromData(level, data, this);
             streams.add(ves);
         }
+        int nxtMaxDist = 0;
+        for (VirtualEtherStream ves : streams) {
+            if (!ves.markToRemove) {
+                int distance = ves.blockPosition().distManhattan(posDir.pos()) + Mth.ceil(ves.startSpeed);
+                if (distance > nxtMaxDist) {
+                    nxtMaxDist = distance;
+                }
+            }
+        }
+        this.holderMaxDistance = nxtMaxDist + 1;
     }
 }

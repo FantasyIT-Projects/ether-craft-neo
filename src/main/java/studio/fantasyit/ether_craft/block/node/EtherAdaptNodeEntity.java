@@ -25,6 +25,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.TypedEntityData;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.TagValueOutput;
@@ -47,6 +48,7 @@ import studio.fantasyit.ether_craft.menu.base.RangeLimitPlaceContainer;
 import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeContainerMenu;
 import studio.fantasyit.ether_craft.network.s2c.SyncBlockNameS2C;
 import studio.fantasyit.ether_craft.network.s2c.SyncEtherAdaptNodeExtraS2C;
+import studio.fantasyit.ether_craft.network.s2c.SyncEtherAdaptNodePluginDataS2C;
 import studio.fantasyit.ether_craft.node.NodePluginManager;
 import studio.fantasyit.ether_craft.node.NodeProperty;
 import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
@@ -145,15 +147,17 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
             }
         }
         if (level instanceof ServerLevel sl)
-            PacketDistributor.sendToPlayersInDimension(sl, new SyncEtherAdaptNodeExtraS2C(
-                    Optional.ofNullable(functionPlugin),
-                    featureAttachedDirection,
-                    syncedPluginData,
-                    this.getBlockPos(),
-                    this.level.dimension().identifier(),
-                    nodeProperty.maxEther,
-                    nodeProperty.slotUnlock
-            ));
+            PacketDistributor.sendToPlayersTrackingChunk(sl,
+                    ChunkPos.containing(getBlockPos()),
+                    new SyncEtherAdaptNodeExtraS2C(
+                            Optional.ofNullable(functionPlugin),
+                            featureAttachedDirection,
+                            syncedPluginData,
+                            this.getBlockPos(),
+                            this.level.dimension().identifier(),
+                            nodeProperty.maxEther,
+                            nodeProperty.slotUnlock
+                    ));
     }
 
     @Override
@@ -662,8 +666,25 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
     }
 
     public void setSyncedPluginData(InstalledPlugin plugin, Identifier actionId, int value) {
+        Map<Identifier, Integer> m = syncedPluginData.computeIfAbsent(plugin, _ -> new HashMap<>());
+        if (m.containsKey(actionId) && m.get(actionId) == value) {
+            m.put(actionId, value);
+            if (level instanceof ServerLevel sl) {
+                PacketDistributor.sendToPlayersTrackingChunk(sl,
+                        ChunkPos.containing(getBlockPos()),
+                        new SyncEtherAdaptNodePluginDataS2C(
+                                plugin,
+                                actionId,
+                                value,
+                                getBlockPos()
+                        )
+                );
+            }
+        }
+    }
+
+    public void setSyncedPluginDataNoSync(InstalledPlugin plugin, Identifier actionId, int value) {
         syncedPluginData.computeIfAbsent(plugin, _ -> new HashMap<>()).put(actionId, value);
-        pluginUpdate();
     }
 
     public int getSyncedPluginData(InstalledPlugin plugin, Identifier actionId) {

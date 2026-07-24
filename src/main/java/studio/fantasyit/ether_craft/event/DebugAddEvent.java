@@ -31,10 +31,12 @@ public class DebugAddEvent {
                 totalSize += entry.streams.size();
             }
             StringBuilder sb = new StringBuilder();
-            sb.append("EtherStream: ");
+            sb.append("EtherStream ticking: ");
             sb.append(totalSize);
-            sb.append(" ticking;");
-            sb.append("R:");
+            sb.append(" in ");
+            sb.append(clientVESHData.getEntries().size());
+            sb.append(" | ");
+            sb.append("Render:");
             sb.append(clientVESHData.lastTickRenderCount).append("|").append(clientVESHData.lastTickParticleCount);
             debugScreenDisplayer.addLine(sb.toString());
         }

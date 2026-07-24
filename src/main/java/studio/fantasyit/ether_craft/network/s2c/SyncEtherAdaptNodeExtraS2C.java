@@ -30,7 +30,7 @@ public record SyncEtherAdaptNodeExtraS2C(
 ) implements CustomPacketPayload {
     public static final Type<@NotNull SyncEtherAdaptNodeExtraS2C> TYPE = new Type<>(
             Identifier.fromNamespaceAndPath(
-                    EtherCraft.MODID, "sync_ether_adapt_node_extra_value"
+                    EtherCraft.MODID, "ean_extra"
             )
     );
 
