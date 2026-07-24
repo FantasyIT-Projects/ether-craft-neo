@@ -4,34 +4,10 @@
     {
       "id": "I0",
       "item": "#c:storage_blocks/coal",
-      "next": "P18"
+      "next": "P16"
     }
   ],
   "process": [
-    {
-      "id": "P18",
-      "item": [
-        {
-          "chip": "ether_craft:high_heating_chip"
-        },
-        {
-          "chip": "ether_craft:high_heating_chip"
-        }
-      ],
-      "next": "P17"
-    },
-    {
-      "id": "P17",
-      "item": [
-        {
-          "chip": "ether_craft:stamping_chip"
-        },
-        {
-          "chip": "ether_craft:stamping_chip"
-        }
-      ],
-      "next": "P16"
-    },
     {
       "id": "P16",
       "item": [

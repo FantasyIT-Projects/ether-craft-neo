@@ -1,0 +1,32 @@
+{
+  "type": "ether_craft:ether_process",
+  "input": [
+    {
+      "id": "I0",
+      "item": "minecraft:gravel",
+      "next": "P0"
+    }
+  ],
+  "process": [
+    {
+      "id": "P0",
+      "item": [
+        {
+          "chip": "ether_craft:stamping_chip"
+        },
+        {
+          "chip": "ether_craft:cutting_chip"
+        }
+      ],
+      "next": "O"
+    }
+  ],
+  "output": {
+    "id": "O",
+    "item": [
+      {
+        "id": "minecraft:flint"
+      }
+    ]
+  }
+}
