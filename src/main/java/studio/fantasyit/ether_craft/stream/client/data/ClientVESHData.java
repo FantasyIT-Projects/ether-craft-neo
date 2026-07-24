@@ -3,10 +3,7 @@ package studio.fantasyit.ether_craft.stream.client.data;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.level.Level;
-import studio.fantasyit.ether_craft.network.s2c.EtherStreamCreateS2C;
-import studio.fantasyit.ether_craft.network.s2c.EtherStreamSetDyingS2C;
-import studio.fantasyit.ether_craft.network.s2c.EtherStreamSyncDataS2C;
-import studio.fantasyit.ether_craft.network.s2c.EtherStreamUpdateS2C;
+import studio.fantasyit.ether_craft.network.s2c.*;
 import studio.fantasyit.ether_craft.stream.PosDir;
 import studio.fantasyit.ether_craft.stream.client.render.ClientVirtualEtherStreamRenderer;
 import studio.fantasyit.ether_craft.stream.client.render.RenderDataUtil;
@@ -43,10 +40,18 @@ public class ClientVESHData {
         return entry;
     }
 
-    public void handleCreate(EtherStreamCreateS2C msg) {
+    public void handleCreate(EtherStreamInitialCreateS2C msg) {
         if (level.get() == null) return;
         ClientVESHEntry entry = createOrGet(msg.posDir());
-        for (EtherStreamCreateS2C.StreamEntry se : msg.entries()) {
+        if (!entry.streams.containsKey(msg.streamId())) {
+            entry.addStream(msg.streamId(), new ClientStreamEntry(msg.posDir(), msg));
+        }
+    }
+
+    public void handleCreate(EtherStreamBatchCreateS2C msg) {
+        if (level.get() == null) return;
+        ClientVESHEntry entry = createOrGet(msg.posDir());
+        for (EtherStreamBatchCreateS2C.StreamEntry se : msg.entries()) {
             if (!entry.streams.containsKey(se.streamId())) {
                 entry.addStream(se.streamId(), new ClientStreamEntry(msg.posDir(), se));
             }

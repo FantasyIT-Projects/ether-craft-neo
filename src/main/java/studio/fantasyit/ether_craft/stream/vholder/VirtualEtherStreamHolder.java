@@ -1,7 +1,10 @@
 package studio.fantasyit.ether_craft.stream.vholder;
 
+import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
+import it.unimi.dsi.fastutil.ints.IntSet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Vec3i;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -21,10 +24,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 import studio.fantasyit.ether_craft.Config;
-import studio.fantasyit.ether_craft.network.s2c.EtherStreamCreateS2C;
-import studio.fantasyit.ether_craft.network.s2c.EtherStreamSetDyingS2C;
-import studio.fantasyit.ether_craft.network.s2c.EtherStreamSyncDataS2C;
-import studio.fantasyit.ether_craft.network.s2c.EtherStreamUpdateS2C;
+import studio.fantasyit.ether_craft.network.s2c.*;
 import studio.fantasyit.ether_craft.plating.helper.PlatingChargingUtil;
 import studio.fantasyit.ether_craft.plating.helper.PlatingUtil;
 import studio.fantasyit.ether_craft.register.ItemRegistry;
@@ -34,9 +34,9 @@ import studio.fantasyit.ether_craft.stream.cap.IStreamCapability;
 import studio.fantasyit.ether_craft.util.LevelUtil;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public class VirtualEtherStreamHolder {
     private final Direction direction;
@@ -44,6 +44,8 @@ public class VirtualEtherStreamHolder {
     private final PosDir posDir;
     private final ServerLevel level;
     final List<VirtualEtherStream> streams = new ArrayList<>();
+    private final Vec3i axisVec;
+    Int2IntOpenHashMap trackingPlayers = new Int2IntOpenHashMap();
     int nextId = 0;
 
     public VirtualEtherStreamHolder(PosDir posDir, @NotNull ServerLevel level) {
@@ -51,6 +53,11 @@ public class VirtualEtherStreamHolder {
         this.pos = posDir.pos();
         this.direction = posDir.dir();
         this.posDir = posDir;
+        axisVec = switch (posDir.dir()) {
+            case UP, DOWN -> new Vec3i(0, 16, 0);
+            case WEST, EAST -> new Vec3i(16, 0, 0);
+            case NORTH, SOUTH -> new Vec3i(0, 0, 16);
+        };
     }
 
     public VirtualEtherStream createStream(int ether, float offset, float speed) {
@@ -68,20 +75,66 @@ public class VirtualEtherStreamHolder {
     }
 
     public boolean hasStreamInUnloadedChunk() {
-        for (VirtualEtherStream ves : streams) {
-            if (ves.markToRemove) continue;
-            BlockPos streamBlockPos = ves.blockPosition();
-            if (!LevelUtil.isLoadedIgnoreHeight(level, streamBlockPos)) {
-                return true;
+        if (streams.isEmpty()) return false;
+
+        final Direction dir = posDir.dir();
+        final BlockPos ep = posDir.pos();
+        final List<VirtualEtherStream> list = this.streams;
+
+        double dMin = Double.POSITIVE_INFINITY;
+        double dMax = Double.NEGATIVE_INFINITY;
+
+        switch (dir) {
+            case UP, DOWN -> {
+                final double base = ep.getY() + 0.5;
+                for (VirtualEtherStream ves : list) {
+                    if (ves.markToRemove) continue;
+                    double d = ves.pos.y - base;
+                    if (d > dMax) dMax = d;
+                    if (d < dMin) dMin = d;
+                }
             }
+            case WEST, EAST -> {
+                final double base = ep.getX() + 0.5;
+                for (VirtualEtherStream ves : list) {
+                    if (ves.markToRemove) continue;
+                    double d = ves.pos.x - base;
+                    if (d > dMax) dMax = d;
+                    if (d < dMin) dMin = d;
+                }
+            }
+            case NORTH, SOUTH -> {
+                final double base = ep.getZ() + 0.5;
+                for (VirtualEtherStream ves : list) {
+                    if (ves.markToRemove) continue;
+                    double d = ves.pos.z - base;
+                    if (d > dMax) dMax = d;
+                    if (d < dMin) dMin = d;
+                }
+            }
+        }
+
+        int minDChunk = (int) Math.floor(dMin * 0.0625);
+        int maxDChunk = (int) Math.ceil(dMax * 0.0625);
+
+        BlockPos.MutableBlockPos mut = new BlockPos.MutableBlockPos();
+        final int epX = ep.getX(), epY = ep.getY(), epZ = ep.getZ();
+
+        for (int i = minDChunk; i <= maxDChunk; i++) {
+            int offset = i << 4; // i * 16
+            switch (dir) {
+                case UP, DOWN -> mut.set(epX, epY + offset, epZ);
+                case WEST, EAST -> mut.set(epX + offset, epY, epZ);
+                case NORTH, SOUTH -> mut.set(epX, epY, epZ + offset);
+            }
+            if (!LevelUtil.isLoadedIgnoreHeight(level, mut)) return true;
         }
         return false;
     }
 
     public void tick() {
-        for (VirtualEtherStream stream : streams)
-            if (!LevelUtil.isLoadedIgnoreHeight(level, stream.blockPosition()))
-                return;
+        if (hasStreamInUnloadedChunk())
+            return;
 
         for (int i = 0, size = streams.size(); i < size; i++) {
             streams.get(i).tick();
@@ -92,6 +145,7 @@ public class VirtualEtherStreamHolder {
                 ves.pos = ves.pos.add(ves.motion);
         }
         mergeAll();
+        updateTracking();
         syncAll();
         streams.removeIf(ves -> ves.markToRemove);
     }
@@ -134,6 +188,7 @@ public class VirtualEtherStreamHolder {
         List<BlockState> blockStates = new ArrayList<>(maxClipDist);
         List<BlockPos> blockPoses = new ArrayList<>(maxClipDist);
         List<VoxelShape> shapes = new ArrayList<>(maxClipDist);
+        List<Boolean> isPassThrough = new ArrayList<>(maxClipDist);
 
         BlockPos.MutableBlockPos blockScanPos = pos.mutable();
         for (int i = 0; i <= maxClipDist; i++) {
@@ -141,6 +196,7 @@ public class VirtualEtherStreamHolder {
             blockStates.add(blockState);
             blockPoses.add(blockScanPos.immutable());
             shapes.add(blockState.getCollisionShape(level, blockScanPos));
+            isPassThrough.add(!blockState.isAir() && blockState.is(Tags.ETHER_STREAM_PASS_THROUGH));
             blockScanPos.move(direction);
         }
 
@@ -157,11 +213,19 @@ public class VirtualEtherStreamHolder {
             for (int j = clipStart; j <= clipEnd; j++) {
                 BlockState blockState = blockStates.get(j);
                 BlockPos pos = blockPoses.get(j);
-                if (blockState.is(Tags.ETHER_STREAM_PASS_THROUGH))
-                    continue;
-                if (ves.capabilities.stream().anyMatch(cap -> cap.shouldPassThrough(blockState, level, pos)))
+                if (blockState.isAir()) continue;
+                if (isPassThrough.get(j)) continue;
+                boolean skip = false;
+                for (IStreamCapability cap : ves.capabilities) {
+                    if (cap.shouldPassThrough(blockState, level, pos)) {
+                        skip = true;
+                        break;
+                    }
+                }
+                if (skip)
                     continue;
                 VoxelShape shape = shapes.get(j);
+                if (shape.isEmpty()) continue;
                 BlockHitResult hit = shape.clip(oldPos, newPos, pos);
                 if (hit != null) {
                     blockHit = hit;
@@ -246,14 +310,27 @@ public class VirtualEtherStreamHolder {
         }
     }
 
+    private void updateTracking() {
+        for (VirtualEtherStream ves : streams) {
+            if (ves.markToRemove || ves.trackingDirty) {
+                for (int i : ves.trackingPlayers)
+                    trackingPlayers.put(i, trackingPlayers.get(i) - 1);
+            }
+            if (ves.markToSyncCreation || ves.trackingDirty) {
+                for (int i : ves.trackingPlayers)
+                    trackingPlayers.put(i, trackingPlayers.get(i) + 1);
+            }
+            ves.trackingDirty = false;
+        }
+        trackingPlayers.int2IntEntrySet().removeIf(e -> e.getIntValue() <= 0);
+    }
+
     private void syncAll() {
         List<Integer> collectedToCreate = new ArrayList<>();
         List<Integer> collectedToRemove = new ArrayList<>();
         List<Integer> collectedToSyncData = new ArrayList<>();
         List<Integer> collectedToSyncEtherConsume = new ArrayList<>();
-        HashSet<Integer> trackingPlayers = new HashSet<>();
         for (VirtualEtherStream ves : streams) {
-            trackingPlayers.addAll(ves.trackingPlayers);
             if (ves.markToRemove)
                 collectedToRemove.add(ves.streamId);
             else if (ves.markToSyncCreation) {
@@ -271,30 +348,28 @@ public class VirtualEtherStreamHolder {
                 }
             }
         }
+        IntSet tracking = trackingPlayers.keySet();
 
         if (!collectedToCreate.isEmpty()) {
             //创建新的Stream
-            List<EtherStreamCreateS2C.StreamEntry> createEntries = new ArrayList<>();
             for (int id : collectedToCreate) {
                 VirtualEtherStream ves = findStreamById(id);
                 if (ves != null) {
-                    ves.trackingPlayers.addAll(trackingPlayers);
                     if (ves.consumer.isDirty()) {
                         ves.consumer.recompute(ves, ves.capabilities);
                     }
-                    createEntries.add(new EtherStreamCreateS2C.StreamEntry(
+                    EtherStreamInitialCreateS2C etherStreamCreateS2C = new EtherStreamInitialCreateS2C(
+                            posDir,
                             ves.streamId,
                             ves.startOffset,
                             ves.startSpeed,
                             ves.ether,
-                            ves.tickCount,
                             ves.consumer.toState(),
                             ves.toSyncData
-                    ));
+                    );
+                    sendToTrackingPlayers(level, ves.trackingPlayers, etherStreamCreateS2C);
                 }
             }
-            EtherStreamCreateS2C payload = new EtherStreamCreateS2C(posDir, createEntries);
-            sendToTrackingPlayers(level, trackingPlayers, payload);
         }
 
         if (!collectedToRemove.isEmpty()) {
@@ -306,7 +381,7 @@ public class VirtualEtherStreamHolder {
                 }
             }
             EtherStreamSetDyingS2C payload = new EtherStreamSetDyingS2C(posDir, entries);
-            sendToTrackingPlayers(level, trackingPlayers, payload);
+            sendToTrackingPlayers(level, tracking, payload);
         }
 
 
@@ -316,7 +391,7 @@ public class VirtualEtherStreamHolder {
                 VirtualEtherStream ves = findStreamById(id);
                 if (ves == null) continue;
                 EtherStreamSyncDataS2C payload = new EtherStreamSyncDataS2C(posDir, id, ves.toSyncData);
-                sendToTrackingPlayers(level, trackingPlayers, payload);
+                sendToTrackingPlayers(level, tracking, payload);
             }
         }
 
@@ -336,12 +411,12 @@ public class VirtualEtherStreamHolder {
             }
             if (!updateEntries.isEmpty()) {
                 EtherStreamUpdateS2C payload = new EtherStreamUpdateS2C(posDir, updateEntries);
-                sendToTrackingPlayers(level, trackingPlayers, payload);
+                sendToTrackingPlayers(level, tracking, payload);
             }
         }
     }
 
-    private void sendToTrackingPlayers(ServerLevel level, HashSet<Integer> id, CustomPacketPayload payload) {
+    private void sendToTrackingPlayers(ServerLevel level, Set<Integer> id, CustomPacketPayload payload) {
         if (Config.etherStreamSyncDistance <= 0) {
             PacketDistributor.sendToPlayersInDimension(level, payload);
         } else {
@@ -359,7 +434,7 @@ public class VirtualEtherStreamHolder {
     }
 
     void syncAndStartTrackingByPlayer(ServerPlayer player) {
-        List<EtherStreamCreateS2C.StreamEntry> entries = new ArrayList<>();
+        List<EtherStreamBatchCreateS2C.StreamEntry> entries = new ArrayList<>();
         for (int i = 0, size = streams.size(); i < size; i++) {
             VirtualEtherStream ves = streams.get(i);
             if (ves.markToRemove) continue;
@@ -367,8 +442,8 @@ public class VirtualEtherStreamHolder {
                 ves.consumer.recompute(ves, ves.capabilities);
             }
             if (Config.etherStreamSyncDistance <= 0 || ves.position().distanceTo(player.position()) <= Config.etherStreamSyncDistance) {
-                ves.trackingPlayers.add(player.getId());
-                entries.add(new EtherStreamCreateS2C.StreamEntry(
+                ves.addTrackingPlayer(player.getId());
+                entries.add(new EtherStreamBatchCreateS2C.StreamEntry(
                         ves.streamId,
                         ves.startOffset,
                         ves.startSpeed,
@@ -380,7 +455,7 @@ public class VirtualEtherStreamHolder {
             }
         }
         if (!entries.isEmpty()) {
-            EtherStreamCreateS2C payload = new EtherStreamCreateS2C(posDir, entries);
+            EtherStreamBatchCreateS2C payload = new EtherStreamBatchCreateS2C(posDir, entries);
             PacketDistributor.sendToPlayer(player, payload);
         }
     }

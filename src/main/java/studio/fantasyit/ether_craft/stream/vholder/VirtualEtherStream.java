@@ -20,7 +20,6 @@ import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
 import studio.fantasyit.ether_craft.stream.PosDir;
 import studio.fantasyit.ether_craft.stream.cap.IStreamCapability;
 import studio.fantasyit.ether_craft.stream.data.IEtherStreamSyncedData;
-import studio.fantasyit.ether_craft.util.LevelUtil;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -36,6 +35,7 @@ public class VirtualEtherStream implements IEtherStreamLike {
     final Vec3 motion;
     final PosDir posDir;
 
+    public boolean trackingDirty = true;
     public boolean markToSyncCreation = false;
     public boolean markToRemove = false;
     public boolean markToSyncData = false;
@@ -323,5 +323,10 @@ public class VirtualEtherStream implements IEtherStreamLike {
             }
         }
         capabilities.forEach(t -> t.runIntoNewBlock(this, oldPos, oldState, newPos, newState));
+    }
+
+    public void addTrackingPlayer(Integer id) {
+        trackingPlayers.add(id);
+        trackingDirty = true;
     }
 }

@@ -8,11 +8,11 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import studio.fantasyit.ether_craft.entity.stream.EtherStreamEntity;
-import studio.fantasyit.ether_craft.network.s2c.EtherStreamCreateS2C;
 import studio.fantasyit.ether_craft.stream.EtherConsumer;
 import studio.fantasyit.ether_craft.stream.PosDir;
 import studio.fantasyit.ether_craft.stream.client.extra.EtherStreamClientLogicManager;
 import studio.fantasyit.ether_craft.stream.client.extra.IEtherStreamExtraClientLogic;
+import studio.fantasyit.ether_craft.stream.data.IEtherStreamEntryLike;
 import studio.fantasyit.ether_craft.stream.data.IEtherStreamSyncedData;
 
 import java.util.ArrayList;
@@ -58,7 +58,7 @@ public class ClientStreamEntry {
         return removed;
     }
 
-    public ClientStreamEntry(@Nullable PosDir posDir, @Nullable EtherStreamCreateS2C.StreamEntry entry) {
+    public ClientStreamEntry(@Nullable PosDir posDir, @Nullable IEtherStreamEntryLike entry) {
         if (entry != null && posDir != null) {
             this.id = entry.streamId();
             this.startPos = posDir.pos().getCenter().add(posDir.dir().getUnitVec3().scale(entry.startOffset()));

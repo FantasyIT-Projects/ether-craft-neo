@@ -15,6 +15,7 @@ import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.stream.EtherConsumer;
 import studio.fantasyit.ether_craft.stream.PosDir;
 import studio.fantasyit.ether_craft.stream.client.data.ClientVESHDataGetter;
+import studio.fantasyit.ether_craft.stream.data.IEtherStreamEntryLike;
 import studio.fantasyit.ether_craft.stream.data.IEtherStreamSyncedData;
 import studio.fantasyit.ether_craft.stream.data.SyncedEtherStreamDataManager;
 
@@ -22,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public record EtherStreamCreateS2C(
+public record EtherStreamBatchCreateS2C(
         PosDir posDir,
         List<StreamEntry> entries
 ) implements CustomPacketPayload {
@@ -35,28 +36,12 @@ public record EtherStreamCreateS2C(
             int tickCount,
             EtherConsumer.State consumerState,
             List<IEtherStreamSyncedData> syncedData
-    ) {
+    ) implements IEtherStreamEntryLike {
     }
 
-    public static final Type<@NotNull EtherStreamCreateS2C> TYPE = new Type<>(
-            Identifier.fromNamespaceAndPath(EtherCraft.MODID, "ether_stream_create")
+    public static final Type<@NotNull EtherStreamBatchCreateS2C> TYPE = new Type<>(
+            Identifier.fromNamespaceAndPath(EtherCraft.MODID, "es_batch")
     );
-
-    private static final StreamCodec<RegistryFriendlyByteBuf, Vec3> VEC3_CODEC = StreamCodec.of(
-            (buf, v) -> {
-                buf.writeDouble(v.x);
-                buf.writeDouble(v.y);
-                buf.writeDouble(v.z);
-            },
-            buf -> new Vec3(buf.readDouble(), buf.readDouble(), buf.readDouble())
-    );
-
-    private static final StreamCodec<RegistryFriendlyByteBuf, @Nullable Component> NULLABLE_COMPONENT_CODEC =
-            ComponentSerialization.TRUSTED_OPTIONAL_STREAM_CODEC.map(
-                    opt -> opt.orElse(null),
-                    Optional::ofNullable
-            );
-
     private static final StreamCodec<RegistryFriendlyByteBuf, StreamEntry> STREAM_ENTRY_CODEC = StreamCodec.composite(
             ByteBufCodecs.VAR_INT, StreamEntry::streamId,
             ByteBufCodecs.FLOAT, StreamEntry::startOffset,
@@ -68,10 +53,10 @@ public record EtherStreamCreateS2C(
             StreamEntry::new
     );
 
-    public static final StreamCodec<RegistryFriendlyByteBuf, @NotNull EtherStreamCreateS2C> CODEC = StreamCodec.composite(
-            PosDir.STREAM_CODEC, EtherStreamCreateS2C::posDir,
-            ByteBufCodecs.collection(ArrayList::new, STREAM_ENTRY_CODEC), EtherStreamCreateS2C::entries,
-            EtherStreamCreateS2C::new
+    public static final StreamCodec<RegistryFriendlyByteBuf, @NotNull EtherStreamBatchCreateS2C> CODEC = StreamCodec.composite(
+            PosDir.STREAM_CODEC, EtherStreamBatchCreateS2C::posDir,
+            ByteBufCodecs.collection(ArrayList::new, STREAM_ENTRY_CODEC), EtherStreamBatchCreateS2C::entries,
+            EtherStreamBatchCreateS2C::new
     );
 
     @Override
