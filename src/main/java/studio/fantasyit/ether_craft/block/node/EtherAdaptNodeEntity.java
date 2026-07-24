@@ -162,7 +162,8 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
     public void tickServer() {
         if (neighborSignalDirty) {
             neighborSignalDirty = false;
-            cachedNeighborSignal = level.hasNeighborSignal(worldPosition);
+            if (nodeProperty.receiveRedstoneSignal)
+                cachedNeighborSignal = level.hasNeighborSignal(worldPosition);
         }
         if (functionStorage.preTick() && featureUpgradeStorage.preTick()) {
             functionStorage.tickInput();
@@ -181,8 +182,10 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
                 PacketDistributor.sendToPlayersTrackingChunk(sl, ChunkPos.containing(getBlockPos()), new SyncBlockNameS2C(getBlockPos(), name));
         }
         if (markRedstoneUpdate) {
-            level.updateNeighborsAt(worldPosition, getBlockState().getBlock());
+            if (!nodeProperty.sendRedstoneSignal)
+                level.updateNeighborsAt(worldPosition, getBlockState().getBlock());
             setChanged();
+            markRedstoneUpdate = false;
         }
     }
 

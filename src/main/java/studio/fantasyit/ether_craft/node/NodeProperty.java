@@ -10,6 +10,8 @@ public class NodeProperty {
     public boolean itemifyEther;
     public boolean specialRenderer;
     public int specialLevels;
+    public boolean receiveRedstoneSignal;
+    public boolean sendRedstoneSignal;
 
     public NodeProperty() {
         reset();
@@ -22,5 +24,7 @@ public class NodeProperty {
         this.itemifyEther = false;
         this.specialRenderer = false;
         this.specialLevels = 0;
+        this.receiveRedstoneSignal = false;
+        this.sendRedstoneSignal = false;
     }
 }

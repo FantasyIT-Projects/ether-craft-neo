@@ -3,6 +3,7 @@ package studio.fantasyit.ether_craft.node.plugins.upgrade;
 import net.minecraft.resources.Identifier;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.block.node.EtherAdaptNodeEntity;
+import studio.fantasyit.ether_craft.node.NodeProperty;
 import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
 import studio.fantasyit.ether_craft.node.plugins.base.AbstractNodePlugin;
 
@@ -15,6 +16,12 @@ public class RedstoneSwitchUpgrade extends AbstractNodePlugin {
     public RedstoneSwitchUpgrade(EtherAdaptNodeEntity nodeEntity, InstalledPlugin installedId, boolean workWithSignal) {
         super(nodeEntity, installedId);
         this.workWithSignal = workWithSignal;
+    }
+
+    @Override
+    public void modifyNodeProperty(NodeProperty nodeProperty) {
+        super.modifyNodeProperty(nodeProperty);
+        nodeProperty.receiveRedstoneSignal = true;
     }
 
     @Override

@@ -108,19 +108,15 @@ public class VirtualEtherStreamHolder {
             }
         }
         holderMaxDistance = nxtMaxDist + 1;
-        mergeAll();
+        mergeAll(holderMaxDistance);
         syncAll();
         updateNoLongerTracking();
         streams.removeIf(ves -> ves.markToRemove);
     }
 
-    private void mergeAll() {
+    private void mergeAll(int maxDistance) {
         if (streams.isEmpty()) return;
-        int maxLen = 0;
-        for (VirtualEtherStream ves : streams) {
-            maxLen = Math.max(maxLen, pos.distManhattan(ves.blockPosition()));
-        }
-        int size = maxLen + 1;
+        int size = maxDistance + 1;
         int[] streamCountAt = new int[size];
         for (int i = streams.size() - 1; i >= 0; i--) {
             VirtualEtherStream ves = streams.get(i);
@@ -268,14 +264,14 @@ public class VirtualEtherStreamHolder {
         for (VirtualEtherStream ves : streams) {
             if (ves.trackingDirty) {
                 for (int i : ves.trackingPlayers)
-                    trackingPlayers.put(i, trackingPlayers.get(i) - 1);
+                    trackingPlayers.addTo(i, -1);
             }
             if (ves.trackingInitial || ves.trackingDirty) {
                 for (int i : ves.trackingPlayers)
-                    trackingPlayers.put(i, trackingPlayers.get(i) + 1);
+                    trackingPlayers.addTo(i, 1);
                 ves.trackingInitial = false;
+                ves.trackingDirty = false;
             }
-            ves.trackingDirty = false;
         }
     }
 
@@ -283,9 +279,8 @@ public class VirtualEtherStreamHolder {
         for (VirtualEtherStream ves : streams) {
             if (ves.markToRemove) {
                 for (int i : ves.trackingPlayers)
-                    trackingPlayers.put(i, trackingPlayers.get(i) - 1);
+                    trackingPlayers.addTo(i, -1);
             }
-            ves.trackingDirty = false;
         }
         trackingPlayers.int2IntEntrySet().removeIf(e -> e.getIntValue() <= 0);
     }

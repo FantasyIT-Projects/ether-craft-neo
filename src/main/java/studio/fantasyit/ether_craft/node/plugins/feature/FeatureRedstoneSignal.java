@@ -10,6 +10,7 @@ import studio.fantasyit.ether_craft.block.node.EtherAdaptNodeEntity;
 import studio.fantasyit.ether_craft.menu.base.slot.BaseDataSlot;
 import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeContainerMenu;
 import studio.fantasyit.ether_craft.network.c2s.SyncScreenDataC2S;
+import studio.fantasyit.ether_craft.node.NodeProperty;
 import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
 
 public class FeatureRedstoneSignal extends AbstractDirectionalFeature {
@@ -30,6 +31,12 @@ public class FeatureRedstoneSignal extends AbstractDirectionalFeature {
 
     public FeatureRedstoneSignal(EtherAdaptNodeEntity nodeEntity, InstalledPlugin installedId) {
         super(nodeEntity, installedId);
+    }
+
+    @Override
+    public void modifyNodeProperty(NodeProperty nodeProperty) {
+        super.modifyNodeProperty(nodeProperty);
+        nodeProperty.sendRedstoneSignal = true;
     }
 
     public int getSignal() {
