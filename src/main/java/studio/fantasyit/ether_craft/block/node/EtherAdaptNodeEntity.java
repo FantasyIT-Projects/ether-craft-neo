@@ -53,6 +53,7 @@ import studio.fantasyit.ether_craft.node.NodePluginManager;
 import studio.fantasyit.ether_craft.node.NodeProperty;
 import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
 import studio.fantasyit.ether_craft.node.plugins.base.AbstractNodePlugin;
+import studio.fantasyit.ether_craft.node.plugins.base.SimpleEtherSyncController;
 import studio.fantasyit.ether_craft.node.plugins.feature.AbstractDirectionalFeature;
 import studio.fantasyit.ether_craft.node.plugins.feature.FeatureRedstoneSignal;
 import studio.fantasyit.ether_craft.register.ItemRegistry;
@@ -69,6 +70,7 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
     private final ResourceHandler<ItemResource> normalHandler;
     private long ether;
     private boolean markUpdate = true;
+    private boolean markRedstoneUpdate = true;
     public final NodeProperty nodeProperty;
     public final EtherSlotSyncContainer etherStorage;
     public final EtherPluginUpgradeContainer functionStorage;
@@ -83,6 +85,7 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
     public Component toRenderName = null;
     private boolean neighborSignalDirty = true;
     private boolean cachedNeighborSignal = false;
+    private @Nullable SimpleEtherSyncController syncController = null;
 
 
     public EtherAdaptNodeEntity(BlockPos worldPosition, BlockState blockState) {
@@ -107,11 +110,6 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
         super.setChanged();
     }
 
-    @Override
-    public void syncClient() {
-        if (level != null && !level.isClientSide())
-            level.updateNeighbourForOutputSignal(worldPosition, getBlockState().getBlock());
-    }
 
     public void updatePluginInfos() {
         featureAttachedDirection.clear();
@@ -180,9 +178,11 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
             updateProperty();
             updatePluginInfos();
             if (!name.isEmpty() && level instanceof ServerLevel sl)
-                PacketDistributor.sendToPlayersInDimension(sl, new SyncBlockNameS2C(getBlockPos(), name));
-            level.updateNeighbourForOutputSignal(worldPosition, getBlockState().getBlock());
+                PacketDistributor.sendToPlayersTrackingChunk(sl, ChunkPos.containing(getBlockPos()), new SyncBlockNameS2C(getBlockPos(), name));
+        }
+        if (markRedstoneUpdate) {
             level.updateNeighborsAt(worldPosition, getBlockState().getBlock());
+            level.updateNeighbourForOutputSignal(worldPosition, getBlockState().getBlock());
         }
     }
 
@@ -192,6 +192,11 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
         featureUpgradeStorage.modifyNodeProperty(nodeProperty);
         nodeProperty.slotUnlock = Math.min(nodeProperty.slotUnlock, normalStorage.getContainerSize());
         normalStorage.setAccessibleCount(nodeProperty.slotUnlock);
+        if (nodeProperty.specialLevels != 0) {
+            syncController = new SimpleEtherSyncController((a, b) -> ((int) (a * nodeProperty.specialLevels / b)));
+        } else {
+            syncController = null;
+        }
     }
 
     @Override
@@ -202,6 +207,7 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
     @Override
     public void setEtherNoUpdate(long amount) {
         this.ether = validateMax(amount);
+        markRedstoneUpdate = true;
     }
 
     @Override
@@ -492,7 +498,14 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
 
     @Override
     public boolean shouldSync() {
-        return nodeProperty.specialRenderer;
+        if (nodeProperty.specialRenderer) {
+            long me = getMaxEther();
+            if (syncController != null && me != 0) {
+                return syncController.predicate(getEther(), getMaxEther());
+            }
+            return true;
+        }
+        return false;
     }
 
     public int getUpgradeCount() {
@@ -667,7 +680,7 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
 
     public void setSyncedPluginData(InstalledPlugin plugin, Identifier actionId, int value) {
         Map<Identifier, Integer> m = syncedPluginData.computeIfAbsent(plugin, _ -> new HashMap<>());
-        if (m.containsKey(actionId) && m.get(actionId) == value) {
+        if (m.containsKey(actionId) && m.get(actionId) != value) {
             m.put(actionId, value);
             if (level instanceof ServerLevel sl) {
                 PacketDistributor.sendToPlayersTrackingChunk(sl,

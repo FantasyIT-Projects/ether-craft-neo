@@ -62,7 +62,6 @@ public class DestructionUpgrade extends AbstractNodePlugin {
         FilterGuiRegCommon.sync(message, filter);
         if (message.id().equals(SYNC_MODE)) {
             destroyMode = message.data() == 1 ? DestroyMode.ALL : DestroyMode.OVERFLOW;
-            nodeEntity.pluginUpdate();
         }
     }
 

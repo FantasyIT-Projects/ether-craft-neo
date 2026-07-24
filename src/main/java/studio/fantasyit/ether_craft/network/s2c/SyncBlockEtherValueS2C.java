@@ -43,6 +43,5 @@ public record SyncBlockEtherValueS2C(
                 capability.setEtherNoUpdate(ether);
             }
         });
-
     }
 }

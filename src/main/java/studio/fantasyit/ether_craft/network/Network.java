@@ -26,6 +26,11 @@ public class Network {
                 SyncEtherAdaptNodeExtraS2C::handle
         );
         event.playToClient(
+                SyncEtherAdaptNodePluginDataS2C.TYPE,
+                SyncEtherAdaptNodePluginDataS2C.CODEC,
+                SyncEtherAdaptNodePluginDataS2C::handle
+        );
+        event.playToClient(
                 SyncBlockNameS2C.TYPE,
                 SyncBlockNameS2C.CODEC,
                 SyncBlockNameS2C::handle

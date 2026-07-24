@@ -51,7 +51,6 @@ public class FunctionCreativeEther extends AbstractNodePlugin {
     public void syncScreenData(SyncScreenDataC2S message) {
         if (message.id().equals(SYNC_VALUE)) {
             fillAmount = Math.max(1, Math.min(message.data(), (int) nodeEntity.getMaxEther()));
-            nodeEntity.pluginUpdate();
         }
     }
 }

@@ -206,7 +206,6 @@ public class FeatureContainerInteract extends AbstractDirectionalFilterFeature {
         if (message.id().equals(SYNC_EXTRACT_MODE)) {
             extractMode = message.data() == 1;
             nodeEntity.setSyncedPluginData(installedId, WORKING_MODE, extractMode ? 1 : 0);
-            nodeEntity.pluginUpdate();
         }
     }
 

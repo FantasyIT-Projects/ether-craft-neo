@@ -9,6 +9,7 @@ public class NodeProperty {
     public boolean enableFilter;
     public boolean itemifyEther;
     public boolean specialRenderer;
+    public int specialLevels;
 
     public NodeProperty() {
         reset();
@@ -20,5 +21,6 @@ public class NodeProperty {
         this.enableFilter = false;
         this.itemifyEther = false;
         this.specialRenderer = false;
+        this.specialLevels = 0;
     }
 }
