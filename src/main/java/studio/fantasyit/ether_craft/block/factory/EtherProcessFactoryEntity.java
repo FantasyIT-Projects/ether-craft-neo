@@ -78,7 +78,7 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
     public int pressureBonus = 1;
     public int leak = 0;
     boolean markUpdate = false;
-    boolean chipLayoutDirty = false;
+    boolean chipLayoutDirty = true;
     final boolean[] inputDirty;
     final ItemStack[] lastInputStacks;
     public String name = "";
@@ -378,6 +378,7 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
         for (int i = 0; i < ROWS; i++)
             filters[i].deserialize(input.childOrEmpty("filter_" + i));
         super.loadAdditional(input);
+        chipLayoutDirty = true;
     }
 
     @Override
