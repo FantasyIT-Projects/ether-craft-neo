@@ -44,20 +44,17 @@ public class VirtualEtherStreamHolder {
     private final PosDir posDir;
     private final ServerLevel level;
     final List<VirtualEtherStream> streams = new ArrayList<>();
-    private final Vec3i axisVec;
+    private final Vec3i chunkVec;
     Int2IntOpenHashMap trackingPlayers = new Int2IntOpenHashMap();
     int nextId = 0;
+    private boolean lastHadStreamInUnloadedChunk = false;
 
     public VirtualEtherStreamHolder(PosDir posDir, @NotNull ServerLevel level) {
         this.level = level;
         this.pos = posDir.pos();
         this.direction = posDir.dir();
         this.posDir = posDir;
-        axisVec = switch (posDir.dir()) {
-            case UP, DOWN -> new Vec3i(0, 16, 0);
-            case WEST, EAST -> new Vec3i(16, 0, 0);
-            case NORTH, SOUTH -> new Vec3i(0, 0, 16);
-        };
+        chunkVec = posDir.dir().getUnitVec3i().multiply(16);
     }
 
     public VirtualEtherStream createStream(int ether, float offset, float speed) {
@@ -74,79 +71,69 @@ public class VirtualEtherStreamHolder {
         return ves;
     }
 
-    public boolean hasStreamInUnloadedChunk() {
-        if (streams.isEmpty()) return false;
-
-        final Direction dir = posDir.dir();
-        final BlockPos ep = posDir.pos();
-        final List<VirtualEtherStream> list = this.streams;
-
-        double dMin = Double.POSITIVE_INFINITY;
-        double dMax = Double.NEGATIVE_INFINITY;
-
-        switch (dir) {
-            case UP, DOWN -> {
-                final double base = ep.getY() + 0.5;
-                for (VirtualEtherStream ves : list) {
-                    if (ves.markToRemove) continue;
-                    double d = ves.pos.y - base;
-                    if (d > dMax) dMax = d;
-                    if (d < dMin) dMin = d;
-                }
-            }
-            case WEST, EAST -> {
-                final double base = ep.getX() + 0.5;
-                for (VirtualEtherStream ves : list) {
-                    if (ves.markToRemove) continue;
-                    double d = ves.pos.x - base;
-                    if (d > dMax) dMax = d;
-                    if (d < dMin) dMin = d;
-                }
-            }
-            case NORTH, SOUTH -> {
-                final double base = ep.getZ() + 0.5;
-                for (VirtualEtherStream ves : list) {
-                    if (ves.markToRemove) continue;
-                    double d = ves.pos.z - base;
-                    if (d > dMax) dMax = d;
-                    if (d < dMin) dMin = d;
-                }
-            }
-        }
-
-        int minDChunk = (int) Math.floor(dMin * 0.0625);
-        int maxDChunk = (int) Math.ceil(dMax * 0.0625);
-
-        BlockPos.MutableBlockPos mut = new BlockPos.MutableBlockPos();
-        final int epX = ep.getX(), epY = ep.getY(), epZ = ep.getZ();
-
-        for (int i = minDChunk; i <= maxDChunk; i++) {
-            int offset = i << 4; // i * 16
-            switch (dir) {
-                case UP, DOWN -> mut.set(epX, epY + offset, epZ);
-                case WEST, EAST -> mut.set(epX + offset, epY, epZ);
-                case NORTH, SOUTH -> mut.set(epX, epY, epZ + offset);
-            }
+    public boolean hasStreamInUnloadedChunk(int maxBlockDist) {
+        int maxChunk = (maxBlockDist + 15) >> 4;
+        BlockPos.MutableBlockPos mut = pos.mutable();
+        for (int i = 0; i <= maxChunk; i++) {
             if (!LevelUtil.isLoadedIgnoreHeight(level, mut)) return true;
+            mut.move(chunkVec);
         }
         return false;
     }
 
+    public boolean isStreamBlocked() {
+        return lastHadStreamInUnloadedChunk;
+    }
+
+    private int computeMaxBlockDist() {
+        if (streams.isEmpty()) return 0;
+        double maxDist = 0;
+        switch (direction) {
+            case UP, DOWN -> {
+                double base = pos.getY() + 0.5;
+                for (var ves : streams) {
+                    if (ves.markToRemove) continue;
+                    double d = Math.abs(ves.pos.y - base) + Math.abs(ves.motion.y);
+                    if (d > maxDist) maxDist = d;
+                }
+            }
+            case WEST, EAST -> {
+                double base = pos.getX() + 0.5;
+                for (var ves : streams) {
+                    if (ves.markToRemove) continue;
+                    double d = Math.abs(ves.pos.x - base) + Math.abs(ves.motion.x);
+                    if (d > maxDist) maxDist = d;
+                }
+            }
+            case NORTH, SOUTH -> {
+                double base = pos.getZ() + 0.5;
+                for (var ves : streams) {
+                    if (ves.markToRemove) continue;
+                    double d = Math.abs(ves.pos.z - base) + Math.abs(ves.motion.z);
+                    if (d > maxDist) maxDist = d;
+                }
+            }
+        }
+        return (int) Math.ceil(maxDist);
+    }
+
     public void tick() {
-        if (hasStreamInUnloadedChunk())
-            return;
+        if (streams.isEmpty()) return;
+        int maxBlockDist = computeMaxBlockDist();
+        lastHadStreamInUnloadedChunk = hasStreamInUnloadedChunk(maxBlockDist);
+        if (lastHadStreamInUnloadedChunk) return;
 
         for (int i = 0, size = streams.size(); i < size; i++) {
             streams.get(i).tick();
         }
-        tickCollideAll();
+        tickCollideAll(maxBlockDist);
         for (VirtualEtherStream ves : streams) {
             if (!ves.markToRemove)
                 ves.pos = ves.pos.add(ves.motion);
         }
         mergeAll();
-        updateTracking();
         syncAll();
+        updateTracking();
         streams.removeIf(ves -> ves.markToRemove);
     }
 
@@ -170,21 +157,11 @@ public class VirtualEtherStreamHolder {
         }
     }
 
-    private void tickCollideAll() {
-        if (streams.isEmpty()) return;
-        Vec3 emitterBlockCenter = pos.getCenter();
-        double maxLen = 0;
-        double minLen = Double.MAX_VALUE;
-        for (VirtualEtherStream ves : streams) {
-            double lenOld = ves.pos.distanceTo(emitterBlockCenter);
-            double lenNext = lenOld + ves.motion.length();
-            if (lenNext > maxLen) maxLen = lenNext;
-            if (lenOld < minLen) minLen = lenOld;
-        }
-        Vec3 queryVec = direction.getUnitVec3().scale(maxLen + 0.5);
+    private void tickCollideAll(int maxBlockDist) {
+        int maxClipDist = maxBlockDist + 1;
+        Vec3 queryVec = direction.getUnitVec3().scale(maxBlockDist + 1);
         List<Entity> entities = level.getEntities(null, new AABB(pos).expandTowards(queryVec).inflate(1.0));
         entities.removeIf(entity -> entity == null || (entity.is(EntityType.ITEM) && !PlatingUtil.isPlatedItemEntity((ItemEntity) entity) && !((ItemEntity) entity).getItem().is(Items.GLASS)));
-        int maxClipDist = (int) Math.ceil(maxLen) + 1;
         List<BlockState> blockStates = new ArrayList<>(maxClipDist);
         List<BlockPos> blockPoses = new ArrayList<>(maxClipDist);
         List<VoxelShape> shapes = new ArrayList<>(maxClipDist);
@@ -316,9 +293,10 @@ public class VirtualEtherStreamHolder {
                 for (int i : ves.trackingPlayers)
                     trackingPlayers.put(i, trackingPlayers.get(i) - 1);
             }
-            if (ves.markToSyncCreation || ves.trackingDirty) {
+            if (ves.trackingInitial || ves.trackingDirty) {
                 for (int i : ves.trackingPlayers)
                     trackingPlayers.put(i, trackingPlayers.get(i) + 1);
+                ves.trackingInitial = false;
             }
             ves.trackingDirty = false;
         }

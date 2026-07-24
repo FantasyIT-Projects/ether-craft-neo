@@ -21,9 +21,10 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import net.minecraft.world.level.redstone.Orientation;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.NotNull;
-import org.jspecify.annotations.Nullable;
+import org.jetbrains.annotations.Nullable;
 import studio.fantasyit.ether_craft.block.base.BaseBlock;
 import studio.fantasyit.ether_craft.node.NodePluginManager;
 import studio.fantasyit.ether_craft.node.plugins.base.AbstractNodePlugin;
@@ -85,6 +86,12 @@ public class EtherAdaptNodeBlock extends BaseBlock {
     @Override
     protected int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos, Direction direction) {
         return getSignal(state, level, pos, direction.getOpposite());
+    }
+
+    @Override
+    protected void neighborChanged(@NotNull BlockState state, Level level, @NotNull BlockPos pos, Block neighborBlock, @Nullable Orientation orientation, boolean movedByPiston) {
+        if (level.getBlockEntity(pos) instanceof EtherAdaptNodeEntity eane)
+            eane.onNeighborChanged();
     }
 
     @Override

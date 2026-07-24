@@ -79,6 +79,8 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
     public final QueuedTicket ticket = new QueuedTicket();
     public String name = "";
     public Component toRenderName = null;
+    private boolean neighborSignalDirty = true;
+    private boolean cachedNeighborSignal = false;
 
 
     public EtherAdaptNodeEntity(BlockPos worldPosition, BlockState blockState) {
@@ -156,6 +158,10 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
 
     @Override
     public void tickServer() {
+        if (neighborSignalDirty) {
+            neighborSignalDirty = false;
+            cachedNeighborSignal = level.hasNeighborSignal(worldPosition);
+        }
         if (functionStorage.preTick() && featureUpgradeStorage.preTick()) {
             functionStorage.tickInput();
             featureUpgradeStorage.tickInput();
@@ -634,6 +640,14 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
         if (level != null && !level.isClientSide()) {
             markUpdate = true;
         }
+    }
+
+    public void onNeighborChanged() {
+        neighborSignalDirty = true;
+    }
+
+    public boolean getCachedNeighborSignal() {
+        return cachedNeighborSignal;
     }
 
     public int getAnalogOutputSignal(Direction direction) {

@@ -59,10 +59,9 @@ public class VirtualEtherStreamHolderManager {
     }
 
     public boolean canCreateStream(PosDir posDir) {
-        //如果有任何VES到达了未加载区块，那么整个VESH应该停止继续生成新的以太粒子
         VirtualEtherStreamHolder holder = holders.get(posDir);
         if (holder == null) return true;
-        return !holder.hasStreamInUnloadedChunk();
+        return !holder.isStreamBlocked();
     }
 
     public void tick(ServerLevel level) {

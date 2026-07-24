@@ -35,7 +35,8 @@ public class VirtualEtherStream implements IEtherStreamLike {
     final Vec3 motion;
     final PosDir posDir;
 
-    public boolean trackingDirty = true;
+    public boolean trackingDirty = false;
+    public boolean trackingInitial = true;
     public boolean markToSyncCreation = false;
     public boolean markToRemove = false;
     public boolean markToSyncData = false;
