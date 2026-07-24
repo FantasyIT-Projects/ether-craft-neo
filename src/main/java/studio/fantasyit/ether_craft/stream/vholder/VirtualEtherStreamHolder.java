@@ -97,6 +97,7 @@ public class VirtualEtherStreamHolder {
             streams.get(i).tick();
         }
         tickCollideAll(holderMaxDistance);
+        mergeAll(holderMaxDistance);
         int nxtMaxDist = 0;
         for (VirtualEtherStream ves : streams) {
             if (!ves.markToRemove) {
@@ -108,7 +109,6 @@ public class VirtualEtherStreamHolder {
             }
         }
         holderMaxDistance = nxtMaxDist + 1;
-        mergeAll(holderMaxDistance);
         syncAll();
         updateNoLongerTracking();
         streams.removeIf(ves -> ves.markToRemove);
@@ -116,7 +116,7 @@ public class VirtualEtherStreamHolder {
 
     private void mergeAll(int maxDistance) {
         if (streams.isEmpty()) return;
-        int size = maxDistance + 1;
+        int size = maxDistance + 2;
         int[] streamCountAt = new int[size];
         for (int i = streams.size() - 1; i >= 0; i--) {
             VirtualEtherStream ves = streams.get(i);
