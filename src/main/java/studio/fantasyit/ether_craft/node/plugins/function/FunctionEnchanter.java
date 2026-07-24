@@ -69,7 +69,7 @@ public class FunctionEnchanter extends AbstractNodePlugin {
     @Override
     public void syncScreenData(SyncScreenDataC2S message) {
         super.syncScreenData(message);
-        FilterGuiRegCommon.sync(message, filter);
+        FilterGuiRegCommon.sync(message, filter, nodeEntity);
         if (message.id().equals(SYNC_LEVEL)) {
             int level = message.data();
             if (level == -1) {
@@ -82,6 +82,7 @@ public class FunctionEnchanter extends AbstractNodePlugin {
                     selectedLevel = level;
                 }
             }
+            nodeEntity.setChanged();
         }
     }
 
@@ -163,6 +164,7 @@ public class FunctionEnchanter extends AbstractNodePlugin {
 
         ItemStack result = makeResultAndCost(itemStack);
         processSlot.setItem(0, result);
+        nodeEntity.setChanged();
     }
 
     private void tryPlaceToMain() {
@@ -179,6 +181,7 @@ public class FunctionEnchanter extends AbstractNodePlugin {
                 progress = 0;
             }
         }
+        nodeEntity.setChanged();
     }
 
     private ItemStack makeResultAndCost(ItemStack itemStack) {

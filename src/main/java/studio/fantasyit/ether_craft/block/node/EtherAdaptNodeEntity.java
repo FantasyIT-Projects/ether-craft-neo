@@ -182,7 +182,7 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
         }
         if (markRedstoneUpdate) {
             level.updateNeighborsAt(worldPosition, getBlockState().getBlock());
-            level.updateNeighbourForOutputSignal(worldPosition, getBlockState().getBlock());
+            setChanged();
         }
     }
 

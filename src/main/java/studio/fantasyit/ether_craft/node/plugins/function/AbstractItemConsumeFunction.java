@@ -71,6 +71,7 @@ public abstract class AbstractItemConsumeFunction extends AbstractNodePlugin {
                 ItemStack newStack = oItemStack.isEmpty() ? toPlace.copy() : oItemStack.copyWithCount(oItemStack.getCount() + toPlace.getCount());
                 container.setItem(0, newStack);
                 transaction.commit();
+                nodeEntity.setChanged();
             }
         }
 
@@ -87,11 +88,13 @@ public abstract class AbstractItemConsumeFunction extends AbstractNodePlugin {
                 generatePreTick = parameter.preTick();
                 remainBurnTicks = parameter.burnTicks();
                 nodeEntity.receiveEther(generatePreTick);
+                nodeEntity.setChanged();
             }
         } else {
             if (remainBurnTicks > 0) {
                 nodeEntity.receiveEther(generatePreTick);
                 remainBurnTicks--;
+                nodeEntity.setChanged();
             }
         }
 
@@ -100,7 +103,7 @@ public abstract class AbstractItemConsumeFunction extends AbstractNodePlugin {
     @Override
     public void syncScreenData(SyncScreenDataC2S message) {
         super.syncScreenData(message);
-        FilterGuiRegCommon.sync(message, filter);
+        FilterGuiRegCommon.sync(message, filter, nodeEntity);
     }
 
     @Override

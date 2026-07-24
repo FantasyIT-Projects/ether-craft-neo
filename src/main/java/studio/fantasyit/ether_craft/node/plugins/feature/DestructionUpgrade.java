@@ -59,9 +59,10 @@ public class DestructionUpgrade extends AbstractNodePlugin {
 
     @Override
     public void syncScreenData(SyncScreenDataC2S message) {
-        FilterGuiRegCommon.sync(message, filter);
+        FilterGuiRegCommon.sync(message, filter,nodeEntity);
         if (message.id().equals(SYNC_MODE)) {
             destroyMode = message.data() == 1 ? DestroyMode.ALL : DestroyMode.OVERFLOW;
+            nodeEntity.setChanged();
         }
     }
 

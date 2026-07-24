@@ -100,7 +100,7 @@ public class FunctionMagnet extends AbstractNodePlugin {
 
     @Override
     public void syncScreenData(SyncScreenDataC2S message) {
-        FilterGuiRegCommon.sync(message, filter);
+        FilterGuiRegCommon.sync(message, filter, nodeEntity);
         if (message.id().equals(SYNC_VALUE)) {
             switch (message.index()) {
                 case 0 -> centerX = message.data();
@@ -110,6 +110,7 @@ public class FunctionMagnet extends AbstractNodePlugin {
                 case 4 -> shapeY = message.data();
                 case 5 -> shapeZ = message.data();
             }
+            nodeEntity.setChanged();
         }
     }
 }

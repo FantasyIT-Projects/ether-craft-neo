@@ -1,6 +1,7 @@
 package studio.fantasyit.ether_craft.node.filter;
 
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.block.base.ItemFilter;
 import studio.fantasyit.ether_craft.menu.base.slot.BaseDataSlot;
@@ -20,9 +21,10 @@ public class FilterGuiRegCommon {
         menu.addDataSlot(new BaseDataSlot(() -> filter.whitelist ? 1 : 0, (a) -> filter.whitelist = (a == 1)));
     }
 
-    public static void sync(SyncScreenDataC2S message, ItemFilter filter) {
+    public static void sync(SyncScreenDataC2S message, ItemFilter filter, BlockEntity blockEntity) {
         if (message.id().equals(SYNC_FILTER)) {
             filter.whitelist = message.data() == 1;
+            blockEntity.setChanged();
         }
     }
 }

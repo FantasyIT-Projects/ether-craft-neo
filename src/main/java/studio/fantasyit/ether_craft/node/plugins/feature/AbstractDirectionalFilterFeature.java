@@ -43,7 +43,7 @@ public abstract class AbstractDirectionalFilterFeature extends AbstractDirection
     @Override
     public void syncScreenData(SyncScreenDataC2S message) {
         super.syncScreenData(message);
-        FilterGuiRegCommon.sync(message, filter);
+        FilterGuiRegCommon.sync(message, filter, nodeEntity);
     }
 
 }
