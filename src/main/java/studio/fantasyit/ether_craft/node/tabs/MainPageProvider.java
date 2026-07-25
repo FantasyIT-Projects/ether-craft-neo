@@ -76,10 +76,6 @@ public class MainPageProvider extends BaseEtherNodeTabWidgetProvider<MainPageDum
                 EtherAdaptNodeAsset.PENCIL_ON, EtherAdaptNodeAsset.PENCIL_OFF);
         screen.addRenderableWidget(namePencil);
 
-        if (!screen.getMenu().entity.nodeProperty.enableFilter) {
-            ctx().filterSlots.forEach(s -> s.setActive(false));
-            return;
-        }
         filterBtn = screen.addRenderableWidget(new IASwitchButton(
                 lx(EtherAdaptNodeAsset.UI_BASE.w + 10), ly(141),
                 EtherAdaptNodeAsset.BTN_BLANK,
