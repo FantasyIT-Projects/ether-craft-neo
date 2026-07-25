@@ -7,7 +7,7 @@
         "count": 1,
         "ingredient": "minecraft:creaking_heart"
       },
-      "next": "P29"
+      "next": "P13"
     },
     {
       "id": "I1",
@@ -15,7 +15,7 @@
         "count": 1,
         "ingredient": "minecraft:dragon_egg"
       },
-      "next": "P29"
+      "next": "P27"
     },
     {
       "id": "I2",

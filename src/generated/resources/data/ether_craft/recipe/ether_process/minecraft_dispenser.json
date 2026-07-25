@@ -7,7 +7,7 @@
         "count": 1,
         "ingredient": "minecraft:stick"
       },
-      "next": "P2"
+      "next": "P1"
     },
     {
       "id": "I1",
@@ -23,7 +23,7 @@
         "count": 1,
         "ingredient": "minecraft:dropper"
       },
-      "next": "P2"
+      "next": "P0"
     }
   ],
   "output": {

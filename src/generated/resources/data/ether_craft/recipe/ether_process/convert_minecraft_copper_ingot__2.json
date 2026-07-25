@@ -7,7 +7,7 @@
         "count": 1,
         "ingredient": "#c:ingots/copper"
       },
-      "next": "P12"
+      "next": "P8"
     },
     {
       "id": "I1",
@@ -15,7 +15,7 @@
         "count": 1,
         "ingredient": "ether_craft:ether_crystal"
       },
-      "next": "P12"
+      "next": "P9"
     },
     {
       "id": "I2",

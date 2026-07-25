@@ -7,7 +7,7 @@
         "count": 1,
         "ingredient": "#minecraft:coals"
       },
-      "next": "P15"
+      "next": "P9"
     },
     {
       "id": "I1",
@@ -15,7 +15,7 @@
         "count": 2,
         "ingredient": "#c:raw_materials/copper"
       },
-      "next": "P15"
+      "next": "P11"
     },
     {
       "id": "I2",

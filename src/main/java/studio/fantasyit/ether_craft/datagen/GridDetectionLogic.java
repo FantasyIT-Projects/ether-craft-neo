@@ -4,7 +4,6 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.neoforged.neoforge.common.crafting.SizedIngredient;
-import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.recipe.DelayedIngredient;
 import studio.fantasyit.ether_craft.recipe.IngredientSerializer.ChipRecord;
 import studio.fantasyit.ether_craft.recipe.factory.EtherProcessRecipeJson;
@@ -25,6 +24,7 @@ public class GridDetectionLogic {
     private static final int[][] DIRS = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
 
     private final List<Integer> inputRowIds = new ArrayList<>();
+    private final List<String> inputNextPids = new ArrayList<>();
     private final List<ProcessEntryBuilder> processEntries = new ArrayList<>();
     private int pidCounter = 0;
 
@@ -106,10 +106,9 @@ public class GridDetectionLogic {
 
         if (x == -1) {
             inputRowIds.add(y);
+            inputNextPids.add(parentPid);
             return;
         }
-
-        List<GridSourceFile.Cell> gridRow = source.grid().get(y);
 
         List<DelayedIngredient> chips = new ArrayList<>();
         for (int[] dir : DIRS) {
@@ -149,7 +148,7 @@ public class GridDetectionLogic {
             int rowY = inputRowIds.get(i);
             String raw = rowY < source.inputItems().size() ? source.inputItems().get(rowY).trim() : "";
             SizedIngredient item = ItemFormatParser.parseInputForDetection(registries, raw);
-            String next = processEntries.isEmpty() ? "O" : processEntries.get(processEntries.size() - 1).id;
+            String next = inputNextPids.get(i);
             inputEntries.add(new InputEntry("I" + i, item, next));
         }
 

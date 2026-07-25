@@ -7,7 +7,7 @@
         "count": 1,
         "ingredient": "minecraft:clock"
       },
-      "next": "P4"
+      "next": "P0"
     },
     {
       "id": "I1",
@@ -15,7 +15,7 @@
         "count": 2,
         "ingredient": "minecraft:stone_brick_wall"
       },
-      "next": "P4"
+      "next": "P3"
     },
     {
       "id": "I2",

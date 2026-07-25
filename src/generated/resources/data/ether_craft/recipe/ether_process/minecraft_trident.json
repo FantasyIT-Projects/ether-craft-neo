@@ -7,7 +7,7 @@
         "count": 3,
         "ingredient": "minecraft:prismarine_shard"
       },
-      "next": "P5"
+      "next": "P0"
     },
     {
       "id": "I1",
@@ -15,7 +15,7 @@
         "count": 3,
         "ingredient": "minecraft:prismarine_shard"
       },
-      "next": "P5"
+      "next": "P1"
     },
     {
       "id": "I2",
@@ -23,7 +23,7 @@
         "count": 3,
         "ingredient": "minecraft:prismarine_shard"
       },
-      "next": "P5"
+      "next": "P2"
     },
     {
       "id": "I3",

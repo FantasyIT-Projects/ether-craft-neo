@@ -7,7 +7,7 @@
         "count": 1,
         "ingredient": "ether_craft:ether_dust"
       },
-      "next": "P15"
+      "next": "P7"
     },
     {
       "id": "I1",
@@ -22,7 +22,7 @@
           "items": "ether_craft:process_chip"
         }
       },
-      "next": "P15"
+      "next": "P13"
     },
     {
       "id": "I2",
