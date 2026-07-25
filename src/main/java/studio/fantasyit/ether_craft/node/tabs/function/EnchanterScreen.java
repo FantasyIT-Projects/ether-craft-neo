@@ -6,8 +6,6 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.network.chat.Component;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
-
-import java.util.List;
 import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.menu.base.ImageAsset;
 import studio.fantasyit.ether_craft.menu.base.widget.IASwitchButton;
@@ -20,6 +18,8 @@ import studio.fantasyit.ether_craft.node.plugins.base.PluginMenuContext;
 import studio.fantasyit.ether_craft.node.plugins.function.FunctionEnchanter;
 import studio.fantasyit.ether_craft.node.tabs.BaseEtherNodeTabWidgetProvider;
 import studio.fantasyit.ether_craft.util.UIUtil;
+
+import java.util.List;
 
 public class EnchanterScreen extends BaseEtherNodeTabWidgetProvider<FunctionEnchanter> {
 
@@ -122,9 +122,9 @@ public class EnchanterScreen extends BaseEtherNodeTabWidgetProvider<FunctionEnch
         super.extractWidgetRenderState(graphics, mouseX, mouseY, a);
         int level = plugin.selectedLevel;
         int progress = plugin.progress;
-        if (level > 0 && progress > 0 && progress < Config.nodeEnchanterMaxProgress) {
+        if (level >= 0 && progress > 0 && progress < Config.nodeEnchanterMaxProgress) {
             EtherAdaptNodeAsset.PROGRESS_INDICATOR_FILL.blit(
-                    graphics, lx(50), ly(46), 0, 0,
+                    graphics, lx(50), ly(45), 0, 0,
                     progress * EtherAdaptNodeAsset.PROGRESS_INDICATOR_FILL.w / Config.nodeEnchanterMaxProgress,
                     EtherAdaptNodeAsset.PROGRESS_INDICATOR_FILL.h
             );

@@ -53,6 +53,7 @@ public class PluginRenderManager {
             else
                 state.addOverlay(face, EtherAdapterNodeAtlas.ETHER_FILL.get(9));
         };
+        register(FunctionFurnaceGenerator.ID_BLAST, generatorLayer);
         register(FunctionFurnaceGenerator.ID, generatorLayer);
         register(FunctionStoneGenerator.ID, generatorLayer);
         register(FunctionEquipmentConsumeGenerator.ID, generatorLayer);
