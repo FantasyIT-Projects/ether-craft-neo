@@ -77,15 +77,17 @@ public class EtherStreamGrowthAcceleratorCapability implements IStreamCapability
 
         streamEntity.consumeEther(cost);
         AccelerateRepeatCounts.apply(level, pos, state);
-        Vec3 center = pos.getCenter();
-        level.sendParticles(
-                ParticleTypes.HAPPY_VILLAGER,
-                center.x,
-                center.y,
-                center.z,
-                5,
-                0.2, 0.2, 0.2, 0.01
-        );
+        if (!state.isCollisionShapeFullBlock(level, pos)) {
+            Vec3 center = pos.getCenter();
+            level.sendParticles(
+                    ParticleTypes.HAPPY_VILLAGER,
+                    center.x,
+                    center.y,
+                    center.z,
+                    5,
+                    0.2, 0.2, 0.2, 0.01
+            );
+        }
 
         lastCatalyzedPos = pos;
     }

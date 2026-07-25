@@ -40,20 +40,24 @@ public class FunctionGrowthAccelerator extends AbstractNodePlugin {
 
                     BlockPos pos = center.offset(dx, dy, dz);
                     BlockState state = level.getBlockState(pos);
+                    if (state.isAir())
+                        continue;
                     if (state.is(Tags.CROP_ACCELERATABLE) || ID_ALL.equals(installedId.pluginId())) {
                         if (nodeEntity.getEther() < etherCost)
                             return;
                         nodeEntity.extractEther(etherCost);
                         AccelerateRepeatCounts.apply(level,pos,state);
-                        Vec3 c = pos.getCenter();
-                        level.sendParticles(
-                                ParticleTypes.HAPPY_VILLAGER,
-                                c.x,
-                                c.y,
-                                c.z,
-                                5,
-                                0.2, 0.2, 0.2, 0.01
-                        );
+                        if (!state.isCollisionShapeFullBlock(level, pos)) {
+                            Vec3 c = pos.getCenter();
+                            level.sendParticles(
+                                    ParticleTypes.HAPPY_VILLAGER,
+                                    c.x,
+                                    c.y,
+                                    c.z,
+                                    5,
+                                    0.2, 0.2, 0.2, 0.01
+                            );
+                        }
                     }
                 }
             }

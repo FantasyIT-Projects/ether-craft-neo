@@ -683,7 +683,7 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
 
     public void setSyncedPluginData(InstalledPlugin plugin, Identifier actionId, int value) {
         Map<Identifier, Integer> m = syncedPluginData.computeIfAbsent(plugin, _ -> new HashMap<>());
-        if (m.containsKey(actionId) && m.get(actionId) != value) {
+        if (!m.containsKey(actionId) || m.get(actionId) != value) {
             m.put(actionId, value);
             if (level instanceof ServerLevel sl) {
                 PacketDistributor.sendToPlayersTrackingChunk(sl,

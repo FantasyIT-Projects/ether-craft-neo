@@ -166,6 +166,7 @@
   "jei.ether_craft.plugin.ether_craft.magnet": "Attracts nearby items into the node inventory.",
   "jei.ether_craft.plugin.ether_craft.generator.equipment": "Generates ether energy by consuming equipment items.",
   "jei.ether_craft.plugin.ether_craft.generator.ether_converter": "Converts input items into ether energy.",
+  "jei.ether_craft.plugin.ether_craft.ether_stream_emitter": "Emits ether streams from the node.",
   "jei.ether_craft.plugin.ether_craft.dropper_thrower": "Throws items from the node inventory like a dropper.",
   "jei.ether_craft.plugin.ether_craft.container_interact": "Allows the node to interact with adjacent containers.",
   "jei.ether_craft.plugin.ether_craft.storage_upgrade": "Increases the node's internal storage capacity.",

@@ -160,6 +160,7 @@
   "jei.ether_craft.plugin.ether_craft.magnet": "将附近物品吸引到节点物品栏。",
   "jei.ether_craft.plugin.ether_craft.generator.equipment": "消耗装备物品产生以太能量。",
   "jei.ether_craft.plugin.ether_craft.generator.ether_converter": "将输入物品转换为以太能量。",
+  "jei.ether_craft.plugin.ether_craft.ether_stream_emitter": "从节点发射以太流。",
   "jei.ether_craft.plugin.ether_craft.dropper_thrower": "像投掷器一样从节点物品栏投掷物品。",
   "jei.ether_craft.plugin.ether_craft.container_interact": "允许节点与相邻容器交互。",
   "jei.ether_craft.plugin.ether_craft.storage_upgrade": "增加节点的内部存储容量。",

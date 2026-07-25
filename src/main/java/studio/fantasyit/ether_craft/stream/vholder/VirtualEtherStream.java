@@ -70,7 +70,6 @@ public class VirtualEtherStream implements IEtherStreamLike {
         this.posDir = posDir;
         BlockState blockState = level.getBlockState(BlockPos.containing(this.pos));
         this.setRunIntoEtherGlass(blockState.is(BlockRegistry.ETHER_GLASS));
-        this.onRunIntoNewBlock(null, null, blockPosition(), blockState);
         this.needsEtherConsumerSync = false;
         this.needsEtherSync = false;
         if (level instanceof ServerLevel sl) {
@@ -194,10 +193,13 @@ public class VirtualEtherStream implements IEtherStreamLike {
         }
 
 
-        if (this.tickCount == 0)
+        if (this.tickCount == 0) {
             for (IStreamCapability cap : this.capabilities) {
                 cap.firstTick(this);
             }
+            BlockPos pos = blockPosition();
+            this.onRunIntoNewBlock(null, null, pos, level.getBlockState(pos));
+        }
         this.tickCount++;
 
         for (IStreamCapability cap : this.capabilities) {

@@ -6,6 +6,7 @@ import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
+import org.jetbrains.annotations.Nullable;
 import studio.fantasyit.ether_craft.block.node.EtherAdaptNodeEntity;
 import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeContainerMenu;
 import studio.fantasyit.ether_craft.network.base.ISyncTargetMenu;
@@ -49,7 +50,7 @@ public abstract class AbstractNodePlugin implements ISyncTargetMenu {
     public void loadAdditional(ValueInput input) {
     }
 
-    public int earlyHandleInput(ItemResource resource, int amount, TransactionContext context) {
+    public int earlyHandleInput(ItemResource resource, int amount, @Nullable TransactionContext context) {
         return 0;
     }
 
@@ -74,7 +75,7 @@ public abstract class AbstractNodePlugin implements ISyncTargetMenu {
         return true;
     }
 
-    public int handleOverflow(ItemResource resource, int amount, TransactionContext transaction) {
+    public int handleOverflow(ItemResource resource, int amount, @Nullable TransactionContext transaction) {
         return 0;
     }
 }

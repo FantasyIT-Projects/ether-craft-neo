@@ -21,6 +21,7 @@ import studio.fantasyit.ether_craft.menu.base.slot.BaseDataSlot;
 import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeContainerMenu;
 import studio.fantasyit.ether_craft.network.c2s.SyncScreenDataC2S;
 import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
+import studio.fantasyit.ether_craft.node.plugins.base.AbstractNodePlugin;
 import studio.fantasyit.ether_craft.register.ItemRegistry;
 
 import javax.annotation.Nullable;
@@ -91,17 +92,20 @@ public class FeatureContainerInteract extends AbstractDirectionalFilterFeature {
         int maxTransfer = (int) (nodeEntity.getEther() / costPerItem);
 
         if (fromNode.nodeProperty.itemifyEther) {
-            ItemStack etherStack = fromNode.etherStorage.removeItem(0, maxTransfer);
-            if (!etherStack.isEmpty()) {
-                ItemStack remaining = toNode.etherStorage.insertItemStack(etherStack);
-                int transferred = etherStack.getCount() - remaining.getCount();
-                if (!remaining.isEmpty())
-                    fromNode.etherStorage.setItem(0, remaining);
-                if (transferred > 0) {
-                    nodeEntity.extractEther((long) transferred * costPerItem);
-                    fromNode.setChanged();
-                    toNode.setChanged();
-                    return;
+            int etherMaxTransfer = (int) (nodeEntity.getEther() / (costPerItem + Config.etherConvert));
+            if (etherMaxTransfer > 0) {
+                ItemStack etherStack = fromNode.etherStorage.removeItem(0, etherMaxTransfer);
+                if (!etherStack.isEmpty()) {
+                    ItemStack remaining = toNode.etherStorage.insertItemStack(etherStack);
+                    int transferred = etherStack.getCount() - remaining.getCount();
+                    if (!remaining.isEmpty())
+                        fromNode.etherStorage.setItem(0, remaining);
+                    if (transferred > 0) {
+                        nodeEntity.extractEther((long) transferred * costPerItem);
+                        fromNode.setChanged();
+                        toNode.setChanged();
+                        return;
+                    }
                 }
             }
         }
@@ -114,17 +118,42 @@ public class FeatureContainerInteract extends AbstractDirectionalFilterFeature {
                 continue;
             if (!fromNode.allowInteract(ItemResource.of(stack)))
                 continue;
-            if (!toNode.canAcceptAnySlot(stack))
-                continue;
 
             int toExtract = Math.min(stack.getCount(), maxTransfer);
-            ItemStack extracted = fromNode.normalStorage.removeItem(slot, toExtract);
-            ItemStack remaining = toNode.insertItemToNormal(extracted);
-            int inserted = extracted.getCount() - remaining.getCount();
-            if (!remaining.isEmpty())
-                fromNode.normalStorage.addItem(remaining);
-            if (inserted > 0) {
-                nodeEntity.extractEther((long) inserted * costPerItem);
+            ItemResource resource = ItemResource.of(stack);
+            int remaining = toExtract;
+
+            int earlyCosted = 0;
+            for (AbstractNodePlugin plugin : toNode.getPlugins()) {
+                int consumed = plugin.earlyHandleInput(resource, remaining, null);
+                earlyCosted += consumed;
+                remaining -= consumed;
+                if (remaining <= 0) break;
+            }
+
+            int normalInserted = 0;
+            if (remaining > 0) {
+                ItemStack remainingStack = toNode.insertItemToNormal(stack.copyWithCount(remaining));
+                normalInserted = remaining - remainingStack.getCount();
+                remaining = remainingStack.getCount();
+            }
+
+            int overflowConsumed = 0;
+            if (remaining > 0) {
+                for (AbstractNodePlugin plugin : toNode.getPlugins()) {
+                    int consumed = plugin.handleOverflow(resource, remaining, null);
+                    overflowConsumed += consumed;
+                    remaining -= consumed;
+                    if (remaining <= 0) break;
+                }
+            }
+
+            int totalConsumed = earlyCosted + normalInserted + overflowConsumed;
+            int leftInSource = stack.getCount() - totalConsumed;
+            fromNode.normalStorage.setItem(slot, stack.copyWithCount(leftInSource));
+
+            if (totalConsumed > 0) {
+                nodeEntity.extractEther((long) totalConsumed * costPerItem);
                 fromNode.setChanged();
                 toNode.setChanged();
                 return;

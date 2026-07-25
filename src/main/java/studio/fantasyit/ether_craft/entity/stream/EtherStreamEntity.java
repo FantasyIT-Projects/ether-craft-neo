@@ -189,8 +189,10 @@ public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
                 consumer.recompute(this, capabilities);
             }
 
-            if (this.tickCount == 0)
+            if (this.tickCount == 0) {
                 firstTick();
+                capabilities.forEach(t -> t.runIntoNewBlock(this, null, null, blockPos, level().getBlockState(blockPos)));
+            }
 
             for (IStreamCapability capability : capabilities) {
                 capability.tick(this);
