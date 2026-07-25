@@ -1,0 +1,96 @@
+{
+  "type": "ether_craft:ether_process",
+  "input": [
+    {
+      "id": "I0",
+      "item": {
+        "count": 4,
+        "ingredient": "minecraft:leather"
+      },
+      "next": "P4"
+    },
+    {
+      "id": "I1",
+      "item": {
+        "count": 4,
+        "ingredient": "minecraft:beef"
+      },
+      "next": "P4"
+    },
+    {
+      "id": "I2",
+      "item": {
+        "count": 1,
+        "ingredient": "minecraft:mycelium"
+      },
+      "next": "P4"
+    }
+  ],
+  "output": {
+    "id": "O",
+    "item": [
+      {
+        "id": "minecraft:mooshroom_spawn_egg"
+      }
+    ]
+  },
+  "process": [
+    {
+      "id": "P4",
+      "item": [
+        {
+          "chip": "ether_craft:heating_chip"
+        },
+        {
+          "chip": "ether_craft:heating_chip"
+        }
+      ],
+      "next": "P0"
+    },
+    {
+      "id": "P3",
+      "item": [
+        {
+          "chip": "ether_craft:molding_chip"
+        },
+        {
+          "chip": "ether_craft:molding_chip"
+        }
+      ],
+      "next": "P1"
+    },
+    {
+      "id": "P2",
+      "item": [
+        {
+          "chip": "ether_craft:cutting_chip"
+        },
+        {
+          "chip": "ether_craft:cutting_chip"
+        }
+      ],
+      "next": "P1"
+    },
+    {
+      "id": "P1",
+      "item": [
+        {
+          "chip": "ether_craft:anima_infusing_chip"
+        }
+      ],
+      "next": "P0"
+    },
+    {
+      "id": "P0",
+      "item": [
+        {
+          "chip": "ether_craft:energizing_chip"
+        },
+        {
+          "chip": "ether_craft:ai_supercomputing_chip"
+        }
+      ],
+      "next": "O"
+    }
+  ]
+}

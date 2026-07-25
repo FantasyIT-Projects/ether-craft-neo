@@ -1,0 +1,71 @@
+{
+  "type": "ether_craft:ether_process",
+  "input": [
+    {
+      "id": "I0",
+      "item": {
+        "count": 1,
+        "ingredient": "#ether_craft:plant_floating"
+      },
+      "next": "P4"
+    }
+  ],
+  "output": {
+    "id": "O",
+    "item": [
+      {
+        "id": "minecraft:frogspawn"
+      }
+    ]
+  },
+  "process": [
+    {
+      "id": "P4",
+      "item": [
+        {
+          "chip": "ether_craft:converging_chip"
+        },
+        {
+          "chip": "ether_craft:converging_chip"
+        }
+      ],
+      "next": "P3"
+    },
+    {
+      "id": "P3",
+      "item": [
+        {
+          "chip": "ether_craft:ai_supercomputing_chip"
+        }
+      ],
+      "next": "P2"
+    },
+    {
+      "id": "P2",
+      "item": [
+        {
+          "chip": "ether_craft:heating_chip"
+        }
+      ],
+      "next": "P1"
+    },
+    {
+      "id": "P1",
+      "item": [
+        {
+          "chip": "ether_craft:anima_infusing_chip"
+        }
+      ],
+      "next": "P0"
+    },
+    {
+      "id": "P0",
+      "item": [
+        {
+          "chip": "ether_craft:converging_chip"
+        }
+      ],
+      "next": "O"
+    }
+  ]
+}

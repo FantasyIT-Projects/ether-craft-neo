@@ -1,0 +1,33 @@
+{
+  "type": "ether_craft:ether_process",
+  "input": [
+    {
+      "id": "I0",
+      "item": {
+        "count": 1,
+        "ingredient": "#minecraft:wool"
+      },
+      "next": "P0"
+    }
+  ],
+  "output": {
+    "id": "O",
+    "item": [
+      {
+        "count": 2,
+        "id": "minecraft:string"
+      }
+    ]
+  },
+  "process": [
+    {
+      "id": "P0",
+      "item": [
+        {
+          "chip": "ether_craft:cutting_chip"
+        }
+      ],
+      "next": "O"
+    }
+  ]
+}

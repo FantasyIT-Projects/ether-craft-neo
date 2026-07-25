@@ -1,0 +1,69 @@
+{
+  "type": "ether_craft:ether_process",
+  "input": [
+    {
+      "id": "I0",
+      "item": {
+        "count": 1,
+        "ingredient": "minecraft:stick"
+      },
+      "next": "P2"
+    },
+    {
+      "id": "I1",
+      "item": {
+        "count": 1,
+        "ingredient": "minecraft:string"
+      },
+      "next": "P2"
+    },
+    {
+      "id": "I2",
+      "item": {
+        "count": 1,
+        "ingredient": "minecraft:dropper"
+      },
+      "next": "P2"
+    }
+  ],
+  "output": {
+    "id": "O",
+    "item": [
+      {
+        "id": "minecraft:dispenser"
+      }
+    ]
+  },
+  "process": [
+    {
+      "id": "P2",
+      "item": [
+        {
+          "chip": "ether_craft:cutting_chip"
+        }
+      ],
+      "next": "P0"
+    },
+    {
+      "id": "P1",
+      "item": [
+        {
+          "chip": "ether_craft:cutting_chip"
+        }
+      ],
+      "next": "P0"
+    },
+    {
+      "id": "P0",
+      "item": [
+        {
+          "chip": "ether_craft:molding_chip"
+        },
+        {
+          "chip": "ether_craft:molding_chip"
+        }
+      ],
+      "next": "O"
+    }
+  ]
+}

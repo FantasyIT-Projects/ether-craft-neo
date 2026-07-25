@@ -1,0 +1,32 @@
+{
+  "type": "ether_craft:ether_process",
+  "input": [
+    {
+      "id": "I0",
+      "item": {
+        "count": 1,
+        "ingredient": "minecraft:cobblestone"
+      },
+      "next": "P0"
+    }
+  ],
+  "output": {
+    "id": "O",
+    "item": [
+      {
+        "id": "minecraft:gravel"
+      }
+    ]
+  },
+  "process": [
+    {
+      "id": "P0",
+      "item": [
+        {
+          "chip": "ether_craft:stamping_chip"
+        }
+      ],
+      "next": "O"
+    }
+  ]
+}

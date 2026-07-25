@@ -19,5 +19,6 @@ public class GenerateGatherEvent {
         event.createProvider(LootTableGen::new);
         event.createProvider(WorldGenData::new);
         event.createProvider(TagGenEntity::new);
+        event.createProvider(GridRecipeProvider.Runner::new);
     }
 }

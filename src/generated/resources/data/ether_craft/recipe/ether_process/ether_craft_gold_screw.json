@@ -1,0 +1,47 @@
+{
+  "type": "ether_craft:ether_process",
+  "input": [
+    {
+      "id": "I0",
+      "item": {
+        "count": 1,
+        "ingredient": "#c:ingots/gold"
+      },
+      "next": "P1"
+    }
+  ],
+  "output": {
+    "id": "O",
+    "item": [
+      {
+        "id": "ether_craft:gold_screw"
+      }
+    ]
+  },
+  "process": [
+    {
+      "id": "P1",
+      "item": [
+        {
+          "chip": "ether_craft:cutting_chip"
+        },
+        {
+          "chip": "ether_craft:cutting_chip"
+        }
+      ],
+      "next": "P0"
+    },
+    {
+      "id": "P0",
+      "item": [
+        {
+          "chip": "ether_craft:cutting_chip"
+        },
+        {
+          "chip": "ether_craft:cutting_chip"
+        }
+      ],
+      "next": "O"
+    }
+  ]
+}
