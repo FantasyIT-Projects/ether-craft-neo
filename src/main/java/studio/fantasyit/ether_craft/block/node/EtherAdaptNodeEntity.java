@@ -96,7 +96,6 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
             @Override
             public void setChanged() {
                 super.setChanged();
-                markUpdate = true;
             }
         }, 0);
         normalStorageFilter = new ItemFilter(27, this::setChanged);
