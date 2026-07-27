@@ -286,24 +286,24 @@ public class VirtualEtherStreamHolder {
     }
 
     private void syncAll() {
-        List<Integer> collectedToCreate = new ArrayList<>();
+        List<VirtualEtherStream> collectedToCreate = new ArrayList<>();
         List<Integer> collectedToRemove = new ArrayList<>();
-        List<Integer> collectedToSyncData = new ArrayList<>();
-        List<Integer> collectedToSyncEtherConsume = new ArrayList<>();
+        List<VirtualEtherStream> collectedToSyncData = new ArrayList<>();
+        List<VirtualEtherStream> collectedToSyncEtherConsume = new ArrayList<>();
         for (VirtualEtherStream ves : streams) {
             if (ves.markToRemove)
                 collectedToRemove.add(ves.streamId);
             else if (ves.markToSyncCreation) {
-                collectedToCreate.add(ves.streamId);
+                collectedToCreate.add(ves);
                 ves.markToSyncCreation = false;
                 ves.markToSyncData = false;
             } else {
                 if (ves.markToSyncData) {
-                    collectedToSyncData.add(ves.streamId);
+                    collectedToSyncData.add(ves);
                     ves.markToSyncData = false;
                 }
                 if (ves.needsEtherSync && ves.ether > 0) {
-                    collectedToSyncEtherConsume.add(ves.streamId);
+                    collectedToSyncEtherConsume.add(ves);
                     ves.needsEtherSync = false;
                 }
             }
@@ -311,56 +311,39 @@ public class VirtualEtherStreamHolder {
         IntSet tracking = trackingPlayers.keySet();
 
         if (!collectedToCreate.isEmpty()) {
-            //创建新的Stream
-            for (int id : collectedToCreate) {
-                VirtualEtherStream ves = findStreamById(id);
-                if (ves != null) {
-                    if (ves.consumer.isDirty()) {
-                        ves.consumer.recompute(ves, ves.capabilities);
-                    }
-                    EtherStreamInitialCreateS2C etherStreamCreateS2C = new EtherStreamInitialCreateS2C(
-                            posDir,
-                            ves.streamId,
-                            ves.startOffset,
-                            ves.startSpeed,
-                            ves.ether,
-                            ves.consumer.toState(),
-                            ves.toSyncData
-                    );
-                    sendToTrackingPlayers(level, ves.trackingPlayers, etherStreamCreateS2C);
+            for (VirtualEtherStream ves : collectedToCreate) {
+                if (ves.consumer.isDirty()) {
+                    ves.consumer.recompute(ves, ves.capabilities);
                 }
+                EtherStreamInitialCreateS2C etherStreamCreateS2C = new EtherStreamInitialCreateS2C(
+                        posDir,
+                        ves.streamId,
+                        ves.startOffset,
+                        ves.startSpeed,
+                        ves.ether,
+                        ves.consumer.toState(),
+                        ves.toSyncData
+                );
+                sendToTrackingPlayers(level, ves.trackingPlayers, etherStreamCreateS2C);
             }
         }
 
         if (!collectedToRemove.isEmpty()) {
-            //删除Stream
-            List<Integer> entries = new ArrayList<>();
-            for (VirtualEtherStream ves : streams) {
-                if (ves.markToRemove) {
-                    entries.add(ves.streamId);
-                }
-            }
-            EtherStreamSetDyingS2C payload = new EtherStreamSetDyingS2C(posDir, entries);
+            EtherStreamSetDyingS2C payload = new EtherStreamSetDyingS2C(posDir, collectedToRemove);
             sendToTrackingPlayers(level, tracking, payload);
         }
 
 
         if (!collectedToSyncData.isEmpty()) {
-            //Synced data 变化的
-            for (int id : collectedToSyncData) {
-                VirtualEtherStream ves = findStreamById(id);
-                if (ves == null) continue;
-                EtherStreamSyncDataS2C payload = new EtherStreamSyncDataS2C(posDir, id, ves.toSyncData);
+            for (VirtualEtherStream ves : collectedToSyncData) {
+                EtherStreamSyncDataS2C payload = new EtherStreamSyncDataS2C(posDir, ves.streamId, ves.toSyncData);
                 sendToTrackingPlayers(level, tracking, payload);
             }
         }
 
         if (!collectedToSyncEtherConsume.isEmpty()) {
-            //同步消耗对象
             List<EtherStreamUpdateS2C.StreamEntry> updateEntries = new ArrayList<>();
-            for (int id : collectedToSyncEtherConsume) {
-                VirtualEtherStream ves = findStreamById(id);
-                if (ves == null) continue;
+            for (VirtualEtherStream ves : collectedToSyncEtherConsume) {
                 EtherStreamUpdateS2C.StreamEntry streamEntry = new EtherStreamUpdateS2C.StreamEntry(
                         ves.streamId,
                         ves.ether,
