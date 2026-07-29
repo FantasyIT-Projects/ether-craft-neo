@@ -291,6 +291,7 @@ public class VirtualEtherStreamHolder {
         List<VirtualEtherStream> collectedToSyncData = new ArrayList<>();
         List<VirtualEtherStream> collectedToSyncEtherConsume = new ArrayList<>();
         for (VirtualEtherStream ves : streams) {
+            if (ves.markToSyncCreation && ves.markToRemove) continue;
             if (ves.markToRemove)
                 collectedToRemove.add(ves.streamId);
             else if (ves.markToSyncCreation) {
