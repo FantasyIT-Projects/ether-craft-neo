@@ -1,5 +1,6 @@
 package studio.fantasyit.ether_craft.stream.vholder;
 
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.Identifier;
@@ -45,6 +46,7 @@ public class VirtualEtherStream implements IEtherStreamLike {
     public boolean runIntoEtherGlass = false;
 
     List<IStreamCapability> capabilities = new ArrayList<>();
+    Object2ObjectOpenHashMap<Identifier, IStreamCapability> capabilityMap = new Object2ObjectOpenHashMap<>();
     public final EtherConsumer consumer = new EtherConsumer();
     int ether;
     public int realCanReceiveEther = -1;
@@ -140,12 +142,13 @@ public class VirtualEtherStream implements IEtherStreamLike {
 
     @Override
     public Optional<IStreamCapability> getCapability(Identifier id) {
-        return capabilities.stream().filter(c -> c.getId().equals(id)).findFirst();
+        return Optional.ofNullable(capabilityMap.get(id));
     }
 
     @Override
     public void addCapability(IStreamCapability capability) {
         this.capabilities.add(capability);
+        this.capabilityMap.put(capability.getId(), capability);
         capability.setConsumer(this.consumer);
     }
 
@@ -223,6 +226,8 @@ public class VirtualEtherStream implements IEtherStreamLike {
             newStream.realCanReceiveEther = realCanReceiveEther;
             newStream.capabilities = this.capabilities;
             this.capabilities = new ArrayList<>();
+            newStream.capabilityMap = this.capabilityMap;
+            this.capabilityMap = new Object2ObjectOpenHashMap<>();
             for (IStreamCapability cap : newStream.capabilities) {
                 cap.setConsumer(newStream.consumer);
             }
@@ -311,6 +316,7 @@ public class VirtualEtherStream implements IEtherStreamLike {
         ves.consumer.fromState(data.consumerState());
         ves.capabilities.addAll(data.capabilities());
         for (IStreamCapability cap : data.capabilities()) {
+            ves.capabilityMap.put(cap.getId(), cap);
             cap.setConsumer(ves.consumer);
         }
         ves.toSyncData = new ArrayList<>(data.toSyncData());
