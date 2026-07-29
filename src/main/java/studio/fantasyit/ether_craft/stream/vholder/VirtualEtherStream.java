@@ -57,6 +57,7 @@ public class VirtualEtherStream implements IEtherStreamLike {
     final VirtualEtherStreamHolder holder;
 
     HashSet<Integer> trackingPlayers = new HashSet<>();
+    HashSet<Integer> lastTrackingPlayers = new HashSet<>();
 
     public VirtualEtherStream(int streamId, int ether, PosDir posDir, float startOffset, float startSpeed, Level level, VirtualEtherStreamHolder holder) {
         this.startOffset = startOffset;

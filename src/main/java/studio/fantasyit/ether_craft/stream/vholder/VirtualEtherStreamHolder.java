@@ -34,10 +34,7 @@ import studio.fantasyit.ether_craft.stream.PosDir;
 import studio.fantasyit.ether_craft.stream.cap.IStreamCapability;
 import studio.fantasyit.ether_craft.util.LevelUtil;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 public class VirtualEtherStreamHolder {
     private final Direction direction;
@@ -263,14 +260,17 @@ public class VirtualEtherStreamHolder {
     private void updateTracking() {
         for (VirtualEtherStream ves : streams) {
             if (ves.trackingDirty) {
-                for (int i : ves.trackingPlayers)
+                for (int i : ves.lastTrackingPlayers)
                     trackingPlayers.addTo(i, -1);
             }
             if (ves.trackingInitial || ves.trackingDirty) {
                 for (int i : ves.trackingPlayers)
                     trackingPlayers.addTo(i, 1);
+                if (ves.trackingDirty) {
+                    ves.lastTrackingPlayers = new HashSet<>(ves.trackingPlayers);
+                    ves.trackingDirty = false;
+                }
                 ves.trackingInitial = false;
-                ves.trackingDirty = false;
             }
         }
     }
