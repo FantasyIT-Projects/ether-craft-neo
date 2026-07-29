@@ -199,6 +199,9 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
         } else {
             syncController = null;
         }
+        if (nodeProperty.receiveRedstoneSignal) {
+            neighborSignalDirty = true;
+        }
     }
 
     @Override
