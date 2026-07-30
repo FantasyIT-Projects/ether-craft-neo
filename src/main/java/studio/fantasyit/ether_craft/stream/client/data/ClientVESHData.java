@@ -8,6 +8,7 @@ import studio.fantasyit.ether_craft.stream.PosDir;
 import studio.fantasyit.ether_craft.stream.client.render.ClientVirtualEtherStreamRenderer;
 import studio.fantasyit.ether_craft.stream.client.render.RenderDataUtil;
 import studio.fantasyit.ether_craft.stream.client.render.VertexPrecomputer;
+import studio.fantasyit.ether_craft.stream.data.IEtherStreamEntryLike;
 import studio.fantasyit.ether_craft.stream.data.IEtherStreamSyncedData;
 
 import java.lang.ref.WeakReference;
@@ -44,7 +45,7 @@ public class ClientVESHData {
         if (level.get() == null) return;
         ClientVESHEntry entry = createOrGet(msg.posDir());
         if (!entry.streams.containsKey(msg.streamId())) {
-            entry.addStream(msg.streamId(), new ClientStreamEntry(msg.posDir(), msg));
+            entry.addStream(msg.streamId(), msg.posDir(), msg);
         }
     }
 
@@ -53,9 +54,17 @@ public class ClientVESHData {
         ClientVESHEntry entry = createOrGet(msg.posDir());
         for (EtherStreamBatchCreateS2C.StreamEntry se : msg.entries()) {
             if (!entry.streams.containsKey(se.streamId())) {
-                entry.addStream(se.streamId(), new ClientStreamEntry(msg.posDir(), se));
+                entry.addStream(se.streamId(), msg.posDir(), se);
             }
         }
+    }
+
+    public void handleQuickCreate(EtherStreamQuickCreateS2C msg) {
+        if (level.get() == null) return;
+        ClientVESHEntry entry = entries.get(msg.posDir());
+        if (entry == null || !entry.hasLast()) return;
+        IEtherStreamEntryLike quickEntry = entry.getFromLastAndUpdate();
+        entry.addStream(quickEntry.streamId(), msg.posDir(), quickEntry);
     }
 
     public void handleUpdate(EtherStreamUpdateS2C msg) {

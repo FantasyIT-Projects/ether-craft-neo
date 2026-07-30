@@ -32,6 +32,7 @@ import studio.fantasyit.ether_craft.register.ItemRegistry;
 import studio.fantasyit.ether_craft.register.Tags;
 import studio.fantasyit.ether_craft.stream.PosDir;
 import studio.fantasyit.ether_craft.stream.cap.IStreamCapability;
+import studio.fantasyit.ether_craft.stream.data.CachedEtherStreamEntry;
 import studio.fantasyit.ether_craft.util.LevelUtil;
 
 import java.util.*;
@@ -44,9 +45,12 @@ public class VirtualEtherStreamHolder {
     final List<VirtualEtherStream> streams = new ArrayList<>();
     private final Vec3i chunkVec;
     Int2IntOpenHashMap trackingPlayers = new Int2IntOpenHashMap();
+    Int2IntOpenHashMap playerLastCreateId = new Int2IntOpenHashMap();
     int nextId = 0;
     private boolean lastHadStreamInUnloadedChunk = false;
     private int holderMaxDistance;
+    CachedEtherStreamEntry lastCreateSnapshot = null;
+
 
     public VirtualEtherStreamHolder(PosDir posDir, @NotNull ServerLevel level) {
         this.level = level;
@@ -282,7 +286,13 @@ public class VirtualEtherStreamHolder {
                     trackingPlayers.addTo(i, -1);
             }
         }
-        trackingPlayers.int2IntEntrySet().removeIf(e -> e.getIntValue() <= 0);
+        trackingPlayers.int2IntEntrySet().removeIf(e -> {
+            if (e.getIntValue() <= 0) {
+                playerLastCreateId.remove(e.getIntKey());
+                return true;
+            }
+            return false;
+        });
     }
 
     private void syncAll() {
@@ -316,16 +326,43 @@ public class VirtualEtherStreamHolder {
                 if (ves.consumer.isDirty()) {
                     ves.consumer.recompute(ves, ves.capabilities);
                 }
-                EtherStreamInitialCreateS2C etherStreamCreateS2C = new EtherStreamInitialCreateS2C(
-                        posDir,
-                        ves.streamId,
-                        ves.startOffset,
-                        ves.startSpeed,
-                        ves.ether,
-                        ves.consumer.toState(),
-                        ves.toSyncData
-                );
-                sendToTrackingPlayers(level, ves.trackingPlayers, etherStreamCreateS2C);
+
+                boolean quickEligible = Config.etherStreamSyncDistance > 0
+                        && lastCreateSnapshot != null
+                        && snapshotMatches(lastCreateSnapshot, ves);
+
+                if (quickEligible) {
+                    Set<Integer> quickPlayers = new HashSet<>();
+                    Set<Integer> fullPlayers = new HashSet<>();
+                    for (int pid : ves.trackingPlayers) {
+                        if (playerLastCreateId.get(pid) == lastCreateSnapshot.streamId()) {
+                            quickPlayers.add(pid);
+                        } else {
+                            fullPlayers.add(pid);
+                        }
+                    }
+                    if (!fullPlayers.isEmpty()) {
+                        EtherStreamInitialCreateS2C etherStreamCreateS2C = new EtherStreamInitialCreateS2C(
+                                posDir, ves.streamId, ves.startOffset, ves.startSpeed,
+                                ves.ether, ves.consumer.toState(), ves.toSyncData
+                        );
+                        sendToTrackingPlayers(level, fullPlayers, etherStreamCreateS2C);
+                    }
+                    if (!quickPlayers.isEmpty()) {
+                        sendToTrackingPlayers(level, quickPlayers, new EtherStreamQuickCreateS2C(posDir));
+                    }
+                } else {
+                    EtherStreamInitialCreateS2C etherStreamCreateS2C = new EtherStreamInitialCreateS2C(
+                            posDir, ves.streamId, ves.startOffset, ves.startSpeed,
+                            ves.ether, ves.consumer.toState(), ves.toSyncData
+                    );
+                    sendToTrackingPlayers(level, ves.trackingPlayers, etherStreamCreateS2C);
+                }
+
+                for (int pid : ves.trackingPlayers) {
+                    playerLastCreateId.put(pid, ves.streamId);
+                }
+                lastCreateSnapshot = createSnapshot(ves);
             }
         }
 
@@ -408,6 +445,27 @@ public class VirtualEtherStreamHolder {
         return streams.isEmpty();
     }
 
+
+    private static CachedEtherStreamEntry createSnapshot(VirtualEtherStream ves) {
+        if (!ves.toSyncData.isEmpty()) return null;
+        return new CachedEtherStreamEntry(
+                ves.getStreamId(),
+                ves.startOffset,
+                ves.startSpeed,
+                ves.getEther(),
+                1,
+                ves.consumer.toState()
+        );
+    }
+
+    private static boolean snapshotMatches(CachedEtherStreamEntry snapshot, VirtualEtherStream ves) {
+        return snapshot.streamId() == ves.getStreamId() - 1
+                && Float.compare(snapshot.startOffset(), ves.startOffset) == 0
+                && Float.compare(snapshot.startSpeed(), ves.startSpeed) == 0
+                && snapshot.ether() == ves.getEther()
+                && snapshot.consumerState().equals(ves.consumer.toState())
+                && ves.toSyncData.isEmpty();
+    }
 
     private static void addEtherToPlatedItem(VirtualEtherStream ves, ItemEntity ie) {
         ItemStack stack = ie.getItem();

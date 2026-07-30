@@ -80,6 +80,11 @@ public class Network {
                 SyncPluginTipsS2C.CODEC,
                 SyncPluginTipsS2C::handle
         );
+        event.playToClient(
+                EtherStreamQuickCreateS2C.TYPE,
+                EtherStreamQuickCreateS2C.CODEC,
+                EtherStreamQuickCreateS2C::handle
+        );
 
 
         event.playToServer(
