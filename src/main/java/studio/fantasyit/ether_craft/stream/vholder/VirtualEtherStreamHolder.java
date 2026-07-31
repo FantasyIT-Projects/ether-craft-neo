@@ -136,10 +136,10 @@ public class VirtualEtherStreamHolder {
         Vec3 queryVec = direction.getUnitVec3().scale(maxBlockDist + 1);
         List<Entity> entities = level.getEntities(null, new AABB(pos).expandTowards(queryVec).inflate(1.0));
         entities.removeIf(entity -> entity == null || (entity.is(EntityType.ITEM) && !PlatingUtil.isPlatedItemEntity((ItemEntity) entity) && !((ItemEntity) entity).getItem().is(Items.GLASS)));
-        List<BlockState> blockStates = new ArrayList<>(maxClipDist);
-        List<BlockPos> blockPoses = new ArrayList<>(maxClipDist);
-        List<VoxelShape> shapes = new ArrayList<>(maxClipDist);
-        List<Boolean> isPassThrough = new ArrayList<>(maxClipDist);
+        List<BlockState> blockStates = new ArrayList<>(maxClipDist + 1);
+        List<BlockPos> blockPoses = new ArrayList<>(maxClipDist + 1);
+        List<VoxelShape> shapes = new ArrayList<>(maxClipDist + 1);
+        List<Boolean> isPassThrough = new ArrayList<>(maxClipDist + 1);
 
         BlockPos.MutableBlockPos blockScanPos = pos.mutable();
         for (int i = 0; i <= maxClipDist; i++) {
@@ -335,7 +335,8 @@ public class VirtualEtherStreamHolder {
                     Set<Integer> quickPlayers = new HashSet<>();
                     Set<Integer> fullPlayers = new HashSet<>();
                     for (int pid : ves.trackingPlayers) {
-                        if (playerLastCreateId.get(pid) == lastCreateSnapshot.streamId()) {
+                        if (playerLastCreateId.containsKey(pid)
+                                && playerLastCreateId.get(pid) == lastCreateSnapshot.streamId()) {
                             quickPlayers.add(pid);
                         } else {
                             fullPlayers.add(pid);
