@@ -8,6 +8,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import net.neoforged.neoforge.event.tick.LevelTickEvent;
 import studio.fantasyit.ether_craft.EtherCraft;
+import studio.fantasyit.ether_craft.client.debug.EtherStreamSyncMarker;
 import studio.fantasyit.ether_craft.entity.stream.EtherStreamEntity;
 import studio.fantasyit.ether_craft.stream.client.data.ClientVESHData;
 import studio.fantasyit.ether_craft.stream.client.data.EntityStreamClientManager;
@@ -21,6 +22,7 @@ public class ClientTickEvent {
             if (mc.level == null) return;
             ClientVESHData.getWithCurrentLevel(mc.level).tick();
             EntityStreamClientManager.tick();
+            EtherStreamSyncMarker.tick();
         }
     }
 

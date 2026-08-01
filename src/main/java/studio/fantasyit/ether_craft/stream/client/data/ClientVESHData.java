@@ -3,6 +3,7 @@ package studio.fantasyit.ether_craft.stream.client.data;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.level.Level;
+import studio.fantasyit.ether_craft.client.debug.EtherStreamSyncMarker;
 import studio.fantasyit.ether_craft.network.s2c.*;
 import studio.fantasyit.ether_craft.stream.PosDir;
 import studio.fantasyit.ether_craft.stream.client.render.ClientVirtualEtherStreamRenderer;
@@ -46,6 +47,10 @@ public class ClientVESHData {
         ClientVESHEntry entry = createOrGet(msg.posDir());
         if (!entry.streams.containsKey(msg.streamId())) {
             entry.addStream(msg.streamId(), msg.posDir(), msg);
+            ClientStreamEntry created = entry.streams.get(msg.streamId());
+            if (created != null) {
+                EtherStreamSyncMarker.record(EtherStreamSyncMarker.Type.CREATE, created.currentPos, msg.streamId());
+            }
         }
     }
 
@@ -55,6 +60,10 @@ public class ClientVESHData {
         for (EtherStreamBatchCreateS2C.StreamEntry se : msg.entries()) {
             if (!entry.streams.containsKey(se.streamId())) {
                 entry.addStream(se.streamId(), msg.posDir(), se);
+                ClientStreamEntry created = entry.streams.get(se.streamId());
+                if (created != null) {
+                    EtherStreamSyncMarker.record(EtherStreamSyncMarker.Type.CREATE, created.currentPos, se.streamId());
+                }
             }
         }
     }
@@ -65,6 +74,10 @@ public class ClientVESHData {
         if (entry == null || !entry.hasLast()) return;
         IEtherStreamEntryLike quickEntry = entry.getFromLastAndUpdate();
         entry.addStream(quickEntry.streamId(), msg.posDir(), quickEntry);
+        ClientStreamEntry created = entry.streams.get(quickEntry.streamId());
+        if (created != null) {
+            EtherStreamSyncMarker.record(EtherStreamSyncMarker.Type.QUICK_CREATE, created.currentPos, quickEntry.streamId());
+        }
     }
 
     public void handleUpdate(EtherStreamUpdateS2C msg) {
@@ -75,6 +88,7 @@ public class ClientVESHData {
             if (current == null || current.isDying || current.removed) continue;
             current.updateFromServer(se.ether(), se.consumerState());
             current.updateDynamic();
+            EtherStreamSyncMarker.record(EtherStreamSyncMarker.Type.UPDATE, current.currentPos, se.streamId());
         }
     }
 
@@ -86,6 +100,8 @@ public class ClientVESHData {
         for (int sid : msg.entries()) {
             ClientStreamEntry current = entry.streams.get(sid);
             if (current == null) continue;
+
+            EtherStreamSyncMarker.record(EtherStreamSyncMarker.Type.DELETE, current.currentPos, sid);
 
             if (current.attachedLogic.stream().anyMatch(t -> t.shouldDelayDeath(current))) {
                 current.setDying();
@@ -107,6 +123,7 @@ public class ClientVESHData {
             for (IEtherStreamSyncedData data : etherStreamSyncDataS2C.data())
                 entry.syncedData.put(data.getId(), data);
             entry.updateDynamic();
+            EtherStreamSyncMarker.record(EtherStreamSyncMarker.Type.UPDATE, entry.currentPos, etherStreamSyncDataS2C.streamId());
         }
     }
 
