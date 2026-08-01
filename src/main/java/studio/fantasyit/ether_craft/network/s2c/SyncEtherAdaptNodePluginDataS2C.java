@@ -7,10 +7,12 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.jetbrains.annotations.NotNull;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.block.node.EtherAdaptNodeEntity;
+import studio.fantasyit.ether_craft.client.debug.EtherAdaptNodeUpdateMarker;
 import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
 
 public record SyncEtherAdaptNodePluginDataS2C(
@@ -48,6 +50,7 @@ public record SyncEtherAdaptNodePluginDataS2C(
             Level level = iPayloadContext.player().level();
             if (level.getBlockEntity(pos) instanceof EtherAdaptNodeEntity nodeEntity) {
                 nodeEntity.setSyncedPluginDataNoSync(plugin, key, pluginValue);
+                EtherAdaptNodeUpdateMarker.record(EtherAdaptNodeUpdateMarker.Type.PLUGIN_DATA, Vec3.atCenterOf(pos));
             }
         });
     }

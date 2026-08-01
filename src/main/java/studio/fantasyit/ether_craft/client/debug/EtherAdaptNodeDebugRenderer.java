@@ -15,28 +15,29 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import studio.fantasyit.ether_craft.EtherCraft;
 
 @EventBusSubscriber(modid = EtherCraft.MODID, value = Dist.CLIENT)
-public class EtherStreamSyncDebugRenderer implements DebugRenderer.SimpleDebugRenderer {
-    private static final int CREATE_COLOR = ARGB.colorFromFloat(1.0F, 0.0F, 1.0F, 0.0F);
-    private static final int QUICK_CREATE_COLOR = ARGB.colorFromFloat(1.0F, 0.0F, 1.0F, 1.0F);
-    private static final int UPDATE_COLOR = ARGB.colorFromFloat(1.0F, 1.0F, 1.0F, 0.0F);
-    private static final int DELETE_COLOR = ARGB.colorFromFloat(1.0F, 1.0F, 0.0F, 0.0F);
+public class EtherAdaptNodeDebugRenderer implements DebugRenderer.SimpleDebugRenderer {
+    private static final int EAN_EXTRA_COLOR = ARGB.colorFromFloat(1.0F, 1.0F, 0.0F, 0.0F);
+    private static final int PLUGIN_DATA_COLOR = ARGB.colorFromFloat(1.0F, 0.0F, 0.0F, 1.0F);
+    private static final int ETHER_VALUE_COLOR = ARGB.colorFromFloat(1.0F, 1.0F, 1.0F, 0.0F);
+    private static final float[] BASE_HALF_SIZE = new float[]{
+            0.15F, 0.30F, 0.45F
+    };
 
     @Override
     public void emitGizmos(double camX, double camY, double camZ, DebugValueAccess debugValues, Frustum frustum, float partialTicks) {
-        if (!EtherStreamSyncMarker.isEnabled()) return;
+        if (!EtherAdaptNodeUpdateMarker.isEnabled()) return;
         long now = net.minecraft.client.Minecraft.getInstance().level.getGameTime();
-        for (EtherStreamSyncMarker.Marker marker : EtherStreamSyncMarker.getMarkers()) {
+        for (EtherAdaptNodeUpdateMarker.Marker marker : EtherAdaptNodeUpdateMarker.getMarkers()) {
             int age = (int) (now - marker.gameTime());
-            float progress = 1.0F - Math.max(0, age) / (float) EtherStreamSyncMarker.LIFETIME_TICKS;
+            float progress = 1.0F - Math.max(0, age) / (float) EtherAdaptNodeUpdateMarker.LIFETIME_TICKS;
             if (progress <= 0.0F) continue;
             int color = switch (marker.type()) {
-                case CREATE -> CREATE_COLOR;
-                case QUICK_CREATE -> QUICK_CREATE_COLOR;
-                case UPDATE -> UPDATE_COLOR;
-                case DELETE -> DELETE_COLOR;
+                case EAN_EXTRA -> EAN_EXTRA_COLOR;
+                case PLUGIN_DATA -> PLUGIN_DATA_COLOR;
+                case ETHER_VALUE -> ETHER_VALUE_COLOR;
             };
             float alpha = progress;
-            float halfSize = 0.12F * progress;
+            float halfSize = BASE_HALF_SIZE[marker.type().ordinal()] * progress;
             Vec3 pos = marker.pos();
             AABB box = new AABB(pos.x - halfSize, pos.y - halfSize, pos.z - halfSize,
                     pos.x + halfSize, pos.y + halfSize, pos.z + halfSize);
@@ -46,6 +47,6 @@ public class EtherStreamSyncDebugRenderer implements DebugRenderer.SimpleDebugRe
 
     @SubscribeEvent
     public static void onRegisterDebugRenderers(net.neoforged.neoforge.client.event.RegisterDebugRenderersEvent event) {
-        event.register(client -> new EtherStreamSyncDebugRenderer());
+        event.register(client -> new EtherAdaptNodeDebugRenderer());
     }
 }

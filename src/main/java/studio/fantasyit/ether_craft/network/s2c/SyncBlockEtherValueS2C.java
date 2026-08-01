@@ -7,10 +7,12 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.jetbrains.annotations.NotNull;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.block.base.EtherContainer;
+import studio.fantasyit.ether_craft.client.debug.EtherAdaptNodeUpdateMarker;
 
 public record SyncBlockEtherValueS2C(
         long ether,
@@ -41,6 +43,7 @@ public record SyncBlockEtherValueS2C(
             EtherContainer capability = level.getCapability(EtherContainer.ETHER_CONTAINER, pos);
             if (capability != null) {
                 capability.setEtherNoUpdate(ether);
+                EtherAdaptNodeUpdateMarker.record(EtherAdaptNodeUpdateMarker.Type.ETHER_VALUE, Vec3.atCenterOf(pos));
             }
         });
     }

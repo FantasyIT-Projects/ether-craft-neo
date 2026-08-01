@@ -8,10 +8,12 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.jetbrains.annotations.NotNull;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.block.node.EtherAdaptNodeEntity;
+import studio.fantasyit.ether_craft.client.debug.EtherAdaptNodeUpdateMarker;
 import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
 import studio.fantasyit.ether_craft.util.SerializeUtil;
 
@@ -65,6 +67,7 @@ public record SyncEtherAdaptNodeExtraS2C(
             if (level.dimension().identifier().equals(levelId)) {
                 if (level.getBlockEntity(pos) instanceof EtherAdaptNodeEntity nodeEntity) {
                     nodeEntity.fromNetwork(pluginDirection, functionPlugin.orElse(null), pluginValue, maxEther, slotUnlock);
+                    EtherAdaptNodeUpdateMarker.record(EtherAdaptNodeUpdateMarker.Type.EAN_EXTRA, Vec3.atCenterOf(pos));
                 }
             }
         });
