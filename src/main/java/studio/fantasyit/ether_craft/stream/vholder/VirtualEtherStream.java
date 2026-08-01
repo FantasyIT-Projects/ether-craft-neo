@@ -321,6 +321,7 @@ public class VirtualEtherStream implements IEtherStreamLike {
             cap.setConsumer(ves.consumer);
         }
         ves.toSyncData = new ArrayList<>(data.toSyncData());
+        ves.markToSyncCreation = false;
         return ves;
     }
 

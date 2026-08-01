@@ -59,7 +59,7 @@ public class ClientVESHData {
         ClientVESHEntry entry = createOrGet(msg.posDir());
         for (EtherStreamBatchCreateS2C.StreamEntry se : msg.entries()) {
             if (!entry.streams.containsKey(se.streamId())) {
-                entry.addStream(se.streamId(), msg.posDir(), se);
+                entry.addStream(se.streamId(), msg.posDir(), se, true);
                 ClientStreamEntry created = entry.streams.get(se.streamId());
                 if (created != null) {
                     EtherStreamSyncMarker.record(EtherStreamSyncMarker.Type.CREATE, created.currentPos, se.streamId());
@@ -72,6 +72,7 @@ public class ClientVESHData {
         if (level.get() == null) return;
         ClientVESHEntry entry = entries.get(msg.posDir());
         if (entry == null || !entry.hasLast()) return;
+        if (entry.streams.containsKey(entry.getLastCreateStreamId() + 1)) return;
         IEtherStreamEntryLike quickEntry = entry.getFromLastAndUpdate();
         entry.addStream(quickEntry.streamId(), msg.posDir(), quickEntry);
         ClientStreamEntry created = entry.streams.get(quickEntry.streamId());

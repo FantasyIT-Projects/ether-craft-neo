@@ -29,14 +29,24 @@ public class ClientVESHEntry {
     }
 
     public void addStream(int i, PosDir posDir, IEtherStreamEntryLike streamEntry) {
+        addStream(i, posDir, streamEntry, false);
+    }
+
+    public void addStream(int i, PosDir posDir, IEtherStreamEntryLike streamEntry, boolean skipCache) {
         ClientStreamEntry clientStreamEntry = new ClientStreamEntry(posDir, streamEntry);
         streams.put(i, clientStreamEntry);
         steamsIterable.add(clientStreamEntry);
-        lastCreateEntry = CachedEtherStreamEntry.from(streamEntry);
+        if (!skipCache) {
+            lastCreateEntry = CachedEtherStreamEntry.from(streamEntry);
+        }
     }
 
     public boolean hasLast() {
         return lastCreateEntry != null;
+    }
+
+    public int getLastCreateStreamId() {
+        return lastCreateEntry.streamId();
     }
 
     public IEtherStreamEntryLike getFromLastAndUpdate() {
