@@ -375,8 +375,10 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
             for (int i = 0; i < l.size(); i++)
                 processingProgress[i] = l.get(i);
         });
-        for (int i = 0; i < ROWS; i++)
+        for (int i = 0; i < ROWS; i++) {
             filters[i].deserialize(input.childOrEmpty("filter_" + i));
+            filters[i].whitelist = true;
+        }
         super.loadAdditional(input);
         chipLayoutDirty = true;
     }
