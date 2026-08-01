@@ -75,6 +75,7 @@ public abstract class AbstractItemConsumeFunction extends AbstractNodePlugin {
             }
         }
 
+        boolean previousWorking = remainBurnTicks > 0;
         if (remainBurnTicks <= 0 && !container.getItem(0).isEmpty()) {
             ItemStack toConsumeItemStack = container.getItem(0).copy();
             if (accepts(ItemResource.of(toConsumeItemStack))) {
@@ -98,6 +99,10 @@ public abstract class AbstractItemConsumeFunction extends AbstractNodePlugin {
             }
         }
 
+        if (!previousWorking && remainBurnTicks <= 0) {
+            if (nodeEntity.getSyncedPluginData(installedId, WORKING_MATERIAL) != WorkingMaterial.IDLE.ordinal())
+                nodeEntity.setSyncedPluginData(installedId, WORKING_MATERIAL, WorkingMaterial.IDLE.ordinal());
+        }
     }
 
     @Override

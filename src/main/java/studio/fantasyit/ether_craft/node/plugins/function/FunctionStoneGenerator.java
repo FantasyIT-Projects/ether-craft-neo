@@ -37,11 +37,4 @@ public class FunctionStoneGenerator extends AbstractItemConsumeFunction {
         itemStack.shrink(1);
         return new IGeneratorAdjuster.AdjustedParameters(stoneGeneratorRatio.burnTicks(), ept);
     }
-
-    @Override
-    public void tickWork() {
-        super.tickWork();
-        if (remainBurnTicks == 0 && nodeEntity.getSyncedPluginData(installedId, WORKING_MATERIAL) != WorkingMaterial.IDLE.ordinal())
-            nodeEntity.setSyncedPluginData(installedId, WORKING_MATERIAL, WorkingMaterial.IDLE.ordinal());
-    }
 }

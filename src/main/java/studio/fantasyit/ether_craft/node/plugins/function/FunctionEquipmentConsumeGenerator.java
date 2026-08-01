@@ -58,10 +58,8 @@ public class FunctionEquipmentConsumeGenerator extends AbstractItemConsumeFuncti
 
     @Override
     public void tickWork() {
+        boolean wasWorking = remainBurnTicks > 0;
         super.tickWork();
-        if (remainBurnTicks == 0 && nodeEntity.getSyncedPluginData(installedId, WORKING_MATERIAL) != WorkingMaterial.IDLE.ordinal())
-            nodeEntity.setSyncedPluginData(installedId, WORKING_MATERIAL, WorkingMaterial.IDLE.ordinal());
-
-        nodeEntity.setSyncedPluginData(installedId, STATE, remainBurnTicks > 0 ? 1 : 0);
+        nodeEntity.setSyncedPluginData(installedId, STATE, (wasWorking || remainBurnTicks > 0) ? 1 : 0);
     }
 }
