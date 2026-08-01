@@ -13,6 +13,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -187,5 +188,15 @@ public class EtherAdaptNodeBlock extends BaseBlock {
             case 3 -> ItemRegistry.ETHER_ADAPT_NODE_ITEM_LV_3.get();
             default -> throw new IllegalArgumentException("Invalid level: " + state.getValue(LEVEL));
         };
+    }
+
+    @Override
+    public ItemStack getCloneItemStack(LevelReader level, BlockPos pos, BlockState state, boolean includeData, Player player) {
+        return new ItemStack(switch (state.getValue(LEVEL)) {
+            case 1 -> ItemRegistry.ETHER_ADAPT_NODE_ITEM_LV_1.get();
+            case 2 -> ItemRegistry.ETHER_ADAPT_NODE_ITEM_LV_2.get();
+            case 3 -> ItemRegistry.ETHER_ADAPT_NODE_ITEM_LV_3.get();
+            default -> throw new IllegalArgumentException("Invalid level: " + state.getValue(LEVEL));
+        });
     }
 }

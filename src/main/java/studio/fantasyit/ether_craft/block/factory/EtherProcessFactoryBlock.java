@@ -12,6 +12,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -99,5 +100,16 @@ public class EtherProcessFactoryBlock extends BaseBlock {
             case 4 -> ItemRegistry.ETHER_PROCESS_FACTORY_ITEM_LV_4.get();
             default -> throw new IllegalArgumentException("Invalid level: " + state.getValue(LEVEL));
         };
+    }
+
+    @Override
+    public ItemStack getCloneItemStack(LevelReader level, BlockPos pos, BlockState state, boolean includeData, Player player) {
+        return new ItemStack(switch (state.getValue(LEVEL)) {
+            case 1 -> ItemRegistry.ETHER_PROCESS_FACTORY_ITEM_LV_1.get();
+            case 2 -> ItemRegistry.ETHER_PROCESS_FACTORY_ITEM_LV_2.get();
+            case 3 -> ItemRegistry.ETHER_PROCESS_FACTORY_ITEM_LV_3.get();
+            case 4 -> ItemRegistry.ETHER_PROCESS_FACTORY_ITEM_LV_4.get();
+            default -> throw new IllegalArgumentException("Invalid level: " + state.getValue(LEVEL));
+        });
     }
 }
