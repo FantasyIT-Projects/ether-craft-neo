@@ -68,6 +68,10 @@ public class Config {
             .comment("Ether consumed per item transferred by ContainerInteract feature")
             .defineInRange("node.container_interact.ether_per_item", 10, 1, Integer.MAX_VALUE);
 
+    private static final ModConfigSpec.IntValue NODE_CONTAINER_INTERACT_CD = BUILDER
+            .comment("Cooldown ticks between ContainerInteract transfers (20 ticks = 1 second)")
+            .defineInRange("node.container_interact.cd", 2, 1, Integer.MAX_VALUE);
+
     // -- node.dropper_thrower --
 
     private static final ModConfigSpec.IntValue NODE_DROPPER_THROWER_ETHER_PER_ITEM = BUILDER
@@ -411,6 +415,15 @@ public class Config {
             .comment("Delay in ticks before a dropped item can be picked up by ether stream")
             .defineInRange("item_pick_up_by_stream_delay_after_dropped", 20, 0, 100);
 
+    // -- index mapping --
+
+    private static final ModConfigSpec.IntValue INDEX_MAPPING_DECAY_INTERVAL = BUILDER
+            .comment("Ticks between counter decrements in index mapping")
+            .defineInRange("ether_stream.index_mapping_decay_interval", 20, 1, Integer.MAX_VALUE);
+
+    private static final ModConfigSpec.IntValue INDEX_MAPPING_REGISTER_THRESHOLD = BUILDER
+            .comment("Records needed before a stream gets a stable index")
+            .defineInRange("ether_stream.index_mapping_register_threshold", 20, 1, Integer.MAX_VALUE);
 
     static final ModConfigSpec SPEC = BUILDER.build();
 
@@ -424,6 +437,7 @@ public class Config {
     public static int nodeBlastFurnaceEtherPerTick;
     public static int nodeMagnetEtherPerStack;
     public static int nodeContainerInteractEtherPerItem;
+    public static int nodeContainerInteractCd;
     public static int nodeDropperThrowerEtherPerItem;
     public static int nodeProcessMaxProgress;
     public static int nodeEtherConverterCoefficient;
@@ -500,6 +514,8 @@ public class Config {
     public static int itemPickUpByStreamDelayAfterDropped;
     public static int nodeMuteMaxRange;
     public static int nodeMuteEtherCostPer16Block;
+    public static int indexMappingDecayInterval;
+    public static int indexMappingRegisterThreshold;
 
     @SubscribeEvent
     static void onLoad(final ModConfigEvent event) {
@@ -513,6 +529,7 @@ public class Config {
         nodeBlastFurnaceEtherPerTick = NODE_BLAST_FURNACE_ETHER_PER_TICK.get();
         nodeMagnetEtherPerStack = NODE_MAGNET_ETHER_PER_STACK.get();
         nodeContainerInteractEtherPerItem = NODE_CONTAINER_INTERACT_ETHER_PER_ITEM.get();
+        nodeContainerInteractCd = NODE_CONTAINER_INTERACT_CD.get();
         nodeDropperThrowerEtherPerItem = NODE_DROPPER_THROWER_ETHER_PER_ITEM.get();
         nodeProcessMaxProgress = NODE_PROCESS_MAX_PROGRESS.get();
         nodeEtherConverterCoefficient = NODE_ETHER_CONVERTER_COEFFICIENT.get();
@@ -589,5 +606,7 @@ public class Config {
         itemPickUpByStreamDelayAfterDropped = ITEM_PICK_UP_BY_STREAM_DELAY_AFTER_DROPPED.get();
         nodeMuteMaxRange = NODE_MUTE_MAX_RANGE.get();
         nodeMuteEtherCostPer16Block = NODE_MUTE_ETHER_COST_PER_16_BLOCK.get();
+        indexMappingDecayInterval = INDEX_MAPPING_DECAY_INTERVAL.get();
+        indexMappingRegisterThreshold = INDEX_MAPPING_REGISTER_THRESHOLD.get();
     }
 }

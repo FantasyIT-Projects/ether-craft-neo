@@ -4,6 +4,7 @@ import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.network.PacketDistributor;
+import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.network.s2c.IndexMappingSyncS2C;
 import studio.fantasyit.ether_craft.stream.PosDir;
 
@@ -25,7 +26,7 @@ public class IndexMappingManager {
     }
 
     public void tick(ServerLevel level) {
-        if (level.getServer().getTickCount() % 20 == 0) {
+        if (level.getServer().getTickCount() % Config.indexMappingDecayInterval == 0) {
             for (PosDir posDir : counter.keySet()) {
                 counter.addTo(posDir, -1);
             }
@@ -55,7 +56,7 @@ public class IndexMappingManager {
     public void recordAndPrepareSend(PosDir pos) {
         if (pos2IdDir.containsKey(pos)) return;
         int i = counter.addTo(pos, 1);
-        if (i >= 5) {
+        if (i >= Config.indexMappingRegisterThreshold) {
             counter.remove(pos, i);
             int id = maxId++;
             pos2IdDir.put(pos, id);

@@ -15,8 +15,6 @@ import studio.fantasyit.ether_craft.register.AttachmentDataRegistry;
 import studio.fantasyit.ether_craft.stream.client.data.ClientVESHData;
 import studio.fantasyit.ether_craft.stream.client.data.ClientVESHEntry;
 
-import java.util.OptionalInt;
-
 @EventBusSubscriber(modid = EtherCraft.MODID, value = Dist.CLIENT)
 public class DebugAddEvent {
     @SubscribeEvent
@@ -28,6 +26,7 @@ public class DebugAddEvent {
         @Override
         public void display(DebugScreenDisplayer debugScreenDisplayer, @Nullable Level serverLevel, @Nullable LevelChunk levelChunk, @Nullable LevelChunk levelChunk1) {
             Level level = Minecraft.getInstance().level;
+            if (level == null) return;
             int totalSize = 0;
             int maxIndexed = level.getData(AttachmentDataRegistry.REVERSE_INDEX_MAPPING_MANAGER).id2PosDir.keySet().intStream().max().orElse(-1);
             ClientVESHData clientVESHData = ClientVESHData.getWithCurrentLevel(level);
