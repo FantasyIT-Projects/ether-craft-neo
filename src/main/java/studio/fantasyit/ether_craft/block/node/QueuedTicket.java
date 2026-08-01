@@ -1,48 +1,61 @@
 package studio.fantasyit.ether_craft.block.node;
 
 import net.minecraft.resources.Identifier;
+import studio.fantasyit.ether_craft.node.NodePluginManager;
 import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
+import studio.fantasyit.ether_craft.node.plugins.base.AbstractNodePlugin;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.IdentityHashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 public class QueuedTicket {
-    public Map<Identifier, List<InstalledPlugin>> queuedPlugins = new HashMap<>();
-    public Map<InstalledPlugin, Integer> queuedCd = new HashMap<>();
+    public Map<Identifier, List<InstalledPlugin>> queuedPlugins = new IdentityHashMap<>();
+    public Map<InstalledPlugin, Integer> queuedCd = new IdentityHashMap<>();
 
     public boolean allowed(Identifier actionId, InstalledPlugin plugin) {
         if (queuedCd.containsKey(plugin))
             return false;
-        if (!queuedPlugins.containsKey(actionId))
-            queuedPlugins.put(actionId, new ArrayList<>());
-        if (!queuedPlugins.get(actionId).contains(plugin)) {
-            queuedPlugins.get(actionId).add(plugin);
-        }
-        if (queuedPlugins.get(actionId).getFirst().equals(plugin)) {
-            return true;
-        }
-        return false;
+        List<InstalledPlugin> queue = queuedPlugins.computeIfAbsent(actionId, _ -> new ArrayList<>());
+        if (!queue.contains(plugin))
+            queue.add(plugin);
+        return queue.getFirst().equals(plugin);
     }
 
     public void requeue(Identifier actionId, InstalledPlugin plugin, int cd) {
-        if (!queuedPlugins.containsKey(actionId))
+        List<InstalledPlugin> queue = queuedPlugins.get(actionId);
+        if (queue == null)
             return;
-        if (queuedPlugins.get(actionId).getFirst().equals(plugin))
-            queuedPlugins.get(actionId).removeFirst();
+        if (queue.getFirst().equals(plugin))
+            queue.removeFirst();
         if (cd > 0)
             queuedCd.put(plugin, cd);
     }
 
     public void tick(EtherAdaptNodeEntity nodeEntity) {
-        HashSet<InstalledPlugin> keys = new HashSet<>(queuedCd.keySet());
-        for (InstalledPlugin plugin : keys) {
-            if (queuedCd.get(plugin) <= 0 || !nodeEntity.isPluginInstalled(plugin)) {
-                queuedCd.remove(plugin);
-            } else {
-                queuedCd.put(plugin, queuedCd.get(plugin) - 1);
-            }
+        Iterator<Map.Entry<InstalledPlugin, Integer>> it = queuedCd.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry<InstalledPlugin, Integer> entry = it.next();
+            InstalledPlugin plugin = entry.getKey();
+            if (entry.getValue() <= 0 || !nodeEntity.isPluginInstalled(plugin) || !isCurrentInstance(nodeEntity, plugin))
+                it.remove();
+            else
+                entry.setValue(entry.getValue() - 1);
         }
-        for (Identifier actionId : queuedPlugins.keySet()) {
-            queuedPlugins.get(actionId).removeIf(plugin -> !nodeEntity.isPluginInstalled(plugin));
-        }
+        for (List<InstalledPlugin> queue : queuedPlugins.values())
+            queue.removeIf(plugin -> !nodeEntity.isPluginInstalled(plugin));
+    }
+
+    private boolean isCurrentInstance(EtherAdaptNodeEntity nodeEntity, InstalledPlugin plugin) {
+        AbstractNodePlugin current;
+        if (plugin.type() == NodePluginManager.PluginType.FUNCTION)
+            current = nodeEntity.functionStorage.getPlugin(plugin.id());
+        else if (plugin.type() == NodePluginManager.PluginType.FEATURE || plugin.type() == NodePluginManager.PluginType.UPGRADE)
+            current = nodeEntity.featureUpgradeStorage.getPlugin(plugin.id());
+        else
+            return false;
+        return current != null && current.installedId == plugin;
     }
 }
