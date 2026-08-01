@@ -12,6 +12,8 @@ import studio.fantasyit.ether_craft.attachment.LevelMuteSources;
 import studio.fantasyit.ether_craft.plating.data.CamouflageState;
 import studio.fantasyit.ether_craft.plating.data.TrackingData;
 import studio.fantasyit.ether_craft.plating.trigger.data.TriggerOnNotExistRecord;
+import studio.fantasyit.ether_craft.stream.idx.IndexMappingManager;
+import studio.fantasyit.ether_craft.stream.idx.ReverseIndexMappingManager;
 import studio.fantasyit.ether_craft.stream.vholder.VirtualEtherStreamHolderManager;
 
 import java.util.HashSet;
@@ -70,6 +72,14 @@ public class AttachmentDataRegistry {
 
     public static final Supplier<AttachmentType<LevelMuteSources>> LEVEL_MUTE_SOURCE = ATTACHMENT_TYPES.register(
             "chunk_mute_source", () -> AttachmentType.builder(() -> new LevelMuteSources()).sync(LevelMuteSources.STREAM_CODEC_PARTIAL).build()
+    );
+
+    public static final Supplier<AttachmentType<IndexMappingManager>> INDEX_MAPPING_MANAGER = ATTACHMENT_TYPES.register(
+            "index_mapping_manager", () -> AttachmentType.builder(IndexMappingManager::new).build()
+    );
+
+    public static final Supplier<AttachmentType<ReverseIndexMappingManager>> REVERSE_INDEX_MAPPING_MANAGER = ATTACHMENT_TYPES.register(
+            "reverse_index_mapping_manager", () -> AttachmentType.builder(ReverseIndexMappingManager::new).build()
     );
 
     public static void register(IEventBus modbus) {

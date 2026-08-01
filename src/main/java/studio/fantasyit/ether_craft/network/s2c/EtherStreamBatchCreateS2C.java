@@ -12,19 +12,21 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import studio.fantasyit.ether_craft.EtherCraft;
+import studio.fantasyit.ether_craft.register.AttachmentDataRegistry;
 import studio.fantasyit.ether_craft.stream.EtherConsumer;
 import studio.fantasyit.ether_craft.stream.PosDir;
 import studio.fantasyit.ether_craft.stream.client.data.ClientVESHDataGetter;
 import studio.fantasyit.ether_craft.stream.data.IEtherStreamEntryLike;
 import studio.fantasyit.ether_craft.stream.data.IEtherStreamSyncedData;
 import studio.fantasyit.ether_craft.stream.data.SyncedEtherStreamDataManager;
+import studio.fantasyit.ether_craft.stream.idx.AutoIndexPosDir;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 public record EtherStreamBatchCreateS2C(
-        PosDir posDir,
+        AutoIndexPosDir posDir,
         List<StreamEntry> entries
 ) implements CustomPacketPayload {
 
@@ -54,7 +56,7 @@ public record EtherStreamBatchCreateS2C(
     );
 
     public static final StreamCodec<RegistryFriendlyByteBuf, @NotNull EtherStreamBatchCreateS2C> CODEC = StreamCodec.composite(
-            PosDir.STREAM_CODEC, EtherStreamBatchCreateS2C::posDir,
+            AutoIndexPosDir.STREAM_CODEC, EtherStreamBatchCreateS2C::posDir,
             ByteBufCodecs.collection(ArrayList::new, STREAM_ENTRY_CODEC), EtherStreamBatchCreateS2C::entries,
             EtherStreamBatchCreateS2C::new
     );
@@ -66,7 +68,9 @@ public record EtherStreamBatchCreateS2C(
 
     public void handle(IPayloadContext ctx) {
         ctx.enqueueWork(() -> {
-            ClientVESHDataGetter.get().handleCreate(this);
+            PosDir resolved = posDir.resolve(ctx.player().level().getData(AttachmentDataRegistry.REVERSE_INDEX_MAPPING_MANAGER));
+            if (resolved == null) return;
+            ClientVESHDataGetter.get().handleCreate(resolved, this);
         });
     }
 }

@@ -28,9 +28,12 @@ import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.network.s2c.*;
 import studio.fantasyit.ether_craft.plating.helper.PlatingChargingUtil;
 import studio.fantasyit.ether_craft.plating.helper.PlatingUtil;
+import studio.fantasyit.ether_craft.register.AttachmentDataRegistry;
 import studio.fantasyit.ether_craft.register.ItemRegistry;
 import studio.fantasyit.ether_craft.register.Tags;
 import studio.fantasyit.ether_craft.stream.PosDir;
+import studio.fantasyit.ether_craft.stream.idx.AutoIndexPosDir;
+import studio.fantasyit.ether_craft.stream.idx.IndexMappingManager;
 import studio.fantasyit.ether_craft.stream.cap.IStreamCapability;
 import studio.fantasyit.ether_craft.stream.data.CachedEtherStreamEntry;
 import studio.fantasyit.ether_craft.util.LevelUtil;
@@ -60,7 +63,16 @@ public class VirtualEtherStreamHolder {
         chunkVec = posDir.dir().getUnitVec3i().multiply(16);
     }
 
+    private IndexMappingManager indexMappingManager() {
+        return level.getData(AttachmentDataRegistry.INDEX_MAPPING_MANAGER);
+    }
+
+    private AutoIndexPosDir posDirAutoIndexed() {
+        return indexMappingManager().get(posDir);
+    }
+
     public VirtualEtherStream createStream(int ether, float offset, float speed) {
+        indexMappingManager().recordAndPrepareSend(posDir);
         VirtualEtherStream ves = new VirtualEtherStream(
                 nextId++,
                 ether,
@@ -320,6 +332,7 @@ public class VirtualEtherStreamHolder {
             }
         }
         IntSet tracking = trackingPlayers.keySet();
+        AutoIndexPosDir posDirAI = posDirAutoIndexed();
 
         if (!collectedToCreate.isEmpty()) {
             for (VirtualEtherStream ves : collectedToCreate) {
@@ -344,17 +357,17 @@ public class VirtualEtherStreamHolder {
                     }
                     if (!fullPlayers.isEmpty()) {
                         EtherStreamInitialCreateS2C etherStreamCreateS2C = new EtherStreamInitialCreateS2C(
-                                posDir, ves.streamId, ves.startOffset, ves.startSpeed,
+                                posDirAI, ves.streamId, ves.startOffset, ves.startSpeed,
                                 ves.ether, ves.consumer.toState(), ves.toSyncData
                         );
                         sendToTrackingPlayers(level, fullPlayers, etherStreamCreateS2C);
                     }
                     if (!quickPlayers.isEmpty()) {
-                        sendToTrackingPlayers(level, quickPlayers, new EtherStreamQuickCreateS2C(posDir));
+                        sendToTrackingPlayers(level, quickPlayers, new EtherStreamQuickCreateS2C(posDirAI));
                     }
                 } else {
                     EtherStreamInitialCreateS2C etherStreamCreateS2C = new EtherStreamInitialCreateS2C(
-                            posDir, ves.streamId, ves.startOffset, ves.startSpeed,
+                            posDirAI, ves.streamId, ves.startOffset, ves.startSpeed,
                             ves.ether, ves.consumer.toState(), ves.toSyncData
                     );
                     sendToTrackingPlayers(level, ves.trackingPlayers, etherStreamCreateS2C);
@@ -368,14 +381,14 @@ public class VirtualEtherStreamHolder {
         }
 
         if (!collectedToRemove.isEmpty()) {
-            EtherStreamSetDyingS2C payload = new EtherStreamSetDyingS2C(posDir, collectedToRemove);
+            EtherStreamSetDyingS2C payload = new EtherStreamSetDyingS2C(posDirAI, collectedToRemove);
             sendToTrackingPlayers(level, tracking, payload);
         }
 
 
         if (!collectedToSyncData.isEmpty()) {
             for (VirtualEtherStream ves : collectedToSyncData) {
-                EtherStreamSyncDataS2C payload = new EtherStreamSyncDataS2C(posDir, ves.streamId, ves.toSyncData);
+                EtherStreamSyncDataS2C payload = new EtherStreamSyncDataS2C(posDirAI, ves.streamId, ves.toSyncData);
                 sendToTrackingPlayers(level, tracking, payload);
             }
         }
@@ -391,10 +404,8 @@ public class VirtualEtherStreamHolder {
                 ves.needsEtherConsumerSync = false;
                 updateEntries.add(streamEntry);
             }
-            if (!updateEntries.isEmpty()) {
-                EtherStreamUpdateS2C payload = new EtherStreamUpdateS2C(posDir, updateEntries);
-                sendToTrackingPlayers(level, tracking, payload);
-            }
+            EtherStreamUpdateS2C payload = new EtherStreamUpdateS2C(posDirAI, updateEntries);
+            sendToTrackingPlayers(level, tracking, payload);
         }
     }
 
@@ -437,7 +448,7 @@ public class VirtualEtherStreamHolder {
             }
         }
         if (!entries.isEmpty()) {
-            EtherStreamBatchCreateS2C payload = new EtherStreamBatchCreateS2C(posDir, entries);
+            EtherStreamBatchCreateS2C payload = new EtherStreamBatchCreateS2C(posDirAutoIndexed(), entries);
             PacketDistributor.sendToPlayer(player, payload);
         }
     }

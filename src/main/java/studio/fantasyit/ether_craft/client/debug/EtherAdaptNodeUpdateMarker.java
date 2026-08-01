@@ -42,6 +42,10 @@ public class EtherAdaptNodeUpdateMarker {
         markers.removeIf(m -> now - m.gameTime() > LIFETIME_TICKS);
     }
 
+    public static void clear() {
+        markers.clear();
+    }
+
     public static List<Marker> getMarkers() {
         return markers;
     }

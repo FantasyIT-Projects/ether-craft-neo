@@ -9,19 +9,21 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import studio.fantasyit.ether_craft.EtherCraft;
+import studio.fantasyit.ether_craft.register.AttachmentDataRegistry;
 import studio.fantasyit.ether_craft.stream.EtherConsumer;
 import studio.fantasyit.ether_craft.stream.PosDir;
 import studio.fantasyit.ether_craft.stream.client.data.ClientVESHDataGetter;
+import studio.fantasyit.ether_craft.stream.idx.AutoIndexPosDir;
 
 import java.util.List;
 import java.util.Optional;
 
 public record EtherStreamUpdateS2C(
-        PosDir posDir,
+        AutoIndexPosDir posDir,
         List<StreamEntry> entries
 ) implements CustomPacketPayload {
     public static final CustomPacketPayload.Type<@NotNull EtherStreamUpdateS2C> TYPE = new CustomPacketPayload.Type<>(
-            Identifier.fromNamespaceAndPath(EtherCraft.MODID, "ether_stream_update")
+            Identifier.fromNamespaceAndPath(EtherCraft.MODID, "es_update")
     );
 
     public record StreamEntry(int streamId, int ether, Optional<EtherConsumer.State> consumerState) {
@@ -34,7 +36,7 @@ public record EtherStreamUpdateS2C(
     }
 
     public static final StreamCodec<RegistryFriendlyByteBuf, @NotNull EtherStreamUpdateS2C> CODEC = StreamCodec.composite(
-            PosDir.STREAM_CODEC,
+            AutoIndexPosDir.STREAM_CODEC,
             EtherStreamUpdateS2C::posDir,
             StreamEntry.CODEC.apply(ByteBufCodecs.list()),
             EtherStreamUpdateS2C::entries,
@@ -47,6 +49,10 @@ public record EtherStreamUpdateS2C(
     }
 
     public void handle(IPayloadContext ctx) {
-        ctx.enqueueWork(() -> ClientVESHDataGetter.get().handleUpdate(this));
+        ctx.enqueueWork(() -> {
+            PosDir resolved = posDir.resolve(ctx.player().level().getData(AttachmentDataRegistry.REVERSE_INDEX_MAPPING_MANAGER));
+            if (resolved == null) return;
+            ClientVESHDataGetter.get().handleUpdate(resolved, this);
+        });
     }
 }

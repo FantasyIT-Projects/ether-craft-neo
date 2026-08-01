@@ -11,19 +11,21 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import studio.fantasyit.ether_craft.EtherCraft;
+import studio.fantasyit.ether_craft.register.AttachmentDataRegistry;
 import studio.fantasyit.ether_craft.stream.PosDir;
 import studio.fantasyit.ether_craft.stream.client.data.ClientVESHDataGetter;
+import studio.fantasyit.ether_craft.stream.idx.AutoIndexPosDir;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 public record EtherStreamSetDyingS2C(
-        PosDir posDir,
+        AutoIndexPosDir posDir,
         List<Integer> entries
 ) implements CustomPacketPayload {
     public static final Type<@NotNull EtherStreamSetDyingS2C> TYPE = new Type<>(
-            Identifier.fromNamespaceAndPath(EtherCraft.MODID, "ether_stream_set_dying")
+            Identifier.fromNamespaceAndPath(EtherCraft.MODID, "es_die")
     );
 
     private static final StreamCodec<RegistryFriendlyByteBuf, @Nullable Component> NULLABLE_COMPONENT_CODEC =
@@ -33,7 +35,7 @@ public record EtherStreamSetDyingS2C(
             );
 
     public static final StreamCodec<RegistryFriendlyByteBuf, @NotNull EtherStreamSetDyingS2C> CODEC = StreamCodec.composite(
-            PosDir.STREAM_CODEC, EtherStreamSetDyingS2C::posDir,
+            AutoIndexPosDir.STREAM_CODEC, EtherStreamSetDyingS2C::posDir,
             ByteBufCodecs.collection(ArrayList::new, ByteBufCodecs.INT), EtherStreamSetDyingS2C::entries,
             EtherStreamSetDyingS2C::new
     );
@@ -45,7 +47,9 @@ public record EtherStreamSetDyingS2C(
 
     public void handle(IPayloadContext ctx) {
         ctx.enqueueWork(() -> {
-            ClientVESHDataGetter.get().handleDying(this);
+            PosDir resolved = posDir.resolve(ctx.player().level().getData(AttachmentDataRegistry.REVERSE_INDEX_MAPPING_MANAGER));
+            if (resolved == null) return;
+            ClientVESHDataGetter.get().handleDying(resolved, this);
         });
     }
 }

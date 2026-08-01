@@ -12,19 +12,21 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import studio.fantasyit.ether_craft.EtherCraft;
+import studio.fantasyit.ether_craft.register.AttachmentDataRegistry;
 import studio.fantasyit.ether_craft.stream.EtherConsumer;
 import studio.fantasyit.ether_craft.stream.PosDir;
 import studio.fantasyit.ether_craft.stream.client.data.ClientVESHDataGetter;
 import studio.fantasyit.ether_craft.stream.data.IEtherStreamEntryLike;
 import studio.fantasyit.ether_craft.stream.data.IEtherStreamSyncedData;
 import studio.fantasyit.ether_craft.stream.data.SyncedEtherStreamDataManager;
+import studio.fantasyit.ether_craft.stream.idx.AutoIndexPosDir;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 public record EtherStreamInitialCreateS2C(
-        PosDir posDir,
+        AutoIndexPosDir posDir,
         int streamId,
         float startOffset,
         float startSpeed,
@@ -37,7 +39,7 @@ public record EtherStreamInitialCreateS2C(
             Identifier.fromNamespaceAndPath(EtherCraft.MODID, "es_init")
     );
     public static final StreamCodec<RegistryFriendlyByteBuf, @NotNull EtherStreamInitialCreateS2C> CODEC = StreamCodec.composite(
-            PosDir.STREAM_CODEC, EtherStreamInitialCreateS2C::posDir,
+            AutoIndexPosDir.STREAM_CODEC, EtherStreamInitialCreateS2C::posDir,
             ByteBufCodecs.VAR_INT, EtherStreamInitialCreateS2C::streamId,
             ByteBufCodecs.FLOAT, EtherStreamInitialCreateS2C::startOffset,
             ByteBufCodecs.FLOAT, EtherStreamInitialCreateS2C::startSpeed,
@@ -54,7 +56,9 @@ public record EtherStreamInitialCreateS2C(
 
     public void handle(IPayloadContext ctx) {
         ctx.enqueueWork(() -> {
-            ClientVESHDataGetter.get().handleCreate(this);
+            PosDir resolved = posDir.resolve(ctx.player().level().getData(AttachmentDataRegistry.REVERSE_INDEX_MAPPING_MANAGER));
+            if (resolved == null) return;
+            ClientVESHDataGetter.get().handleCreate(resolved, this);
         });
     }
 

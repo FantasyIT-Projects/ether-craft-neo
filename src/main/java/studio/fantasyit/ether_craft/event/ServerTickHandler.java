@@ -15,6 +15,7 @@ public class ServerTickHandler {
     public static void onServerTick(ServerTickEvent.Post event) {
         MinecraftServer server = event.getServer();
         for (ServerLevel level : server.getAllLevels()) {
+            level.getData(AttachmentDataRegistry.INDEX_MAPPING_MANAGER).tick(level);
             VirtualEtherStreamHolderManager.get(level).tick(level);
             if (level.hasData(AttachmentDataRegistry.LEVEL_MUTE_SOURCE)) {
                 level.getData(AttachmentDataRegistry.LEVEL_MUTE_SOURCE).tick(level);

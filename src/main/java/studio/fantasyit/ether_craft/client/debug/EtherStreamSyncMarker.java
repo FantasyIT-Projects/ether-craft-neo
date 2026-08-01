@@ -7,9 +7,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class EtherStreamSyncMarker {
-    public enum Type { CREATE, QUICK_CREATE, UPDATE, DELETE }
+    public enum Type {CREATE, QUICK_CREATE, UPDATE, DELETE}
 
-    public record Marker(Type type, Vec3 pos, int streamId, long gameTime) {}
+    public record Marker(Type type, boolean idxed, Vec3 pos, int streamId, long gameTime) {
+    }
 
     public static final int LIFETIME_TICKS = 20;
 
@@ -27,11 +28,11 @@ public class EtherStreamSyncMarker {
         ENABLED = enabled;
     }
 
-    public static void record(Type type, Vec3 pos, int streamId) {
+    public static void record(Type type, Vec3 pos, boolean idxed, int streamId) {
         if (!ENABLED) return;
         Minecraft mc = Minecraft.getInstance();
         if (mc.level == null) return;
-        markers.add(new Marker(type, pos, streamId, mc.level.getGameTime()));
+        markers.add(new Marker(type, idxed, pos, streamId, mc.level.getGameTime()));
     }
 
     public static void tick() {
@@ -40,6 +41,10 @@ public class EtherStreamSyncMarker {
         if (mc.level == null) return;
         long now = mc.level.getGameTime();
         markers.removeIf(m -> now - m.gameTime() > LIFETIME_TICKS);
+    }
+
+    public static void clear() {
+        markers.clear();
     }
 
     public static List<Marker> getMarkers() {

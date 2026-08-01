@@ -8,18 +8,20 @@ import net.minecraft.resources.Identifier;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.jetbrains.annotations.NotNull;
 import studio.fantasyit.ether_craft.EtherCraft;
+import studio.fantasyit.ether_craft.register.AttachmentDataRegistry;
 import studio.fantasyit.ether_craft.stream.PosDir;
 import studio.fantasyit.ether_craft.stream.client.data.ClientVESHData;
 import studio.fantasyit.ether_craft.stream.data.IEtherStreamSyncedData;
 import studio.fantasyit.ether_craft.stream.data.SyncedEtherStreamDataManager;
+import studio.fantasyit.ether_craft.stream.idx.AutoIndexPosDir;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public record EtherStreamSyncDataS2C(PosDir posDir, int streamId,
+public record EtherStreamSyncDataS2C(AutoIndexPosDir posDir, int streamId,
                                      List<IEtherStreamSyncedData> data) implements CustomPacketPayload {
     public static final CustomPacketPayload.Type<@NotNull EtherStreamSyncDataS2C> TYPE = new CustomPacketPayload.Type<>(
-            Identifier.fromNamespaceAndPath(EtherCraft.MODID, "ether_stream_sync")
+            Identifier.fromNamespaceAndPath(EtherCraft.MODID, "es_sync")
     );
 
 
@@ -29,7 +31,7 @@ public record EtherStreamSyncDataS2C(PosDir posDir, int streamId,
     }
 
     public static final StreamCodec<RegistryFriendlyByteBuf, @NotNull EtherStreamSyncDataS2C> CODEC = StreamCodec.composite(
-            PosDir.STREAM_CODEC,
+            AutoIndexPosDir.STREAM_CODEC,
             EtherStreamSyncDataS2C::posDir,
             ByteBufCodecs.INT, EtherStreamSyncDataS2C::streamId,
             ByteBufCodecs.collection(ArrayList::new, SyncedEtherStreamDataManager.STREAM_CODEC), EtherStreamSyncDataS2C::data,
@@ -37,6 +39,10 @@ public record EtherStreamSyncDataS2C(PosDir posDir, int streamId,
     );
 
     public void handle(IPayloadContext ctx) {
-        ctx.enqueueWork(() -> ClientVESHData.getWithCurrentLevel(ctx.player().level()).handleSync(this));
+        ctx.enqueueWork(() -> {
+            PosDir resolved = posDir.resolve(ctx.player().level().getData(AttachmentDataRegistry.REVERSE_INDEX_MAPPING_MANAGER));
+            if (resolved == null) return;
+            ClientVESHData.getWithCurrentLevel(ctx.player().level()).handleSync(resolved, this);
+        });
     }
 }

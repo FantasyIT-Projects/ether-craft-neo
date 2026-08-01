@@ -11,8 +11,11 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RegisterDebugEntriesEvent;
 import org.jspecify.annotations.Nullable;
 import studio.fantasyit.ether_craft.EtherCraft;
+import studio.fantasyit.ether_craft.register.AttachmentDataRegistry;
 import studio.fantasyit.ether_craft.stream.client.data.ClientVESHData;
 import studio.fantasyit.ether_craft.stream.client.data.ClientVESHEntry;
+
+import java.util.OptionalInt;
 
 @EventBusSubscriber(modid = EtherCraft.MODID, value = Dist.CLIENT)
 public class DebugAddEvent {
@@ -26,6 +29,7 @@ public class DebugAddEvent {
         public void display(DebugScreenDisplayer debugScreenDisplayer, @Nullable Level serverLevel, @Nullable LevelChunk levelChunk, @Nullable LevelChunk levelChunk1) {
             Level level = Minecraft.getInstance().level;
             int totalSize = 0;
+            int maxIndexed = level.getData(AttachmentDataRegistry.REVERSE_INDEX_MAPPING_MANAGER).id2PosDir.keySet().intStream().max().orElse(-1);
             ClientVESHData clientVESHData = ClientVESHData.getWithCurrentLevel(level);
             for (ClientVESHEntry entry : clientVESHData.getEntries().values()) {
                 totalSize += entry.streams.size();
@@ -38,6 +42,8 @@ public class DebugAddEvent {
             sb.append(" | ");
             sb.append("Render:");
             sb.append(clientVESHData.lastTickRenderCount).append("|").append(clientVESHData.lastTickParticleCount);
+            sb.append(" | ");
+            sb.append(maxIndexed);
             debugScreenDisplayer.addLine(sb.toString());
         }
     }

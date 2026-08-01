@@ -9,7 +9,6 @@ import net.minecraft.util.debug.DebugValueAccess;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import studio.fantasyit.ether_craft.EtherCraft;
@@ -20,6 +19,10 @@ public class EtherStreamSyncDebugRenderer implements DebugRenderer.SimpleDebugRe
     private static final int QUICK_CREATE_COLOR = ARGB.colorFromFloat(1.0F, 0.0F, 1.0F, 1.0F);
     private static final int UPDATE_COLOR = ARGB.colorFromFloat(1.0F, 1.0F, 1.0F, 0.0F);
     private static final int DELETE_COLOR = ARGB.colorFromFloat(1.0F, 1.0F, 0.0F, 0.0F);
+    private static final int D_CREATE_COLOR = ARGB.colorFromFloat(1.0F, 0.0F, 0.5F, 0.0F);
+    private static final int D_QUICK_CREATE_COLOR = ARGB.colorFromFloat(1.0F, 0.0F, 0.5F, 0.5F);
+    private static final int D_UPDATE_COLOR = ARGB.colorFromFloat(1.0F, 0.5F, 0.5F, 0.0F);
+    private static final int D_DELETE_COLOR = ARGB.colorFromFloat(1.0F, 0.5F, 0.0F, 0.0F);
 
     @Override
     public void emitGizmos(double camX, double camY, double camZ, DebugValueAccess debugValues, Frustum frustum, float partialTicks) {
@@ -29,12 +32,21 @@ public class EtherStreamSyncDebugRenderer implements DebugRenderer.SimpleDebugRe
             int age = (int) (now - marker.gameTime());
             float progress = 1.0F - Math.max(0, age) / (float) EtherStreamSyncMarker.LIFETIME_TICKS;
             if (progress <= 0.0F) continue;
-            int color = switch (marker.type()) {
-                case CREATE -> CREATE_COLOR;
-                case QUICK_CREATE -> QUICK_CREATE_COLOR;
-                case UPDATE -> UPDATE_COLOR;
-                case DELETE -> DELETE_COLOR;
-            };
+            int color;
+            if (marker.idxed())
+                color = switch (marker.type()) {
+                    case CREATE -> D_CREATE_COLOR;
+                    case QUICK_CREATE -> D_QUICK_CREATE_COLOR;
+                    case UPDATE -> D_UPDATE_COLOR;
+                    case DELETE -> D_DELETE_COLOR;
+                };
+            else
+                color = switch (marker.type()) {
+                    case CREATE -> CREATE_COLOR;
+                    case QUICK_CREATE -> QUICK_CREATE_COLOR;
+                    case UPDATE -> UPDATE_COLOR;
+                    case DELETE -> DELETE_COLOR;
+                };
             float alpha = progress;
             float halfSize = 0.12F * progress;
             Vec3 pos = marker.pos();

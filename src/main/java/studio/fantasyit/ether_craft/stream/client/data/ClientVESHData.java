@@ -42,67 +42,67 @@ public class ClientVESHData {
         return entry;
     }
 
-    public void handleCreate(EtherStreamInitialCreateS2C msg) {
+    public void handleCreate(PosDir posDir, EtherStreamInitialCreateS2C msg) {
         if (level.get() == null) return;
-        ClientVESHEntry entry = createOrGet(msg.posDir());
+        ClientVESHEntry entry = createOrGet(posDir);
         if (!entry.streams.containsKey(msg.streamId())) {
-            entry.addStream(msg.streamId(), msg.posDir(), msg);
+            entry.addStream(msg.streamId(), posDir, msg);
             ClientStreamEntry created = entry.streams.get(msg.streamId());
             if (created != null) {
-                EtherStreamSyncMarker.record(EtherStreamSyncMarker.Type.CREATE, created.currentPos, msg.streamId());
+                EtherStreamSyncMarker.record(EtherStreamSyncMarker.Type.CREATE, created.currentPos, msg.posDir().hasIndex(), msg.streamId());
             }
         }
     }
 
-    public void handleCreate(EtherStreamBatchCreateS2C msg) {
+    public void handleCreate(PosDir posDir, EtherStreamBatchCreateS2C msg) {
         if (level.get() == null) return;
-        ClientVESHEntry entry = createOrGet(msg.posDir());
+        ClientVESHEntry entry = createOrGet(posDir);
         for (EtherStreamBatchCreateS2C.StreamEntry se : msg.entries()) {
             if (!entry.streams.containsKey(se.streamId())) {
-                entry.addStream(se.streamId(), msg.posDir(), se, true);
+                entry.addStream(se.streamId(), posDir, se, true);
                 ClientStreamEntry created = entry.streams.get(se.streamId());
                 if (created != null) {
-                    EtherStreamSyncMarker.record(EtherStreamSyncMarker.Type.CREATE, created.currentPos, se.streamId());
+                    EtherStreamSyncMarker.record(EtherStreamSyncMarker.Type.CREATE, created.currentPos, msg.posDir().hasIndex(), se.streamId());
                 }
             }
         }
     }
 
-    public void handleQuickCreate(EtherStreamQuickCreateS2C msg) {
+    public void handleQuickCreate(PosDir posDir, EtherStreamQuickCreateS2C msg) {
         if (level.get() == null) return;
-        ClientVESHEntry entry = entries.get(msg.posDir());
+        ClientVESHEntry entry = entries.get(posDir);
         if (entry == null || !entry.hasLast()) return;
         if (entry.streams.containsKey(entry.getLastCreateStreamId() + 1)) return;
         IEtherStreamEntryLike quickEntry = entry.getFromLastAndUpdate();
-        entry.addStream(quickEntry.streamId(), msg.posDir(), quickEntry);
+        entry.addStream(quickEntry.streamId(), posDir, quickEntry);
         ClientStreamEntry created = entry.streams.get(quickEntry.streamId());
         if (created != null) {
-            EtherStreamSyncMarker.record(EtherStreamSyncMarker.Type.QUICK_CREATE, created.currentPos, quickEntry.streamId());
+            EtherStreamSyncMarker.record(EtherStreamSyncMarker.Type.QUICK_CREATE, created.currentPos, msg.posDir().hasIndex(), quickEntry.streamId());
         }
     }
 
-    public void handleUpdate(EtherStreamUpdateS2C msg) {
+    public void handleUpdate(PosDir posDir, EtherStreamUpdateS2C msg) {
         if (level.get() == null) return;
-        ClientVESHEntry entry = createOrGet(msg.posDir());
+        ClientVESHEntry entry = createOrGet(posDir);
         for (EtherStreamUpdateS2C.StreamEntry se : msg.entries()) {
             ClientStreamEntry current = entry.streams.get(se.streamId());
             if (current == null || current.isDying || current.removed) continue;
             current.updateFromServer(se.ether(), se.consumerState());
             current.updateDynamic();
-            EtherStreamSyncMarker.record(EtherStreamSyncMarker.Type.UPDATE, current.currentPos, se.streamId());
+            EtherStreamSyncMarker.record(EtherStreamSyncMarker.Type.UPDATE, current.currentPos, msg.posDir().hasIndex(), se.streamId());
         }
     }
 
-    public void handleDying(EtherStreamSetDyingS2C msg) {
+    public void handleDying(PosDir posDir, EtherStreamSetDyingS2C msg) {
         Level lv = level.get();
         if (lv == null) return;
-        ClientVESHEntry entry = createOrGet(msg.posDir());
+        ClientVESHEntry entry = createOrGet(posDir);
         long levelTime = lv.getGameTime();
         for (int sid : msg.entries()) {
             ClientStreamEntry current = entry.streams.get(sid);
             if (current == null) continue;
 
-            EtherStreamSyncMarker.record(EtherStreamSyncMarker.Type.DELETE, current.currentPos, sid);
+            EtherStreamSyncMarker.record(EtherStreamSyncMarker.Type.DELETE, current.currentPos, msg.posDir().hasIndex(), sid);
 
             if (current.attachedLogic.stream().anyMatch(t -> t.shouldDelayDeath(current))) {
                 current.setDying();
@@ -114,9 +114,9 @@ public class ClientVESHData {
         }
     }
 
-    public void handleSync(EtherStreamSyncDataS2C etherStreamSyncDataS2C) {
+    public void handleSync(PosDir posDir, EtherStreamSyncDataS2C etherStreamSyncDataS2C) {
         if (level.get() == null) return;
-        ClientVESHEntry ent = createOrGet(etherStreamSyncDataS2C.posDir());
+        ClientVESHEntry ent = createOrGet(posDir);
         if (ent == null) return;
         if (ent.streams.containsKey(etherStreamSyncDataS2C.streamId())) {
             ClientStreamEntry entry = ent.streams.get(etherStreamSyncDataS2C.streamId());
@@ -124,7 +124,7 @@ public class ClientVESHData {
             for (IEtherStreamSyncedData data : etherStreamSyncDataS2C.data())
                 entry.syncedData.put(data.getId(), data);
             entry.updateDynamic();
-            EtherStreamSyncMarker.record(EtherStreamSyncMarker.Type.UPDATE, entry.currentPos, etherStreamSyncDataS2C.streamId());
+            EtherStreamSyncMarker.record(EtherStreamSyncMarker.Type.UPDATE, entry.currentPos, etherStreamSyncDataS2C.posDir().hasIndex(), etherStreamSyncDataS2C.streamId());
         }
     }
 
