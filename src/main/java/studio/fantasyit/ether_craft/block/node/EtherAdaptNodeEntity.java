@@ -195,13 +195,19 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
         nodeProperty.slotUnlock = Math.min(nodeProperty.slotUnlock, normalStorage.getContainerSize());
         normalStorage.setAccessibleCount(nodeProperty.slotUnlock);
         if (nodeProperty.specialLevels != 0) {
-            syncController = new SimpleEtherSyncController((a, b) -> ((int) (a * nodeProperty.specialLevels / b)));
+            syncController = new SimpleEtherSyncController((a, b) -> etherLevel(a, b, nodeProperty.specialLevels));
         } else {
             syncController = null;
         }
         if (nodeProperty.receiveRedstoneSignal) {
             neighborSignalDirty = true;
         }
+    }
+
+    public static int etherLevel(long ether, long maxEther, int levels) {
+        if (levels <= 0) return 0;
+        if (maxEther <= 0) return levels - 1;
+        return (int) Math.min(ether * levels / maxEther, levels - 1);
     }
 
     @Override
