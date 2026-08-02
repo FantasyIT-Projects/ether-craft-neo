@@ -10,7 +10,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -24,6 +23,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.Nullable;
 import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.network.s2c.*;
 import studio.fantasyit.ether_craft.plating.helper.PlatingChargingUtil;
@@ -32,10 +32,10 @@ import studio.fantasyit.ether_craft.register.AttachmentDataRegistry;
 import studio.fantasyit.ether_craft.register.ItemRegistry;
 import studio.fantasyit.ether_craft.register.Tags;
 import studio.fantasyit.ether_craft.stream.PosDir;
-import studio.fantasyit.ether_craft.stream.idx.AutoIndexPosDir;
-import studio.fantasyit.ether_craft.stream.idx.IndexMappingManager;
 import studio.fantasyit.ether_craft.stream.cap.IStreamCapability;
 import studio.fantasyit.ether_craft.stream.data.CachedEtherStreamEntry;
+import studio.fantasyit.ether_craft.stream.idx.AutoIndexPosDir;
+import studio.fantasyit.ether_craft.stream.idx.IndexMappingManager;
 import studio.fantasyit.ether_craft.util.LevelUtil;
 
 import java.util.*;
@@ -146,13 +146,15 @@ public class VirtualEtherStreamHolder {
     private void tickCollideAll(int maxBlockDist) {
         int maxClipDist = maxBlockDist + 1;
         Vec3 queryVec = direction.getUnitVec3().scale(maxBlockDist + 1);
-        List<Entity> entities = level.getEntities(null, new AABB(pos).expandTowards(queryVec).inflate(1.0));
-        entities.removeIf(entity -> entity == null || (entity.is(EntityType.ITEM) && !PlatingUtil.isPlatedItemEntity((ItemEntity) entity) && !((ItemEntity) entity).getItem().is(Items.GLASS)));
+        List<Entity> allEntities = level.getEntities(null, new AABB(pos).expandTowards(queryVec).inflate(1.0));
+        List<Entity> canHitEntity = new ArrayList<>(allEntities);
+        canHitEntity.removeIf(this::entityNoCollidePredicator);
         List<BlockState> blockStates = new ArrayList<>(maxClipDist + 1);
         List<BlockPos> blockPoses = new ArrayList<>(maxClipDist + 1);
         List<VoxelShape> shapes = new ArrayList<>(maxClipDist + 1);
         List<Boolean> isPassThrough = new ArrayList<>(maxClipDist + 1);
 
+        // 构建 碰撞snapshot
         BlockPos.MutableBlockPos blockScanPos = pos.mutable();
         for (int i = 0; i <= maxClipDist; i++) {
             BlockState blockState = level.getBlockState(blockScanPos);
@@ -172,92 +174,16 @@ public class VirtualEtherStreamHolder {
             int clipStart = Math.clamp(BlockPos.containing(oldPos).distManhattan(pos), 0, blockStates.size() - 1);
             int clipEnd = Math.clamp(BlockPos.containing(newPos).distManhattan(pos), 0, blockStates.size() - 1);
             //获取最近的方块碰撞
-            BlockHitResult blockHit = null;
-            for (int j = clipStart; j <= clipEnd; j++) {
-                BlockState blockState = blockStates.get(j);
-                BlockPos pos = blockPoses.get(j);
-                if (blockState.isAir()) continue;
-                if (isPassThrough.get(j)) continue;
-                boolean skip = false;
-                for (IStreamCapability cap : ves.capabilities) {
-                    if (cap.shouldPassThrough(blockState, level, pos)) {
-                        skip = true;
-                        break;
-                    }
-                }
-                if (skip)
-                    continue;
-                VoxelShape shape = shapes.get(j);
-                if (shape.isEmpty()) continue;
-                BlockHitResult hit = shape.clip(oldPos, newPos, pos);
-                if (hit != null) {
-                    blockHit = hit;
-                    break;
-                }
-            }
+            BlockHitResult blockHit = collideTryBlock(ves, blockStates, blockPoses, isPassThrough, shapes, clipStart, clipEnd, oldPos, newPos);
             double blockDist = blockHit != null ? oldPos.distanceToSqr(blockHit.getLocation()) : Double.MAX_VALUE;
-
             //判断必方块更近的实体碰撞
-            Entity hitEntity = null;
-            Vec3 entityHitAt = null;
-            double nearestDist = blockDist;
-            for (Entity entity : entities) {
-                if (entity.is(Tags.ETHER_STREAM_PASS_THROUGH_ENTITY))
-                    continue;
-                AABB bb = entity.getBoundingBox().inflate(0.3);
-                double localDist = entity.distanceToSqr(oldPos);
-                boolean currentCanHit = bb.contains(ves.pos) && localDist < nearestDist;
-                Vec3 localHitAt = bb.getCenter();
-                if (!currentCanHit) {
-                    Vec3 oldEntityPos = ves.pos;
-                    Vec3 newEntityPos = oldPos.add(ves.motion);
-                    Optional<Vec3> clip = bb.clip(oldEntityPos, newEntityPos);
-                    if (clip.isPresent()) {
-                        localDist = clip.get().distanceToSqr(oldPos);
-                        if (localDist < nearestDist) {
-                            currentCanHit = true;
-                            localHitAt = clip.get();
-                        }
-                    }
-                }
-                if (currentCanHit) {
-                    nearestDist = localDist;
-                    hitEntity = entity;
-                    entityHitAt = localHitAt;
-                }
-            }
+            EntityHitResult entityHit = collideTryEntity(ves, canHitEntity, blockDist, oldPos);
 
-
-            if (hitEntity != null) {
-                boolean handled = false;
-                EntityHitResult hit = new EntityHitResult(hitEntity, entityHitAt);
-                if (hitEntity instanceof ItemEntity ie && PlatingUtil.isPlatedItemEntity(ie)) {
-                    addEtherToPlatedItem(ves, ie);
-                } else if (hitEntity instanceof ItemEntity ie && ie.getItem().is(Items.GLASS)) {
-                    ie.setItem(new ItemStack(ItemRegistry.ETHER_GLASS_ITEM, ie.getItem().getCount()));
-                } else {
-                    for (IStreamCapability cap : ves.capabilities) {
-                        handled |= cap.hitEntity(level, ves, hit, hitEntity);
-                    }
-                }
-                if (!handled) {
-                    PlatingChargingUtil.tryChargeEntity(ves, hitEntity);
-                    ves.markDead(hit);
-                }
+            //确认将碰到entity
+            if (entityHit != null) {
+                commonHitEntity(entityHit, ves);
             } else if (blockHit != null) {
-                boolean handled = false;
-                BlockState hitBlockState = level.getBlockState(blockHit.getBlockPos());
-                if (hitBlockState.getBlock() instanceof ShelfBlock) {
-                    if (level.getBlockEntity(blockHit.getBlockPos()) instanceof ShelfBlockEntity shelf) {
-                        PlatingChargingUtil.tryChargeShelf(ves, shelf);
-                    }
-                }
-                for (IStreamCapability cap : ves.capabilities) {
-                    handled |= cap.hitBlock(level, ves, blockHit, hitBlockState);
-                }
-                if (!handled) {
-                    ves.markDead(blockHit);
-                }
+                commonHitBlock(blockHit, ves);
             }
         }
 
@@ -271,6 +197,111 @@ public class VirtualEtherStreamHolder {
             int id2 = Math.clamp(newPos.distManhattan(pos), 0, blockStates.size() - 1);
             ves.onRunIntoNewBlock(oldPos, blockStates.get(id1), newPos, blockStates.get(id2));
         }
+    }
+
+    private boolean entityNoCollidePredicator(Entity entity) {
+        if (entity instanceof ItemEntity ie) {
+            if (PlatingUtil.isPlatedItemEntity(ie)) return false;
+            if (ie.getItem().is(Items.GLASS)) return false;
+            return true;
+        }
+        return false;
+    }
+
+    private void commonHitBlock(BlockHitResult blockHit, VirtualEtherStream ves) {
+        boolean handled = false;
+        BlockState hitBlockState = level.getBlockState(blockHit.getBlockPos());
+        if (hitBlockState.getBlock() instanceof ShelfBlock) {
+            if (level.getBlockEntity(blockHit.getBlockPos()) instanceof ShelfBlockEntity shelf) {
+                PlatingChargingUtil.tryChargeShelf(ves, shelf);
+            }
+        }
+        for (IStreamCapability cap : ves.capabilities) {
+            handled |= cap.hitBlock(level, ves, blockHit, hitBlockState);
+        }
+        if (!handled) {
+            ves.markDead(blockHit);
+        }
+    }
+
+    private void commonHitEntity(EntityHitResult entityHit, VirtualEtherStream ves) {
+        boolean handled = false;
+        if (entityHit.getEntity() instanceof ItemEntity ie && PlatingUtil.isPlatedItemEntity(ie)) {
+            addEtherToPlatedItem(ves, ie);
+        } else if (entityHit.getEntity() instanceof ItemEntity ie && ie.getItem().is(Items.GLASS)) {
+            ie.setItem(new ItemStack(ItemRegistry.ETHER_GLASS_ITEM, ie.getItem().getCount()));
+        } else {
+            for (IStreamCapability cap : ves.capabilities) {
+                handled |= cap.hitEntity(level, ves, entityHit, entityHit.getEntity());
+            }
+        }
+        if (!handled) {
+            PlatingChargingUtil.tryChargeEntity(ves, entityHit.getEntity());
+            ves.markDead(entityHit);
+        }
+    }
+
+    private @Nullable EntityHitResult collideTryEntity(VirtualEtherStream ves, List<Entity> entities, double blockDist, Vec3 oldPos) {
+        Entity hitEntity = null;
+        Vec3 entityHitAt = null;
+        double nearestDist = blockDist;
+        for (Entity entity : entities) {
+            if (entity.is(Tags.ETHER_STREAM_PASS_THROUGH_ENTITY))
+                continue;
+            AABB bb = entity.getBoundingBox().inflate(0.3);
+            double localDist = entity.distanceToSqr(oldPos);
+            boolean currentCanHit = bb.contains(ves.pos) && localDist < nearestDist;
+            Vec3 localHitAt = bb.getCenter();
+            if (!currentCanHit) {
+                Vec3 oldEntityPos = ves.pos;
+                Vec3 newEntityPos = oldPos.add(ves.motion);
+                Optional<Vec3> clip = bb.clip(oldEntityPos, newEntityPos);
+                if (clip.isPresent()) {
+                    localDist = clip.get().distanceToSqr(oldPos);
+                    if (localDist < nearestDist) {
+                        currentCanHit = true;
+                        localHitAt = clip.get();
+                    }
+                }
+            }
+            if (currentCanHit) {
+                nearestDist = localDist;
+                hitEntity = entity;
+                entityHitAt = localHitAt;
+            }
+        }
+        EntityHitResult hit = null;
+        if (hitEntity != null) {
+            hit = new EntityHitResult(hitEntity, entityHitAt);
+        }
+        return hit;
+    }
+
+    private @Nullable BlockHitResult collideTryBlock(VirtualEtherStream ves, List<BlockState> blockStates, List<BlockPos> blockPoses, List<Boolean> isPassThrough, List<VoxelShape> shapes, int clipStart, int clipEnd, Vec3 oldPos, Vec3 newPos) {
+        BlockHitResult blockHit = null;
+        for (int j = clipStart; j <= clipEnd; j++) {
+            BlockState blockState = blockStates.get(j);
+            BlockPos pos = blockPoses.get(j);
+            if (blockState.isAir()) continue;
+            if (isPassThrough.get(j)) continue;
+            boolean skip = false;
+            for (IStreamCapability cap : ves.capabilities) {
+                if (cap.shouldPassThrough(blockState, level, pos)) {
+                    skip = true;
+                    break;
+                }
+            }
+            if (skip)
+                continue;
+            VoxelShape shape = shapes.get(j);
+            if (shape.isEmpty()) continue;
+            BlockHitResult hit = shape.clip(oldPos, newPos, pos);
+            if (hit != null) {
+                blockHit = hit;
+                break;
+            }
+        }
+        return blockHit;
     }
 
     private void updateTracking() {
