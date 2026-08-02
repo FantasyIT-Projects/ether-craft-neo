@@ -12,6 +12,7 @@ import net.neoforged.neoforge.client.settings.KeyConflictContext;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.client.debug.EtherAdaptNodeUpdateMarker;
 import studio.fantasyit.ether_craft.client.debug.EtherStreamSyncMarker;
+import studio.fantasyit.ether_craft.client.debug.PerfVizData;
 
 @EventBusSubscriber(modid = EtherCraft.MODID, value = Dist.CLIENT)
 public class DebugKeyHandler {
@@ -29,11 +30,19 @@ public class DebugKeyHandler {
             InputConstants.UNKNOWN.getValue(),
             PlatingTriggerKeyHandler.ETHER_CRAFT_CATEGORY
     );
+    public static final KeyMapping PERF_VIZ = new KeyMapping(
+            "key.ether_craft.perf_viz",
+            KeyConflictContext.IN_GAME,
+            InputConstants.Type.KEYSYM,
+            InputConstants.UNKNOWN.getValue(),
+            PlatingTriggerKeyHandler.ETHER_CRAFT_CATEGORY
+    );
 
     @SubscribeEvent
     public static void registerKeyMappings(RegisterKeyMappingsEvent event) {
         event.register(SYNC_MARKER);
         event.register(ADAPT_NODE_DEBUG);
+        event.register(PERF_VIZ);
     }
 
     @SubscribeEvent
@@ -45,6 +54,9 @@ public class DebugKeyHandler {
         }
         while (ADAPT_NODE_DEBUG.consumeClick()) {
             EtherAdaptNodeUpdateMarker.setEnabled(!EtherAdaptNodeUpdateMarker.isEnabled());
+        }
+        while (PERF_VIZ.consumeClick()) {
+            PerfVizData.setEnabled(!PerfVizData.isEnabled());
         }
     }
 }

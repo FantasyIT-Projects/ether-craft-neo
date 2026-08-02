@@ -10,6 +10,7 @@ import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.attachment.LevelMuteSources;
 import studio.fantasyit.ether_craft.plating.data.CamouflageState;
+import studio.fantasyit.ether_craft.perf.PerfTickData;
 import studio.fantasyit.ether_craft.plating.data.TrackingData;
 import studio.fantasyit.ether_craft.plating.trigger.data.TriggerOnNotExistRecord;
 import studio.fantasyit.ether_craft.stream.idx.IndexMappingManager;
@@ -80,6 +81,10 @@ public class AttachmentDataRegistry {
 
     public static final Supplier<AttachmentType<ReverseIndexMappingManager>> REVERSE_INDEX_MAPPING_MANAGER = ATTACHMENT_TYPES.register(
             "reverse_index_mapping_manager", () -> AttachmentType.builder(ReverseIndexMappingManager::new).build()
+    );
+
+    public static final Supplier<AttachmentType<PerfTickData>> PERF_TICK_DATA = ATTACHMENT_TYPES.register(
+            "perf_tick_data", () -> AttachmentType.builder(PerfTickData::new).build()
     );
 
     public static void register(IEventBus modbus) {

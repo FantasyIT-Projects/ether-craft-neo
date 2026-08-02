@@ -90,8 +90,18 @@ public class Network {
                 IndexMappingSyncS2C.CODEC,
                 IndexMappingSyncS2C::handle
         );
+        event.playToClient(
+                PerfVizSyncS2C.TYPE,
+                PerfVizSyncS2C.CODEC,
+                PerfVizSyncS2C::handle
+        );
 
 
+        event.playToServer(
+                PerfVizToggleC2S.TYPE,
+                PerfVizToggleC2S.CODEC,
+                wrapWithPlayer(PerfVizToggleC2SHandler::handle)
+        );
         event.playToServer(
                 TriggerSwitchTabC2S.TYPE,
                 TriggerSwitchTabC2S.CODEC,

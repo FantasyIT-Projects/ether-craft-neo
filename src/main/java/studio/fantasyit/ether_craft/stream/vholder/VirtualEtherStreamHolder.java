@@ -26,6 +26,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.Nullable;
 import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.network.s2c.*;
+import studio.fantasyit.ether_craft.perf.ServerPerf;
 import studio.fantasyit.ether_craft.plating.helper.PlatingChargingUtil;
 import studio.fantasyit.ether_craft.plating.helper.PlatingUtil;
 import studio.fantasyit.ether_craft.register.AttachmentDataRegistry;
@@ -105,6 +106,7 @@ public class VirtualEtherStreamHolder {
         lastHadStreamInUnloadedChunk = hasStreamInUnloadedChunk(holderMaxDistance);
         if (lastHadStreamInUnloadedChunk) return;
 
+        ServerPerf.startRecording(posDir);
         updateTracking();
         for (int i = 0, size = streams.size(); i < size; i++) {
             streams.get(i).tick();
@@ -125,6 +127,7 @@ public class VirtualEtherStreamHolder {
         syncAll();
         updateNoLongerTracking();
         streams.removeIf(ves -> ves.markToRemove);
+        ServerPerf.end(level);
     }
 
     private void mergeAll(int maxDistance) {

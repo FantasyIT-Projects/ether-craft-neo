@@ -41,6 +41,7 @@ import studio.fantasyit.ether_craft.factory.EtherProcessWorkingChip;
 import studio.fantasyit.ether_craft.factory.FactoryLevelDef;
 import studio.fantasyit.ether_craft.menu.factory.EtherProcessFactoryContainerMenu;
 import studio.fantasyit.ether_craft.network.s2c.SyncBlockNameS2C;
+import studio.fantasyit.ether_craft.perf.ServerPerf;
 import studio.fantasyit.ether_craft.recipe.factory.EtherFactoryRecipeInput;
 import studio.fantasyit.ether_craft.recipe.factory.EtherProcessRecipeManager;
 import studio.fantasyit.ether_craft.recipe.factory.EtherProcessorRecipeUtil;
@@ -323,6 +324,7 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
 
     @Override
     public void tickServer() {
+        ServerPerf.startRecording(worldPosition);
         updateChips();
         tickChipBehaviors();
         boolean changed = false;
@@ -358,6 +360,7 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
         if (leak > 0) {
             extractEther(leak * 20L * pressureBonus);
         }
+        ServerPerf.end(level);
     }
 
     private boolean hasInputDirty() {

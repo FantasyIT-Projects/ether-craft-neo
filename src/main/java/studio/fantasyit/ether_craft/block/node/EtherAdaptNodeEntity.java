@@ -56,6 +56,7 @@ import studio.fantasyit.ether_craft.node.plugins.base.AbstractNodePlugin;
 import studio.fantasyit.ether_craft.node.plugins.base.SimpleEtherSyncController;
 import studio.fantasyit.ether_craft.node.plugins.feature.AbstractDirectionalFeature;
 import studio.fantasyit.ether_craft.node.plugins.feature.FeatureRedstoneSignal;
+import studio.fantasyit.ether_craft.perf.ServerPerf;
 import studio.fantasyit.ether_craft.register.ItemRegistry;
 import studio.fantasyit.ether_craft.util.RenderUtil;
 import studio.fantasyit.ether_craft.util.SerializeUtil;
@@ -159,6 +160,7 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
 
     @Override
     public void tickServer() {
+        ServerPerf.startRecording(worldPosition);
         if (neighborSignalDirty) {
             neighborSignalDirty = false;
             if (nodeProperty.receiveRedstoneSignal)
@@ -186,6 +188,7 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
             setChanged();
             markRedstoneUpdate = false;
         }
+        ServerPerf.end(level);
     }
 
     private void updateProperty() {
