@@ -12,7 +12,6 @@ import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
-import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.block.base.EtherContainer;
@@ -24,7 +23,10 @@ import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
 import studio.fantasyit.ether_craft.node.plugins.base.AbstractNodePlugin;
 import studio.fantasyit.ether_craft.register.ItemRegistry;
 
-import javax.annotation.Nullable;
+import java.util.Collections;
+import java.util.IdentityHashMap;
+import java.util.List;
+import java.util.Set;
 
 public class FeatureContainerInteract extends AbstractDirectionalFilterFeature {
     public static final Identifier ID = EtherCraft.id("container_interact");
@@ -110,21 +112,24 @@ public class FeatureContainerInteract extends AbstractDirectionalFilterFeature {
             }
         }
 
+        Set<ItemResource> tried = Collections.newSetFromMap(new IdentityHashMap<>());
+        List<AbstractNodePlugin> toPlugins = toNode.getPlugins();
         for (int slot = 0; slot < fromNode.normalStorage.getContainerSize(); slot++) {
             ItemStack stack = fromNode.normalStorage.getItem(slot);
             if (stack.isEmpty())
                 continue;
+            ItemResource resource = ItemResource.of(stack);
+            if (!tried.add(resource))
+                continue;
             if (!filter.accepts(stack))
                 continue;
-            if (!fromNode.allowInteract(ItemResource.of(stack)))
+            if (!fromNode.allowInteract(resource))
                 continue;
 
-            int toExtract = Math.min(stack.getCount(), maxTransfer);
-            ItemResource resource = ItemResource.of(stack);
-            int remaining = toExtract;
+            int remaining = Math.min(stack.getCount(), maxTransfer);
 
             int earlyCosted = 0;
-            for (AbstractNodePlugin plugin : toNode.getPlugins()) {
+            for (AbstractNodePlugin plugin : toPlugins) {
                 int consumed = plugin.earlyHandleInput(resource, remaining, null);
                 earlyCosted += consumed;
                 remaining -= consumed;
@@ -140,7 +145,7 @@ public class FeatureContainerInteract extends AbstractDirectionalFilterFeature {
 
             int overflowConsumed = 0;
             if (remaining > 0) {
-                for (AbstractNodePlugin plugin : toNode.getPlugins()) {
+                for (AbstractNodePlugin plugin : toPlugins) {
                     int consumed = plugin.handleOverflow(resource, remaining, null);
                     overflowConsumed += consumed;
                     remaining -= consumed;
@@ -165,10 +170,14 @@ public class FeatureContainerInteract extends AbstractDirectionalFilterFeature {
         long costPerItem = Config.nodeContainerInteractEtherPerItem;
         if (etherSource.getEther() < costPerItem)
             return;
+        Set<ItemResource> tried = Collections.newSetFromMap(new IdentityHashMap<>());
         try (Transaction transaction = Transaction.openRoot()) {
             for (int i = 0; i < fromHandler.size(); i++) {
                 ItemResource resource = fromHandler.getResource(i);
                 if (resource.isEmpty()) {
+                    continue;
+                }
+                if (!tried.add(resource)) {
                     continue;
                 }
                 if (!filter.accepts(resource)) {
@@ -176,44 +185,33 @@ public class FeatureContainerInteract extends AbstractDirectionalFilterFeature {
                 }
                 if (fromHandler instanceof EtherAdaptNodeEntity ean && !ean.allowInteract(resource))
                     continue;
-                int maxToExtract = maxToTransfer(resource, i, fromHandler, targetHandler, etherSource, transaction);
-                if (maxToExtract <= 0) {
+                int maxAffordable = Math.toIntExact(etherSource.getEther() / costPerItem);
+                if (etherSource == fromHandler && resource.is(ItemRegistry.ETHER)) {
+                    maxAffordable = (int) Math.floor((double) etherSource.getEther() / (costPerItem + Config.etherConvert));
+                }
+                if (maxAffordable <= 0) {
                     continue;
                 }
-                int extracted = fromHandler.extract(i, resource, maxToExtract, transaction);
-                if (extracted <= 0) {
+                int available;
+                try (Transaction t1 = Transaction.open(transaction)) {
+                    available = fromHandler.extract(i, resource, maxAffordable, t1);
+                }
+                if (available <= 0) {
                     continue;
                 }
-                long totalCost = (long) extracted * costPerItem;
-                if (etherSource.getEther() < totalCost) {
-                    return;
+                int inserted = targetHandler.insert(resource, available, transaction);
+                if (inserted <= 0) {
+                    continue;
                 }
-                if (targetHandler.insert(resource, extracted, transaction) < extracted) {
+                int extracted = fromHandler.extract(i, resource, inserted, transaction);
+                if (extracted < inserted) {
                     continue;
                 }
                 transaction.commit();
-                etherSource.extractEther(totalCost);
+                etherSource.extractEther((long) inserted * costPerItem);
                 return;
             }
         }
-    }
-
-    private int maxToTransfer(ItemResource itemResource, int fromIdx, ResourceHandler<ItemResource> from, ResourceHandler<ItemResource> to, EtherContainer etherSource, @Nullable TransactionContext parent) {
-        if (itemResource.is(ItemRegistry.ETHER)) {
-            return (int) Math.floor((double) etherSource.getEther() / (Config.nodeContainerInteractEtherPerItem + Config.etherConvert));
-        }
-        int maxToExtract = Math.toIntExact(etherSource.getEther() / Config.nodeContainerInteractEtherPerItem);
-        try (Transaction t1 = Transaction.open(parent)) {
-            int t = from.extract(fromIdx, itemResource, maxToExtract, t1);
-            if (t < maxToExtract)
-                maxToExtract = t;
-            if (maxToExtract > 0) {
-                t = to.insert(itemResource, maxToExtract, t1);
-                if (t < maxToExtract)
-                    maxToExtract = t;
-            }
-        }
-        return maxToExtract;
     }
 
     @Override
