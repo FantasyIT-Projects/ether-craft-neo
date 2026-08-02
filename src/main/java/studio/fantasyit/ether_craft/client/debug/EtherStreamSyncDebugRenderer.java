@@ -18,10 +18,14 @@ public class EtherStreamSyncDebugRenderer implements DebugRenderer.SimpleDebugRe
     private static final int CREATE_COLOR = ARGB.colorFromFloat(1.0F, 0.0F, 1.0F, 0.0F);
     private static final int QUICK_CREATE_COLOR = ARGB.colorFromFloat(1.0F, 0.0F, 1.0F, 1.0F);
     private static final int UPDATE_COLOR = ARGB.colorFromFloat(1.0F, 1.0F, 1.0F, 0.0F);
+    private static final int UPDATE_COST_COLOR = ARGB.colorFromFloat(1.0F, 1.0F, 0.5F, 0.0F);
+    private static final int SYNC_COLOR = ARGB.colorFromFloat(1.0F, 0.0F, 0.0F, 1.0F);
     private static final int DELETE_COLOR = ARGB.colorFromFloat(1.0F, 1.0F, 0.0F, 0.0F);
     private static final int D_CREATE_COLOR = ARGB.colorFromFloat(1.0F, 0.0F, 0.5F, 0.0F);
     private static final int D_QUICK_CREATE_COLOR = ARGB.colorFromFloat(1.0F, 0.0F, 0.5F, 0.5F);
     private static final int D_UPDATE_COLOR = ARGB.colorFromFloat(1.0F, 0.5F, 0.5F, 0.0F);
+    private static final int D_UPDATE_COST_COLOR = ARGB.colorFromFloat(1.0F, 0.5F, 0.25F, 0.0F);
+    private static final int D_SYNC_COLOR = ARGB.colorFromFloat(1.0F, 0.0F, 0.0F, 0.5F);
     private static final int D_DELETE_COLOR = ARGB.colorFromFloat(1.0F, 0.5F, 0.0F, 0.0F);
 
     @Override
@@ -38,6 +42,8 @@ public class EtherStreamSyncDebugRenderer implements DebugRenderer.SimpleDebugRe
                     case CREATE -> D_CREATE_COLOR;
                     case QUICK_CREATE -> D_QUICK_CREATE_COLOR;
                     case UPDATE -> D_UPDATE_COLOR;
+                    case UPDATE_COST -> D_UPDATE_COST_COLOR;
+                    case SYNC ->  D_SYNC_COLOR;
                     case DELETE -> D_DELETE_COLOR;
                 };
             else
@@ -45,6 +51,8 @@ public class EtherStreamSyncDebugRenderer implements DebugRenderer.SimpleDebugRe
                     case CREATE -> CREATE_COLOR;
                     case QUICK_CREATE -> QUICK_CREATE_COLOR;
                     case UPDATE -> UPDATE_COLOR;
+                    case UPDATE_COST -> UPDATE_COST_COLOR;
+                    case SYNC -> SYNC_COLOR;
                     case DELETE -> DELETE_COLOR;
                 };
             float alpha = progress;

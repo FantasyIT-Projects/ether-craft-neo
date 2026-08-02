@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class EtherStreamSyncMarker {
-    public enum Type {CREATE, QUICK_CREATE, UPDATE, DELETE}
+    public enum Type {CREATE, QUICK_CREATE, UPDATE, UPDATE_COST, SYNC, DELETE}
 
     public record Marker(Type type, boolean idxed, Vec3 pos, int streamId, long gameTime) {
     }

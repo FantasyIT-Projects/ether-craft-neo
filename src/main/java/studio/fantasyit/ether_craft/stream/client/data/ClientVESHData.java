@@ -89,7 +89,12 @@ public class ClientVESHData {
             if (current == null || current.isDying || current.removed) continue;
             current.updateFromServer(se.ether(), se.consumerState());
             current.updateDynamic();
-            EtherStreamSyncMarker.record(EtherStreamSyncMarker.Type.UPDATE, current.currentPos, msg.posDir().hasIndex(), se.streamId());
+            if(EtherStreamSyncMarker.isEnabled()) {
+                if (se.consumerState().isPresent())
+                    EtherStreamSyncMarker.record(EtherStreamSyncMarker.Type.UPDATE_COST, current.currentPos, msg.posDir().hasIndex(), se.streamId());
+                else
+                    EtherStreamSyncMarker.record(EtherStreamSyncMarker.Type.UPDATE, current.currentPos, msg.posDir().hasIndex(), se.streamId());
+            }
         }
     }
 
@@ -124,7 +129,7 @@ public class ClientVESHData {
             for (IEtherStreamSyncedData data : etherStreamSyncDataS2C.data())
                 entry.syncedData.put(data.getId(), data);
             entry.updateDynamic();
-            EtherStreamSyncMarker.record(EtherStreamSyncMarker.Type.UPDATE, entry.currentPos, etherStreamSyncDataS2C.posDir().hasIndex(), etherStreamSyncDataS2C.streamId());
+            EtherStreamSyncMarker.record(EtherStreamSyncMarker.Type.SYNC, entry.currentPos, etherStreamSyncDataS2C.posDir().hasIndex(), etherStreamSyncDataS2C.streamId());
         }
     }
 
