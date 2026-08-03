@@ -32,7 +32,10 @@ public class FunctionEtherConverter extends AbstractNodePlugin {
         if (amount <= 0)
             return 0;
         long etherToAdd = (long) amount * Config.nodeEtherConverterCoefficient;
-        nodeEntity.receiveEther(etherToAdd);
+        if (context != null)
+            nodeEntity.etherStorage.receiveEtherTransactional(etherToAdd, context);
+        else
+            nodeEntity.receiveEther(etherToAdd);
         remainWorkTicks = 40;
         nodeEntity.setSyncedPluginData(installedId, STATE, 1);
         return amount;

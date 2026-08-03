@@ -138,6 +138,11 @@ public class EtherSlotSyncContainer implements Container, ResourceHandler<ItemRe
         return canInsert;
     }
 
+    public void receiveEtherTransactional(long amount, TransactionContext transaction) {
+        journal.updateSnapshots(transaction);
+        etherContainer.receiveEtherNoUpdate(amount);
+    }
+
     @Override
     public int extract(int index, ItemResource resource, int amount, TransactionContext transaction) {
         if (!resource.is(ItemRegistry.ETHER))
