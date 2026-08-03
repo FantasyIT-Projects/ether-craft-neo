@@ -2,6 +2,7 @@
   "values": [
     "minecraft:glass",
     "minecraft:glass_pane",
-    "ether_craft:ether_glass"
+    "ether_craft:ether_glass",
+    "ether_craft:ether_cull_glass"
   ]
 }

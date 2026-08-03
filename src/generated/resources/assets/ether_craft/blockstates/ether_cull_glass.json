@@ -1,0 +1,196 @@
+{
+  "variants": {
+    "cull_down=false,cull_east=false,cull_north=false,cull_south=false,cull_up=false,cull_west=false": {
+      "type": "ether_craft:ether_glass"
+    },
+    "cull_down=false,cull_east=false,cull_north=false,cull_south=false,cull_up=false,cull_west=true": {
+      "type": "ether_craft:ether_glass"
+    },
+    "cull_down=false,cull_east=false,cull_north=false,cull_south=false,cull_up=true,cull_west=false": {
+      "type": "ether_craft:ether_glass"
+    },
+    "cull_down=false,cull_east=false,cull_north=false,cull_south=false,cull_up=true,cull_west=true": {
+      "type": "ether_craft:ether_glass"
+    },
+    "cull_down=false,cull_east=false,cull_north=false,cull_south=true,cull_up=false,cull_west=false": {
+      "type": "ether_craft:ether_glass"
+    },
+    "cull_down=false,cull_east=false,cull_north=false,cull_south=true,cull_up=false,cull_west=true": {
+      "type": "ether_craft:ether_glass"
+    },
+    "cull_down=false,cull_east=false,cull_north=false,cull_south=true,cull_up=true,cull_west=false": {
+      "type": "ether_craft:ether_glass"
+    },
+    "cull_down=false,cull_east=false,cull_north=false,cull_south=true,cull_up=true,cull_west=true": {
+      "type": "ether_craft:ether_glass"
+    },
+    "cull_down=false,cull_east=false,cull_north=true,cull_south=false,cull_up=false,cull_west=false": {
+      "type": "ether_craft:ether_glass"
+    },
+    "cull_down=false,cull_east=false,cull_north=true,cull_south=false,cull_up=false,cull_west=true": {
+      "type": "ether_craft:ether_glass"
+    },
+    "cull_down=false,cull_east=false,cull_north=true,cull_south=false,cull_up=true,cull_west=false": {
+      "type": "ether_craft:ether_glass"
+    },
+    "cull_down=false,cull_east=false,cull_north=true,cull_south=false,cull_up=true,cull_west=true": {
+      "type": "ether_craft:ether_glass"
+    },
+    "cull_down=false,cull_east=false,cull_north=true,cull_south=true,cull_up=false,cull_west=false": {
+      "type": "ether_craft:ether_glass"
+    },
+    "cull_down=false,cull_east=false,cull_north=true,cull_south=true,cull_up=false,cull_west=true": {
+      "type": "ether_craft:ether_glass"
+    },
+    "cull_down=false,cull_east=false,cull_north=true,cull_south=true,cull_up=true,cull_west=false": {
+      "type": "ether_craft:ether_glass"
+    },
+    "cull_down=false,cull_east=false,cull_north=true,cull_south=true,cull_up=true,cull_west=true": {
+      "type": "ether_craft:ether_glass"
+    },
+    "cull_down=false,cull_east=true,cull_north=false,cull_south=false,cull_up=false,cull_west=false": {
+      "type": "ether_craft:ether_glass"
+    },
+    "cull_down=false,cull_east=true,cull_north=false,cull_south=false,cull_up=false,cull_west=true": {
+      "type": "ether_craft:ether_glass"
+    },
+    "cull_down=false,cull_east=true,cull_north=false,cull_south=false,cull_up=true,cull_west=false": {
+      "type": "ether_craft:ether_glass"
+    },
+    "cull_down=false,cull_east=true,cull_north=false,cull_south=false,cull_up=true,cull_west=true": {
+      "type": "ether_craft:ether_glass"
+    },
+    "cull_down=false,cull_east=true,cull_north=false,cull_south=true,cull_up=false,cull_west=false": {
+      "type": "ether_craft:ether_glass"
+    },
+    "cull_down=false,cull_east=true,cull_north=false,cull_south=true,cull_up=false,cull_west=true": {
+      "type": "ether_craft:ether_glass"
+    },
+    "cull_down=false,cull_east=true,cull_north=false,cull_south=true,cull_up=true,cull_west=false": {
+      "type": "ether_craft:ether_glass"
+    },
+    "cull_down=false,cull_east=true,cull_north=false,cull_south=true,cull_up=true,cull_west=true": {
+      "type": "ether_craft:ether_glass"
+    },
+    "cull_down=false,cull_east=true,cull_north=true,cull_south=false,cull_up=false,cull_west=false": {
+      "type": "ether_craft:ether_glass"
+    },
+    "cull_down=false,cull_east=true,cull_north=true,cull_south=false,cull_up=false,cull_west=true": {
+      "type": "ether_craft:ether_glass"
+    },
+    "cull_down=false,cull_east=true,cull_north=true,cull_south=false,cull_up=true,cull_west=false": {
+      "type": "ether_craft:ether_glass"
+    },
+    "cull_down=false,cull_east=true,cull_north=true,cull_south=false,cull_up=true,cull_west=true": {
+      "type": "ether_craft:ether_glass"
+    },
+    "cull_down=false,cull_east=true,cull_north=true,cull_south=true,cull_up=false,cull_west=false": {
+      "type": "ether_craft:ether_glass"
+    },
+    "cull_down=false,cull_east=true,cull_north=true,cull_south=true,cull_up=false,cull_west=true": {
+      "type": "ether_craft:ether_glass"
+    },
+    "cull_down=false,cull_east=true,cull_north=true,cull_south=true,cull_up=true,cull_west=false": {
+      "type": "ether_craft:ether_glass"
+    },
+    "cull_down=false,cull_east=true,cull_north=true,cull_south=true,cull_up=true,cull_west=true": {
+      "type": "ether_craft:ether_glass"
+    },
+    "cull_down=true,cull_east=false,cull_north=false,cull_south=false,cull_up=false,cull_west=false": {
+      "type": "ether_craft:ether_glass"
+    },
+    "cull_down=true,cull_east=false,cull_north=false,cull_south=false,cull_up=false,cull_west=true": {
+      "type": "ether_craft:ether_glass"
+    },
+    "cull_down=true,cull_east=false,cull_north=false,cull_south=false,cull_up=true,cull_west=false": {
+      "type": "ether_craft:ether_glass"
+    },
+    "cull_down=true,cull_east=false,cull_north=false,cull_south=false,cull_up=true,cull_west=true": {
+      "type": "ether_craft:ether_glass"
+    },
+    "cull_down=true,cull_east=false,cull_north=false,cull_south=true,cull_up=false,cull_west=false": {
+      "type": "ether_craft:ether_glass"
+    },
+    "cull_down=true,cull_east=false,cull_north=false,cull_south=true,cull_up=false,cull_west=true": {
+      "type": "ether_craft:ether_glass"
+    },
+    "cull_down=true,cull_east=false,cull_north=false,cull_south=true,cull_up=true,cull_west=false": {
+      "type": "ether_craft:ether_glass"
+    },
+    "cull_down=true,cull_east=false,cull_north=false,cull_south=true,cull_up=true,cull_west=true": {
+      "type": "ether_craft:ether_glass"
+    },
+    "cull_down=true,cull_east=false,cull_north=true,cull_south=false,cull_up=false,cull_west=false": {
+      "type": "ether_craft:ether_glass"
+    },
+    "cull_down=true,cull_east=false,cull_north=true,cull_south=false,cull_up=false,cull_west=true": {
+      "type": "ether_craft:ether_glass"
+    },
+    "cull_down=true,cull_east=false,cull_north=true,cull_south=false,cull_up=true,cull_west=false": {
+      "type": "ether_craft:ether_glass"
+    },
+    "cull_down=true,cull_east=false,cull_north=true,cull_south=false,cull_up=true,cull_west=true": {
+      "type": "ether_craft:ether_glass"
+    },
+    "cull_down=true,cull_east=false,cull_north=true,cull_south=true,cull_up=false,cull_west=false": {
+      "type": "ether_craft:ether_glass"
+    },
+    "cull_down=true,cull_east=false,cull_north=true,cull_south=true,cull_up=false,cull_west=true": {
+      "type": "ether_craft:ether_glass"
+    },
+    "cull_down=true,cull_east=false,cull_north=true,cull_south=true,cull_up=true,cull_west=false": {
+      "type": "ether_craft:ether_glass"
+    },
+    "cull_down=true,cull_east=false,cull_north=true,cull_south=true,cull_up=true,cull_west=true": {
+      "type": "ether_craft:ether_glass"
+    },
+    "cull_down=true,cull_east=true,cull_north=false,cull_south=false,cull_up=false,cull_west=false": {
+      "type": "ether_craft:ether_glass"
+    },
+    "cull_down=true,cull_east=true,cull_north=false,cull_south=false,cull_up=false,cull_west=true": {
+      "type": "ether_craft:ether_glass"
+    },
+    "cull_down=true,cull_east=true,cull_north=false,cull_south=false,cull_up=true,cull_west=false": {
+      "type": "ether_craft:ether_glass"
+    },
+    "cull_down=true,cull_east=true,cull_north=false,cull_south=false,cull_up=true,cull_west=true": {
+      "type": "ether_craft:ether_glass"
+    },
+    "cull_down=true,cull_east=true,cull_north=false,cull_south=true,cull_up=false,cull_west=false": {
+      "type": "ether_craft:ether_glass"
+    },
+    "cull_down=true,cull_east=true,cull_north=false,cull_south=true,cull_up=false,cull_west=true": {
+      "type": "ether_craft:ether_glass"
+    },
+    "cull_down=true,cull_east=true,cull_north=false,cull_south=true,cull_up=true,cull_west=false": {
+      "type": "ether_craft:ether_glass"
+    },
+    "cull_down=true,cull_east=true,cull_north=false,cull_south=true,cull_up=true,cull_west=true": {
+      "type": "ether_craft:ether_glass"
+    },
+    "cull_down=true,cull_east=true,cull_north=true,cull_south=false,cull_up=false,cull_west=false": {
+      "type": "ether_craft:ether_glass"
+    },
+    "cull_down=true,cull_east=true,cull_north=true,cull_south=false,cull_up=false,cull_west=true": {
+      "type": "ether_craft:ether_glass"
+    },
+    "cull_down=true,cull_east=true,cull_north=true,cull_south=false,cull_up=true,cull_west=false": {
+      "type": "ether_craft:ether_glass"
+    },
+    "cull_down=true,cull_east=true,cull_north=true,cull_south=false,cull_up=true,cull_west=true": {
+      "type": "ether_craft:ether_glass"
+    },
+    "cull_down=true,cull_east=true,cull_north=true,cull_south=true,cull_up=false,cull_west=false": {
+      "type": "ether_craft:ether_glass"
+    },
+    "cull_down=true,cull_east=true,cull_north=true,cull_south=true,cull_up=false,cull_west=true": {
+      "type": "ether_craft:ether_glass"
+    },
+    "cull_down=true,cull_east=true,cull_north=true,cull_south=true,cull_up=true,cull_west=false": {
+      "type": "ether_craft:ether_glass"
+    },
+    "cull_down=true,cull_east=true,cull_north=true,cull_south=true,cull_up=true,cull_west=true": {
+      "type": "ether_craft:ether_glass"
+    }
+  }
+}

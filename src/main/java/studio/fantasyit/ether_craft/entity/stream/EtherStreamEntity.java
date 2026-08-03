@@ -30,6 +30,7 @@ import org.jetbrains.annotations.Nullable;
 import org.jspecify.annotations.NonNull;
 import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.block.base.EtherContainer;
+import studio.fantasyit.ether_craft.block.glass.EtherGlassUtil;
 import studio.fantasyit.ether_craft.plating.helper.PlatingChargingUtil;
 import studio.fantasyit.ether_craft.plating.helper.PlatingUtil;
 import studio.fantasyit.ether_craft.register.*;
@@ -75,7 +76,7 @@ public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
         instance.setDeltaMovement(motion);
         Direction approximateNearest = Direction.getApproximateNearest(motion);
         instance.posDir = new PosDir(BlockPos.containing(position), approximateNearest);
-        instance.setRunIntoEtherGlass(level.getBlockState(BlockPos.containing(position)).is(BlockRegistry.ETHER_GLASS));
+        instance.setRunIntoEtherGlass(EtherGlassUtil.isEtherGlass(level.getBlockState(BlockPos.containing(position))));
         return instance;
     }
 
@@ -219,8 +220,8 @@ public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
             BlockPos newBlock = blockPos;
             BlockState oldState = level().getBlockState(oldBlock);
             BlockState newState = level().getBlockState(newBlock);
-            boolean wasGlass = oldState.is(BlockRegistry.ETHER_GLASS);
-            boolean isGlass = newState.is(BlockRegistry.ETHER_GLASS);
+            boolean wasGlass = EtherGlassUtil.isEtherGlass(oldState);
+            boolean isGlass = EtherGlassUtil.isEtherGlass(newState);
             if (wasGlass != isGlass) {
                 setRunIntoEtherGlass(isGlass);
             }

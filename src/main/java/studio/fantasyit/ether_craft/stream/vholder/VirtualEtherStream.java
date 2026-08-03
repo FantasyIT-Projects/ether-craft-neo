@@ -14,8 +14,8 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.block.base.EtherContainer;
+import studio.fantasyit.ether_craft.block.glass.EtherGlassUtil;
 import studio.fantasyit.ether_craft.register.AttachmentDataRegistry;
-import studio.fantasyit.ether_craft.register.BlockRegistry;
 import studio.fantasyit.ether_craft.stream.EtherConsumer;
 import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
 import studio.fantasyit.ether_craft.stream.PosDir;
@@ -72,7 +72,7 @@ public class VirtualEtherStream implements IEtherStreamLike {
         this.direction = posDir.dir();
         this.posDir = posDir;
         BlockState blockState = level.getBlockState(BlockPos.containing(this.pos));
-        this.setRunIntoEtherGlass(blockState.is(BlockRegistry.ETHER_GLASS));
+        this.setRunIntoEtherGlass(EtherGlassUtil.isEtherGlass(blockState));
         this.needsEtherConsumerSync = false;
         this.needsEtherSync = false;
         if (level instanceof ServerLevel sl) {
@@ -327,8 +327,8 @@ public class VirtualEtherStream implements IEtherStreamLike {
 
     public void onRunIntoNewBlock(@Nullable BlockPos oldPos, @Nullable BlockState oldState, BlockPos newPos, BlockState newState) {
         if (oldState != null) {
-            boolean isEtherGlass1 = oldState.is(BlockRegistry.ETHER_GLASS);
-            boolean isEtherGlass2 = newState.is(BlockRegistry.ETHER_GLASS);
+            boolean isEtherGlass1 = EtherGlassUtil.isEtherGlass(oldState);
+            boolean isEtherGlass2 = EtherGlassUtil.isEtherGlass(newState);
             if (isEtherGlass1 != isEtherGlass2) {
                 setRunIntoEtherGlass(isEtherGlass2);
             }

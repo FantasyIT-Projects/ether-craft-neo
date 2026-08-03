@@ -27,7 +27,8 @@ public class TagGenBlock extends TagsProvider<Block> {
         getOrCreateRawBuilder(Tags.ETHER_STREAM_PASS_THROUGH)
                 .addElement(BuiltInRegistries.BLOCK.getKey(Blocks.GLASS))
                 .addElement(BuiltInRegistries.BLOCK.getKey(Blocks.GLASS_PANE))
-                .addElement(BlockRegistry.ETHER_GLASS.getId());
+                .addElement(BlockRegistry.ETHER_GLASS.getId())
+                .addElement(BlockRegistry.ETHER_CULL_GLASS.getId());
         getOrCreateRawBuilder(Tags.ETHER_MACHINE)
                 .addElement(BlockRegistry.ETHER_PROCESS_FACTORY.getKey().identifier())
                 .addElement(BlockRegistry.ETHER_ADAPT_NODE.getKey().identifier());
@@ -36,6 +37,7 @@ public class TagGenBlock extends TagsProvider<Block> {
                 .addElement(BlockRegistry.ETHER_PROCESS_FACTORY.getKey().identifier())
                 .addElement(BlockRegistry.ETHER_ADAPT_NODE.getKey().identifier())
                 .addElement(BlockRegistry.ETHER_GLASS.getKey().identifier())
+                .addElement(BlockRegistry.ETHER_CULL_GLASS.getKey().identifier())
                 .addElement(BlockRegistry.ETHER_BLOCK.getKey().identifier())
                 .addElement(BlockRegistry.INACTIVATED_ETHER_BLOCK.getKey().identifier())
                 .addElement(BlockRegistry.SMOOTH_INACTIVATED_ETHER_BLOCK.getKey().identifier());
@@ -44,6 +46,7 @@ public class TagGenBlock extends TagsProvider<Block> {
                 .addElement(BlockRegistry.ETHER_PROCESS_FACTORY.getKey().identifier())
                 .addElement(BlockRegistry.ETHER_ADAPT_NODE.getKey().identifier())
                 .addElement(BlockRegistry.ETHER_GLASS.getKey().identifier())
+                .addElement(BlockRegistry.ETHER_CULL_GLASS.getKey().identifier())
                 .addElement(BlockRegistry.ETHER_BLOCK.getKey().identifier())
                 .addElement(BlockRegistry.ETHER_ORE.getKey().identifier())
                 .addElement(BlockRegistry.DEEPSLATE_ETHER_ORE.getKey().identifier())
@@ -74,6 +77,7 @@ public class TagGenBlock extends TagsProvider<Block> {
         getOrCreateRawBuilder(Tags.ETHER_STREAM_SKIP_BREAKING)
                 .addElement(BuiltInRegistries.BLOCK.getKey(Blocks.GLASS))
                 .addElement(BlockRegistry.ETHER_GLASS.getId())
+                .addElement(BlockRegistry.ETHER_CULL_GLASS.getId())
                 .addElement(BlockRegistry.ETHER_PROCESS_FACTORY.getKey().identifier())
                 .addElement(BlockRegistry.ETHER_ADAPT_NODE.getKey().identifier());
 

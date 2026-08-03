@@ -19,6 +19,7 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.neoforged.neoforge.client.model.generators.blockstate.CustomBlockStateModelBuilder;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.block.factory.EtherProcessFactoryBlock;
+import studio.fantasyit.ether_craft.block.glass.EtherCullGlassBlock;
 import studio.fantasyit.ether_craft.block.glass.render.EtherGlassUnbakedModel;
 import studio.fantasyit.ether_craft.block.node.EtherAdaptNodeBlock;
 import studio.fantasyit.ether_craft.block.node.render.EtherAdaptNodeUnbakedModel;
@@ -129,6 +130,18 @@ public class ModelDataGen extends ModelProvider {
         var etherGlassCustom = MultiVariant.of(new CustomBlockStateModelBuilder.Simple(new EtherGlassUnbakedModel()));
         blockModels.blockStateOutput.accept(
                 MultiVariantGenerator.dispatch(BlockRegistry.ETHER_GLASS.get(), etherGlassCustom)
+        );
+
+        // 剔面以太玻璃 - 复用连接纹理，6 个 cull 布尔属性
+        var cullGlassCustom = MultiVariant.of(new CustomBlockStateModelBuilder.Simple(new EtherGlassUnbakedModel()));
+        blockModels.blockStateOutput.accept(
+                MultiVariantGenerator.dispatch(BlockRegistry.ETHER_CULL_GLASS.get(), cullGlassCustom)
+                        .with(PropertyDispatch.modify(EtherCullGlassBlock.CULL_NORTH).generate(t -> BlockModelGenerators.NOP))
+                        .with(PropertyDispatch.modify(EtherCullGlassBlock.CULL_SOUTH).generate(t -> BlockModelGenerators.NOP))
+                        .with(PropertyDispatch.modify(EtherCullGlassBlock.CULL_EAST).generate(t -> BlockModelGenerators.NOP))
+                        .with(PropertyDispatch.modify(EtherCullGlassBlock.CULL_WEST).generate(t -> BlockModelGenerators.NOP))
+                        .with(PropertyDispatch.modify(EtherCullGlassBlock.CULL_UP).generate(t -> BlockModelGenerators.NOP))
+                        .with(PropertyDispatch.modify(EtherCullGlassBlock.CULL_DOWN).generate(t -> BlockModelGenerators.NOP))
         );
     }
 

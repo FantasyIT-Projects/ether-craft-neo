@@ -46,6 +46,7 @@ public class LootTableGen extends LootTableProvider {
             add(BlockRegistry.DEEPSLATE_ETHER_ORE.get(), createEtherOreDrop(BlockRegistry.DEEPSLATE_ETHER_ORE.get(), ItemRegistry.INACTIVATED_ETHER.get()));
             add(BlockRegistry.NETHER_ETHER_ORE.get(), createEtherOreDrop(BlockRegistry.NETHER_ETHER_ORE.get(), ItemRegistry.INACTIVATED_ETHER.get()));
             dropSelf(BlockRegistry.ETHER_GLASS.get());
+            dropSelf(BlockRegistry.ETHER_CULL_GLASS.get());
             dropSelf(BlockRegistry.INACTIVATED_ETHER_BLOCK.get());
             dropSelf(BlockRegistry.SMOOTH_INACTIVATED_ETHER_BLOCK.get());
             dropSelf(BlockRegistry.ETHER_DECO_1.get());
@@ -78,6 +79,7 @@ public class LootTableGen extends LootTableProvider {
                     BlockRegistry.DEEPSLATE_ETHER_ORE.get(),
                     BlockRegistry.NETHER_ETHER_ORE.get(),
                     BlockRegistry.ETHER_GLASS.get(),
+                    BlockRegistry.ETHER_CULL_GLASS.get(),
                     BlockRegistry.INACTIVATED_ETHER_BLOCK.get(),
                     BlockRegistry.SMOOTH_INACTIVATED_ETHER_BLOCK.get(),
                     BlockRegistry.ETHER_DECO_1.get(),

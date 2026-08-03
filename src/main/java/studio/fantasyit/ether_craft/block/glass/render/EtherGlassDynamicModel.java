@@ -14,6 +14,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.client.model.DynamicBlockStateModel;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
+import studio.fantasyit.ether_craft.block.glass.EtherGlassUtil;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -44,7 +45,7 @@ public class EtherGlassDynamicModel implements DynamicBlockStateModel {
     public void collectParts(BlockAndTintGetter level, BlockPos pos, BlockState state, RandomSource random, List<BlockStateModelPart> parts) {
         for (Direction face : Direction.values()) {
             BlockState neighbor = level.getBlockState(pos.relative(face));
-            if (neighbor.is(state.getBlock())) {
+            if (EtherGlassUtil.isEtherGlass(neighbor)) {
                 continue;
             }
 
@@ -54,10 +55,10 @@ public class EtherGlassDynamicModel implements DynamicBlockStateModel {
             Direction faceLeft = local.left;
             Direction faceRight = faceLeft.getOpposite();
 
-            boolean topConn = level.getBlockState(pos.relative(faceTop)).is(state.getBlock());
-            boolean botConn = level.getBlockState(pos.relative(faceBottom)).is(state.getBlock());
-            boolean leftConn = level.getBlockState(pos.relative(faceLeft)).is(state.getBlock());
-            boolean rightConn = level.getBlockState(pos.relative(faceRight)).is(state.getBlock());
+            boolean topConn = EtherGlassUtil.isEtherGlass(level.getBlockState(pos.relative(faceTop)));
+            boolean botConn = EtherGlassUtil.isEtherGlass(level.getBlockState(pos.relative(faceBottom)));
+            boolean leftConn = EtherGlassUtil.isEtherGlass(level.getBlockState(pos.relative(faceLeft)));
+            boolean rightConn = EtherGlassUtil.isEtherGlass(level.getBlockState(pos.relative(faceRight)));
 
             List<BakedQuad> quads = new ArrayList<>();
 
