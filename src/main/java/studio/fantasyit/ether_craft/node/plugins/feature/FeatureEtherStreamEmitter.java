@@ -5,7 +5,6 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
-import net.neoforged.neoforge.transfer.transaction.Transaction;
 import org.jetbrains.annotations.Nullable;
 import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.EtherCraft;
@@ -92,15 +91,12 @@ public class FeatureEtherStreamEmitter extends AbstractDirectionalFilterFeature 
 
             Optional<IStreamCapability> optCap = stream.getCapability(EtherStreamStorageCapability.ID);
             if (optCap.isPresent() && optCap.get() instanceof EtherStreamStorageCapability itemCapability) {
-                try (Transaction transaction = Transaction.openRoot()) {
-                    for (int i = 0; i < itemCapability.getContainerSize(); i++) {
-                        ItemStack itemStack = nodeEntity.extractWithPredicate(filter::accepts, transaction, Integer.MAX_VALUE);
-                        if (itemStack.isEmpty()) {
-                            break;
-                        }
-                        itemCapability.setItem(i, itemStack);
+                for (int i = 0; i < itemCapability.getContainerSize(); i++) {
+                    ItemStack itemStack = nodeEntity.extractWithPredicate(filter::accepts, Integer.MAX_VALUE);
+                    if (itemStack.isEmpty()) {
+                        break;
                     }
-                    transaction.commit();
+                    itemCapability.setItem(i, itemStack);
                 }
             }
 

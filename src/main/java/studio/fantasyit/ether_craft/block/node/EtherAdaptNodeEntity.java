@@ -16,6 +16,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.ProblemReporter;
+import net.minecraft.world.Container;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
@@ -316,8 +317,9 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
         if (!isValid(index, resource))
             return 0;
         int earlyCosted = 0;
+        ItemStack stack = resource.toStack();
         for (AbstractNodePlugin plugin : getPlugins()) {
-            earlyCosted += plugin.earlyHandleInput(resource, amount - earlyCosted, transaction);
+            earlyCosted += plugin.earlyHandleInput(stack, amount - earlyCosted, transaction);
             if (earlyCosted >= amount)
                 return earlyCosted;
         }
@@ -326,7 +328,7 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
         int overflowConsumed = 0;
         if (index == nodeProperty.slotUnlock)
             for (AbstractNodePlugin plugin : getPlugins()) {
-                overflowConsumed += plugin.handleOverflow(resource, overflow - overflowConsumed, transaction);
+                overflowConsumed += plugin.handleOverflow(stack, overflow - overflowConsumed, transaction);
                 if (overflowConsumed >= overflow)
                     break;
             }
@@ -404,78 +406,139 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
         return stack.copyWithCount(remain);
     }
 
-    public ItemStack extractWithPredicate(Predicate<ItemResource> predicate, TransactionContext transaction, int maxAmount) {
-        ItemResource re = ItemResource.of(ItemRegistry.ETHER);
-        if (nodeProperty.itemifyEther && predicate.test(re)) {
-            int extract = etherStorage.extract(re, re.getMaxStackSize(), transaction);
-            if (extract > 0)
-                return re.toStack(extract);
+    public int insertStack(ItemStack stack, int amount) {
+        if (stack.isEmpty() || amount <= 0)
+            return 0;
+        if (stack.is(ItemRegistry.ETHER)) {
+            int canInsert = (int) (getCanReceive((long) amount * Config.etherConvert) / Config.etherConvert);
+            receiveEtherNoUpdate((long) canInsert * Config.etherConvert);
+            return canInsert;
+        }
+        if (nodeProperty.slotUnlock <= 0)
+            return 0;
+        int earlyCosted = 0;
+        for (AbstractNodePlugin plugin : getPlugins()) {
+            earlyCosted += plugin.earlyHandleInput(stack, amount - earlyCosted, null);
+            if (earlyCosted >= amount)
+                return earlyCosted;
+        }
+        int toPlace = amount - earlyCosted;
+        ItemStack remaining = insertItemToNormal(stack.copyWithCount(toPlace));
+        int placed = toPlace - remaining.getCount();
+        int overflow = remaining.getCount();
+        int overflowConsumed = 0;
+        if (overflow > 0)
+            for (AbstractNodePlugin plugin : getPlugins()) {
+                overflowConsumed += plugin.handleOverflow(stack, overflow - overflowConsumed, null);
+                if (overflowConsumed >= overflow)
+                    break;
+            }
+        if (placed > 0 || overflowConsumed > 0)
+            setChanged();
+        return earlyCosted + placed + overflowConsumed;
+    }
+
+    public void insertAllFrom(Container container) {
+        for (int i = 0; i < container.getContainerSize(); i++) {
+            ItemStack stack = container.getItem(i);
+            if (stack.isEmpty())
+                continue;
+            int inserted = insertStack(stack, stack.getCount());
+            if (inserted > 0)
+                container.setItem(i, stack.copyWithCount(stack.getCount() - inserted));
+        }
+    }
+
+    public ItemStack extractWithPredicate(Predicate<ItemStack> predicate, int maxAmount) {
+        if (nodeProperty.itemifyEther) {
+            ItemStack etherStack = etherStorage.getItem(0);
+            if (!etherStack.isEmpty() && predicate.test(etherStack)) {
+                int extract = Math.min(etherStack.getMaxStackSize(), maxAmount);
+                return etherStorage.removeItem(0, extract);
+            }
         }
 
-        for (int i = 0; i < normalHandler.size(); i++) {
-            ItemResource resource = normalHandler.getResource(i);
-            if (resource.isEmpty())
+        for (int i = 0; i < normalStorage.getContainerSize(); i++) {
+            ItemStack stack = normalStorage.getItem(i);
+            if (stack.isEmpty())
                 continue;
-            if (predicate.test(resource)) {
-                int extract = normalHandler.extract(i, resource, Math.min(resource.getMaxStackSize(), maxAmount), transaction);
-                return resource.toStack(extract);
+            if (predicate.test(stack)) {
+                int extract = Math.min(stack.getCount(), Math.min(stack.getMaxStackSize(), maxAmount));
+                return normalStorage.removeItem(i, extract);
             }
         }
         return ItemStack.EMPTY;
     }
 
-    public ItemStack extractExactWithPredicate(Predicate<ItemResource> predicate, TransactionContext transaction, int exactAmount) {
-        ItemResource matchedResource = null;
+    public ItemStack extractExactWithPredicate(Predicate<ItemStack> predicate, int exactAmount) {
+        ItemStack matchedStack = null;
         long totalAvailable = 0;
 
         if (nodeProperty.itemifyEther) {
-            ItemResource re = ItemResource.of(ItemRegistry.ETHER);
-            if (predicate.test(re)) {
+            ItemStack etherStack = etherStorage.getItem(0);
+            if (!etherStack.isEmpty() && predicate.test(etherStack)) {
                 totalAvailable += etherStorage.getAmountAsLong(0);
-                matchedResource = re;
+                matchedStack = etherStack;
             }
         }
 
-        for (int i = 0; i < normalHandler.size(); i++) {
-            ItemResource resource = normalHandler.getResource(i);
-            if (resource.isEmpty())
+        for (int i = 0; i < normalStorage.getContainerSize(); i++) {
+            ItemStack stack = normalStorage.getItem(i);
+            if (stack.isEmpty())
                 continue;
-            if (!predicate.test(resource))
+            if (!predicate.test(stack))
                 continue;
-            if (matchedResource == null)
-                matchedResource = resource;
-            totalAvailable += normalHandler.getAmountAsLong(i);
+            if (matchedStack == null)
+                matchedStack = stack;
+            totalAvailable += stack.getCount();
         }
 
-        if (matchedResource == null || totalAvailable < exactAmount)
+        if (matchedStack == null || totalAvailable < exactAmount)
             return ItemStack.EMPTY;
 
         int remaining = exactAmount;
 
         if (nodeProperty.itemifyEther) {
-            ItemResource re = ItemResource.of(ItemRegistry.ETHER);
-            if (predicate.test(re) && remaining > 0) {
+            ItemStack etherStack = etherStorage.getItem(0);
+            if (!etherStack.isEmpty() && predicate.test(etherStack) && remaining > 0) {
                 int toExtract = (int) Math.min(remaining, etherStorage.getAmountAsLong(0));
                 if (toExtract > 0)
-                    remaining -= etherStorage.extract(re, toExtract, transaction);
+                    remaining -= etherStorage.removeItem(0, toExtract).getCount();
             }
         }
 
-        for (int i = 0; i < normalHandler.size() && remaining > 0; i++) {
-            ItemResource resource = normalHandler.getResource(i);
-            if (resource.isEmpty())
+        for (int i = 0; i < normalStorage.getContainerSize() && remaining > 0; i++) {
+            ItemStack stack = normalStorage.getItem(i);
+            if (stack.isEmpty())
                 continue;
-            if (!predicate.test(resource))
+            if (!predicate.test(stack))
                 continue;
-            int toExtract = (int) Math.min(remaining, normalHandler.getAmountAsLong(i));
+            int toExtract = Math.min(remaining, stack.getCount());
             if (toExtract > 0)
-                remaining -= normalHandler.extract(i, resource, toExtract, transaction);
+                remaining -= normalStorage.removeItem(i, toExtract).getCount();
         }
 
         if (remaining > 0)
             return ItemStack.EMPTY;
 
-        return matchedResource.toStack(exactAmount);
+        return matchedStack.copyWithCount(exactAmount);
+    }
+
+    public boolean hasExactMatch(Predicate<ItemStack> predicate, int exactAmount) {
+        long total = 0;
+        if (nodeProperty.itemifyEther) {
+            ItemStack etherStack = etherStorage.getItem(0);
+            if (!etherStack.isEmpty() && predicate.test(etherStack))
+                total += etherStorage.getAmountAsLong(0);
+        }
+        for (int i = 0; i < normalStorage.getContainerSize(); i++) {
+            ItemStack stack = normalStorage.getItem(i);
+            if (stack.isEmpty())
+                continue;
+            if (predicate.test(stack))
+                total += stack.getCount();
+        }
+        return total >= exactAmount;
     }
 
     public List<Pair<NodePluginManager.PluginInfo, InstalledPlugin>> getTabProvider() {
@@ -618,6 +681,12 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
 
     public boolean allowInteract(ItemResource resource) {
         if (resource.is(ItemRegistry.ETHER))
+            return nodeProperty.itemifyEther;
+        return true;
+    }
+
+    public boolean allowInteract(ItemStack stack) {
+        if (stack.is(ItemRegistry.ETHER))
             return nodeProperty.itemifyEther;
         return true;
     }

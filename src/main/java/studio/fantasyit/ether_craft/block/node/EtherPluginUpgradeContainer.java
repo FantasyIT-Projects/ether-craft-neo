@@ -5,7 +5,6 @@ import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
-import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import org.jetbrains.annotations.Nullable;
 import studio.fantasyit.ether_craft.EtherCraft;
@@ -141,11 +140,11 @@ public class EtherPluginUpgradeContainer extends SimpleContainer {
         return true;
     }
 
-    public int handleOverflow(ItemResource resource, int amount, TransactionContext transaction) {
+    public int handleOverflow(ItemStack stack, int amount, TransactionContext transaction) {
         int consumed = 0;
         for (AbstractNodePlugin plugin : this.plugin) {
             if (plugin != null)
-                consumed += plugin.handleOverflow(resource, amount - consumed, transaction);
+                consumed += plugin.handleOverflow(stack, amount - consumed, transaction);
         }
         return consumed;
     }

@@ -8,8 +8,6 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
-import net.neoforged.neoforge.transfer.item.ItemResource;
-import net.neoforged.neoforge.transfer.transaction.Transaction;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.block.base.ItemFilter;
 import studio.fantasyit.ether_craft.block.node.EtherAdaptNodeEntity;
@@ -54,23 +52,23 @@ public abstract class AbstractItemConsumeFunction extends AbstractNodePlugin {
         nodeProperty.specialLevels = 10;
     }
 
-    abstract boolean accepts(ItemResource stack);
+    abstract boolean accepts(ItemStack stack);
 
     abstract IGeneratorAdjuster.AdjustedParameters onConsumeItem(ItemStack itemStack);
 
     @Override
     public void tickWork() {
         ItemStack oItemStack = container.getItem(0);
-        int remain = oItemStack.isEmpty() ? 64 : oItemStack.getMaxStackSize() - oItemStack.getCount();
-        try (var transaction = Transaction.openRoot()) {
+        int maxSpace = oItemStack.isEmpty() ? 64 : oItemStack.getMaxStackSize() - oItemStack.getCount();
+        if (maxSpace > 0) {
             ItemStack toPlace = nodeEntity.extractWithPredicate(stack ->
-                            accepts(stack) && container.canPlaceItem(0, stack.toStack()) && filter.accepts(stack),
-                    transaction, remain
+                            accepts(stack) && container.canPlaceItem(0, stack) && filter.accepts(stack)
+                                    && (oItemStack.isEmpty() || ItemStack.isSameItemSameComponents(oItemStack, stack)),
+                    maxSpace
             );
-            if (!toPlace.isEmpty() && (oItemStack.isEmpty() || ItemStack.isSameItemSameComponents(oItemStack, toPlace)) && oItemStack.getCount() + toPlace.getCount() <= toPlace.getMaxStackSize()) {
-                ItemStack newStack = oItemStack.isEmpty() ? toPlace.copy() : oItemStack.copyWithCount(oItemStack.getCount() + toPlace.getCount());
+            if (!toPlace.isEmpty()) {
+                ItemStack newStack = oItemStack.isEmpty() ? toPlace : oItemStack.copyWithCount(oItemStack.getCount() + toPlace.getCount());
                 container.setItem(0, newStack);
-                transaction.commit();
                 nodeEntity.setChanged();
             }
         }
@@ -78,7 +76,7 @@ public abstract class AbstractItemConsumeFunction extends AbstractNodePlugin {
         boolean previousWorking = remainBurnTicks > 0;
         if (remainBurnTicks <= 0 && !container.getItem(0).isEmpty()) {
             ItemStack toConsumeItemStack = container.getItem(0).copy();
-            if (accepts(ItemResource.of(toConsumeItemStack))) {
+            if (accepts(toConsumeItemStack)) {
                 IGeneratorAdjuster.AdjustedParameters parameter = onConsumeItem(toConsumeItemStack);
                 container.setItem(0, toConsumeItemStack);
                 for (int i = 0; i < nodeEntity.featureUpgradeStorage.getContainerSize(); i++) {
@@ -140,7 +138,7 @@ public abstract class AbstractItemConsumeFunction extends AbstractNodePlugin {
     public void onDestroy() {
         super.onDestroy();
         if (!container.isEmpty()) {
-            ContainerOps.tryPlaceToItemHandler(container, nodeEntity);
+            nodeEntity.insertAllFrom(container);
             if (nodeEntity.getLevel() != null) {
                 Containers.dropContents(nodeEntity.getLevel(), nodeEntity.getBlockPos(), container);
             }

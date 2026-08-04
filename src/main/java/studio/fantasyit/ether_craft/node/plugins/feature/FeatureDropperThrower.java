@@ -8,7 +8,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.transfer.transaction.Transaction;
 import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.block.node.EtherAdaptNodeEntity;
@@ -16,6 +15,7 @@ import studio.fantasyit.ether_craft.menu.base.slot.BaseDataSlot;
 import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeContainerMenu;
 import studio.fantasyit.ether_craft.network.c2s.SyncScreenDataC2S;
 import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
+import studio.fantasyit.ether_craft.register.ItemRegistry;
 
 public class FeatureDropperThrower extends AbstractDirectionalFilterFeature {
     public static final Identifier ID = EtherCraft.id("dropper_thrower");
@@ -37,20 +37,18 @@ public class FeatureDropperThrower extends AbstractDirectionalFilterFeature {
         if (direction == null) return true;
         if (nodeEntity.getLevel() == null) return true;
 
-        ItemStack itemStack;
-        long etherCost;
-        try (Transaction transaction = Transaction.openRoot()) {
-            itemStack = nodeEntity.extractExactWithPredicate(filter::accepts, transaction, throwCount);
-            if (itemStack.isEmpty()) {
-                return true;
-            }
-            etherCost = (long) itemStack.getCount() * Config.nodeDropperThrowerEtherPerItem;
-            if (nodeEntity.getEther() < etherCost) {
-                return false;
-            }
-            nodeEntity.extractEther(etherCost);
-            transaction.commit();
-        }
+        if (!nodeEntity.hasExactMatch(filter::accepts, throwCount))
+            return true;
+        boolean etherMatches = nodeEntity.nodeProperty.itemifyEther
+                && filter.accepts(ItemRegistry.ETHER.get().getDefaultInstance());
+        long etherDrain = etherMatches
+                ? Math.min(throwCount, nodeEntity.getEther() / Config.etherConvert) * Config.etherConvert
+                : 0;
+        long etherCost = (long) throwCount * Config.nodeDropperThrowerEtherPerItem + etherDrain;
+        if (nodeEntity.getEther() < etherCost)
+            return false;
+        ItemStack itemStack = nodeEntity.extractExactWithPredicate(filter::accepts, throwCount);
+        nodeEntity.extractEther((long) itemStack.getCount() * Config.nodeDropperThrowerEtherPerItem);
 
         Direction dir = direction;
         Vec3 dirVec = dir.getUnitVec3();

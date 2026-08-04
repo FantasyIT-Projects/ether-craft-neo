@@ -2,11 +2,10 @@ package studio.fantasyit.ether_craft.node.plugins.function;
 
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.AABB;
-import net.neoforged.neoforge.transfer.item.ItemResource;
-import net.neoforged.neoforge.transfer.transaction.Transaction;
 import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.block.base.ItemFilter;
@@ -68,18 +67,15 @@ public class FunctionMagnet extends AbstractNodePlugin {
                 int toConsumePreStack = Config.nodeMagnetEtherPerStack * itemEntity.blockPosition().distManhattan(nodeEntity.getBlockPos());
                 if (nodeEntity.getEther() < toConsumePreStack)
                     break;
-                ItemResource res = ItemResource.of(itemEntity.getItem());
-                if (filter.accepts(res)) {
-                    int count = itemEntity.getItem().getCount();
-                    try (Transaction t = Transaction.openRoot()) {
-                        int insert = nodeEntity.insert(res, count, t);
-                        if (insert != 0) {
-                            itemEntity.getItem().shrink(insert);
-                            if (itemEntity.getItem().isEmpty())
-                                itemEntity.discard();
-                            nodeEntity.extractEther(toConsumePreStack);
-                            t.commit();
-                        }
+                ItemStack item = itemEntity.getItem();
+                if (filter.accepts(item)) {
+                    int count = item.getCount();
+                    int insert = nodeEntity.insertStack(item, count);
+                    if (insert != 0) {
+                        item.shrink(insert);
+                        if (item.isEmpty())
+                            itemEntity.discard();
+                        nodeEntity.extractEther(toConsumePreStack);
                     }
                 }
             }

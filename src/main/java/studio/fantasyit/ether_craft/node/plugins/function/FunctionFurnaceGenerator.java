@@ -3,9 +3,8 @@ package studio.fantasyit.ether_craft.node.plugins.function;
 import net.minecraft.resources.Identifier;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
-import net.neoforged.neoforge.transfer.item.ItemResource;
-import net.neoforged.neoforge.transfer.transaction.Transaction;
 import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.block.node.EtherAdaptNodeEntity;
@@ -21,19 +20,17 @@ public class FunctionFurnaceGenerator extends AbstractItemConsumeFunction {
     }
 
     @Override
-    boolean accepts(ItemResource stack) {
-        int burnTime = stack.toStack().getBurnTime(null, nodeEntity.getLevel().fuelValues());
+    boolean accepts(ItemStack stack) {
+        int burnTime = stack.getBurnTime(null, nodeEntity.getLevel().fuelValues());
         return burnTime >= Config.nodeFurnaceBurnTimeFactor;
     }
 
     @Override
     IGeneratorAdjuster.AdjustedParameters onConsumeItem(ItemStack itemStack) {
-        if (itemStack.getCraftingRemainder() != null) {
-            try (Transaction t = Transaction.openRoot()) {
-                if (nodeEntity.insert(ItemResource.of(itemStack.getCraftingRemainder()), 1, t) == 0)
-                    return new IGeneratorAdjuster.AdjustedParameters(0, 0);
-                t.commit();
-            }
+        ItemStackTemplate craftingRemainder = itemStack.getCraftingRemainder();
+        if (craftingRemainder != null) {
+            if (nodeEntity.insertStack(craftingRemainder.create(), 1) == 0)
+                return new IGeneratorAdjuster.AdjustedParameters(0, 0);
         }
         int factor = Config.nodeFurnaceBurnTimeFactor;
         if (this.installedId.pluginId().equals(ID_BLAST))

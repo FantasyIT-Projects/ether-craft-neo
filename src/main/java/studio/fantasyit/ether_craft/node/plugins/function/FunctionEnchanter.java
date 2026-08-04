@@ -19,8 +19,6 @@ import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.EnchantmentInstance;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
-import net.neoforged.neoforge.transfer.item.ItemResource;
-import net.neoforged.neoforge.transfer.transaction.Transaction;
 import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.block.base.ItemFilter;
@@ -119,14 +117,11 @@ public class FunctionEnchanter extends AbstractNodePlugin {
         }
 
         if (processSlot.getItem(0).isEmpty()) {
-            try (Transaction tx = Transaction.openRoot()) {
-                ItemStack extracted = nodeEntity.extractExactWithPredicate(
-                        r -> isEnchantableAndUnenchanted(r) && filter.accepts(r), tx, 1
-                );
-                if (!extracted.isEmpty()) {
-                    tx.commit();
-                    processSlot.setItem(0, extracted);
-                }
+            ItemStack extracted = nodeEntity.extractExactWithPredicate(
+                    s -> isEnchantableAndUnenchanted(s) && filter.accepts(s), 1
+            );
+            if (!extracted.isEmpty()) {
+                processSlot.setItem(0, extracted);
             }
         }
         if (processSlot.getItem(0).getCount() > 1) {
@@ -135,7 +130,7 @@ public class FunctionEnchanter extends AbstractNodePlugin {
         }
 
         if (!processSlot.getItem(0).isEmpty() && nodeEntity.getEther() >= etherCost) {
-            if (isEnchantableAndUnenchanted(ItemResource.of(processSlot.getItem(0)))) {
+            if (isEnchantableAndUnenchanted(processSlot.getItem(0))) {
                 if (selectedLevel != -1)
                     progress = 1;
             } else {
@@ -144,9 +139,8 @@ public class FunctionEnchanter extends AbstractNodePlugin {
         }
     }
 
-    private boolean isEnchantableAndUnenchanted(ItemResource resource) {
-        if (resource.isEmpty()) return false;
-        ItemStack stack = resource.toStack();
+    private boolean isEnchantableAndUnenchanted(ItemStack stack) {
+        if (stack.isEmpty()) return false;
         if (!stack.has(DataComponents.ENCHANTABLE))
             return false;
         if (stack.has(DataComponents.ENCHANTMENTS) && !stack.get(DataComponents.ENCHANTMENTS).isEmpty())
@@ -173,13 +167,10 @@ public class FunctionEnchanter extends AbstractNodePlugin {
             progress = 0;
             return;
         }
-        try (Transaction tx = Transaction.openRoot()) {
-            int inserted = nodeEntity.insert(ItemResource.of(result), result.getCount(), tx);
-            if (inserted > 0) {
-                tx.commit();
-                processSlot.setItem(0, ItemStack.EMPTY);
-                progress = 0;
-            }
+        int inserted = nodeEntity.insertStack(result, result.getCount());
+        if (inserted > 0) {
+            processSlot.setItem(0, ItemStack.EMPTY);
+            progress = 0;
         }
         nodeEntity.setChanged();
     }
@@ -243,7 +234,7 @@ public class FunctionEnchanter extends AbstractNodePlugin {
     @Override
     public void onDestroy() {
         if (!processSlot.isEmpty()) {
-            ContainerOps.tryPlaceToItemHandler(processSlot, nodeEntity);
+            nodeEntity.insertAllFrom(processSlot);
             if (nodeEntity.getLevel() != null) {
                 Containers.dropContents(nodeEntity.getLevel(), nodeEntity.getBlockPos(), processSlot);
             }

@@ -1,9 +1,9 @@
 package studio.fantasyit.ether_craft.node.plugins.feature;
 
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
-import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.block.base.ItemFilter;
@@ -32,16 +32,16 @@ public class DestructionUpgrade extends AbstractNodePlugin {
     }
 
     @Override
-    public int earlyHandleInput(ItemResource resource, int amount, TransactionContext context) {
+    public int earlyHandleInput(ItemStack stack, int amount, TransactionContext context) {
         if (destroyMode != DestroyMode.ALL) return 0;
-        if (!filter.accepts(resource)) return 0;
+        if (!filter.accepts(stack)) return 0;
         return amount;
     }
 
     @Override
-    public int handleOverflow(ItemResource resource, int amount, TransactionContext transaction) {
+    public int handleOverflow(ItemStack stack, int amount, TransactionContext transaction) {
         if (destroyMode != DestroyMode.OVERFLOW) return 0;
-        if (!filter.accepts(resource)) return 0;
+        if (!filter.accepts(stack)) return 0;
         return amount;
     }
 

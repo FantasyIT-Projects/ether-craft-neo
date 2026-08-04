@@ -3,7 +3,6 @@ package studio.fantasyit.ether_craft.node.plugins.function;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.neoforged.neoforge.transfer.item.ItemResource;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.block.node.EtherAdaptNodeEntity;
 import studio.fantasyit.ether_craft.datapack.StoneGeneratorRatio;
@@ -18,8 +17,8 @@ public class FunctionStoneGenerator extends AbstractItemConsumeFunction {
     }
 
     @Override
-    boolean accepts(ItemResource stack) {
-        return StoneGeneratorRatio.get(stack.toStack()) != null;
+    boolean accepts(ItemStack stack) {
+        return StoneGeneratorRatio.get(stack) != null;
     }
 
     @Override

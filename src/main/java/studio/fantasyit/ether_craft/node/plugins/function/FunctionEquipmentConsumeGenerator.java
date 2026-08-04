@@ -11,7 +11,6 @@ import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
-import net.neoforged.neoforge.transfer.item.ItemResource;
 import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.block.node.EtherAdaptNodeEntity;
@@ -29,8 +28,8 @@ public class FunctionEquipmentConsumeGenerator extends AbstractItemConsumeFuncti
     }
 
     @Override
-    boolean accepts(ItemResource stack) {
-        return stack.toStack().is(Tags.CONSUMABLE_EQUIPMENTS) || stack.toStack().has(DataComponents.STORED_ENCHANTMENTS);
+    boolean accepts(ItemStack stack) {
+        return stack.is(Tags.CONSUMABLE_EQUIPMENTS) || stack.has(DataComponents.STORED_ENCHANTMENTS);
     }
 
     @Override

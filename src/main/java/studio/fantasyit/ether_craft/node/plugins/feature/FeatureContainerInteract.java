@@ -20,7 +20,6 @@ import studio.fantasyit.ether_craft.menu.base.slot.BaseDataSlot;
 import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeContainerMenu;
 import studio.fantasyit.ether_craft.network.c2s.SyncScreenDataC2S;
 import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
-import studio.fantasyit.ether_craft.node.plugins.base.AbstractNodePlugin;
 import studio.fantasyit.ether_craft.register.ItemRegistry;
 
 import java.util.Collections;
@@ -113,7 +112,6 @@ public class FeatureContainerInteract extends AbstractDirectionalFilterFeature {
         }
 
         Set<ItemResource> tried = Collections.newSetFromMap(new IdentityHashMap<>());
-        List<AbstractNodePlugin> toPlugins = toNode.getPlugins();
         for (int slot = 0; slot < fromNode.normalStorage.getContainerSize(); slot++) {
             ItemStack stack = fromNode.normalStorage.getItem(slot);
             if (stack.isEmpty())
@@ -123,37 +121,11 @@ public class FeatureContainerInteract extends AbstractDirectionalFilterFeature {
                 continue;
             if (!filter.accepts(stack))
                 continue;
-            if (!fromNode.allowInteract(resource))
+            if (!fromNode.allowInteract(stack))
                 continue;
 
             int remaining = Math.min(stack.getCount(), maxTransfer);
-
-            int earlyCosted = 0;
-            for (AbstractNodePlugin plugin : toPlugins) {
-                int consumed = plugin.earlyHandleInput(resource, remaining, null);
-                earlyCosted += consumed;
-                remaining -= consumed;
-                if (remaining <= 0) break;
-            }
-
-            int normalInserted = 0;
-            if (remaining > 0) {
-                ItemStack remainingStack = toNode.insertItemToNormal(stack.copyWithCount(remaining));
-                normalInserted = remaining - remainingStack.getCount();
-                remaining = remainingStack.getCount();
-            }
-
-            int overflowConsumed = 0;
-            if (remaining > 0) {
-                for (AbstractNodePlugin plugin : toPlugins) {
-                    int consumed = plugin.handleOverflow(resource, remaining, null);
-                    overflowConsumed += consumed;
-                    remaining -= consumed;
-                    if (remaining <= 0) break;
-                }
-            }
-
-            int totalConsumed = earlyCosted + normalInserted + overflowConsumed;
+            int totalConsumed = toNode.insertStack(stack.copyWithCount(remaining), remaining);
             int leftInSource = stack.getCount() - totalConsumed;
             fromNode.normalStorage.setItem(slot, stack.copyWithCount(leftInSource));
 
