@@ -68,6 +68,15 @@ public class VirtualEtherStreamHolder {
         return level.getData(AttachmentDataRegistry.INDEX_MAPPING_MANAGER);
     }
 
+    private EntitySectorCache sectorCache;
+
+    private EntitySectorCache sectorCache() {
+        if (sectorCache == null) {
+            sectorCache = VirtualEtherStreamHolderManager.get(level).sectorCache;
+        }
+        return sectorCache;
+    }
+
     private AutoIndexPosDir posDirAutoIndexed() {
         return indexMappingManager().get(posDir);
     }
@@ -149,7 +158,7 @@ public class VirtualEtherStreamHolder {
     private void tickCollideAll(int maxBlockDist) {
         int maxClipDist = maxBlockDist + 1;
         Vec3 queryVec = direction.getUnitVec3().scale(maxBlockDist + 1);
-        List<Entity> allEntities = level.getEntities(null, new AABB(pos).expandTowards(queryVec).inflate(1.0));
+        List<Entity> allEntities = sectorCache().getEntities(level, new AABB(pos).expandTowards(queryVec).inflate(1.0));
         List<Entity> canHitEntity = new ArrayList<>(allEntities);
         canHitEntity.removeIf(this::entityNoCollidePredicator);
         List<BlockState> blockStates = new ArrayList<>(maxClipDist + 1);

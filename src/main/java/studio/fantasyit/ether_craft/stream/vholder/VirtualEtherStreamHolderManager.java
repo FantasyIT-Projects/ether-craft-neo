@@ -25,6 +25,7 @@ public class VirtualEtherStreamHolderManager {
 
     private final Map<PosDir, VirtualEtherStreamHolder> holders = new HashMap<>();
     private List<VESHEntry> lazyLoadData;
+    public final EntitySectorCache sectorCache = new EntitySectorCache();
 
     public static VirtualEtherStreamHolderManager empty() {
         return new VirtualEtherStreamHolderManager(null);
