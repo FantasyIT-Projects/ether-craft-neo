@@ -67,15 +67,17 @@ public class VirtualEtherStreamHolderManager {
 
     public void tick(ServerLevel level) {
         ensureLazy(level);
+        PlayerPayloadAccumulator acc = new PlayerPayloadAccumulator();
         HashSet<Map.Entry<PosDir, VirtualEtherStreamHolder>> keys = new HashSet<>(holders.entrySet());
         for (Map.Entry<PosDir, VirtualEtherStreamHolder> entry : keys) {
             PosDir posDir = entry.getKey();
             VirtualEtherStreamHolder holder = entry.getValue();
-            holder.tick();
+            holder.tick(acc);
             if (holder.isDead()) {
                 holders.remove(posDir);
             }
         }
+        acc.send(level);
     }
 
     public void syncAndStratTrackingByPlayer(ServerPlayer player) {

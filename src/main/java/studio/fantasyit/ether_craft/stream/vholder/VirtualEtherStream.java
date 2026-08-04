@@ -1,5 +1,6 @@
 package studio.fantasyit.ether_craft.stream.vholder;
 
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -23,7 +24,6 @@ import studio.fantasyit.ether_craft.stream.cap.IStreamCapability;
 import studio.fantasyit.ether_craft.stream.data.IEtherStreamSyncedData;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -56,8 +56,8 @@ public class VirtualEtherStream implements IEtherStreamLike {
     List<IEtherStreamSyncedData> toSyncData = new ArrayList<>();
     final VirtualEtherStreamHolder holder;
 
-    HashSet<Integer> trackingPlayers = new HashSet<>();
-    HashSet<Integer> lastTrackingPlayers = new HashSet<>();
+    IntOpenHashSet trackingPlayers = new IntOpenHashSet();
+    IntOpenHashSet lastTrackingPlayers = new IntOpenHashSet();
 
     public VirtualEtherStream(int streamId, int ether, PosDir posDir, float startOffset, float startSpeed, Level level, VirtualEtherStreamHolder holder) {
         this.startOffset = startOffset;
@@ -338,7 +338,7 @@ public class VirtualEtherStream implements IEtherStreamLike {
         }
     }
 
-    public void addTrackingPlayer(Integer id) {
+    public void addTrackingPlayer(int id) {
         trackingPlayers.add(id);
         trackingDirty = true;
     }
