@@ -55,6 +55,12 @@ public class VirtualEtherStreamHolder {
     private boolean lastHadStreamInUnloadedChunk = false;
     private int holderMaxDistance;
     CachedEtherStreamEntry lastCreateSnapshot = null;
+    private int blockScanTickCounter = 0;
+    private int cachedMaxClipDist = -1;
+    private List<BlockState> cachedBlockStates;
+    private List<BlockPos> cachedBlockPoses;
+    private List<VoxelShape> cachedShapes;
+    private List<Boolean> cachedIsPassThrough;
 
 
     public VirtualEtherStreamHolder(PosDir posDir, @NotNull ServerLevel level) {
@@ -156,18 +162,16 @@ public class VirtualEtherStreamHolder {
         }
     }
 
-    private void tickCollideAll(int maxBlockDist) {
-        int maxClipDist = maxBlockDist + 1;
-        Vec3 queryVec = direction.getUnitVec3().scale(maxBlockDist + 1);
-        List<Entity> allEntities = sectorCache().getEntities(level, new AABB(pos).expandTowards(queryVec).inflate(1.0));
-        List<Entity> canHitEntity = new ArrayList<>(allEntities);
-        canHitEntity.removeIf(this::entityNoCollidePredicator);
+    private void ensureBlockSnapshot(int maxClipDist) {
+        boolean expired = ++blockScanTickCounter >= Config.etherStreamBlockScanInterval;
+        boolean tooSmall = cachedBlockStates == null || cachedMaxClipDist < maxClipDist;
+        if (!expired && !tooSmall) return;
+        blockScanTickCounter = 0;
+        cachedMaxClipDist = maxClipDist;
         List<BlockState> blockStates = new ArrayList<>(maxClipDist + 1);
         List<BlockPos> blockPoses = new ArrayList<>(maxClipDist + 1);
         List<VoxelShape> shapes = new ArrayList<>(maxClipDist + 1);
         List<Boolean> isPassThrough = new ArrayList<>(maxClipDist + 1);
-
-        // 构建 碰撞snapshot
         BlockPos.MutableBlockPos blockScanPos = pos.mutable();
         for (int i = 0; i <= maxClipDist; i++) {
             BlockState blockState = level.getBlockState(blockScanPos);
@@ -177,6 +181,23 @@ public class VirtualEtherStreamHolder {
             isPassThrough.add(!blockState.isAir() && blockState.is(Tags.ETHER_STREAM_PASS_THROUGH));
             blockScanPos.move(direction);
         }
+        cachedBlockStates = blockStates;
+        cachedBlockPoses = blockPoses;
+        cachedShapes = shapes;
+        cachedIsPassThrough = isPassThrough;
+    }
+
+    private void tickCollideAll(int maxBlockDist) {
+        int maxClipDist = maxBlockDist + 1;
+        Vec3 queryVec = direction.getUnitVec3().scale(maxBlockDist + 1);
+        List<Entity> allEntities = sectorCache().getEntities(level, new AABB(pos).expandTowards(queryVec).inflate(1.0));
+        List<Entity> canHitEntity = new ArrayList<>(allEntities);
+        canHitEntity.removeIf(this::entityNoCollidePredicator);
+        ensureBlockSnapshot(maxClipDist);
+        List<BlockState> blockStates = cachedBlockStates;
+        List<BlockPos> blockPoses = cachedBlockPoses;
+        List<VoxelShape> shapes = cachedShapes;
+        List<Boolean> isPassThrough = cachedIsPassThrough;
 
         for (int i = 0, size = streams.size(); i < size; i++) {
             VirtualEtherStream ves = streams.get(i);

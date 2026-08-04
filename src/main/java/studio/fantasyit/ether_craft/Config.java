@@ -170,6 +170,10 @@ public class Config {
             .comment("Maximum distance in blocks from an emitter to sync ether stream packets to nearby players. Set to -1 to sync to the entire dimension.")
             .defineInRange("ether_stream.sync_distance", 128.0, -1, 512);
 
+    private static final ModConfigSpec.IntValue ETHER_STREAM_BLOCK_SCAN_INTERVAL = BUILDER
+            .comment("Ticks between refreshing the block collision snapshot along an ether stream (1 = every tick)")
+            .defineInRange("ether_stream.block_scan_interval", 1, 1, Integer.MAX_VALUE);
+
     // -- ether_stream.break_block --
 
     private static final ModConfigSpec.IntValue ETHER_STREAM_BREAK_BLOCK_HARDNESS_MULTIPLIER = BUILDER
@@ -451,6 +455,7 @@ public class Config {
     public static int etherStreamMaxTick;
     public static int etherStreamDestroyThreshold;
     public static double etherStreamSyncDistance;
+    public static int etherStreamBlockScanInterval;
     public static double etherStreamGlassTransformChance;
     public static double etherStreamConsumptionFactor;
     public static double etherStreamConsumptionByTimeFactor;
@@ -557,6 +562,7 @@ public class Config {
         etherGlassPreventConsume = ETHER_GLASS_PREVENT_CONSUME.get();
         etherStreamDestroyThreshold = ETHER_STREAM_DESTROY_THRESHOLD.get();
         etherStreamSyncDistance = ETHER_STREAM_SYNC_DISTANCE.get();
+        etherStreamBlockScanInterval = ETHER_STREAM_BLOCK_SCAN_INTERVAL.get();
         nodeProcessEtherConsumePreUnmatched = ETHER_PROCESS_ETHER_CONSUME_PRE_UNMATCHED.get();
         etherAutoSupplyThreshold = NODE_AUTO_SUPPLY_THRESHOLD.get();
         etherAutoSupplyEtherPerTick = NODE_AUTO_SUPPLY_ETHER_PER_TICK.get();
