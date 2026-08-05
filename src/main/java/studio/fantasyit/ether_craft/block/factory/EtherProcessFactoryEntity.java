@@ -227,7 +227,7 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
                 if (Arrays.stream(matching).noneMatch(t -> t == -1)) {
                     existingRecipe.nonOutputProducer().forEach((key, value) -> {
                         possibleIntermediateResults.setItem(key.y * COLS + key.x, value);
-                        affected[key.x][key.y] = true;
+                        affected[key.y][key.x] = true;
                     });
                     hasRecipe[outputId] = true;
                     processingInputs[outputId] = candidate;
@@ -248,7 +248,7 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
             Optional<MultiStepMatchIO> recipeFor = EtherProcessRecipeManager.getRecipe(level, level.recipeAccess(), candidate);
             recipeFor.ifPresent(multiStepMatchIO -> multiStepMatchIO.nonOutputProducer().forEach((key, value) -> {
                 possibleIntermediateResults.setItem(key.y * COLS + key.x, value);
-                affected[key.x][key.y] = true;
+                affected[key.y][key.x] = true;
             }));
             if (recipeFor.isPresent() && recipeFor.get().success()) {
                 MultiStepMatchIO currentRecipe = recipeFor.get();
@@ -290,9 +290,9 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
                 int finalI = i;
                 pathMaxDepth[i] = processingInputs[i].maxDepth();
                 processingInputs[i].workingPath().forEach(v -> {
-                    pathBelongings[v.pos().x][v.pos().y] = finalI;
-                    pathDirection[v.pos().x][v.pos().y] = v.next();
-                    pathDepth[v.pos().x][v.pos().y] = processingInputs[finalI].maxDepth() - v.depth();
+                    pathBelongings[v.pos().y][v.pos().x] = finalI;
+                    pathDirection[v.pos().y][v.pos().x] = v.next();
+                    pathDepth[v.pos().y][v.pos().x] = processingInputs[finalI].maxDepth() - v.depth();
                 });
             }
         }

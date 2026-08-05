@@ -155,13 +155,25 @@ public class EtherProcessorRecipeUtil {
             if (x2 == fromX && y2 == fromY) {
                 continue;
             }
-            if (x2 >= 0 && x2 < markMatrix[0].length && y2 >= 0 && y2 < markMatrix.length) {
-                if (markMatrix[y2][x2] == 0) {
-                    if (!markTreeArea(markMatrix, x2, y2, x, y, markId)) result = false;
-                } else if (markMatrix[y2][x2] != -1) {
-                    //存在环
-                    result = false;
+            //通路必须被chip包围，只有输入口与唯一输出口允许越出边界
+            if (x2 == -1) {
+                //左侧输入口，物品从外部流入，合法
+                continue;
+            }
+            if (x2 >= markMatrix[0].length || y2 < 0 || y2 >= markMatrix.length) {
+                //仅输出行(markId-1)的唯一输出格可以向右越界
+                if (x2 == markMatrix[0].length && y2 == markId - 1) {
+                    continue;
                 }
+                //其余越界：通路暴露在边界外、未被包围，非法
+                result = false;
+                continue;
+            }
+            if (markMatrix[y2][x2] == 0) {
+                if (!markTreeArea(markMatrix, x2, y2, x, y, markId)) result = false;
+            } else if (markMatrix[y2][x2] != -1) {
+                //存在环
+                result = false;
             }
         }
         return result;

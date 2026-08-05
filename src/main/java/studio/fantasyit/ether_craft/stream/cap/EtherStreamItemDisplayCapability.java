@@ -54,6 +54,11 @@ public class EtherStreamItemDisplayCapability implements IStreamCapability {
     }
 
     @Override
+    public void onRecreate(IEtherStreamLike newStream) {
+        updateDisplayItem(newStream, 0);
+    }
+
+    @Override
     public void tick(IEtherStreamLike streamEntity) {
         if (streamEntity.tickCount() % 10 != 0) return;
         int idx = streamEntity.tickCount() / 10;

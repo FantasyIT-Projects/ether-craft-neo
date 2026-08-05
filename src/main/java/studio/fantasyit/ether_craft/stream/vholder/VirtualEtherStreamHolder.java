@@ -461,6 +461,10 @@ public class VirtualEtherStreamHolder {
         if (!collectedToSyncEtherConsume.isEmpty()) {
             List<EtherStreamUpdateS2C.StreamEntry> updateEntries = new ArrayList<>();
             for (VirtualEtherStream ves : collectedToSyncEtherConsume) {
+                if (ves.consumer.isDirty()) {
+                    ves.consumer.recompute(ves, ves.capabilities);
+                    ves.needsEtherConsumerSync = true;
+                }
                 EtherStreamUpdateS2C.StreamEntry streamEntry = new EtherStreamUpdateS2C.StreamEntry(
                         ves.streamId,
                         ves.ether,
