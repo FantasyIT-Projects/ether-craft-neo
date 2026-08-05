@@ -57,6 +57,13 @@ public abstract class AbstractNodePlugin implements ISyncTargetMenu {
     public void onDestroy() {
     }
 
+    public void onBlockUpdate() {
+    }
+
+    public boolean shouldSyncEther() {
+        return true;
+    }
+
     public void onWrenchRotate(Direction.Axis axis) {
     }
 

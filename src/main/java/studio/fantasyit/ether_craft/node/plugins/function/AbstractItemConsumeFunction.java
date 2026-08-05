@@ -1,15 +1,19 @@
 package studio.fantasyit.ether_craft.node.plugins.function;
 
 import com.mojang.serialization.Codec;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.Containers;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.block.base.ItemFilter;
+import studio.fantasyit.ether_craft.block.node.EtherAdaptNodeBlock;
 import studio.fantasyit.ether_craft.block.node.EtherAdaptNodeEntity;
 import studio.fantasyit.ether_craft.menu.base.slot.BaseDataSlot;
 import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeContainerMenu;
@@ -28,6 +32,7 @@ public abstract class AbstractItemConsumeFunction extends AbstractNodePlugin {
     public SimpleContainer container = new SimpleContainer(1);
     public int remainBurnTicks = 0;
     public int generatePreTick = 0;
+    private boolean frontBlocked = false;
 
     public enum WorkingMaterial {
         IDLE,
@@ -143,5 +148,20 @@ public abstract class AbstractItemConsumeFunction extends AbstractNodePlugin {
                 Containers.dropContents(nodeEntity.getLevel(), nodeEntity.getBlockPos(), container);
             }
         }
+    }
+
+    @Override
+    public void onBlockUpdate() {
+        if (nodeEntity.getLevel() == null || nodeEntity.getLevel().isClientSide())
+            return;
+        Direction facing = nodeEntity.getBlockState().getValueOrElse(EtherAdaptNodeBlock.FACING, Direction.NORTH);
+        BlockPos front = nodeEntity.getBlockPos().relative(facing);
+        BlockState frontState = nodeEntity.getLevel().getBlockState(front);
+        frontBlocked = frontState.isCollisionShapeFullBlock(nodeEntity.getLevel(), front) && frontState.canOcclude();
+    }
+
+    @Override
+    public boolean shouldSyncEther() {
+        return !frontBlocked;
     }
 }

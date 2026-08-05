@@ -87,6 +87,7 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
     public Component toRenderName = null;
     private boolean neighborSignalDirty = true;
     private boolean cachedNeighborSignal = false;
+    private boolean pluginBlockUpdateDirty = true;
     private @Nullable SimpleEtherSyncController syncController = null;
 
 
@@ -166,6 +167,11 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
             neighborSignalDirty = false;
             if (nodeProperty.receiveRedstoneSignal)
                 cachedNeighborSignal = level.hasNeighborSignal(worldPosition);
+        }
+        if (pluginBlockUpdateDirty) {
+            pluginBlockUpdateDirty = false;
+            for (AbstractNodePlugin plugin : getPlugins())
+                plugin.onBlockUpdate();
         }
         if (functionStorage.preTick() && featureUpgradeStorage.preTick()) {
             functionStorage.tickInput();
@@ -576,6 +582,10 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
     @Override
     public boolean shouldSync() {
         if (nodeProperty.specialRenderer) {
+            for (AbstractNodePlugin plugin : getPlugins()) {
+                if (!plugin.shouldSyncEther())
+                    return false;
+            }
             long me = getMaxEther();
             if (syncController != null && me != 0) {
                 return syncController.predicate(getEther(), getMaxEther());
@@ -739,11 +749,13 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
         setChanged();
         if (level != null && !level.isClientSide()) {
             markUpdate = true;
+            pluginBlockUpdateDirty = true;
         }
     }
 
     public void onNeighborChanged() {
         neighborSignalDirty = true;
+        pluginBlockUpdateDirty = true;
     }
 
     public boolean getCachedNeighborSignal() {
