@@ -207,7 +207,7 @@ public class VirtualEtherStream implements IEtherStreamLike {
         this.tickCount++;
 
         for (IStreamCapability cap : this.capabilities) {
-            cap.tick(this);
+            cap.tick(this, holder.sectorCache());
         }
 
         int consumption = this.getConsumption();

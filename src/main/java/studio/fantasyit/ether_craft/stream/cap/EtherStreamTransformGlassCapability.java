@@ -15,6 +15,7 @@ import org.jetbrains.annotations.Nullable;
 import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.register.BlockRegistry;
+import studio.fantasyit.ether_craft.stream.IEntityGetter;
 import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
 
 public class EtherStreamTransformGlassCapability implements IStreamCapability{
@@ -25,7 +26,7 @@ public class EtherStreamTransformGlassCapability implements IStreamCapability{
     }
 
     @Override
-    public void tick(IEtherStreamLike streamEntity) {
+    public void tick(IEtherStreamLike streamEntity, IEntityGetter entityGetter) {
     }
 
     @Override

@@ -20,6 +20,7 @@ import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.datapack.AccelerateRepeatCounts;
 import studio.fantasyit.ether_craft.register.Tags;
+import studio.fantasyit.ether_craft.stream.IEntityGetter;
 import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
 
 import java.util.Optional;
@@ -54,7 +55,7 @@ public class EtherStreamGrowthAcceleratorCapability implements IStreamCapability
     }
 
     @Override
-    public void tick(@UnknownNullability IEtherStreamLike streamEntity) {
+    public void tick(@UnknownNullability IEtherStreamLike streamEntity, IEntityGetter entityGetter) {
         if (!(streamEntity.level() instanceof ServerLevel level))
             return;
 

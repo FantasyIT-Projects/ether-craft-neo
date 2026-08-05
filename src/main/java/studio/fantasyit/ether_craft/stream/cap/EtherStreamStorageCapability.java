@@ -17,7 +17,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.*;
@@ -34,6 +33,7 @@ import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.register.AttachmentDataRegistry;
 import studio.fantasyit.ether_craft.stream.EtherConsumer;
+import studio.fantasyit.ether_craft.stream.IEntityGetter;
 import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
 import studio.fantasyit.ether_craft.util.ContainerOps;
 
@@ -98,11 +98,16 @@ public class EtherStreamStorageCapability implements IStreamCapability, Containe
     }
 
     @Override
-    public void tick(@UnknownNullability IEtherStreamLike streamEntity) {
+    public void tick(@UnknownNullability IEtherStreamLike streamEntity, IEntityGetter entityGetter) {
         if (streamEntity.getCapability(EtherStreamPlatingCapability.ID).isPresent())
             return;
+        if (!(streamEntity.level() instanceof ServerLevel level)) return;
         AABB currentBlockPos = new AABB(streamEntity.blockPosition());
-        List<ItemEntity> entities = streamEntity.level().getEntities(EntityTypeTest.forClass(ItemEntity.class), currentBlockPos, t -> t.isAlive() && !t.hasPickUpDelay());
+        List<ItemEntity> entities = entityGetter.getEntities(level, currentBlockPos).stream()
+                .filter(ItemEntity.class::isInstance)
+                .map(ItemEntity.class::cast)
+                .filter(t -> t.isAlive() && !t.hasPickUpDelay())
+                .toList();
         boolean changed = false;
         if (!entities.isEmpty()) {
             for (ItemEntity e : entities) {

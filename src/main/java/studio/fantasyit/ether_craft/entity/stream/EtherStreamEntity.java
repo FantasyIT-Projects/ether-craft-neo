@@ -35,6 +35,7 @@ import studio.fantasyit.ether_craft.plating.helper.PlatingChargingUtil;
 import studio.fantasyit.ether_craft.plating.helper.PlatingUtil;
 import studio.fantasyit.ether_craft.register.*;
 import studio.fantasyit.ether_craft.stream.EtherConsumer;
+import studio.fantasyit.ether_craft.stream.IEntityGetter;
 import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
 import studio.fantasyit.ether_craft.stream.PosDir;
 import studio.fantasyit.ether_craft.stream.cap.IStreamCapability;
@@ -196,7 +197,7 @@ public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
             }
 
             for (IStreamCapability capability : capabilities) {
-                capability.tick(this);
+                capability.tick(this, IEntityGetter.DUMMY);
             }
             int consumption = consumer.getTotalConsumption(ether, tickCount);
             this.consumeEtherInternal(consumption);

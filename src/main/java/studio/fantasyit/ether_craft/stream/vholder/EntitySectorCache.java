@@ -8,14 +8,16 @@ import net.neoforged.neoforge.entity.PartEntity;
 import net.minecraft.world.level.entity.EntitySection;
 import net.minecraft.world.level.entity.EntitySectionStorage;
 import net.minecraft.world.phys.AABB;
+import studio.fantasyit.ether_craft.stream.IEntityGetter;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class EntitySectorCache {
+public class EntitySectorCache implements IEntityGetter {
     private final Long2ObjectOpenHashMap<List<Entity>> cache = new Long2ObjectOpenHashMap<>(1024);
     private long lastTick = -1;
 
+    @Override
     public List<Entity> getEntities(ServerLevel level, AABB box) {
         long tick = level.getGameTime();
         if (lastTick != tick) {

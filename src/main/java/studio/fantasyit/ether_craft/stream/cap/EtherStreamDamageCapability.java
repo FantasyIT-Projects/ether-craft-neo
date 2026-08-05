@@ -20,6 +20,7 @@ import net.neoforged.neoforge.common.util.FakePlayerFactory;
 import org.jetbrains.annotations.Nullable;
 import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.EtherCraft;
+import studio.fantasyit.ether_craft.stream.IEntityGetter;
 import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
 
 import java.util.ArrayList;
@@ -54,7 +55,7 @@ public class EtherStreamDamageCapability implements IStreamCapability {
     }
 
     @Override
-    public void tick(IEtherStreamLike streamEntity) {
+    public void tick(IEtherStreamLike streamEntity, IEntityGetter entityGetter) {
     }
 
     @Override

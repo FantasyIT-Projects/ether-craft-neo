@@ -75,13 +75,8 @@ public class VirtualEtherStreamHolder {
         return level.getData(AttachmentDataRegistry.INDEX_MAPPING_MANAGER);
     }
 
-    private EntitySectorCache sectorCache;
-
-    private EntitySectorCache sectorCache() {
-        if (sectorCache == null) {
-            sectorCache = VirtualEtherStreamHolderManager.get(level).sectorCache;
-        }
-        return sectorCache;
+    EntitySectorCache sectorCache() {
+        return VirtualEtherStreamHolderManager.get(level).sectorCache;
     }
 
     private AutoIndexPosDir posDirAutoIndexed() {

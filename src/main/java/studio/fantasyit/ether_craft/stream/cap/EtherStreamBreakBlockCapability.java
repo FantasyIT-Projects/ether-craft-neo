@@ -23,6 +23,7 @@ import org.jetbrains.annotations.UnknownNullability;
 import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.register.Tags;
+import studio.fantasyit.ether_craft.stream.IEntityGetter;
 import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
 import studio.fantasyit.ether_craft.util.ContainerOps;
 
@@ -57,7 +58,7 @@ public class EtherStreamBreakBlockCapability implements IStreamCapability {
     }
 
     @Override
-    public void tick(@UnknownNullability IEtherStreamLike streamEntity) {
+    public void tick(@UnknownNullability IEtherStreamLike streamEntity, IEntityGetter entityGetter) {
     }
 
     @Override

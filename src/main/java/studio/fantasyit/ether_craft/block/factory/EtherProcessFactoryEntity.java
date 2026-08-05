@@ -290,9 +290,9 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
                 int finalI = i;
                 pathMaxDepth[i] = processingInputs[i].maxDepth();
                 processingInputs[i].workingPath().forEach(v -> {
-                    pathBelongings[v.pos().y][v.pos().x] = finalI;
-                    pathDirection[v.pos().y][v.pos().x] = v.next();
-                    pathDepth[v.pos().y][v.pos().x] = processingInputs[finalI].maxDepth() - v.depth();
+                    pathBelongings[v.pos().x][v.pos().y] = finalI;
+                    pathDirection[v.pos().x][v.pos().y] = v.next();
+                    pathDepth[v.pos().x][v.pos().y] = processingInputs[finalI].maxDepth() - v.depth();
                 });
             }
         }

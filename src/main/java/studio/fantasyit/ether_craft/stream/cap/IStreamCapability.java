@@ -11,6 +11,7 @@ import net.minecraft.world.phys.HitResult;
 import net.neoforged.neoforge.common.util.ValueIOSerializable;
 import org.jetbrains.annotations.Nullable;
 import studio.fantasyit.ether_craft.stream.EtherConsumer;
+import studio.fantasyit.ether_craft.stream.IEntityGetter;
 import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
 
 public interface IStreamCapability extends ValueIOSerializable {
@@ -20,7 +21,7 @@ public interface IStreamCapability extends ValueIOSerializable {
 
     default void setConsumer(EtherConsumer consumer) {}
 
-    void tick(IEtherStreamLike streamEntity);
+    void tick(IEtherStreamLike streamEntity, IEntityGetter entityGetter);
 
     boolean hitEntity(ServerLevel level, IEtherStreamLike streamEntity, EntityHitResult hit, Entity entity);
 

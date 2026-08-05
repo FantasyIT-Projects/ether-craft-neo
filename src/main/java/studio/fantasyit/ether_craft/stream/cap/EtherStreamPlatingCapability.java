@@ -7,7 +7,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.AABB;
@@ -24,6 +23,7 @@ import studio.fantasyit.ether_craft.recipe.plating.PlatingRecipe;
 import studio.fantasyit.ether_craft.register.DataComponentRegistry;
 import studio.fantasyit.ether_craft.register.ItemRegistry;
 import studio.fantasyit.ether_craft.register.RecipeTypeRegistry;
+import studio.fantasyit.ether_craft.stream.IEntityGetter;
 import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
 
 import java.util.*;
@@ -38,7 +38,7 @@ public class EtherStreamPlatingCapability implements IStreamCapability {
     }
 
     @Override
-    public void tick(@UnknownNullability IEtherStreamLike streamEntity) {
+    public void tick(@UnknownNullability IEtherStreamLike streamEntity, IEntityGetter entityGetter) {
         if (!(streamEntity.level() instanceof ServerLevel level)) return;
 
         Optional<IStreamCapability> optStorage = streamEntity.getCapability(EtherStreamStorageCapability.ID);
@@ -46,7 +46,11 @@ public class EtherStreamPlatingCapability implements IStreamCapability {
                 .map(EtherStreamStorageCapability.class::cast).orElse(null);
 
         AABB currentBlockPos = new AABB(streamEntity.blockPosition());
-        List<ItemEntity> entities = level.getEntities(EntityTypeTest.forClass(ItemEntity.class), currentBlockPos, Entity::isAlive);
+        List<ItemEntity> entities = entityGetter.getEntities(level, currentBlockPos).stream()
+                .filter(ItemEntity.class::isInstance)
+                .map(ItemEntity.class::cast)
+                .filter(Entity::isAlive)
+                .toList();
 
         if (entities.isEmpty()) return;
 

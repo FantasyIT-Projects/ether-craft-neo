@@ -23,6 +23,7 @@ import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.register.AttachmentDataRegistry;
 import studio.fantasyit.ether_craft.register.Tags;
 import studio.fantasyit.ether_craft.stream.EtherConsumer;
+import studio.fantasyit.ether_craft.stream.IEntityGetter;
 import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
 import studio.fantasyit.ether_craft.stream.data.EtherStreamCarryingEntityData;
 
@@ -63,7 +64,7 @@ public class EtherStreamCarryEntityCapability implements IStreamCapability {
     }
 
     @Override
-    public void tick(IEtherStreamLike streamEntity) {
+    public void tick(IEtherStreamLike streamEntity, IEntityGetter entityGetter) {
         EtherStreamCarryingEntityData data = getCarriedData(streamEntity);
         if (data == null) {
             cachedEntity = null;

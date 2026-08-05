@@ -15,6 +15,7 @@ import net.minecraft.world.phys.HitResult;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import studio.fantasyit.ether_craft.EtherCraft;
+import studio.fantasyit.ether_craft.stream.IEntityGetter;
 import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
 import studio.fantasyit.ether_craft.stream.data.EtherStreamDisplayItemData;
 
@@ -59,7 +60,7 @@ public class EtherStreamItemDisplayCapability implements IStreamCapability {
     }
 
     @Override
-    public void tick(IEtherStreamLike streamEntity) {
+    public void tick(IEtherStreamLike streamEntity, IEntityGetter entityGetter) {
         if (streamEntity.tickCount() % 10 != 0) return;
         int idx = streamEntity.tickCount() / 10;
         updateDisplayItem(streamEntity, idx);
