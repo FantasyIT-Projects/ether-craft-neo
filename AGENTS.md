@@ -1,5 +1,7 @@
 # AGENTS.md — ether_craft
 
+和用户交流时，始终使用中文。尽可能的使用中文思考
+
 ## CRITICAL: Tool Usage Mandate
 
 **THIS IS NON-NEGOTIABLE. VIOLATING THIS RULE MEANS CORRUPTED RESULTS AND WASTED TIME.**

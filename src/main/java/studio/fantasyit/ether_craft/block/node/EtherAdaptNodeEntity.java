@@ -184,7 +184,7 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
                 PacketDistributor.sendToPlayersTrackingChunk(sl, ChunkPos.containing(getBlockPos()), new SyncBlockNameS2C(getBlockPos(), name));
         }
         if (markRedstoneUpdate) {
-            if (!nodeProperty.sendRedstoneSignal)
+            if (nodeProperty.sendRedstoneSignal)
                 level.updateNeighborsAt(worldPosition, getBlockState().getBlock());
             setChanged();
             markRedstoneUpdate = false;

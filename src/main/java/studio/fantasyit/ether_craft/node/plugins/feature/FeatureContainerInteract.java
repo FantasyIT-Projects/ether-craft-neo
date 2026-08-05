@@ -15,6 +15,7 @@ import net.neoforged.neoforge.transfer.transaction.Transaction;
 import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.block.base.EtherContainer;
+import studio.fantasyit.ether_craft.block.factory.EtherProcessFactoryEntity;
 import studio.fantasyit.ether_craft.block.node.EtherAdaptNodeEntity;
 import studio.fantasyit.ether_craft.menu.base.slot.BaseDataSlot;
 import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeContainerMenu;
@@ -69,6 +70,13 @@ public class FeatureContainerInteract extends AbstractDirectionalFilterFeature {
                 fastTransfer(targetNode, nodeEntity);
             else
                 fastTransfer(nodeEntity, targetNode);
+            return true;
+        }
+        if (be instanceof EtherProcessFactoryEntity factory) {
+            if (extractMode)
+                fastTransferFromFactory(factory, nodeEntity);
+            else
+                fastTransferToFactory(nodeEntity, factory);
             return true;
         }
         ResourceHandler<ItemResource> adjacentHandler = level.getCapability(
@@ -132,6 +140,91 @@ public class FeatureContainerInteract extends AbstractDirectionalFilterFeature {
             if (totalConsumed > 0) {
                 nodeEntity.extractEther((long) totalConsumed * costPerItem);
                 fromNode.setChanged();
+                toNode.setChanged();
+                return;
+            }
+        }
+    }
+
+    private void fastTransferToFactory(EtherAdaptNodeEntity fromNode, EtherProcessFactoryEntity toFactory) {
+        long costPerItem = Config.nodeContainerInteractEtherPerItem;
+        int maxTransfer = (int) (nodeEntity.getEther() / costPerItem);
+
+        Set<ItemResource> tried = Collections.newSetFromMap(new IdentityHashMap<>());
+        for (int slot = 0; slot < fromNode.normalStorage.getContainerSize(); slot++) {
+            ItemStack stack = fromNode.normalStorage.getItem(slot);
+            if (stack.isEmpty())
+                continue;
+            ItemResource resource = ItemResource.of(stack);
+            if (!tried.add(resource))
+                continue;
+            if (!filter.accepts(stack))
+                continue;
+            if (!fromNode.allowInteract(stack))
+                continue;
+
+            int remaining = Math.min(stack.getCount(), maxTransfer);
+            int totalConsumed = insertIntoFactoryInput(toFactory, stack.copyWithCount(remaining), remaining);
+            int leftInSource = stack.getCount() - totalConsumed;
+            fromNode.normalStorage.setItem(slot, stack.copyWithCount(leftInSource));
+
+            if (totalConsumed > 0) {
+                nodeEntity.extractEther((long) totalConsumed * costPerItem);
+                fromNode.setChanged();
+                toFactory.setChanged();
+                return;
+            }
+        }
+    }
+
+    private int insertIntoFactoryInput(EtherProcessFactoryEntity factory, ItemStack stack, int amount) {
+        int inserted = 0;
+        ItemResource resource = ItemResource.of(stack);
+        for (int i = 0; i < factory.input && inserted < amount; i++) {
+            if (!factory.isValid(i, resource))
+                continue;
+            ItemStack exist = factory.inputContainer.getItem(i);
+            int maxStack = stack.getMaxStackSize();
+            if (exist.isEmpty()) {
+                int add = Math.min(amount - inserted, maxStack);
+                factory.inputContainer.setItem(i, stack.copyWithCount(add));
+                inserted += add;
+            } else if (ItemStack.isSameItemSameComponents(exist, stack)) {
+                int space = maxStack - exist.getCount();
+                if (space <= 0)
+                    continue;
+                int add = Math.min(amount - inserted, space);
+                exist.grow(add);
+                factory.inputContainer.setChanged();
+                inserted += add;
+            }
+        }
+        return inserted;
+    }
+
+    private void fastTransferFromFactory(EtherProcessFactoryEntity fromFactory, EtherAdaptNodeEntity toNode) {
+        long costPerItem = Config.nodeContainerInteractEtherPerItem;
+        int maxTransfer = (int) (nodeEntity.getEther() / costPerItem);
+
+        Set<ItemResource> tried = Collections.newSetFromMap(new IdentityHashMap<>());
+        for (int slot = 0; slot < fromFactory.outputContainer.getContainerSize(); slot++) {
+            ItemStack stack = fromFactory.outputContainer.getItem(slot);
+            if (stack.isEmpty())
+                continue;
+            ItemResource resource = ItemResource.of(stack);
+            if (!tried.add(resource))
+                continue;
+            if (!filter.accepts(stack))
+                continue;
+
+            int remaining = Math.min(stack.getCount(), maxTransfer);
+            int totalConsumed = toNode.insertStack(stack.copyWithCount(remaining), remaining);
+            int leftInSource = stack.getCount() - totalConsumed;
+            fromFactory.outputContainer.setItem(slot, stack.copyWithCount(leftInSource));
+
+            if (totalConsumed > 0) {
+                nodeEntity.extractEther((long) totalConsumed * costPerItem);
+                fromFactory.setChanged();
                 toNode.setChanged();
                 return;
             }
