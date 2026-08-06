@@ -437,7 +437,7 @@ public class Config {
 
     private static final ModConfigSpec.DoubleValue FACTORY_BASE_RATIO = BUILDER
             .comment("Low-ether fixed ratio a for chip maintain cost: base = e*a when e<=consume")
-            .defineInRange("factory.base_ratio", 0.17, 0, 1);
+            .defineInRange("factory.base_ratio", 0.399, 0, 1);
     private static final ModConfigSpec.DoubleValue FACTORY_RESERVE_MULTIPLIER = BUILDER
             .comment("Reserve multiplier k for batch charging: each chip receives +k*consume per batch")
             .defineInRange("factory.reserve_multiplier", 1.0, 0, 100);
