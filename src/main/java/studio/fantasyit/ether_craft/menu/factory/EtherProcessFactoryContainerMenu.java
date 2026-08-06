@@ -98,8 +98,8 @@ public class EtherProcessFactoryContainerMenu extends BaseContainerMenu<@NotNull
             }
         }
 
-        addDataSlot(new BaseDataSlot(() -> entity.pressureBonus, (v) -> entity.pressureBonus = v));
         addDataSlot(new BaseDataSlot(() -> entity.leak, (v) -> entity.leak = v));
+        addDataSlot(new BaseDataSlot(() -> entity.chipEtherMax, (v) -> entity.chipEtherMax = v));
         addDataSlot(new BaseDataSlot(() -> isFilterActive() ? 1 : 0, (v) -> setFilterActive(v == 1)));
         for (int i = 0; i < outputSlots; i++) {
             addSlot(new InvisibleSlot(entity.possibleResults, i, 0, 0));

@@ -17,6 +17,7 @@ import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector2i;
 import org.lwjgl.glfw.GLFW;
+import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.block.factory.EtherProcessFactoryEntity;
 import studio.fantasyit.ether_craft.factory.EtherProcessChipManager;
 import studio.fantasyit.ether_craft.factory.FactoryLevelDef;
@@ -144,13 +145,14 @@ public class EtherProcessFactoryScreen extends AbstractContainerScreen<@NotNull 
                     EtherProcessChipManager.ProcessChipRecord r = EtherProcessChipManager.get(chipItem);
                     if (r == null) continue;
                     int ether = be.currentEther[i][j];
-                    int color = 0xff26c6da; //RGB#f57f17
-                    if (ether >= r.etherConsume() * 2 || ether == r.maxEther())
-                        color = 0xff81c784; //RGB#81c784
-                    if (ether < r.etherConsume())
-                        color = 0xffe65100;
-                    if (ether < r.etherRequire())
-                        color = 0xffff3d00;
+                    long consume = r.etherConsume();
+                    int color = 0xff26c6da;
+                    if (ether >= (long) (Config.factoryPeakRatio * consume))
+                        color = 0xff81c784; // 稳态省电区（绿）
+                    else if (ether >= consume)
+                        color = 0xfff4a261; // 峰值高耗区（橙）
+                    else
+                        color = 0xffff3d00; // 以太不足（红）
 
                     graphics.fill(
                             getLeftPos() + internalX + j * 18 + 2,
@@ -238,11 +240,14 @@ public class EtherProcessFactoryScreen extends AbstractContainerScreen<@NotNull 
         }
         SLOT.blit(graphics, lpx, lpy);
         BAR.blit(graphics, lpx, lpy + 21);
-        UIUtil.renderEtherBar(be.getEther() == 0 ? 0 : be.pressureBonus, lpx + 1, lpy + 22, 16, 2, graphics);
+        long etherTotal = 0;
+        for (int i = 0; i < be.ROWS; i++)
+            for (int j = 0; j < be.COLS; j++)
+                etherTotal += be.currentEther[i][j];
+        UIUtil.renderEtherBarProgress(etherTotal, Math.max(1, be.chipEtherMax), lpx + 1, lpy + 22, 16, 2, graphics);
         if (mouseX >= lpx && mouseX < lpx + BAR.w && mouseY >= lpy + 21 && mouseY < lpy + 21 + BAR.h)
             graphics.setTooltipForNextFrame(List.of(
-                    Component.translatable("menu.ether_craft.ether_bar_tooltip", menu.entity.getEther()).getVisualOrderText(),
-                    Component.translatable("menu.ether_craft.ether_bar_tooltip_speed", be.pressureBonus).getVisualOrderText(),
+                    Component.translatable("menu.ether_craft.ether_bar_tooltip", etherTotal).getVisualOrderText(),
                     Component.translatable("menu.ether_craft.ether_bar_tooltip_leak", be.leak).getVisualOrderText()
             ), mouseX, mouseY);
 
@@ -337,7 +342,14 @@ public class EtherProcessFactoryScreen extends AbstractContainerScreen<@NotNull 
                 Vector2i v = menu.internalSlotMapping.get(hoveredSlot.index);
                 ItemStack item = this.hoveredSlot.getItem();
                 List<Component> oTooltip = this.getTooltipFromContainerItem(item);
-                oTooltip.add(Component.translatable("tooltip.ether_craft.process_chip_ether", be.currentEther[v.y][v.x]).withStyle(ChatFormatting.BOLD));
+                int ether = be.currentEther[v.y][v.x];
+                oTooltip.add(Component.translatable("tooltip.ether_craft.process_chip_ether", ether).withStyle(ChatFormatting.BOLD));
+                EtherProcessChipManager.ProcessChipRecord rec = EtherProcessChipManager.get(item);
+                if (rec != null) {
+                    double rawSpeed = rec.storage() > 0 ? 1 + (double) ether / rec.storage() : 1;
+                    String speedTxt = String.valueOf(Math.max(1, (long) Math.floor(rawSpeed)));
+                    oTooltip.add(Component.translatable("tooltip.ether_craft.process_chip_speed", speedTxt).withStyle(ChatFormatting.GRAY));
+                }
                 graphics.setTooltipForNextFrame(this.font, oTooltip, item.getTooltipImage(), item, mouseX, mouseY, item.get(DataComponents.TOOLTIP_STYLE));
                 return;
             }

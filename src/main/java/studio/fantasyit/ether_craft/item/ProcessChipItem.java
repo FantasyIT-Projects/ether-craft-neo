@@ -56,16 +56,9 @@ public class ProcessChipItem extends Item {
         if (r == null) return;
         if (tooltipFlag.isAdvanced()) {
             builder.accept(Component.literal(id.toString()).withStyle(ChatFormatting.DARK_GRAY));
-            builder.accept(Component.translatable("tooltip.ether_craft.ether_process_chip.max_ether", r.maxEther()));
-            builder.accept(Component.translatable("tooltip.ether_craft.ether_process_chip.ether_decay", r.etherDecay()));
-            builder.accept(Component.translatable("tooltip.ether_craft.ether_process_chip.ether_require", r.etherRequire()));
+            builder.accept(Component.translatable("tooltip.ether_craft.ether_process_chip.storage", r.storage()));
         }
         builder.accept(Component.translatable("tooltip.ether_craft.ether_process_chip.ether_consume", r.etherConsume()));
-        if (r.maxDurability() > 0) {
-            Integer stored = itemStack.get(DataComponentRegistry.DURABILITY);
-            int current = stored != null ? stored : r.maxDurability();
-            builder.accept(Component.translatable("tooltip.ether_craft.ether_process_chip.durability", current, r.maxDurability()));
-        }
     }
 
     @Override

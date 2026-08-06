@@ -429,6 +429,24 @@ public class Config {
             .comment("Records needed before a stream gets a stable index")
             .defineInRange("ether_stream.index_mapping_register_threshold", 20, 1, Integer.MAX_VALUE);
 
+    // ===== factory — Ether Process Factory chip mechanics =====
+
+    private static final ModConfigSpec.DoubleValue FACTORY_BASE_RATIO = BUILDER
+            .comment("Low-ether fixed ratio a for chip maintain cost: base = e*a when e<=consume")
+            .defineInRange("factory.base_ratio", 0.17, 0, 1);
+    private static final ModConfigSpec.DoubleValue FACTORY_RESERVE_MULTIPLIER = BUILDER
+            .comment("Reserve multiplier k for batch charging: each chip receives +k*consume per batch")
+            .defineInRange("factory.reserve_multiplier", 1.0, 0, 100);
+    private static final ModConfigSpec.DoubleValue FACTORY_OVERSHOOT = BUILDER
+            .comment("Peak overshoot of base cost curve (peak height = consume*a*(1+overshoot))")
+            .defineInRange("factory.overshoot", 1.1, 0, 10);
+    private static final ModConfigSpec.DoubleValue FACTORY_PEAK_RATIO = BUILDER
+            .comment("Peak position ratio: peak of base cost at ratio * consume")
+            .defineInRange("factory.peak_ratio", 4.7, 1.01, 100);
+    private static final ModConfigSpec.DoubleValue FACTORY_DECAY_LAMBDA = BUILDER
+            .comment("Decay lambda controlling falloff speed after the peak")
+            .defineInRange("factory.decay_lambda", 1.5, 0.01, 20);
+
     static final ModConfigSpec SPEC = BUILDER.build();
 
     public static int etherConvert;
@@ -521,6 +539,11 @@ public class Config {
     public static int nodeMuteEtherCostPer16Block;
     public static int indexMappingDecayInterval;
     public static int indexMappingRegisterThreshold;
+    public static double factoryBaseRatio;
+    public static double factoryReserveMultiplier;
+    public static double factoryOvershoot;
+    public static double factoryPeakRatio;
+    public static double factoryDecayLambda;
 
     @SubscribeEvent
     static void onLoad(final ModConfigEvent event) {
@@ -614,5 +637,10 @@ public class Config {
         nodeMuteEtherCostPer16Block = NODE_MUTE_ETHER_COST_PER_16_BLOCK.get();
         indexMappingDecayInterval = INDEX_MAPPING_DECAY_INTERVAL.get();
         indexMappingRegisterThreshold = INDEX_MAPPING_REGISTER_THRESHOLD.get();
+        factoryBaseRatio = FACTORY_BASE_RATIO.get();
+        factoryReserveMultiplier = FACTORY_RESERVE_MULTIPLIER.get();
+        factoryOvershoot = FACTORY_OVERSHOOT.get();
+        factoryPeakRatio = FACTORY_PEAK_RATIO.get();
+        factoryDecayLambda = FACTORY_DECAY_LAMBDA.get();
     }
 }

@@ -4,46 +4,27 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.Nullable;
+import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.register.DataComponentRegistry;
 
 public class EtherProcessWorkingChip {
     public static final EtherProcessWorkingChip DUMMY = new EtherProcessWorkingChip();
     public static Codec<EtherProcessWorkingChip> CODEC = RecordCodecBuilder.create(i -> i.group(
-            ItemStack.CODEC.fieldOf("item").forGetter(t -> t.item),
+            ItemStack.OPTIONAL_CODEC.fieldOf("item").forGetter(t -> t.item),
             Codec.LONG.fieldOf("ether").forGetter(t -> t.ether),
-            Codec.LONG.fieldOf("maxEther").forGetter(t -> t.maxEther),
-            Codec.INT.fieldOf("etherDecay").forGetter(t -> t.etherDecay),
-            Codec.LONG.fieldOf("etherRequire").forGetter(t -> t.etherRequire),
+            Codec.LONG.fieldOf("storage").forGetter(t -> t.storage),
             Codec.LONG.fieldOf("etherConsume").forGetter(t -> t.etherConsume),
-            Codec.INT.optionalFieldOf("durability", 0).forGetter(t -> t.durability),
             EtherProcessChipManager.ProcessChipEffectConfig.CODEC.fieldOf("effect").orElse(EtherProcessChipManager.ProcessChipEffectConfig.DEFAULT).forGetter(t -> t.effect)
     ).apply(i, EtherProcessWorkingChip::new));
 
     public ItemStack item;
-    //以太存储量
     public long ether;
-    //最大以太存储量
-    public long maxEther;
-    //以太衰减周期（w）
-    public int etherDecay;
-    //加工以太需求（开始加工的以太需求量）
-    public long etherRequire;
-    //加工以太消耗
+    public long storage;
     public long etherConsume;
-    //effect
     public EtherProcessChipManager.ProcessChipEffectConfig effect;
 
-    protected long[] decayCircle;
-    protected int head;
-
-    public boolean destroyed = false;
-    public int durability;
-    public int maxDurability;
-    public @Nullable IProcessChipBehavior behavior;
-
     private EtherProcessWorkingChip() {
-        this(ItemStack.EMPTY, 0, 0, 1, 0, 0);
+        this(ItemStack.EMPTY, 0, 0, 0);
     }
 
     public EtherProcessWorkingChip(ItemStack item) {
@@ -57,146 +38,94 @@ public class EtherProcessWorkingChip {
             r = EtherProcessChipManager.get(id);
         this.item = item;
         if (r == null) {
-            this.maxEther = 0;
-            this.etherDecay = 1;
-            this.etherRequire = 0;
+            this.storage = 0;
             this.etherConsume = 0;
-            this.maxDurability = 0;
             this.effect = EtherProcessChipManager.ProcessChipEffectConfig.DEFAULT;
         } else {
-            this.maxEther = r.maxEther();
-            this.etherDecay = r.etherDecay();
-            this.etherRequire = r.etherRequire();
+            this.storage = r.storage();
             this.etherConsume = r.etherConsume();
-            this.maxDurability = r.maxDurability();
-            if (r.behavior().isPresent())
-                this.behavior = EtherProcessChipManager.getBehavior(r.behavior().get());
             this.effect = r.effect();
         }
-        this.durability = resolveDurability(item, this.maxDurability);
-        init();
-        this.addEther(beforeEther);
+        this.ether = Math.max(0, beforeEther);
     }
 
-    /**
-     * @param item
-     * @param ether        当前以太存储量
-     * @param maxEther     最大以太存储量
-     * @param etherDecay   以太衰减周期（w）
-     * @param etherRequire 加工以太需求（开始加工的以太需求量）
-     * @param etherConsume 加工以太消耗
-     */
-    public EtherProcessWorkingChip(ItemStack item, long ether, long maxEther, int etherDecay, long etherRequire, long etherConsume) {
-        this(item, ether, maxEther, etherDecay, etherRequire, etherConsume, 0, EtherProcessChipManager.ProcessChipEffectConfig.DEFAULT);
+    public EtherProcessWorkingChip(ItemStack item, long ether, long storage, long etherConsume) {
+        this(item, ether, storage, etherConsume, EtherProcessChipManager.ProcessChipEffectConfig.DEFAULT);
     }
 
-    public EtherProcessWorkingChip(ItemStack item, long ether, long maxEther, int etherDecay, long etherRequire, long etherConsume, int durability, EtherProcessChipManager.ProcessChipEffectConfig effect) {
+    public EtherProcessWorkingChip(ItemStack item, long ether, long storage, long etherConsume, EtherProcessChipManager.ProcessChipEffectConfig effect) {
         this.item = item;
         this.ether = ether;
-        this.maxEther = maxEther;
-        this.etherDecay = etherDecay;
-        this.etherRequire = etherRequire;
+        this.storage = storage;
         this.etherConsume = etherConsume;
-        this.durability = durability;
-        this.maxDurability = 0;
         this.effect = effect;
-        init();
-    }
-
-    private static int resolveDurability(ItemStack item, int maxDurability) {
-        if (maxDurability <= 0) return 0;
-        Integer stored = item.get(DataComponentRegistry.DURABILITY);
-        if (stored != null) return stored;
-        return maxDurability;
-    }
-
-    protected void init() {
-        decayCircle = new long[etherDecay];
-        head = 0;
-    }
-
-    public void destory() {
-        destroyed = true;
     }
 
     /**
-     * 扣除耐久度，同时回写 ItemStack 组件
+     * 维持基础曲线 base(e)：
+     * e <= consume: base = e * a
+     * e >  consume: base = consume*a * (1 + overshoot*y*exp(λ(1-y))), y = (x-1)/(ratio-1), x = e/consume
      */
-    public void damage(int amount) {
-        if (maxDurability <= 0) return;
-        durability = Math.max(0, durability - amount);
-        item.set(DataComponentRegistry.DURABILITY, durability);
-        if (durability <= 0) destory();
+    public double baseCost() {
+        double t = etherConsume;
+        double a = Config.factoryBaseRatio;
+        if (ether <= t) return ether * a;
+        if (t <= 0) return 0;
+        double x = ether / t;
+        double r = Config.factoryPeakRatio;
+        double y = (x - 1) / (r - 1);
+        double h = Config.factoryOvershoot * y * Math.exp(Config.factoryDecayLambda * (1 - y));
+        return t * a * (1 + h);
     }
 
     /**
-     * 物品Tick (decay)
+     * 速度倍率 p(e) = floor(1 + e/storage)（始终取整）
      */
-    public void tick() {
-        if (decayCircle[head] > 0) {
-            ether -= decayCircle[head];
-            decayCircle[head] = 0;
-        }
-        head = (head + 1) % etherDecay;
+    public double speedMul() {
+        if (storage <= 0) return 1;
+        return Math.max(1, Math.floor(1 + (double) ether / storage));
     }
 
     /**
-     * 获取当前元件是否可以工作
-     *
-     * @return boolean 可否工作
+     * 每 tick 维持开销 C(e) = base(e) * p(e)
+     */
+    public long maintainCost() {
+        return Math.round(baseCost() * speedMul());
+    }
+
+    /**
+     * 每 tick 扣除维持开销
+     */
+    public void tickMaintain() {
+        ether = Math.max(0, ether - maintainCost());
+    }
+
+    /**
+     * 当前是否可以工作：以太不足 consume 直接停止
      */
     public boolean canWork() {
-        return !destroyed && ether >= etherRequire && (maxDurability <= 0 || durability > 0);
+        return ether >= etherConsume;
     }
 
     /**
-     * 消耗以太
+     * 消耗以太（加工扣款）
      *
      * @return 是否成功消耗
      */
     public boolean consume() {
         if (canWork()) {
-            long restToConsume = etherConsume;
-            for (int i = etherDecay - 1; i >= 0; i--) {
-                long toCost = Math.min(restToConsume, decayCircle[(i + head) % etherDecay]);
-                decayCircle[(i + head) % etherDecay] -= toCost;
-                restToConsume -= toCost;
-                if (restToConsume == 0) {
-                    break;
-                }
-            }
-            ether -= etherConsume - restToConsume;
+            ether -= etherConsume;
             return true;
         }
         return false;
     }
 
-    /**
-     * 添加以太
-     *
-     * @param ether 输入以太量
-     * @return 剩余未添加的以太量
-     */
     public long addEther(long ether) {
-        if (destroyed) {
-            return ether;
-        }
-        long added = ether;
-        if (this.ether + added > this.maxEther) {
-            added = this.maxEther - this.ether;
-        }
-        if (added > this.maxEther * 2 / etherDecay)
-            added = this.maxEther * 2 / etherDecay;
-        if (added <= 0) {
-            return ether;
-        }
-        this.ether += added;
-        if (etherDecay != 0)
-            this.decayCircle[(head + etherDecay - 1) % etherDecay] += added;
-        return ether - added;
+        this.ether += ether;
+        return 0;
     }
 
     public boolean canConsume() {
-        return !destroyed && ether >= etherConsume && (maxDurability <= 0 || durability > 0);
+        return ether >= etherConsume;
     }
 }

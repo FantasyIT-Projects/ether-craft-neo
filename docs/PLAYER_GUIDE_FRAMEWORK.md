@@ -466,21 +466,20 @@
 - 配方结构：树状加工流程
   - 输入物品（左列）-> 加工步骤（内部网格，芯片定义）-> 输出物品（右列）
 - 芯片机制：
-  - 每个芯片有 maxEther（容量）、etherDecay（衰减周期）、etherRequire（启动需求）、etherConsume（加工消耗）、maxDurability（耐久度）
-  - 芯片通过衰减环机制周期性消耗以太
-  - 以太从机器注入芯片，芯片间通过路径传播
-  - 耐久度耗尽后芯片销毁
-- 压力加成 (Pressure Bonus)：当机器以太总量超过所有芯片容量之和时，加工速度提升（对数增长）
-- 泄漏 (Leak)：不匹配的路径（多输入多输出交叉）产生泄漏，消耗额外以太
+  - 每个芯片有 storage（标准存量）、etherConsume（加工消耗）
+  - 芯片无限充能，机器缓存以批量脉冲注入以太
+  - 每 tick 有维持开销 C(e) = base(e)·p(e)（单峰回落曲线 × 速度倍率）
+  - 以太不足 consume 时加工直接停止；芯片以太随方块持久化
+- 泄漏 (Leak)：不匹配的路径（多输入多输出交叉）产生泄漏，按机器以太存量的对数压力倍率消耗额外以太
 - 支持多输出：一个配方可产出多个物品
 
 **代码位置**：
 - 方块实体：src/main/java/studio/fantasyit/ether_craft/block/factory/EtherProcessFactoryEntity.java
-  - tickServer (L267)：更新芯片、tick 芯片行为、处理配方、处理输出
-  - updateChips (L125)：读取芯片物品、填充以太、计算 pressureBonus
-  - updateRecipe (L193)：匹配工厂布局与配方、计算路径
-  - consumeAndPlaceOutput (L413)：消耗输入、放置输出
-  - getLevelDef (L111)：获取当前等级定义
+  - tickServer：更新芯片、tick 芯片行为、处理配方、处理输出
+  - updateChips：读取芯片物品、批量脉冲充能、维持扣款、currentEther 同步
+  - updateRecipe：匹配工厂布局与配方、计算路径
+  - consumeAndPlaceOutput：消耗输入、放置输出
+  - globalPressure：机器以太存量的对数压力（leak 乘数）
 - 等级定义：src/main/java/studio/fantasyit/ether_craft/block/factory/FactoryLevelDef.java
   - 网格大小：3x3/5x5/7x7/9x9
   - 输入行：3/5/7/9
@@ -500,9 +499,9 @@
 - 右键打开加工中心 GUI
 - 动态大小：根据等级变化（3x3/5x5/7x7/9x9）
 - 左列：输入物品槽
-- 中间网格：芯片放置区（彩色角标显示芯片以太状态：绿/黄/橙/红）
+- 中间网格：芯片放置区（彩色角标显示芯片以太状态：绿=稳态区/橙=峰值高耗区/红=以太不足）
 - 右列：输出物品槽（空时显示幽灵物品预览）
-- 左侧面板：以太条（显示 pressureBonus 和 leak 信息）
+- 左侧面板：以太条（显示所有芯片的以太存量和）
 - 右侧面板：过滤器切换按钮
 - 命名功能：点击铅笔按钮可重命名
 - 扳手交互：滚轮切换快速放置芯片槽、拖拽快速放置芯片
@@ -514,7 +513,7 @@
   - 九宫格背景：MAIN_BG
   - 命名编辑：EditBox 在 (left+5, top+5)，80x12 px，最大 32 字符
   - 芯片网格：ROWS x COLS 在 f.posInternal()，每格 18x18 px
-  - 彩色角标：绿/黄/橙/红表示芯片以太水平
+  - 彩色角标：绿/橙/红表示芯片以太水平
   - 进度渲染：绿色覆盖层 0x80c5e1a5，9 段填充算法
   - 输出槽：f.posOutput()，空时显示幽灵物品
   - 过滤器切换：IASwitchButton 在 f.panelRight()
@@ -527,7 +526,7 @@
 **内容**：
 - 芯片是加工中心的核心，定义加工步骤
 - 13 种芯片，分 4 个阶段 (E1-E4)
-- 芯片属性：maxEther、etherDecay、etherRequire、etherConsume、maxDurability
+- 芯片属性：storage、etherConsume
 - E1 芯片（基础）：
   - 隔板芯片：基础分路，2x2 失活以太合成
   - 熔炉芯片：加热处理

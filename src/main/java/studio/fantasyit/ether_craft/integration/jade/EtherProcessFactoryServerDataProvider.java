@@ -12,8 +12,7 @@ public enum EtherProcessFactoryServerDataProvider implements IServerDataProvider
     @Override
     public void appendServerData(CompoundTag data, BlockAccessor accessor) {
         if (accessor.getBlockEntity() instanceof EtherProcessFactoryEntity be) {
-            data.putLong(EtherProcessFactoryProvider.KEY_ETHER, be.getEther());
-            data.putInt(EtherProcessFactoryProvider.KEY_PRESSURE, be.pressureBonus);
+            data.putLong(EtherProcessFactoryProvider.KEY_ETHER, be.chipEtherTotal);
             data.putInt(EtherProcessFactoryProvider.KEY_LEAK, be.leak);
         }
     }

@@ -15,7 +15,6 @@ public enum EtherProcessFactoryProvider implements IBlockComponentProvider {
 
     private static final Identifier UID = EtherCraft.id("ether_process_factory");
     static final String KEY_ETHER = "ether";
-    static final String KEY_PRESSURE = "pressure";
     static final String KEY_LEAK = "leak";
 
     @Override
@@ -26,9 +25,6 @@ public enum EtherProcessFactoryProvider implements IBlockComponentProvider {
         CompoundTag data = accessor.getServerData();
         if (data.contains(KEY_ETHER)) {
             tooltip.add(Component.translatable("jade.ether_craft.process_factory.ether", data.getLong(KEY_ETHER).orElse(0L)));
-        }
-        if (data.contains(KEY_PRESSURE)) {
-            tooltip.add(Component.translatable("jade.ether_craft.process_factory.pressure", data.getInt(KEY_PRESSURE).orElse(0)));
         }
         if (data.contains(KEY_LEAK)) {
             tooltip.add(Component.translatable("jade.ether_craft.process_factory.leak", data.getInt(KEY_LEAK).orElse(0)));

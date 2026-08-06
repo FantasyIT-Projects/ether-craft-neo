@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ether Craft — 芯片以太模拟器</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="app">
+    <header>
+        <h1>Ether Craft · 芯片以太模拟器</h1>
+        <div class="sim-controls">
+            <button id="btn-play" class="btn primary">▶ 播放</button>
+            <button id="btn-step" class="btn">单步</button>
+            <button id="btn-reset" class="btn danger">重置</button>
+            <label class="ctl">tick/s
+                <input type="range" id="tick-per-sec" min="1" max="500" step="1" value="60">
+                <span id="tick-per-sec-val">60</span>
+            </label>
+            <label class="ctl">记录窗口
+                <input type="number" id="window-size" min="100" max="50000" step="100" value="2000">
+            </label>
+        </div>
+    </header>
+
+    <div class="main-layout">
+        <aside>
+            <section class="panel">
+                <h3>供给</h3>
+                <label class="ctl">每 tick 输入以太
+                    <input type="number" id="rate-in" min="0" step="1" value="200">
+                </label>
+                <label class="ctl">无输入物品（不加工）
+                    <input type="checkbox" id="no-input">
+                </label>
+            </section>
+
+            <section class="panel">
+                <h3>函数参数</h3>
+                <label class="ctl">a（低以太段固定比率）
+                    <input type="range" id="p-a" min="0" max="1" step="0.001" value="0.02">
+                    <span id="p-a-val">0.020</span>
+                </label>
+                <label class="ctl">k（目标储备倍数）
+                    <input type="range" id="p-k" min="0.5" max="20" step="0.5" value="5">
+                    <span id="p-k-val">5.0</span>
+                </label>
+                <label class="ctl">峰值超调 overshoot
+                    <input type="range" id="p-ov" min="0" max="3" step="0.05" value="1">
+                    <span id="p-ov-val">1.00</span>
+                </label>
+                <label class="ctl">峰值位置 ratio
+                    <input type="range" id="p-ratio" min="1.1" max="10" step="0.1" value="2">
+                    <span id="p-ratio-val">2.0</span>
+                </label>
+                <label class="ctl">回落速度 λ
+                    <input type="range" id="p-lambda" min="0.2" max="5" step="0.05" value="1">
+                    <span id="p-lambda-val">1.00</span>
+                </label>
+                <label class="ctl">速度 p 函数
+                    <select id="p-func">
+                        <option value="log2">1+log2(1+e/max)</option>
+                        <option value="sqrt">1+sqrt(e/max)</option>
+                        <option value="linear">1+e/max</option>
+                    </select>
+                </label>
+                <label class="ctl">MAX_PROGRESS
+                    <input type="number" id="p-maxprogress" min="1" step="1" value="100">
+                </label>
+                <label class="ctl">maxStepMultiplier
+                    <input type="number" id="p-msm" min="1" step="1" value="1">
+                </label>
+            </section>
+
+            <section class="panel">
+                <h3>芯片配置</h3>
+                <div id="chip-rows"></div>
+                <button id="btn-add-chip" class="btn">+ 添加芯片类型</button>
+                <label class="ctl" style="margin-top:10px;">函数曲线参考类型
+                    <select id="fn-chip-select"></select>
+                </label>
+            </section>
+        </aside>
+
+        <main>
+            <div class="stats" id="stats"></div>
+            <div class="chart-wrap">
+                <h3>以太量 / tick</h3>
+                <canvas id="chart-ether"></canvas>
+                <div class="legend"></div>
+            </div>
+            <div class="chart-wrap">
+                <h3>加工速度 p(e) / tick</h3>
+                <canvas id="chart-speed"></canvas>
+                <div class="legend"></div>
+            </div>
+            <div class="chart-wrap">
+                <h3>函数曲线 base(e) · p(e) · C(e)（参考类型）</h3>
+                <canvas id="chart-fn"></canvas>
+                <div class="legend"></div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script src="js/sim.js"></script>
+</body>
+</html>

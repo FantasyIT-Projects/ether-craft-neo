@@ -35,6 +35,7 @@ import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2i;
+import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.block.base.*;
 import studio.fantasyit.ether_craft.factory.EtherProcessWorkingChip;
@@ -76,12 +77,15 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
     public int[] maxMultiplier;
     //机制数据
     public int[][] currentEther;
-    public int pressureBonus = 1;
     public int leak = 0;
     boolean markUpdate = false;
     boolean chipLayoutDirty = true;
     final boolean[] inputDirty;
     final ItemStack[] lastInputStacks;
+    //服务端累计芯片以太总和（Jade 显示用）
+    public long chipEtherTotal = 0;
+    //芯片标准存量标尺总和（GUI 以太条填充参考，经 data slot 同步）
+    public int chipEtherMax = 0;
     public String name = "";
     public Component toRenderName = null;
 
@@ -128,13 +132,7 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
         if (level != null && !level.isClientSide())
             markUpdate = true;
     }
-
-    int looperIndex = 0;
-
     public void updateChips() {
-        EtherContainer etherCap = EtherContainer.ETHER_CONTAINER.getCapability(level, getBlockPos(), getBlockState(), this, null);
-        if (etherCap == null)
-            return;
         for (int i = 0; i < ROWS; i++) {
             for (int j = 0; j < COLS; j++) {
                 ItemStack itemStack = internalContainer.getItem(i * ROWS + j);
@@ -158,50 +156,56 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
                     slotChips[i][j] = null;
             }
         }
-        //向所有的以太消耗组件填充以太（填充机制：轮询优先填满）
 
-        for (int k = 0; k < pressureBonus; k++) {
-            for (int i = 0; i < ROWS; i++) {
-                for (int j = 0; j < COLS; j++) {
-                    if (slotChips[i][j] == null)
-                        continue;
-                    slotChips[i][j].tick();
-                }
-            }
-            for (int i = 0; i < COLS * ROWS; ++i) {
-                if (getEther() == 0)
-                    break;
-                int idx = looperIndex;
-                looperIndex = (looperIndex + 1) % (COLS * ROWS);
-                int row = idx / COLS;
-                int col = idx % COLS;
-                if (slotChips[row][col] == null)
-                    continue;
-                etherCap.setEther(slotChips[row][col].addEther(etherCap.getEther()));
-            }
-        }
-        long totalCapacity = 0;
-        for (int i = 0; i < ROWS; i++) {
+        //计算最小输入量的总和
+        long minSum = 0;
+        for (int i = 0; i < ROWS; i++)
             for (int j = 0; j < COLS; j++) {
-                if (slotChips[i][j] == null)
-                    continue;
-                totalCapacity += slotChips[i][j].maxEther;
-                currentEther[i][j] = Math.toIntExact(Math.min(slotChips[i][j].ether, Integer.MAX_VALUE));
+                EtherProcessWorkingChip chip = slotChips[i][j];
+                if (chip == null || chip.item.isEmpty()) continue;
+                minSum += Math.round(Config.factoryReserveMultiplier * chip.etherConsume);
             }
-        }
-        if (totalCapacity > 0) {
-            long remaining = getEther() - totalCapacity;
 
-            long remainingMultiplier = remaining / totalCapacity / 10;
-            if (remainingMultiplier > 0) {
-                pressureBonus = (int) (Math.log(remainingMultiplier + 1) / Math.log(2.0));
-            } else {
-                pressureBonus = 1;
+        //如果有任何可以输入以太的芯片
+        if (minSum > 0) {
+            long machineEther = getEther();
+            long batches = machineEther / minSum;
+            if (batches > 0) {
+                long distributed = 0;
+                for (int i = 0; i < ROWS; i++)
+                    for (int j = 0; j < COLS; j++) {
+                        EtherProcessWorkingChip chip = slotChips[i][j];
+                        if (chip == null || chip.item.isEmpty()) continue;
+                        long addPer = Math.round(Config.factoryReserveMultiplier * chip.etherConsume);
+                        long add = addPer * batches;
+                        long capped;
+                        if (add >= Integer.MAX_VALUE - chip.ether) capped = Integer.MAX_VALUE;
+                        else capped = chip.ether + add;
+                        distributed += capped - chip.ether;
+                        chip.ether = capped;
+                    }
+                machineEther -= Math.min(distributed, machineEther);
             }
-        } else {
-            pressureBonus = 1;
+            setEtherNoUpdate(machineEther);
         }
-        //物品变化检测
+        //芯片tick（消耗）
+        long etherTotal = 0;
+        long storageTotal = 0;
+        for (int i = 0; i < ROWS; i++)
+            for (int j = 0; j < COLS; j++) {
+                EtherProcessWorkingChip chip = slotChips[i][j];
+                if (chip == null || chip.item.isEmpty()) {
+                    currentEther[i][j] = 0;
+                    continue;
+                }
+                chip.tickMaintain();
+                currentEther[i][j] = Math.toIntExact(Math.min(chip.ether, Integer.MAX_VALUE));
+                etherTotal += chip.ether;
+                storageTotal += chip.storage;
+            }
+        chipEtherTotal = etherTotal;
+        chipEtherMax = (int) Math.min(storageTotal, Integer.MAX_VALUE);
+        //输入物品变化检测
         for (int i = 0; i < ROWS; i++) {
             ItemStack current = inputContainer.getItem(i);
             if (!ItemStack.matches(lastInputStacks[i], current)) {
@@ -209,6 +213,17 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
                 lastInputStacks[i] = current.copy();
             }
         }
+    }
+
+    public int globalPressure() {
+        long totalStorage = chipEtherMax;
+        if (totalStorage <= 0) return 1;
+        long remaining = getEther() - totalStorage;
+        long remainingMultiplier = remaining / totalStorage / 10;
+        if (remainingMultiplier > 0) {
+            return (int) (Math.log(remainingMultiplier + 1) / Math.log(2.0));
+        }
+        return 1;
     }
 
     public void updateRecipe(ServerLevel level, boolean inputChangeOnly) {
@@ -298,24 +313,6 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
         }
     }
 
-    private void tickChipBehaviors() {
-        for (int i = 0; i < ROWS; i++) {
-            for (int j = 0; j < COLS; j++) {
-                EtherProcessWorkingChip chip = slotChips[i][j];
-                if (chip == null || chip.behavior == null)
-                    continue;
-                chip.behavior.onTick(chip, this);
-                if (chip.destroyed) {
-                    internalContainer.setItem(i * ROWS + j, ItemStack.EMPTY);
-                    internalContainer.setChanged();
-                    slotChips[i][j] = null;
-                    setChanged();
-                    chipLayoutDirty = true;
-                }
-            }
-        }
-    }
-
     private static boolean isSameChip(ItemStack a, ItemStack b) {
         if (a.getItem() != b.getItem())
             return false;
@@ -326,14 +323,15 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
     public void tickServer() {
         ServerPerf.startRecording(worldPosition);
         updateChips();
-        tickChipBehaviors();
         boolean changed = false;
         for (int i = 0; i < this.processingRecipes.length; i++) {
             if (this.processingRecipes[i] != null) {
                 if (this.processingInputs[i].relevantChip().stream().anyMatch(item -> (!item.canWork()))) {
                     processingProgress[i] = 0;
                 } else if (processingProgress[i] < MAX_PROGRESS * processingRecipes[i].maxStepMultiplier()) {
-                    processingProgress[i] += pressureBonus;
+                    double pMin = this.processingInputs[i].relevantChip().stream()
+                            .mapToDouble(EtherProcessWorkingChip::speedMul).min().orElse(1);
+                    processingProgress[i] += (int) pMin;
                 } else {
                     consumeAndPlaceOutput(i);
                     processingProgress[i] = 0;
@@ -358,7 +356,7 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
                 PacketDistributor.sendToPlayersInDimension(sl, new SyncBlockNameS2C(getBlockPos(), name));
         }
         if (leak > 0) {
-            extractEther(leak * 20L * pressureBonus);
+            extractEther(leak * 20L * globalPressure());
         }
         ServerPerf.end(level);
     }
@@ -380,11 +378,24 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
             for (int i = 0; i < l.size(); i++)
                 processingProgress[i] = l.get(i);
         });
+        input.read("chips", EtherProcessWorkingChip.CODEC.listOf()).ifPresent(l -> {
+            for (int idx = 0; idx < Math.min(l.size(), ROWS * COLS); idx++) {
+                EtherProcessWorkingChip c = l.get(idx);
+                slotChips[idx / COLS][idx % COLS] = (c != null && !c.item.isEmpty()) ? c : null;
+            }
+        });
         for (int i = 0; i < ROWS; i++) {
             filters[i].deserialize(input.childOrEmpty("filter_" + i));
             filters[i].whitelist = true;
         }
         super.loadAdditional(input);
+        //用当前 datapack record 刷新反序列化的芯片（storage/consume/effect 保持最新），保留以太
+        for (int i = 0; i < ROWS; i++)
+            for (int j = 0; j < COLS; j++) {
+                EtherProcessWorkingChip chip = slotChips[i][j];
+                if (chip != null && !chip.item.isEmpty())
+                    slotChips[i][j] = new EtherProcessWorkingChip(chip.item, chip.ether);
+            }
         chipLayoutDirty = true;
     }
 
@@ -392,6 +403,13 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
     protected void saveAdditional(ValueOutput output) {
         output.store("name", Codec.STRING, name);
         output.store("progress", Codec.INT.listOf(), Arrays.stream(processingProgress).boxed().toList());
+        List<EtherProcessWorkingChip> chips = new ArrayList<>(ROWS * COLS);
+        for (int i = 0; i < ROWS; i++)
+            for (int j = 0; j < COLS; j++) {
+                EtherProcessWorkingChip chip = slotChips[i][j];
+                chips.add(chip == null ? EtherProcessWorkingChip.DUMMY : chip);
+            }
+        output.store("chips", EtherProcessWorkingChip.CODEC.listOf(), chips);
         for (int i = 0; i < ROWS; i++)
             filters[i].serialize(output.child("filter_" + i));
         super.saveAdditional(output);
@@ -597,7 +615,6 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
                 for (int j = 0; j < COLS; j++)
                     flattenedEther.add(currentEther[i][j]);
             output.store("currentEther", Codec.INT.listOf(), flattenedEther);
-            output.putInt("pressureBonus", pressureBonus);
             output.putInt("leak", leak);
             output.putString("name", name);
             return output.buildResult();
@@ -622,7 +639,6 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
             for (int i = 0; i < Math.min(l.size(), ROWS * COLS); i++)
                 currentEther[i / COLS][i % COLS] = l.get(i);
         });
-        pressureBonus = input.read("pressureBonus", Codec.INT).orElse(pressureBonus);
         leak = input.read("leak", Codec.INT).orElse(leak);
         name = input.getStringOr("name", "");
         if (!name.isEmpty())

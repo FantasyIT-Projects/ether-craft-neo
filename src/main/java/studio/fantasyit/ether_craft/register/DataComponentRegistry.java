@@ -26,9 +26,6 @@ public class DataComponentRegistry {
     public static final DeferredHolder<DataComponentType<?>, @NotNull DataComponentType<Integer>> CONVERSION_COUNTER = DATA_COMPONENT.register("ether_process_chip_level",
             () -> DataComponentType.<Integer>builder().persistent(Codec.INT).networkSynchronized(ByteBufCodecs.INT).build()
     );
-    public static final DeferredHolder<DataComponentType<?>, @NotNull DataComponentType<Integer>> DURABILITY = DATA_COMPONENT.register("ether_process_chip_durability",
-            () -> DataComponentType.<Integer>builder().persistent(Codec.INT).networkSynchronized(ByteBufCodecs.INT).build()
-    );
 
     public static final DeferredHolder<DataComponentType<?>, @NotNull DataComponentType<List<List<ItemStack>>>> GRID = DATA_COMPONENT.register("ether_process_recipe_grid",
             () -> DataComponentType.<List<List<ItemStack>>>builder().persistent(ItemStack.OPTIONAL_CODEC.listOf().listOf()).networkSynchronized(ByteBufCodecs.collection(

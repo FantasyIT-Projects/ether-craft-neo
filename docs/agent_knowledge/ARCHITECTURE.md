@@ -250,7 +250,8 @@ EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity
   |-- pathBelongings: int[][]            // 路径归属(渲染用)
   |-- pathDepth: int[][]                 // 路径深度(渲染用)
   |-- pathDirection: int[][]             // 路径方向(渲染用)
-  |-- pressureBonus: int                 // 压力加成
+  |-- chipEtherTotal: long               // 芯片以太总和(Jade 服务端显示)
+  |-- chipEtherMax: int                  // 标准存量标尺和(GUI 以太条填充参考, 经 data slot 同步)
   |-- leak: int                          // 泄漏量
   |-- filters: ItemFilter[]              // 每行输入过滤器
   |-- possibleResults: SimpleContainer   // 每行预期输出(渲染用)
@@ -259,13 +260,13 @@ EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity
 **tick 流程**:
 ```
 tickServer()
-  -> updateChips()          // 更新芯片状态、以太分配、压力计算
-  -> tickChipBehaviors()    // 执行芯片特殊行为
+  -> updateChips()          // 布局检测、批量脉冲充能、维持扣款、currentEther 同步
   -> 遍历 processingRecipes:
-      if progress < MAX: progress += pressureBonus
+      if 任一相关芯片 ether < consume: progress = 0
+      else if progress < MAX: progress += floor(min(相关芯片 speedMul))
       else: consumeAndPlaceOutput()
   -> if markUpdate: updateRecipe()  // 重新匹配配方
-  -> extractEther(leak * 20 * pressureBonus)  // 泄漏消耗
+  -> extractEther(leak * 20 * globalPressure())  // 泄漏消耗
 ```
 
 ### 3.2 芯片系统
@@ -274,35 +275,39 @@ tickServer()
 
 | 子模块 | 文件 | 职责 |
 |--------|------|------|
-| 工作芯片 | `factory/EtherProcessWorkingChip.java` | 芯片运行时实例: 以太存储、衰减环、耐久度、消耗 |
-| 芯片管理器 | `factory/EtherProcessChipManager.java` | 芯片数据管理、行为注册 |
+| 工作芯片 | `factory/EtherProcessWorkingChip.java` | 芯片运行时实例: 以太存量、维持曲线、速度倍率、消耗 |
+| 芯片管理器 | `factory/EtherProcessChipManager.java` | 芯片数据管理 |
 | 芯片数据加载 | `datapack/ProcessChipDataLoader.java` | 从数据包加载芯片定义 |
-| 芯片行为接口 | `factory/IProcessChipBehavior.java` | 芯片特殊行为接口 |
 | 芯片物品 | `item/ProcessChipItem.java` | 芯片物品类, 数据组件驱动 |
-| 数据组件 | `DataComponentRegistry.java` | CHIP_ID, DURABILITY, CONVERSION_COUNTER |
+| 数据组件 | `DataComponentRegistry.java` | CHIP_ID, CONVERSION_COUNTER |
 
 **EtherProcessWorkingChip 核心机制**:
 ```
-衰减环 (decayCircle):
-  - 长度为 etherDecay 的环形缓冲区
-  - 每次 addEther 写入当前位置
-  - 每次 tick 从当前位置读取并扣除
-  - 实现周期性以太衰减
+维持开销 base(e)（单峰回落 + 渐近）:
+  - e <= consume: base = e*a
+  - e >  consume: base = consume*a * (1 + overshoot*y*exp(λ(1-y))), y=(x-1)/(ratio-1)
+  - 峰值在 ratio*consume, e→∞ 渐近 consume*a
 
-加工消耗 (consume):
-  - 从衰减环中由新到旧扣除 etherConsume 量
-  - 剩余不足部分从 ether 直接扣除
-  - 消耗后检查耐久度
+速度倍率 p(e):
+  - p = floor(1 + e/storage)（始终取整）
+  - 配方进度 += floor(min(路径芯片 p))
 
-耐久度:
-  - maxDurability > 0 时启用
-  - 每次加工后 damage(1)
-  - 耐久归零 -> destroyed = true -> 芯片销毁
+无限充能（批量脉冲）:
+  - 机器缓存攒够 Σ(k·consume)，按批次因数一次性分发（每芯片 clamp 到 int 上限）
+  - 每 tick 维持扣款 C(e) = base(e)*p(e)
 
-压力加成:
-  - 当机器以太 > 所有芯片容量之和时
-  - pressureBonus = log2(剩余倍数 + 1)
-  - 加工速度 = 基础速度 * pressureBonus
+工作门槛:
+  - 以太 < consume 直接停止 (进度清零)
+  - 加工完成扣 etherConsume
+
+芯片以太持久化:
+  - BE saveAdditional/loadAdditional 存 chips（EtherProcessWorkingChip.CODEC.listOf()）
+  - 重载后按格子恢复
+
+泄漏 (leak):
+  - 非法路径惩罚
+  - globalPressure = log2(1 + 机器以太/(Σstorage*10))
+  - 泄漏消耗 = leak * 20 * globalPressure
 ```
 
 ### 3.3 配方系统

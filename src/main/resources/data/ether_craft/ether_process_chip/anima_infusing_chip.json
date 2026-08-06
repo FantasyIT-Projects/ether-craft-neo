@@ -1,6 +1,4 @@
 {
-  "maxEther": 3000,
-  "etherDecay": 10,
-  "etherRequire": 300,
+  "storage": 30000,
   "etherConsume": 1500
 }

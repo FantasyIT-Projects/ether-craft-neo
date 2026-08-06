@@ -13,20 +13,9 @@ import studio.fantasyit.ether_craft.register.ItemRegistry;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.BiConsumer;
 
 public class EtherProcessChipManager {
-    private static final Map<Identifier, IProcessChipBehavior> BEHAVIORS = new HashMap<>();
-
-    public static void registerBehavior(Identifier id, IProcessChipBehavior behavior) {
-        BEHAVIORS.put(id, behavior);
-    }
-
-    public static @Nullable IProcessChipBehavior getBehavior(Identifier id) {
-        return BEHAVIORS.get(id);
-    }
-
     public static void update(Map<Identifier, ProcessChipRecord> identifierProcessChipRecordMap) {
         chipInfo = identifierProcessChipRecordMap;
     }
@@ -55,28 +44,19 @@ public class EtherProcessChipManager {
         );
     }
 
-    public record ProcessChipRecord(long maxEther, int etherDecay, long etherRequire, long etherConsume,
-                                    ProcessChipEffectConfig effect, int maxDurability,
-                                    Optional<Identifier> behavior) {
+    public record ProcessChipRecord(long storage, long etherConsume,
+                                    ProcessChipEffectConfig effect) {
         public static final Codec<ProcessChipRecord> CODEC = RecordCodecBuilder.create(inst -> inst.group(
-                Codec.LONG.fieldOf("maxEther").forGetter(ProcessChipRecord::maxEther),
-                Codec.INT.fieldOf("etherDecay").forGetter(ProcessChipRecord::etherDecay),
-                Codec.LONG.fieldOf("etherRequire").forGetter(ProcessChipRecord::etherRequire),
+                Codec.LONG.fieldOf("storage").forGetter(ProcessChipRecord::storage),
                 Codec.LONG.fieldOf("etherConsume").forGetter(ProcessChipRecord::etherConsume),
-                ProcessChipEffectConfig.CODEC.optionalFieldOf("effect", ProcessChipEffectConfig.DEFAULT).forGetter(ProcessChipRecord::effect),
-                Codec.INT.optionalFieldOf("maxDurability", 0).forGetter(ProcessChipRecord::maxDurability),
-                Identifier.CODEC.optionalFieldOf("behavior").forGetter(ProcessChipRecord::behavior)
+                ProcessChipEffectConfig.CODEC.optionalFieldOf("effect", ProcessChipEffectConfig.DEFAULT).forGetter(ProcessChipRecord::effect)
         ).apply(inst, ProcessChipRecord::new));
 
         public static final StreamCodec<RegistryFriendlyByteBuf, ProcessChipRecord> STREAM_CODEC =
                 StreamCodec.composite(
-                        ByteBufCodecs.VAR_LONG, EtherProcessChipManager.ProcessChipRecord::maxEther,
-                        ByteBufCodecs.VAR_INT, EtherProcessChipManager.ProcessChipRecord::etherDecay,
-                        ByteBufCodecs.VAR_LONG, EtherProcessChipManager.ProcessChipRecord::etherRequire,
+                        ByteBufCodecs.VAR_LONG, EtherProcessChipManager.ProcessChipRecord::storage,
                         ByteBufCodecs.VAR_LONG, EtherProcessChipManager.ProcessChipRecord::etherConsume,
                         ProcessChipEffectConfig.STREAM_CODEC, ProcessChipRecord::effect,
-                        ByteBufCodecs.VAR_INT, EtherProcessChipManager.ProcessChipRecord::maxDurability,
-                        ByteBufCodecs.optional(Identifier.STREAM_CODEC), EtherProcessChipManager.ProcessChipRecord::behavior,
                         EtherProcessChipManager.ProcessChipRecord::new
                 );
 
