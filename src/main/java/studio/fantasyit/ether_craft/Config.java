@@ -174,6 +174,10 @@ public class Config {
             .comment("Ticks between refreshing the block collision snapshot along an ether stream (1 = every tick)")
             .defineInRange("ether_stream.block_scan_interval", 1, 1, Integer.MAX_VALUE);
 
+    private static final ModConfigSpec.IntValue ETHER_STREAM_DISPLAY_TIME_CACHE_TICK = BUILDER
+            .comment("Ticks the precomputed DisplayTime collision end point stays cached before rescanning")
+            .defineInRange("ether_stream.display_time.cache_tick", 20, 1, Integer.MAX_VALUE);
+
     // -- ether_stream.break_block --
 
     private static final ModConfigSpec.IntValue ETHER_STREAM_BREAK_BLOCK_HARDNESS_MULTIPLIER = BUILDER
@@ -474,6 +478,7 @@ public class Config {
     public static int etherStreamDestroyThreshold;
     public static double etherStreamSyncDistance;
     public static int etherStreamBlockScanInterval;
+    public static int etherStreamDisplayTimeCacheTick;
     public static double etherStreamGlassTransformChance;
     public static double etherStreamConsumptionFactor;
     public static double etherStreamConsumptionByTimeFactor;
@@ -586,6 +591,7 @@ public class Config {
         etherStreamDestroyThreshold = ETHER_STREAM_DESTROY_THRESHOLD.get();
         etherStreamSyncDistance = ETHER_STREAM_SYNC_DISTANCE.get();
         etherStreamBlockScanInterval = ETHER_STREAM_BLOCK_SCAN_INTERVAL.get();
+        etherStreamDisplayTimeCacheTick = ETHER_STREAM_DISPLAY_TIME_CACHE_TICK.get();
         nodeProcessEtherConsumePreUnmatched = ETHER_PROCESS_ETHER_CONSUME_PRE_UNMATCHED.get();
         etherAutoSupplyThreshold = NODE_AUTO_SUPPLY_THRESHOLD.get();
         etherAutoSupplyEtherPerTick = NODE_AUTO_SUPPLY_ETHER_PER_TICK.get();

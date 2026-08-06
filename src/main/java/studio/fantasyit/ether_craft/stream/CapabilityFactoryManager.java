@@ -27,6 +27,7 @@ public class CapabilityFactoryManager {
         register(EtherStreamBounceBackCapability.ID, EtherStreamBounceBackCapability::new, EtherStreamBounceBackCapability.CODEC);
         register(EtherStreamItemDisplayCapability.ID, EtherStreamItemDisplayCapability::new, EtherStreamItemDisplayCapability.CODEC);
         register(EtherStreamTransformGlassCapability.ID, EtherStreamTransformGlassCapability::new, Codec.EMPTY.xmap(t -> new EtherStreamTransformGlassCapability(), t -> Unit.INSTANCE).codec());
+        register(EtherStreamDisplayTimeCapability.ID, EtherStreamDisplayTimeCapability::new, EtherStreamDisplayTimeCapability.CODEC);
     }
 
     public static <T extends IStreamCapability> void register(Identifier id, Supplier<T> factory, Codec<T> codec) {

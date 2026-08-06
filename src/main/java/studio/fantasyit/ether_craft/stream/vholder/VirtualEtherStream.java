@@ -20,6 +20,7 @@ import studio.fantasyit.ether_craft.register.AttachmentDataRegistry;
 import studio.fantasyit.ether_craft.stream.EtherConsumer;
 import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
 import studio.fantasyit.ether_craft.stream.PosDir;
+import studio.fantasyit.ether_craft.stream.cap.EtherStreamDisplayTimeCapability;
 import studio.fantasyit.ether_craft.stream.cap.IStreamCapability;
 import studio.fantasyit.ether_craft.stream.data.IEtherStreamSyncedData;
 
@@ -161,8 +162,31 @@ public class VirtualEtherStream implements IEtherStreamLike {
         return false;
     }
 
+    public boolean isDisplayTime() {
+        return getCapability(EtherStreamDisplayTimeCapability.ID).isPresent();
+    }
+
+    public void displayTimeTick() {
+        this.tickCount++;
+        Optional<IStreamCapability> optCap = getCapability(EtherStreamDisplayTimeCapability.ID);
+        if (optCap.isPresent() && optCap.get() instanceof EtherStreamDisplayTimeCapability dtCap) {
+            BlockPos endPos = dtCap.getEndPos();
+            if (endPos != null && blockPosition().equals(endPos)) {
+                this.markDead(null);
+                return;
+            }
+        }
+        if (this.tickCount > Config.etherStreamMaxTick) {
+            this.markDead(null);
+        }
+    }
+
     public void markDead(@Nullable HitResult hitResult) {
         if (markToRemove) return;
+        if (isDisplayTime()) {
+            markToRemove = true;
+            return;
+        }
         for (IStreamCapability cap : capabilities) {
             if (!cap.onBeforeDestroy(this, hitResult)) return;
         }
@@ -326,6 +350,7 @@ public class VirtualEtherStream implements IEtherStreamLike {
     }
 
     public void onRunIntoNewBlock(@Nullable BlockPos oldPos, @Nullable BlockState oldState, BlockPos newPos, BlockState newState) {
+        if (isDisplayTime()) return;
         if (oldState != null) {
             boolean isEtherGlass1 = EtherGlassUtil.isEtherGlass(oldState);
             boolean isEtherGlass2 = EtherGlassUtil.isEtherGlass(newState);
