@@ -50,6 +50,7 @@ public class VirtualEtherStreamHolder {
     private final PosDir posDir;
     private final ServerLevel level;
     final List<VirtualEtherStream> streams = new ArrayList<>();
+    private final List<VirtualEtherStream> pendingTrackingStreams = new ArrayList<>();
     private final Vec3i chunkVec;
     Int2IntOpenHashMap trackingPlayers = new Int2IntOpenHashMap();
     Int2IntOpenHashMap playerLastCreateId = new Int2IntOpenHashMap();
@@ -97,7 +98,14 @@ public class VirtualEtherStreamHolder {
                 this
         );
         streams.add(ves);
+        markTrackingPending(ves);
         return ves;
+    }
+
+    void markTrackingPending(VirtualEtherStream ves) {
+        if (ves.trackingPending) return;
+        ves.trackingPending = true;
+        pendingTrackingStreams.add(ves);
     }
 
     public boolean hasStreamInUnloadedChunk(int maxBlockDist) {
@@ -391,14 +399,18 @@ public class VirtualEtherStreamHolder {
     }
 
     private void updateTracking() {
-        for (VirtualEtherStream ves : streams) {
+        if (pendingTrackingStreams.isEmpty()) return;
+        for (int i = 0, size = pendingTrackingStreams.size(); i < size; i++) {
+            VirtualEtherStream ves = pendingTrackingStreams.get(i);
+            ves.trackingPending = false;
+            if (ves.markToRemove) continue;
             if (ves.trackingDirty) {
-                for (int i : ves.lastTrackingPlayers)
-                    trackingPlayers.addTo(i, -1);
+                for (int j : ves.lastTrackingPlayers)
+                    trackingPlayers.addTo(j, -1);
             }
             if (ves.trackingInitial || ves.trackingDirty) {
-                for (int i : ves.trackingPlayers)
-                    trackingPlayers.addTo(i, 1);
+                for (int j : ves.trackingPlayers)
+                    trackingPlayers.addTo(j, 1);
                 if (ves.trackingDirty) {
                     ves.lastTrackingPlayers = new IntOpenHashSet(ves.trackingPlayers);
                     ves.trackingDirty = false;
@@ -406,6 +418,7 @@ public class VirtualEtherStreamHolder {
                 ves.trackingInitial = false;
             }
         }
+        pendingTrackingStreams.clear();
     }
 
     private void updateNoLongerTracking() {
@@ -616,6 +629,7 @@ public class VirtualEtherStreamHolder {
         for (VirtualEtherStreamData data : holderData.streams()) {
             VirtualEtherStream ves = VirtualEtherStream.fromData(level, data, this);
             streams.add(ves);
+            markTrackingPending(ves);
         }
         int nxtMaxDist = 0;
         for (VirtualEtherStream ves : streams) {

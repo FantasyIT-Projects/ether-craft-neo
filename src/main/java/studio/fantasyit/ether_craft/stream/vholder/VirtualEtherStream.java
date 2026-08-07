@@ -44,6 +44,7 @@ public class VirtualEtherStream implements IEtherStreamLike {
     public float currentDistance;
     public boolean trackingDirty = false;
     public boolean trackingInitial = true;
+    public boolean trackingPending = false;
     public boolean markToSyncCreation = false;
     public boolean markToRemove = false;
     public boolean markToSyncData = false;
@@ -384,5 +385,6 @@ public class VirtualEtherStream implements IEtherStreamLike {
     public void addTrackingPlayer(int id) {
         trackingPlayers.add(id);
         trackingDirty = true;
+        holder.markTrackingPending(this);
     }
 }
