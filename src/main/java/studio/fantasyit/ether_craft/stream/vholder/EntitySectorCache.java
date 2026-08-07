@@ -15,15 +15,9 @@ import java.util.List;
 
 public class EntitySectorCache implements IEntityGetter {
     private final Long2ObjectOpenHashMap<List<Entity>> cache = new Long2ObjectOpenHashMap<>(1024);
-    private long lastTick = -1;
 
     @Override
     public List<Entity> getEntities(ServerLevel level, AABB box) {
-        long tick = level.getGameTime();
-        if (lastTick != tick) {
-            cache.clear();
-            lastTick = tick;
-        }
         EntitySectionStorage<Entity> storage = level.entityManager.sectionStorage;
         int xMin = SectionPos.posToSectionCoord(box.minX - 2.0);
         int yMin = SectionPos.posToSectionCoord(box.minY - 4.0);
@@ -58,5 +52,8 @@ public class EntitySectorCache implements IEntityGetter {
             }
         }
         return allEntities;
+    }
+    public void clear(){
+        cache.clear();
     }
 }

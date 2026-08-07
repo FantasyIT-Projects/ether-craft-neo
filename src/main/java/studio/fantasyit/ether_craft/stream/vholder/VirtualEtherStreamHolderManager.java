@@ -38,7 +38,7 @@ public class VirtualEtherStreamHolderManager {
     private void ensureLazy(ServerLevel level) {
         if (lazyLoadData != null) {
             for (VESHEntry entry : lazyLoadData) {
-                VirtualEtherStreamHolder virtualEtherStreamHolder = new VirtualEtherStreamHolder(entry.posDir, level);
+                VirtualEtherStreamHolder virtualEtherStreamHolder = new VirtualEtherStreamHolder(entry.posDir, this, level);
                 virtualEtherStreamHolder.loadFromData(entry.holderData);
                 holders.put(entry.posDir, virtualEtherStreamHolder);
             }
@@ -50,7 +50,7 @@ public class VirtualEtherStreamHolderManager {
         ensureLazy(level);
         if (holders.containsKey(posDir))
             return holders.get(posDir);
-        holders.put(posDir, new VirtualEtherStreamHolder(posDir, level));
+        holders.put(posDir, new VirtualEtherStreamHolder(posDir, this, level));
         return holders.get(posDir);
     }
 
@@ -66,6 +66,7 @@ public class VirtualEtherStreamHolderManager {
     }
 
     public void tick(ServerLevel level) {
+        sectorCache.clear();
         ensureLazy(level);
         PlayerPayloadAccumulator acc = new PlayerPayloadAccumulator();
         HashSet<Map.Entry<PosDir, VirtualEtherStreamHolder>> keys = new HashSet<>(holders.entrySet());

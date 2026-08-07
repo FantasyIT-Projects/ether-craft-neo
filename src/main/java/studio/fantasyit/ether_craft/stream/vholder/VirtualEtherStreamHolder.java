@@ -33,6 +33,7 @@ import studio.fantasyit.ether_craft.plating.helper.PlatingUtil;
 import studio.fantasyit.ether_craft.register.AttachmentDataRegistry;
 import studio.fantasyit.ether_craft.register.ItemRegistry;
 import studio.fantasyit.ether_craft.register.Tags;
+import studio.fantasyit.ether_craft.stream.IEntityGetter;
 import studio.fantasyit.ether_craft.stream.PosDir;
 import studio.fantasyit.ether_craft.stream.cap.IStreamCapability;
 import studio.fantasyit.ether_craft.stream.data.CachedEtherStreamEntry;
@@ -48,6 +49,7 @@ public class VirtualEtherStreamHolder {
     private final Direction direction;
     private final BlockPos pos;
     private final PosDir posDir;
+    private final VirtualEtherStreamHolderManager manager;
     private final ServerLevel level;
     final List<VirtualEtherStream> streams = new ArrayList<>();
     private final List<VirtualEtherStream> pendingTrackingStreams = new ArrayList<>();
@@ -66,7 +68,8 @@ public class VirtualEtherStreamHolder {
     private boolean[] cachedSkip;
 
 
-    public VirtualEtherStreamHolder(PosDir posDir, @NotNull ServerLevel level) {
+    public VirtualEtherStreamHolder(PosDir posDir, VirtualEtherStreamHolderManager manager, @NotNull ServerLevel level) {
+        this.manager = manager;
         this.level = level;
         this.pos = posDir.pos();
         this.direction = posDir.dir();
@@ -76,10 +79,6 @@ public class VirtualEtherStreamHolder {
 
     private IndexMappingManager indexMappingManager() {
         return level.getData(AttachmentDataRegistry.INDEX_MAPPING_MANAGER);
-    }
-
-    EntitySectorCache sectorCache() {
-        return VirtualEtherStreamHolderManager.get(level).sectorCache;
     }
 
     private AutoIndexPosDir posDirAutoIndexed() {
@@ -206,7 +205,7 @@ public class VirtualEtherStreamHolder {
     private void tickCollideAll(int maxBlockDist) {
         int maxClipDist = maxBlockDist + 1;
         Vec3 queryVec = direction.getUnitVec3().scale(maxBlockDist + 1);
-        List<Entity> allEntities = sectorCache().getEntities(level, new AABB(pos).expandTowards(queryVec).inflate(1.0));
+        List<Entity> allEntities = manager.sectorCache.getEntities(level, new AABB(pos).expandTowards(queryVec).inflate(1.0));
 
         boolean anyNormalStream = false;
         for (VirtualEtherStream ves : streams) {
@@ -244,8 +243,16 @@ public class VirtualEtherStreamHolder {
             int clipEnd = Math.clamp(ves.blockDistance(), 0, blockStates.length - 1);
             Vec3 newPos = ves.position();
             Vec3 oldPos = newPos.subtract(ves.motion);
+            //计算是否可以跳过
+            boolean noSkip = false;
+            for (int j = clipStart; j <= clipEnd; j++) {
+                if (!skip[j]) {
+                    noSkip = true;
+                    break;
+                }
+            }
             BlockHitResult blockHit;
-            if (collideBlockSkipAll(skip, clipStart, clipEnd)) {
+            if (noSkip) {
                 blockHit = null;
             } else {
                 //获取最近的方块碰撞
@@ -367,13 +374,6 @@ public class VirtualEtherStreamHolder {
             hit = new EntityHitResult(hitEntity, entityHitAt);
         }
         return hit;
-    }
-
-    private boolean collideBlockSkipAll(boolean[] skip, int clipStart, int clipEnd) {
-        for (int j = clipStart; j <= clipEnd; j++) {
-            if (!skip[j]) return false;
-        }
-        return true;
     }
 
     private @Nullable BlockHitResult collideTryBlock(VirtualEtherStream ves, BlockState[] blockStates, BlockPos[] blockPoses, boolean[] skip, VoxelShape[] shapes, int clipStart, int clipEnd, Vec3 oldPos, Vec3 newPos) {
@@ -641,5 +641,9 @@ public class VirtualEtherStreamHolder {
             }
         }
         this.holderMaxDistance = nxtMaxDist + 1;
+    }
+
+    public IEntityGetter sectorCache() {
+        return manager.sectorCache;
     }
 }
