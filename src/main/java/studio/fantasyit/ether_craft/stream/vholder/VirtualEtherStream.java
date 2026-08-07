@@ -21,7 +21,6 @@ import studio.fantasyit.ether_craft.register.AttachmentDataRegistry;
 import studio.fantasyit.ether_craft.stream.EtherConsumer;
 import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
 import studio.fantasyit.ether_craft.stream.PosDir;
-import studio.fantasyit.ether_craft.stream.cap.EtherStreamDisplayTimeCapability;
 import studio.fantasyit.ether_craft.stream.cap.IStreamCapability;
 import studio.fantasyit.ether_craft.stream.data.IEtherStreamSyncedData;
 
@@ -54,6 +53,8 @@ public class VirtualEtherStream implements IEtherStreamLike {
 
     List<IStreamCapability> capabilities = new ArrayList<>();
     Object2ObjectOpenHashMap<Identifier, IStreamCapability> capabilityMap = new Object2ObjectOpenHashMap<>();
+    private boolean displayTime = false;
+    private float maxDistance = Float.MAX_VALUE;
     public final EtherConsumer consumer = new EtherConsumer();
     int ether;
     public int realCanReceiveEther = -1;
@@ -165,6 +166,16 @@ public class VirtualEtherStream implements IEtherStreamLike {
     }
 
     @Override
+    public void setDisplayTime(boolean displayTime) {
+        this.displayTime = displayTime;
+    }
+
+    @Override
+    public void setMaxDistance(float maxDistance) {
+        this.maxDistance = maxDistance;
+    }
+
+    @Override
     public boolean shouldPassThrough(Entity entity) {
         for (IStreamCapability cap : capabilities)
             if (cap.shouldPassThrough(entity))
@@ -181,20 +192,13 @@ public class VirtualEtherStream implements IEtherStreamLike {
     }
 
     public boolean isDisplayTime() {
-        return getCapability(EtherStreamDisplayTimeCapability.ID).isPresent();
+        return displayTime;
     }
 
     public void displayTimeTick() {
         this.tickCount++;
-        Optional<IStreamCapability> optCap = getCapability(EtherStreamDisplayTimeCapability.ID);
-        if (optCap.isPresent() && optCap.get() instanceof EtherStreamDisplayTimeCapability dtCap) {
-            BlockPos endPos = dtCap.getEndPos();
-            if (endPos != null && blockPosition().equals(endPos)) {
-                this.markDead(null);
-                return;
-            }
-        }
-        if (this.tickCount > Config.etherStreamMaxTick) {
+        currentDistance += this.startSpeed;
+        if (currentDistance >= maxDistance || this.tickCount > Config.etherStreamMaxTick) {
             this.markDead(null);
         }
     }
@@ -254,7 +258,7 @@ public class VirtualEtherStream implements IEtherStreamLike {
         int consumption = this.getConsumption();
         this.consumeEtherInternal(consumption);
 
-        if (this.getEther() <= 0 || this.tickCount > Config.etherStreamMaxTick) {
+        if (this.getEther() <= 0 || this.tickCount > Config.etherStreamMaxTick || currentDistance >= maxDistance) {
             this.markDead(null);
         }
 
@@ -274,6 +278,10 @@ public class VirtualEtherStream implements IEtherStreamLike {
             this.capabilities = new ArrayList<>();
             newStream.capabilityMap = this.capabilityMap;
             this.capabilityMap = new Object2ObjectOpenHashMap<>();
+            newStream.displayTime = this.displayTime;
+            this.displayTime = false;
+            newStream.maxDistance = this.maxDistance;
+            this.maxDistance = Float.MAX_VALUE;
             for (IStreamCapability cap : newStream.capabilities) {
                 cap.setConsumer(newStream.consumer);
             }
@@ -342,7 +350,9 @@ public class VirtualEtherStream implements IEtherStreamLike {
                 tickCount,
                 consumer.toState(),
                 new ArrayList<>(capabilities),
-                toSyncData
+                toSyncData,
+                displayTime,
+                maxDistance == Float.MAX_VALUE ? Optional.empty() : Optional.of(maxDistance)
         );
     }
 
@@ -364,6 +374,8 @@ public class VirtualEtherStream implements IEtherStreamLike {
             cap.setConsumer(ves.consumer);
         }
         ves.toSyncData = new ArrayList<>(data.toSyncData());
+        ves.displayTime = data.displayTime();
+        ves.maxDistance = data.maxDistance().orElse(Float.MAX_VALUE);
         ves.markToSyncCreation = false;
         return ves;
     }

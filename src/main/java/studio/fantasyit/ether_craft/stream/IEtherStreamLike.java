@@ -48,6 +48,12 @@ public interface IEtherStreamLike {
 
     void setRunIntoEtherGlass(boolean isEtherGlass2);
 
+    default void setDisplayTime(boolean displayTime) {
+    }
+
+    default void setMaxDistance(float maxDistance) {
+    }
+
     void removeInstantly();
 
     int getStreamId();

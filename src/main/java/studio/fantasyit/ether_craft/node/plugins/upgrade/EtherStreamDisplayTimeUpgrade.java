@@ -17,16 +17,12 @@ import studio.fantasyit.ether_craft.node.plugins.base.AbstractNodePlugin;
 import studio.fantasyit.ether_craft.node.plugins.base.IEtherStreamCapabilityProviderPlugin;
 import studio.fantasyit.ether_craft.register.Tags;
 import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
-import studio.fantasyit.ether_craft.stream.cap.EtherStreamDisplayTimeCapability;
-import studio.fantasyit.ether_craft.stream.cap.IStreamCapability;
-
-import java.util.Optional;
 
 public class EtherStreamDisplayTimeUpgrade extends AbstractNodePlugin implements IEtherStreamCapabilityProviderPlugin {
     public static final Identifier ID = EtherCraft.id("ether_stream_display_time_upgrade");
 
     @Nullable
-    private BlockPos cachedEndPos;
+    private Float cachedMaxDistance;
     private long cachedAtGameTime = -1;
 
     public EtherStreamDisplayTimeUpgrade(EtherAdaptNodeEntity nodeEntity, InstalledPlugin installedId) {
@@ -35,30 +31,31 @@ public class EtherStreamDisplayTimeUpgrade extends AbstractNodePlugin implements
 
     @Override
     public void provideCapabilities(IEtherStreamLike entity) {
-        Optional<IStreamCapability> existing = entity.getCapability(EtherStreamDisplayTimeCapability.ID);
-        if (existing.isPresent()) return;
-
-        @Nullable BlockPos endPos = getCachedEndPos(entity);
-        EtherStreamDisplayTimeCapability cap = new EtherStreamDisplayTimeCapability(endPos);
-        entity.addCapability(cap);
+        @Nullable Float maxDistance = getCachedMaxDistance(entity);
+        entity.setDisplayTime(true);
+        if (maxDistance != null) {
+            entity.setMaxDistance(maxDistance);
+        }
     }
 
-    private @Nullable BlockPos getCachedEndPos(IEtherStreamLike entity) {
+    private @Nullable Float getCachedMaxDistance(IEtherStreamLike entity) {
         if (!(nodeEntity.getLevel() instanceof ServerLevel serverLevel)) return null;
         long gameTime = serverLevel.getGameTime();
-        if (cachedEndPos != null && gameTime - cachedAtGameTime < Config.etherStreamDisplayTimeCacheTick) {
-            return cachedEndPos;
+        if (cachedMaxDistance != null && gameTime - cachedAtGameTime < Config.etherStreamDisplayTimeCacheTick) {
+            return cachedMaxDistance;
         }
-        cachedEndPos = computeEndPos(serverLevel, entity);
+        cachedMaxDistance = computeMaxDistance(serverLevel, entity);
         cachedAtGameTime = gameTime;
-        return cachedEndPos;
+        return cachedMaxDistance;
     }
 
-    private @Nullable BlockPos computeEndPos(ServerLevel level, IEtherStreamLike entity) {
+    private @Nullable Float computeMaxDistance(ServerLevel level, IEtherStreamLike entity) {
         Direction dir = entity.getDirection();
+        Vec3 dirUnit = dir.getUnitVec3();
         Vec3 start = entity.position();
         int maxDist = Config.etherStreamMaxTick * Math.max(1, (int) Math.ceil(entity.getSpeed()));
-        Vec3 rayEnd = start.add(dir.getUnitVec3().scale(maxDist + 1));
+        Vec3 rayEnd = start.add(dirUnit.scale(maxDist + 1));
+        Vec3 offsetCenter = entity.getPosDir().pos().getCenter();
 
         BlockPos.MutableBlockPos cursor = BlockPos.containing(start).mutable();
         for (int i = 0; i <= maxDist; i++) {
@@ -68,7 +65,8 @@ public class EtherStreamDisplayTimeUpgrade extends AbstractNodePlugin implements
                 if (!shape.isEmpty()) {
                     HitResult hit = shape.clip(start, rayEnd, cursor);
                     if (hit != null) {
-                        return cursor.immutable();
+                        Vec3 hitLoc = hit.getLocation();
+                        return (float) hitLoc.subtract(offsetCenter).dot(dirUnit);
                     }
                 }
             }
