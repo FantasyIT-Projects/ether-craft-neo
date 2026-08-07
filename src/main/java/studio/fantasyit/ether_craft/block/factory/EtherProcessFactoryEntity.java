@@ -407,7 +407,16 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
                 PacketDistributor.sendToPlayersInDimension(sl, new SyncBlockNameS2C(getBlockPos(), name));
         }
         if (leak > 0) {
-            extractEther(leak * 20L * globalPressure());
+            long leakCost = leak * 20L * globalPressure();
+            extractEther(leakCost);
+            for (int i = 0; i < ROWS; i++)
+                for (int j = 0; j < COLS; j++) {
+                    EtherProcessWorkingChip chip = slotChips[i][j];
+                    if (chip == null || chip.item.isEmpty()) continue;
+                    long deduct = leakCost * chip.speedMul();
+                    chip.ether = Math.max(0, chip.ether - deduct);
+                    currentEther[i][j] = (int) Math.min(chip.ether, Integer.MAX_VALUE);
+                }
         }
         ServerPerf.end(level);
     }

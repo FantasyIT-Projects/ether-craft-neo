@@ -254,12 +254,13 @@ public class VirtualEtherStreamHolder {
             BlockHitResult blockHit;
             double blockDist = Double.MAX_VALUE;
             if (noSkip) {
-                blockHit = null;
-            } else {
                 //获取最近的方块碰撞
                 blockHit = collideTryBlock(ves, blockStates, blockPoses, skip, shapes, clipStart, clipEnd, oldPos, newPos);
-                if (blockHit != null)
+                if (blockHit != null) {
                     blockDist = oldPos.distanceToSqr(blockHit.getLocation());
+                }
+            } else {
+                blockHit = null;
             }
 
             //判断必方块更近的实体碰撞
