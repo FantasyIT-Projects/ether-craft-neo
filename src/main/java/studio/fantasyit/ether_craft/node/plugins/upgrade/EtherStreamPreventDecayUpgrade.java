@@ -7,6 +7,7 @@ import studio.fantasyit.ether_craft.node.plugins.base.AbstractNodePlugin;
 import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
 import studio.fantasyit.ether_craft.node.plugins.base.IEtherStreamCapabilityProviderPlugin;
 import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
+import studio.fantasyit.ether_craft.stream.data.StreamExtraProperty;
 import studio.fantasyit.ether_craft.stream.cap.EtherStreamCostReducerCapability;
 import studio.fantasyit.ether_craft.stream.cap.IStreamCapability;
 
@@ -20,7 +21,7 @@ public class EtherStreamPreventDecayUpgrade extends AbstractNodePlugin implement
     }
 
     @Override
-    public void provideCapabilities(IEtherStreamLike entity) {
+    public void provideCapabilities(IEtherStreamLike entity, StreamExtraProperty extraProperty) {
         Optional<IStreamCapability> existing = entity.getCapability(EtherStreamCostReducerCapability.ID);
         if (existing.isPresent() && existing.get() instanceof EtherStreamCostReducerCapability reducer) {
             reducer.incrementLevel();

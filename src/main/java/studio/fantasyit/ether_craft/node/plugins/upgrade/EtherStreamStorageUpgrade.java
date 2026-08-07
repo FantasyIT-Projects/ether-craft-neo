@@ -4,6 +4,7 @@ import net.minecraft.resources.Identifier;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.block.node.EtherAdaptNodeEntity;
 import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
+import studio.fantasyit.ether_craft.stream.data.StreamExtraProperty;
 import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
 import studio.fantasyit.ether_craft.node.plugins.base.AbstractNodePlugin;
 import studio.fantasyit.ether_craft.node.plugins.base.IEtherStreamCapabilityProviderPlugin;
@@ -24,7 +25,7 @@ public class EtherStreamStorageUpgrade extends AbstractNodePlugin implements IEt
     }
 
     @Override
-    public void provideCapabilities(IEtherStreamLike entity) {
+    public void provideCapabilities(IEtherStreamLike entity, StreamExtraProperty extraProperty) {
         Optional<IStreamCapability> existing = entity.getCapability(EtherStreamStorageCapability.ID);
         if (existing.isPresent()) {
             ((EtherStreamStorageCapability) existing.get()).addSlots(this.streamIncrease);

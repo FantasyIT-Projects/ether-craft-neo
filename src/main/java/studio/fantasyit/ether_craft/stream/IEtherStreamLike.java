@@ -9,6 +9,7 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import studio.fantasyit.ether_craft.stream.cap.IStreamCapability;
 import studio.fantasyit.ether_craft.stream.data.IEtherStreamSyncedData;
+import studio.fantasyit.ether_craft.stream.data.StreamExtraProperty;
 
 import java.util.Optional;
 
@@ -48,11 +49,7 @@ public interface IEtherStreamLike {
 
     void setRunIntoEtherGlass(boolean isEtherGlass2);
 
-    default void setDisplayTime(boolean displayTime) {
-    }
-
-    default void setMaxDistance(float maxDistance) {
-    }
+    StreamExtraProperty getExtraProperty();
 
     void removeInstantly();
 

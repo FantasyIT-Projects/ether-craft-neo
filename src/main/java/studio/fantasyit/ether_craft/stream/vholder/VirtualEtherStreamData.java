@@ -8,10 +8,10 @@ import studio.fantasyit.ether_craft.stream.EtherConsumer;
 import studio.fantasyit.ether_craft.stream.PosDir;
 import studio.fantasyit.ether_craft.stream.cap.IStreamCapability;
 import studio.fantasyit.ether_craft.stream.data.IEtherStreamSyncedData;
+import studio.fantasyit.ether_craft.stream.data.StreamExtraProperty;
 import studio.fantasyit.ether_craft.stream.data.SyncedEtherStreamDataManager;
 
 import java.util.List;
-import java.util.Optional;
 
 public record VirtualEtherStreamData(
         int streamId,
@@ -23,8 +23,7 @@ public record VirtualEtherStreamData(
         EtherConsumer.State consumerState,
         List<IStreamCapability> capabilities,
         List<IEtherStreamSyncedData> toSyncData,
-        boolean displayTime,
-        Optional<Float> maxDistance
+        StreamExtraProperty extraProperty
 ) {
     public static final Codec<VirtualEtherStreamData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.INT.fieldOf("streamId").forGetter(VirtualEtherStreamData::streamId),
@@ -36,7 +35,6 @@ public record VirtualEtherStreamData(
             EtherConsumer.State.CODEC.fieldOf("consumerState").forGetter(VirtualEtherStreamData::consumerState),
             CapabilityFactoryManager.CODEC.listOf().fieldOf("capabilities").forGetter(VirtualEtherStreamData::capabilities),
             SyncedEtherStreamDataManager.CODEC.listOf().fieldOf("toSyncData").forGetter(VirtualEtherStreamData::toSyncData),
-            Codec.BOOL.fieldOf("displayTime").orElse(false).forGetter(VirtualEtherStreamData::displayTime),
-            Codec.FLOAT.optionalFieldOf("maxDistance").forGetter(VirtualEtherStreamData::maxDistance)
+            StreamExtraProperty.CODEC.fieldOf("extraProperty").orElseGet(StreamExtraProperty::new).forGetter(VirtualEtherStreamData::extraProperty)
     ).apply(instance, VirtualEtherStreamData::new));
 }

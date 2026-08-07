@@ -40,6 +40,7 @@ import studio.fantasyit.ether_craft.stream.PosDir;
 import studio.fantasyit.ether_craft.stream.cap.IStreamCapability;
 import studio.fantasyit.ether_craft.stream.client.data.EntityStreamClientManager;
 import studio.fantasyit.ether_craft.stream.data.IEtherStreamSyncedData;
+import studio.fantasyit.ether_craft.stream.data.StreamExtraProperty;
 import studio.fantasyit.ether_craft.stream.data.SyncedEtherStreamDataManager;
 import studio.fantasyit.ether_craft.util.LevelUtil;
 
@@ -64,6 +65,7 @@ public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
     public int tailHead = -1;
     public int tailCount;
     private PosDir posDir;
+    private final StreamExtraProperty extraProperty = new StreamExtraProperty();
     private final List<IStreamCapability> capabilities = new ArrayList<>();
     public final EtherConsumer consumer = new EtherConsumer();
     private List<IEtherStreamSyncedData> toSyncData = new ArrayList<>();
@@ -365,6 +367,11 @@ public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
     @Override
     public PosDir getPosDir() {
         return posDir;
+    }
+
+    @Override
+    public StreamExtraProperty getExtraProperty() {
+        return extraProperty;
     }
 
     @Override

@@ -233,7 +233,7 @@ public class VirtualEtherStreamHolder {
 
             //DisplayTime流：仅极简实体判定(contains)，命中即消失
             if (ves.isDisplayTime()) {
-                if (hitEntityForDisplayTime(ves, allEntities)) {
+                if (!ves.getExtraProperty().noEntityHit && hitEntityForDisplayTime(ves, allEntities)) {
                     ves.markDead(null);
                 }
                 continue;
@@ -251,20 +251,21 @@ public class VirtualEtherStreamHolder {
                     break;
                 }
             }
-            BlockHitResult blockHit;
+            BlockHitResult blockHit = null;
             double blockDist = Double.MAX_VALUE;
-            if (noSkip) {
+            if (!ves.getExtraProperty().noBlockHit && noSkip) {
                 //获取最近的方块碰撞
                 blockHit = collideTryBlock(ves, blockStates, blockPoses, skip, shapes, clipStart, clipEnd, oldPos, newPos);
                 if (blockHit != null) {
                     blockDist = oldPos.distanceToSqr(blockHit.getLocation());
                 }
-            } else {
-                blockHit = null;
             }
 
-            //判断必方块更近的实体碰撞
-            EntityHitResult entityHit = collideTryEntity(ves, canHitEntity, blockDist, oldPos, newPos);
+            //判断比方块更近的实体碰撞
+            EntityHitResult entityHit = null;
+            if (!ves.getExtraProperty().noEntityHit) {
+                entityHit = collideTryEntity(ves, canHitEntity, blockDist, oldPos, newPos);
+            }
 
             //确认将碰到entity
             if (entityHit != null) {

@@ -8,6 +8,7 @@ import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
 import studio.fantasyit.ether_craft.node.plugins.base.AbstractNodePlugin;
 import studio.fantasyit.ether_craft.node.plugins.base.IEtherStreamCapabilityProviderPlugin;
 import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
+import studio.fantasyit.ether_craft.stream.data.StreamExtraProperty;
 import studio.fantasyit.ether_craft.stream.cap.EtherStreamCarryEntityCapability;
 import studio.fantasyit.ether_craft.stream.cap.IStreamCapability;
 
@@ -22,7 +23,7 @@ public class EtherStreamCarryEntityUpgrade extends AbstractNodePlugin implements
     }
 
     @Override
-    public void provideCapabilities(IEtherStreamLike entity) {
+    public void provideCapabilities(IEtherStreamLike entity, StreamExtraProperty extraProperty) {
         ItemStack item = nodeEntity.featureUpgradeStorage.getItem(installedId.id());
         if (item.isEmpty()) return;
 

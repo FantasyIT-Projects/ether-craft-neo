@@ -16,6 +16,7 @@ import studio.fantasyit.ether_craft.node.plugins.base.AbstractNodePlugin;
 import studio.fantasyit.ether_craft.node.plugins.base.IEtherStreamCapabilityProviderPlugin;
 import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
 import studio.fantasyit.ether_craft.stream.data.EtherStreamLabelData;
+import studio.fantasyit.ether_craft.stream.data.StreamExtraProperty;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +29,7 @@ public class EtherStreamTextUpgrade extends AbstractNodePlugin implements IEther
     }
 
     @Override
-    public void provideCapabilities(IEtherStreamLike entity) {
+    public void provideCapabilities(IEtherStreamLike entity, StreamExtraProperty extraProperty) {
         ItemStack item = nodeEntity.featureUpgradeStorage.getItem(installedId.id());
         if (item.is(Items.WRITTEN_BOOK)) {
             WrittenBookContent writtenBookContent = item.get(DataComponents.WRITTEN_BOOK_CONTENT);

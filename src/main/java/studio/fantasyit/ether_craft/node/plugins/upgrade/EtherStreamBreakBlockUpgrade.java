@@ -5,6 +5,7 @@ import net.minecraft.world.item.ItemStack;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.block.node.EtherAdaptNodeEntity;
 import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
+import studio.fantasyit.ether_craft.stream.data.StreamExtraProperty;
 import studio.fantasyit.ether_craft.node.plugins.base.AbstractNodePlugin;
 import studio.fantasyit.ether_craft.node.plugins.base.IEtherStreamCapabilityProviderPlugin;
 import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
@@ -25,7 +26,7 @@ public class EtherStreamBreakBlockUpgrade extends AbstractNodePlugin implements 
     }
 
     @Override
-    public void provideCapabilities(IEtherStreamLike entity) {
+    public void provideCapabilities(IEtherStreamLike entity, StreamExtraProperty extraProperty) {
         ItemStack tool = getTool();
         if (tool.isEmpty()) return;
 

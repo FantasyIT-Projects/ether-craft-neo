@@ -7,6 +7,7 @@ import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
 import studio.fantasyit.ether_craft.node.plugins.base.AbstractNodePlugin;
 import studio.fantasyit.ether_craft.node.plugins.base.IEtherStreamCapabilityProviderPlugin;
 import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
+import studio.fantasyit.ether_craft.stream.data.StreamExtraProperty;
 import studio.fantasyit.ether_craft.stream.cap.EtherStreamGrowthAcceleratorCapability;
 import studio.fantasyit.ether_craft.stream.cap.IStreamCapability;
 
@@ -21,7 +22,7 @@ public class EtherStreamGrowthAcceleratorUpgrade extends AbstractNodePlugin impl
     }
 
     @Override
-    public void provideCapabilities(IEtherStreamLike entity) {
+    public void provideCapabilities(IEtherStreamLike entity, StreamExtraProperty extraProperty) {
         boolean allowAll = ID_ALL.equals(installedId.pluginId());
         Optional<IStreamCapability> existing = entity.getCapability(allowAll ? EtherStreamGrowthAcceleratorCapability.ID_ALL : EtherStreamGrowthAcceleratorCapability.ID);
         if (existing.isEmpty()) {

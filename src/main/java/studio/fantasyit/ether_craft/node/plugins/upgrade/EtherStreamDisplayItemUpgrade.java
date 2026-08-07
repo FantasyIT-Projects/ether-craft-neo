@@ -7,6 +7,7 @@ import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
 import studio.fantasyit.ether_craft.node.plugins.base.AbstractNodePlugin;
 import studio.fantasyit.ether_craft.node.plugins.base.IEtherStreamCapabilityProviderPlugin;
 import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
+import studio.fantasyit.ether_craft.stream.data.StreamExtraProperty;
 import studio.fantasyit.ether_craft.stream.cap.EtherStreamItemDisplayCapability;
 import studio.fantasyit.ether_craft.stream.cap.EtherStreamPlatingCapability;
 import studio.fantasyit.ether_craft.stream.cap.IStreamCapability;
@@ -21,7 +22,7 @@ public class EtherStreamDisplayItemUpgrade extends AbstractNodePlugin implements
     }
 
     @Override
-    public void provideCapabilities(IEtherStreamLike entity) {
+    public void provideCapabilities(IEtherStreamLike entity, StreamExtraProperty extraProperty) {
         Optional<IStreamCapability> existing = entity.getCapability(EtherStreamItemDisplayCapability.ID);
         if (existing.isEmpty()) {
             entity.addCapability(new EtherStreamItemDisplayCapability());

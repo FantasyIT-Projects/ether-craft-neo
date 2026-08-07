@@ -23,6 +23,7 @@ import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
 import studio.fantasyit.ether_craft.stream.PosDir;
 import studio.fantasyit.ether_craft.stream.cap.IStreamCapability;
 import studio.fantasyit.ether_craft.stream.data.IEtherStreamSyncedData;
+import studio.fantasyit.ether_craft.stream.data.StreamExtraProperty;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,8 +54,7 @@ public class VirtualEtherStream implements IEtherStreamLike {
 
     List<IStreamCapability> capabilities = new ArrayList<>();
     Object2ObjectOpenHashMap<Identifier, IStreamCapability> capabilityMap = new Object2ObjectOpenHashMap<>();
-    private boolean displayTime = false;
-    private float maxDistance = Float.MAX_VALUE;
+    private final StreamExtraProperty extraProperty = new StreamExtraProperty();
     public final EtherConsumer consumer = new EtherConsumer();
     int ether;
     public int realCanReceiveEther = -1;
@@ -166,13 +166,8 @@ public class VirtualEtherStream implements IEtherStreamLike {
     }
 
     @Override
-    public void setDisplayTime(boolean displayTime) {
-        this.displayTime = displayTime;
-    }
-
-    @Override
-    public void setMaxDistance(float maxDistance) {
-        this.maxDistance = maxDistance;
+    public StreamExtraProperty getExtraProperty() {
+        return extraProperty;
     }
 
     @Override
@@ -187,18 +182,19 @@ public class VirtualEtherStream implements IEtherStreamLike {
         //从center开始计算的完整长度，当超过0.5，曼哈顿距离会+1，又因为正整数，直接转换到整型即可。
         return (int) (currentDistance + 0.5);
     }
+
     public int blockDistancePrev() {
         return (int) (currentDistance + 0.5 - startSpeed);
     }
 
     public boolean isDisplayTime() {
-        return displayTime;
+        return extraProperty.isDisplayTime;
     }
 
     public void displayTimeTick() {
         this.tickCount++;
         currentDistance += this.startSpeed;
-        if (currentDistance >= maxDistance || this.tickCount > Config.etherStreamMaxTick) {
+        if (currentDistance >= extraProperty.maxTravelLength || this.tickCount > Config.etherStreamMaxTick) {
             this.markDead(null);
         }
     }
@@ -258,7 +254,7 @@ public class VirtualEtherStream implements IEtherStreamLike {
         int consumption = this.getConsumption();
         this.consumeEtherInternal(consumption);
 
-        if (this.getEther() <= 0 || this.tickCount > Config.etherStreamMaxTick || currentDistance >= maxDistance) {
+        if (this.getEther() <= 0 || this.tickCount > Config.etherStreamMaxTick || currentDistance >= extraProperty.maxTravelLength) {
             this.markDead(null);
         }
 
@@ -278,10 +274,7 @@ public class VirtualEtherStream implements IEtherStreamLike {
             this.capabilities = new ArrayList<>();
             newStream.capabilityMap = this.capabilityMap;
             this.capabilityMap = new Object2ObjectOpenHashMap<>();
-            newStream.displayTime = this.displayTime;
-            this.displayTime = false;
-            newStream.maxDistance = this.maxDistance;
-            this.maxDistance = Float.MAX_VALUE;
+            newStream.extraProperty.from(this.extraProperty);
             for (IStreamCapability cap : newStream.capabilities) {
                 cap.setConsumer(newStream.consumer);
             }
@@ -351,8 +344,7 @@ public class VirtualEtherStream implements IEtherStreamLike {
                 consumer.toState(),
                 new ArrayList<>(capabilities),
                 toSyncData,
-                displayTime,
-                maxDistance == Float.MAX_VALUE ? Optional.empty() : Optional.of(maxDistance)
+                extraProperty
         );
     }
 
@@ -374,8 +366,10 @@ public class VirtualEtherStream implements IEtherStreamLike {
             cap.setConsumer(ves.consumer);
         }
         ves.toSyncData = new ArrayList<>(data.toSyncData());
-        ves.displayTime = data.displayTime();
-        ves.maxDistance = data.maxDistance().orElse(Float.MAX_VALUE);
+        ves.extraProperty.isDisplayTime = data.extraProperty().isDisplayTime;
+        ves.extraProperty.maxTravelLength = data.extraProperty().maxTravelLength;
+        ves.extraProperty.noEntityHit = data.extraProperty().noEntityHit;
+        ves.extraProperty.noBlockHit = data.extraProperty().noBlockHit;
         ves.markToSyncCreation = false;
         return ves;
     }

@@ -17,6 +17,7 @@ import studio.fantasyit.ether_craft.node.plugins.base.AbstractNodePlugin;
 import studio.fantasyit.ether_craft.node.plugins.base.IEtherStreamCapabilityProviderPlugin;
 import studio.fantasyit.ether_craft.register.Tags;
 import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
+import studio.fantasyit.ether_craft.stream.data.StreamExtraProperty;
 
 public class EtherStreamDisplayTimeUpgrade extends AbstractNodePlugin implements IEtherStreamCapabilityProviderPlugin {
     public static final Identifier ID = EtherCraft.id("ether_stream_display_time_upgrade");
@@ -30,11 +31,11 @@ public class EtherStreamDisplayTimeUpgrade extends AbstractNodePlugin implements
     }
 
     @Override
-    public void provideCapabilities(IEtherStreamLike entity) {
+    public void provideCapabilities(IEtherStreamLike entity, StreamExtraProperty extraProperty) {
         @Nullable Float maxDistance = getCachedMaxDistance(entity);
-        entity.setDisplayTime(true);
+        extraProperty.isDisplayTime = true;
         if (maxDistance != null) {
-            entity.setMaxDistance(maxDistance);
+            extraProperty.maxTravelLength = maxDistance;
         }
     }
 
