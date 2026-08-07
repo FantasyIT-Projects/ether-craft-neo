@@ -57,7 +57,7 @@ public record GridSourceFile(
 
     static final MapCodec<GridSourceFile> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
             Codec.list(Codec.list(Cell.CODEC.codec())).fieldOf("grid").forGetter(GridSourceFile::grid),
-            Codec.STRING.optionalFieldOf("outputItemId", (String) null).forGetter(GridSourceFile::outputItemId),
+            Codec.STRING.optionalFieldOf("outputItemId", null).forGetter(GridSourceFile::outputItemId),
             Codec.STRING.listOf().optionalFieldOf("inputItems", List.of()).forGetter(GridSourceFile::inputItems),
             Codec.INT.optionalFieldOf("outputRow", 4).forGetter(GridSourceFile::outputRow)
     ).apply(inst, GridSourceFile::new));

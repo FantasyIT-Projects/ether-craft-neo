@@ -88,7 +88,8 @@ public boolean preTick() {
 void tickServer() {
     // 新增：preTick 门控
     if (!functionStorage.preTick()) return;
-    if (!featureUpgradeStorage.preTick()) return;
+    if (!featureUpgradeStorage.preTick()) {
+    }
     // ... 原有 tick 流程 ...
 }
 ```
@@ -110,7 +111,7 @@ boolean preTick() {
 ```java
 public boolean preTick() {
     boolean hasSignal = nodeEntity.getLevel().hasNeighborSignal(nodeEntity.getBlockPos());
-    return workWithSignal ? hasSignal : !hasSignal;
+    return workWithSignal == hasSignal;
 }
 ```
 

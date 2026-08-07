@@ -25,7 +25,7 @@ import java.util.function.BiFunction;
 
 public class EtherAdaptNodeUpgradeTabManager {
     public static EtherAdaptNodeUpgradeTabManager instance = new EtherAdaptNodeUpgradeTabManager();
-    private HashMap<Identifier, BiFunction<PluginMenuContext, EtherAdaptNodeScreen, BaseEtherNodeTabWidgetProvider<?>>> widgets = new HashMap<>();
+    private final HashMap<Identifier, BiFunction<PluginMenuContext, EtherAdaptNodeScreen, BaseEtherNodeTabWidgetProvider<?>>> widgets = new HashMap<>();
 
     public void collect() {
         widgets.clear();

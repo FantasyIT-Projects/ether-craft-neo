@@ -47,7 +47,7 @@ public class PluginRenderManager {
                 state.addOverlay(face, EtherAdapterNodeAtlas.FUNCTION_ITEM_CONSUME_MATERIAL_FIRE.get(dTick));
             }
 
-            state.addOverlay(face, EtherAdapterNodeAtlas.ETHER_FILL.get(EtherAdaptNodeEntity.etherLevel(nodeEntity.getEther(), nodeEntity.getMaxEther(), EtherAdapterNodeAtlas.ETHER_FILL.uvs.length)));
+            state.addOverlay(face, EtherAdapterNodeAtlas.ETHER_FILL.get(EtherAdaptNodeEntity.etherLevel(nodeEntity.getEther(), nodeEntity.getMaxEther(), EtherAdapterNodeAtlas.ETHER_FILL.uvs().length)));
         };
         register(FunctionFurnaceGenerator.ID_BLAST, generatorLayer);
         register(FunctionFurnaceGenerator.ID, generatorLayer);
@@ -74,7 +74,7 @@ public class PluginRenderManager {
             if (workState == 1) {
                 state.addOverlay(face, EtherAdapterNodeAtlas.FUNCTION_EQUIPMENT_CONSUME_WORKING.get(dTick));
             }
-            state.addOverlay(face, EtherAdapterNodeAtlas.ETHER_FILL.get(EtherAdaptNodeEntity.etherLevel(nodeEntity.getEther(), nodeEntity.getMaxEther(), EtherAdapterNodeAtlas.ETHER_FILL.uvs.length)));
+            state.addOverlay(face, EtherAdapterNodeAtlas.ETHER_FILL.get(EtherAdaptNodeEntity.etherLevel(nodeEntity.getEther(), nodeEntity.getMaxEther(), EtherAdapterNodeAtlas.ETHER_FILL.uvs().length)));
         });
         register(FeatureContainerInteract.ID, (face, dTick, nodeEntity, state, installedPlugin) -> {
             boolean extractMode = nodeEntity.getSyncedPluginData(installedPlugin, FeatureContainerInteract.WORKING_MODE) == 1;

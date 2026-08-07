@@ -41,7 +41,7 @@ public class HighJumpPlatingEffect implements IPlatingEffect, IPlatingRightClick
         if (!PlatingUtil.canExtractEther(stack, Config.platingHighJumpEtherCost)) return;
         PlatingUtil.extractEtherWithEntityContext(entity, stack, Config.platingHighJumpEtherCost);
 
-        double height = data.effect() * 1.0;
+        double height = data.effect();
         entity.setDeltaMovement(entity.getDeltaMovement().x, height, entity.getDeltaMovement().z);
         entity.hurtMarked = true;
 

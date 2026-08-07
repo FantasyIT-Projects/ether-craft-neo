@@ -33,12 +33,12 @@ import studio.fantasyit.ether_craft.plating.helper.PlatingUtil;
 import studio.fantasyit.ether_craft.register.AttachmentDataRegistry;
 import studio.fantasyit.ether_craft.register.ItemRegistry;
 import studio.fantasyit.ether_craft.register.Tags;
-import studio.fantasyit.ether_craft.stream.IEntityGetter;
 import studio.fantasyit.ether_craft.stream.PosDir;
 import studio.fantasyit.ether_craft.stream.cap.IStreamCapability;
 import studio.fantasyit.ether_craft.stream.data.CachedEtherStreamEntry;
 import studio.fantasyit.ether_craft.stream.idx.AutoIndexPosDir;
 import studio.fantasyit.ether_craft.stream.idx.IndexMappingManager;
+import studio.fantasyit.ether_craft.util.EntityGetterUtil;
 import studio.fantasyit.ether_craft.util.LevelUtil;
 
 import java.util.ArrayList;
@@ -205,7 +205,7 @@ public class VirtualEtherStreamHolder {
     private void tickCollideAll(int maxBlockDist) {
         int maxClipDist = maxBlockDist + 1;
         Vec3 queryVec = direction.getUnitVec3().scale(maxBlockDist + 1);
-        List<Entity> allEntities = manager.sectorCache.getEntities(level, new AABB(pos).expandTowards(queryVec).inflate(1.0));
+        List<Entity> allEntities = EntityGetterUtil.getEntities(level, new AABB(pos).expandTowards(queryVec).inflate(1.0));
 
         boolean anyNormalStream = false;
         for (VirtualEtherStream ves : streams) {
@@ -252,15 +252,18 @@ public class VirtualEtherStreamHolder {
                 }
             }
             BlockHitResult blockHit;
+            double blockDist = Double.MAX_VALUE;
             if (noSkip) {
                 blockHit = null;
             } else {
                 //获取最近的方块碰撞
                 blockHit = collideTryBlock(ves, blockStates, blockPoses, skip, shapes, clipStart, clipEnd, oldPos, newPos);
+                if (blockHit != null)
+                    blockDist = oldPos.distanceToSqr(blockHit.getLocation());
             }
-            double blockDist = blockHit != null ? oldPos.distanceToSqr(blockHit.getLocation()) : Double.MAX_VALUE;
+
             //判断必方块更近的实体碰撞
-            EntityHitResult entityHit = collideTryEntity(ves, canHitEntity, blockDist, oldPos);
+            EntityHitResult entityHit = collideTryEntity(ves, canHitEntity, blockDist, oldPos, newPos);
 
             //确认将碰到entity
             if (entityHit != null) {
@@ -301,8 +304,7 @@ public class VirtualEtherStreamHolder {
     private boolean entityNoCollidePredicator(Entity entity) {
         if (entity instanceof ItemEntity ie) {
             if (PlatingUtil.isPlatedItemEntity(ie)) return false;
-            if (ie.getItem().is(Items.GLASS)) return false;
-            return true;
+            return !ie.getItem().is(Items.GLASS);
         }
         return false;
     }
@@ -340,9 +342,7 @@ public class VirtualEtherStreamHolder {
         }
     }
 
-    private @Nullable EntityHitResult collideTryEntity(VirtualEtherStream ves, List<Entity> entities, double blockDist, Vec3 oldPos) {
-        Vec3 oldEntityPos = ves.position();
-        Vec3 newEntityPos = oldPos.add(ves.motion);
+    private @Nullable EntityHitResult collideTryEntity(VirtualEtherStream ves, List<Entity> entities, double blockDist, Vec3 oldPos, Vec3 newPos) {
         Entity hitEntity = null;
         Vec3 entityHitAt = null;
         double nearestDist = blockDist;
@@ -351,10 +351,10 @@ public class VirtualEtherStreamHolder {
                 continue;
             AABB bb = entity.getBoundingBox().inflate(0.3);
             double localDist = entity.distanceToSqr(oldPos);
-            boolean currentCanHit = bb.contains(oldEntityPos) && localDist < nearestDist;
+            boolean currentCanHit = bb.contains(oldPos) && localDist < nearestDist;
             Vec3 localHitAt = bb.getCenter();
             if (!currentCanHit) {
-                Optional<Vec3> clip = bb.clip(oldEntityPos, newEntityPos);
+                Optional<Vec3> clip = bb.clip(oldPos, newPos);
                 if (clip.isPresent()) {
                     localDist = clip.get().distanceToSqr(oldPos);
                     if (localDist < nearestDist) {
@@ -641,9 +641,5 @@ public class VirtualEtherStreamHolder {
             }
         }
         this.holderMaxDistance = nxtMaxDist + 1;
-    }
-
-    public IEntityGetter sectorCache() {
-        return manager.sectorCache;
     }
 }

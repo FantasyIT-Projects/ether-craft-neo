@@ -1,6 +1,5 @@
-package studio.fantasyit.ether_craft.stream.vholder;
+package studio.fantasyit.ether_craft.util;
 
-import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import net.minecraft.core.SectionPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
@@ -8,16 +7,12 @@ import net.neoforged.neoforge.entity.PartEntity;
 import net.minecraft.world.level.entity.EntitySection;
 import net.minecraft.world.level.entity.EntitySectionStorage;
 import net.minecraft.world.phys.AABB;
-import studio.fantasyit.ether_craft.stream.IEntityGetter;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class EntitySectorCache implements IEntityGetter {
-    private final Long2ObjectOpenHashMap<List<Entity>> cache = new Long2ObjectOpenHashMap<>(1024);
-
-    @Override
-    public List<Entity> getEntities(ServerLevel level, AABB box) {
+public class EntityGetterUtil {
+    public static List<Entity> getEntities(ServerLevel level, AABB box) {
         EntitySectionStorage<Entity> storage = level.entityManager.sectionStorage;
         int xMin = SectionPos.posToSectionCoord(box.minX - 2.0);
         int yMin = SectionPos.posToSectionCoord(box.minY - 4.0);
@@ -33,16 +28,11 @@ public class EntitySectorCache implements IEntityGetter {
                     long key = SectionPos.asLong(x, y, z);
                     EntitySection<Entity> section = storage.getSection(key);
                     if (section == null || !section.getStatus().isAccessible()) continue;
-                    List<Entity> list = cache.get(key);
-                    if (list == null) {
-                        list = section.getEntities().toList();
-                        cache.put(key, list);
-                    }
-                    for (Entity e : list) {
+                    section.getEntities().forEach(e -> {
                         if (!e.isSpectator() && e.getBoundingBox().intersects(box)) {
                             allEntities.add(e);
                         }
-                    }
+                    });
                 }
             }
         }
@@ -52,8 +42,5 @@ public class EntitySectorCache implements IEntityGetter {
             }
         }
         return allEntities;
-    }
-    public void clear(){
-        cache.clear();
     }
 }

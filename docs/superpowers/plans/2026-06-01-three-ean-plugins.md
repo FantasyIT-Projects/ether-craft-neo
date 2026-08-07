@@ -168,7 +168,7 @@ import studio.fantasyit.ether_craft.node.plugins.feature.FeatureRedstoneSignal;
 
 ```java
 @Override
-protected boolean hasAnalogOutputSignal(@NotNull BlockState state) {
+private boolean hasAnalogOutputSignal(@NotNull BlockState state) {
     return true;
 }
 
@@ -177,7 +177,6 @@ protected int getAnalogOutputSignal(@NotNull BlockState state, Level level, @Not
     if (level.getBlockEntity(pos) instanceof EtherAdaptNodeEntity eane)
         return eane.getAnalogOutputSignal();
     return 0;
-}
 ```
 
 注意 `Level` 已 import（L15），`@NotNull` 注意匹配文件现有风格。
@@ -317,7 +316,7 @@ public class RedstoneSwitchUpgrade extends AbstractNodePlugin {
     public boolean preTick() {
         if (nodeEntity.getLevel() == null) return true;
         boolean hasSignal = nodeEntity.getLevel().hasNeighborSignal(nodeEntity.getBlockPos());
-        return workWithSignal ? hasSignal : !hasSignal;
+        return workWithSignal == hasSignal;
     }
 
     @Override

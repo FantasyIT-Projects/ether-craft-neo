@@ -8,7 +8,7 @@ import studio.fantasyit.ether_craft.block.base.EtherContainer;
 import studio.fantasyit.ether_craft.register.ItemRegistry;
 
 public class EtherSlotContainer implements Container {
-    private EtherContainer etherContainer;
+    private final EtherContainer etherContainer;
     public EtherSlotContainer(EtherContainer etherContainer){
         this.etherContainer = etherContainer;
     }

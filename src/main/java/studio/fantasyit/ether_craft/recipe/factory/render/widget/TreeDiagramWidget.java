@@ -17,34 +17,21 @@ public class TreeDiagramWidget {
     private final Map<String, Binding<?>> bindings = new HashMap<>();
     private String hoveredNodeId;
 
-    private static final class Binding<T> {
-        final NodeRenderer<? super T> renderer;
-        final NodeTooltipProvider<? super T> tooltip;
-        final NodeClickHandler<? super T> click;
-        final T data;
-
-        Binding(NodeRenderer<? super T> renderer,
-                NodeTooltipProvider<? super T> tooltip,
-                NodeClickHandler<? super T> click,
-                T data) {
-            this.renderer = renderer;
-            this.tooltip = tooltip;
-            this.click = click;
-            this.data = data;
-        }
+    private record Binding<T>(NodeRenderer<? super T> renderer, NodeTooltipProvider<? super T> tooltip,
+                              NodeClickHandler<? super T> click, T data) {
 
         @SuppressWarnings("unchecked")
-        List<Component> getTooltip(TreeDiagramLayout.PositionedNode node) {
-            return ((NodeTooltipProvider<T>) tooltip).getTooltip(data, node);
-        }
+            List<Component> getTooltip(TreeDiagramLayout.PositionedNode node) {
+                return tooltip.getTooltip(data, node);
+            }
 
-        @SuppressWarnings("unchecked")
-        void handleClick(TreeDiagramLayout.PositionedNode node, int button) {
-            if (click != null) {
-                ((NodeClickHandler<T>) click).onClick(data, node, button);
+            @SuppressWarnings("unchecked")
+            void handleClick(TreeDiagramLayout.PositionedNode node, int button) {
+                if (click != null) {
+                    click.onClick(data, node, button);
+                }
             }
         }
-    }
 
     public TreeDiagramWidget(int viewX, int viewY, int viewWidth, int viewHeight) {
         this.viewX = viewX;

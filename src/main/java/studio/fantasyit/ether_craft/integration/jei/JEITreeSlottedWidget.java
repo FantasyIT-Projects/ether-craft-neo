@@ -69,10 +69,7 @@ public class JEITreeSlottedWidget implements ISlottedRecipeWidget, IJeiInputHand
 
     @Override
     public void drawWidget(GuiGraphicsExtractor graphics, double mouseX, double mouseY) {
-        boolean noScissor = false;
-        if (Integrations.hasPowerTool() && graphics.guiRenderState != Minecraft.getInstance().gameRenderer.getGameRenderState().guiRenderState) {
-            noScissor = true;
-        }
+        boolean noScissor = Integrations.hasPowerTool() && graphics.guiRenderState != Minecraft.getInstance().gameRenderer.getGameRenderState().guiRenderState;
 
         if (!noScissor)
             graphics.enableScissor(0, 0, viewWidth, viewHeight);

@@ -4,17 +4,12 @@ import net.minecraft.resources.Identifier;
 import studio.fantasyit.ether_craft.EtherCraft;
 
 public class EtherAdapterNodeAtlas {
-    public static class GroupAtlasUV {
-        public final AtlasUV[] uvs;
-
-        public GroupAtlasUV(AtlasUV... uvs) {
-            this.uvs = uvs;
-        }
+    public record GroupAtlasUV(AtlasUV... uvs) {
 
         public AtlasUV get(int index) {
-            return uvs[index % uvs.length];
+                return uvs[index % uvs.length];
+            }
         }
-    }
 
     public static class AtlasUV {
         public final Identifier atlas;

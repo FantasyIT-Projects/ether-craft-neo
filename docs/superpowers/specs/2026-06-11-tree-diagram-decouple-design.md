@@ -102,26 +102,24 @@ A static factory `TreeDiagramSpec.fromJson(EtherProcessRecipeJson)` bridges from
 ### Output: `TreeDiagramLayout`
 
 ```java
-public final class TreeDiagramLayout {
-    public final List<PositionedNode> nodes;
-    public final List<Edge> edges;
-    public final PositionedOutput output;
-    public final int canvasWidth;
-    public final int canvasHeight;
-
+public record TreeDiagramLayout(List<PositionedNode> nodes, List<Edge> edges, PositionedOutput output, int canvasWidth,
+                                int canvasHeight) {
     public record PositionedNode(
-        String id,
-        int x, int y,           // top-left corner in world coords
-        int width, int height,  // bounding rect
-        int midY,               // Y midpoint (used for edge routing)
-        int exitX               // right-edge X (used for edge routing)
-    ) {}
+            String id,
+            int x, int y,           // top-left corner in world coords
+            int width, int height,  // bounding rect
+            int midY,               // Y midpoint (used for edge routing)
+            int exitX               // right-edge X (used for edge routing)
+    ) {
+    }
 
     public record PositionedOutput(
-        int x, int y, int width, int height, int midY
-    ) {}
+            int x, int y, int width, int height, int midY
+    ) {
+    }
 
-    public record Edge(int fromX, int fromY, int toX, int toY) {}
+    public record Edge(int fromX, int fromY, int toX, int toY) {
+    }
 }
 ```
 

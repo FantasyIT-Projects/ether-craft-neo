@@ -28,6 +28,6 @@ public class RedstoneSwitchUpgrade extends AbstractNodePlugin {
     public boolean preTick() {
         if (nodeEntity.getLevel() == null) return true;
         boolean hasSignal = nodeEntity.getCachedNeighborSignal();
-        return workWithSignal ? hasSignal : !hasSignal;
+        return workWithSignal == hasSignal;
     }
 }

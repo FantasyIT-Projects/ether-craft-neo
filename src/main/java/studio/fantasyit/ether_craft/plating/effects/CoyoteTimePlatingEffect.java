@@ -52,8 +52,7 @@ public class CoyoteTimePlatingEffect implements IPlatingEffect, IPlatingVirtualW
         if (jumpStartAt == null) return false;
         if (data.effect() <= 0) return false;
         if (data.hasCd() && !data.isCd(level)) return false;
-        if (!PlatingUtil.canExtractEther(stack, Config.platingCoyoteTimeEtherPerJump)) return false;
-        return true;
+        return PlatingUtil.canExtractEther(stack, Config.platingCoyoteTimeEtherPerJump);
     }
 
     @Override

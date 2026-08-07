@@ -18,7 +18,7 @@ public record AccelerateRepeatCounts(Mode mode, int repeat) {
         BOTH
     }
 
-    private static AccelerateRepeatCounts DEFAULT = new AccelerateRepeatCounts(Mode.RANDOM_TICK, 2);
+    private static final AccelerateRepeatCounts DEFAULT = new AccelerateRepeatCounts(Mode.RANDOM_TICK, 2);
     public static Codec<AccelerateRepeatCounts> CODEC = RecordCodecBuilder.create(i -> i.group(
             Codec.STRING.xmap(Mode::valueOf, Mode::name).fieldOf("mode").forGetter(AccelerateRepeatCounts::mode),
             Codec.INT.fieldOf("repeat").forGetter(AccelerateRepeatCounts::repeat)

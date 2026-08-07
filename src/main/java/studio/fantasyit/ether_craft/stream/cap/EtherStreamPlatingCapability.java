@@ -23,8 +23,8 @@ import studio.fantasyit.ether_craft.recipe.plating.PlatingRecipe;
 import studio.fantasyit.ether_craft.register.DataComponentRegistry;
 import studio.fantasyit.ether_craft.register.ItemRegistry;
 import studio.fantasyit.ether_craft.register.RecipeTypeRegistry;
-import studio.fantasyit.ether_craft.stream.IEntityGetter;
 import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
+import studio.fantasyit.ether_craft.util.EntityGetterUtil;
 
 import java.util.*;
 
@@ -38,7 +38,7 @@ public class EtherStreamPlatingCapability implements IStreamCapability {
     }
 
     @Override
-    public void tick(@UnknownNullability IEtherStreamLike streamEntity, IEntityGetter entityGetter) {
+    public void tick(@UnknownNullability IEtherStreamLike streamEntity) {
         if (!(streamEntity.level() instanceof ServerLevel level)) return;
 
         Optional<IStreamCapability> optStorage = streamEntity.getCapability(EtherStreamStorageCapability.ID);
@@ -46,7 +46,7 @@ public class EtherStreamPlatingCapability implements IStreamCapability {
                 .map(EtherStreamStorageCapability.class::cast).orElse(null);
 
         AABB currentBlockPos = new AABB(streamEntity.blockPosition());
-        List<ItemEntity> entities = entityGetter.getEntities(level, currentBlockPos).stream()
+        List<ItemEntity> entities = EntityGetterUtil.getEntities(level, currentBlockPos).stream()
                 .filter(ItemEntity.class::isInstance)
                 .map(ItemEntity.class::cast)
                 .filter(Entity::isAlive)

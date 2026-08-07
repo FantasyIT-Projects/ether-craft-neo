@@ -9,6 +9,7 @@ import org.jetbrains.annotations.Nullable;
 import studio.fantasyit.ether_craft.register.AttachmentDataRegistry;
 import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
 import studio.fantasyit.ether_craft.stream.PosDir;
+import studio.fantasyit.ether_craft.util.EntityGetterUtil;
 
 import java.util.*;
 
@@ -25,7 +26,6 @@ public class VirtualEtherStreamHolderManager {
 
     private final Map<PosDir, VirtualEtherStreamHolder> holders = new HashMap<>();
     private List<VESHEntry> lazyLoadData;
-    public final EntitySectorCache sectorCache = new EntitySectorCache();
 
     public static VirtualEtherStreamHolderManager empty() {
         return new VirtualEtherStreamHolderManager(null);
@@ -66,7 +66,6 @@ public class VirtualEtherStreamHolderManager {
     }
 
     public void tick(ServerLevel level) {
-        sectorCache.clear();
         ensureLazy(level);
         PlayerPayloadAccumulator acc = new PlayerPayloadAccumulator();
         HashSet<Map.Entry<PosDir, VirtualEtherStreamHolder>> keys = new HashSet<>(holders.entrySet());

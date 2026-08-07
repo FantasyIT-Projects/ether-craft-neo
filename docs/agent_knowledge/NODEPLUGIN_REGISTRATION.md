@@ -311,7 +311,7 @@ public class MainPageProvider extends BaseEtherNodeTabWidgetProvider<MainPageDum
 
     @Override
     public void extractWidgetRenderState(GuiGraphicsExtractor graphics, ...) {
-        super.extractWidgetRenderState(graphics, ...);
+        super.extractWidgetRenderState(graphics, ...)
         // 渲染以太条进度
         UIUtil.renderEtherBarProgress(
             screen.getMenu().entity.getEther(),
@@ -426,7 +426,7 @@ public class MyNewFunctionScreen extends BaseEtherNodeTabWidgetProvider<MyNewFun
 
     @Override
     public void extractWidgetRenderState(GuiGraphicsExtractor graphics, ...) {
-        super.extractWidgetRenderState(graphics, ...);
+        super.extractWidgetRenderState(graphics, ...)
         // 自定义渲染逻辑...
     }
 }

@@ -370,7 +370,7 @@ public class EtherProcessFactoryScreen extends AbstractContainerScreen<@NotNull 
     public boolean mouseDragged(MouseButtonEvent event, double dx, double dy) {
         if (menu.getCarried().is(ItemRegistry.WRENCH) && menu.quickPlaceChipSlotId != -1 && this.isQuickCrafting) {
             Slot slot = this.getHoveredSlot();
-            if (slot != null && menu.internalSlotMapping.containsKey(slot.index) && !this.quickCraftSlots.contains(slot)) {
+            if (slot != null && menu.internalSlotMapping.containsKey(slot.index)) {
                 this.quickCraftSlots.add(slot);
             }
             return true;

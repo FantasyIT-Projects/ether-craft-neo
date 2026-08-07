@@ -23,7 +23,7 @@ import java.util.List;
 
 public class MainPageDummyPlugin extends AbstractNodePlugin {
     public static final Identifier ID = EtherCraft.id("main_page_dummy");
-    private boolean filterActive = false;
+    private final boolean filterActive = false;
 
     public MainPageDummyPlugin(EtherAdaptNodeEntity nodeEntity, InstalledPlugin installedId) {
         super(nodeEntity, installedId);

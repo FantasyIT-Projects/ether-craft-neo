@@ -13,16 +13,16 @@ import java.util.List;
 import java.util.Map;
 
 public class MultiStepMatchIOTemp {
-    private List<SizedIngredient> inputs = new ArrayList<>();
-    private List<ItemStack> outputs = new ArrayList<>();
-    private List<ItemStack> extraOutputs = new ArrayList<>();
+    private final List<SizedIngredient> inputs = new ArrayList<>();
+    private final List<ItemStack> outputs = new ArrayList<>();
+    private final List<ItemStack> extraOutputs = new ArrayList<>();
 
-    private List<Integer> inputBelongsTo = new ArrayList<>();
-    private List<Integer> outputBelongsTo = new ArrayList<>();
-    private List<Integer> extraOutputsBelongsTo = new ArrayList<>();
+    private final List<Integer> inputBelongsTo = new ArrayList<>();
+    private final List<Integer> outputBelongsTo = new ArrayList<>();
+    private final List<Integer> extraOutputsBelongsTo = new ArrayList<>();
 
-    private Map<Integer, Integer> nodeMultipliersInner = new HashMap<>();
-    private Map<Integer, Integer> nodeMultipliersOuter = new HashMap<>();
+    private final Map<Integer, Integer> nodeMultipliersInner = new HashMap<>();
+    private final Map<Integer, Integer> nodeMultipliersOuter = new HashMap<>();
 
 
     public void addInput(SizedIngredient stack, int outId) {

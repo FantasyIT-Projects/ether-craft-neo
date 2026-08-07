@@ -17,7 +17,7 @@ public class EntityRegistry {
             DeferredRegister.create(Registries.ENTITY_TYPE, EtherCraft.MODID);
     public static final DeferredHolder<EntityType<?>, @NotNull EntityType<EtherStreamEntity>> ETHER_STREAM_ENTITY = ENTITY_TYPE_REGISTER.register(
             "ether_stream",
-            (l) -> EntityType.Builder.of((EntityType.EntityFactory<EtherStreamEntity>) EtherStreamEntity::new, MobCategory.MISC)
+            (l) -> EntityType.Builder.of(EtherStreamEntity::new, MobCategory.MISC)
                     .setShouldReceiveVelocityUpdates(true)
                     .setUpdateInterval(1)
                     .setTrackingRange(128)

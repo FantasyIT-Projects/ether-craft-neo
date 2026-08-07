@@ -6,12 +6,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public class PlatingRecipeInput implements RecipeInput {
-    public final List<ItemStack> items;
-
-    public PlatingRecipeInput(List<ItemStack> items) {
-        this.items = items;
-    }
+public record PlatingRecipeInput(List<ItemStack> items) implements RecipeInput {
 
     @Override
     public @NotNull ItemStack getItem(int i) {

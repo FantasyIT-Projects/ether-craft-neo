@@ -77,7 +77,7 @@ public class PlatingRecipe implements Recipe<PlatingRecipeInput> {
 
     @Override
     public boolean matches(PlatingRecipeInput input, Level level) {
-        return matches(input.items);
+        return matches(input.items());
     }
 
     @Override

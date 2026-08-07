@@ -23,7 +23,6 @@ import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.register.AttachmentDataRegistry;
 import studio.fantasyit.ether_craft.register.Tags;
 import studio.fantasyit.ether_craft.stream.EtherConsumer;
-import studio.fantasyit.ether_craft.stream.IEntityGetter;
 import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
 import studio.fantasyit.ether_craft.stream.data.EtherStreamCarryingEntityData;
 
@@ -64,7 +63,7 @@ public class EtherStreamCarryEntityCapability implements IStreamCapability {
     }
 
     @Override
-    public void tick(IEtherStreamLike streamEntity, IEntityGetter entityGetter) {
+    public void tick(IEtherStreamLike streamEntity) {
         EtherStreamCarryingEntityData data = getCarriedData(streamEntity);
         if (data == null) {
             cachedEntity = null;
@@ -169,10 +168,7 @@ public class EtherStreamCarryEntityCapability implements IStreamCapability {
             return true;
 
         int cooldown = entity.getData(AttachmentDataRegistry.CARRY_COOLDOWN.get());
-        if (entity.tickCount - cooldown < 40)
-            return true;
-
-        return false;
+        return entity.tickCount - cooldown < 40;
     }
 
     public void forceTakeEntity(IEtherStreamLike streamEntity, Entity entity) {

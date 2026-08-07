@@ -654,21 +654,8 @@ public class TreeDiagramWidget {
     private final Map<String, Binding<?>> bindings = new HashMap<>();
     private String hoveredNodeId;
 
-    private static final class Binding<T> {
-        final NodeRenderer<? super T> renderer;
-        final NodeTooltipProvider<? super T> tooltip;
-        final NodeClickHandler<? super T> click;
-        final T data;
-
-        Binding(NodeRenderer<? super T> renderer,
-                NodeTooltipProvider<? super T> tooltip,
-                NodeClickHandler<? super T> click,
-                T data) {
-            this.renderer = renderer;
-            this.tooltip = tooltip;
-            this.click = click;
-            this.data = data;
-        }
+    private record Binding<T>(NodeRenderer<? super T> renderer, NodeTooltipProvider<? super T> tooltip,
+                              NodeClickHandler<? super T> click, T data) {
     }
 
     public TreeDiagramWidget(int viewX, int viewY, int viewWidth, int viewHeight) {
@@ -685,8 +672,8 @@ public class TreeDiagramWidget {
     }
 
     public <T> void bindNode(String id, NodeRenderer<T> renderer,
-                              NodeTooltipProvider<T> tooltip,
-                              NodeClickHandler<T> click, T data) {
+                             NodeTooltipProvider<T> tooltip,
+                             NodeClickHandler<T> click, T data) {
         bindings.put(id, new Binding<>(renderer, tooltip, click, data));
     }
 
@@ -706,7 +693,7 @@ public class TreeDiagramWidget {
         g.enableScissor(viewX, viewY, viewX + viewport.viewWidth, viewY + viewport.viewHeight);
 
         g.pose().pushMatrix();
-        g.pose().translate((float)(viewX + viewport.panX), (float)(viewY + viewport.panY));
+        g.pose().translate((float) (viewX + viewport.panX), (float) (viewY + viewport.panY));
         g.pose().scale((float) viewport.zoom, (float) viewport.zoom);
 
         EdgeBatchRenderer.render(g, layout.edges);
@@ -742,8 +729,8 @@ public class TreeDiagramWidget {
 
     @SuppressWarnings("unchecked")
     private <T> void renderNode(Binding<T> binding, GuiGraphicsExtractor g,
-                                 TreeDiagramLayout.PositionedNode node,
-                                 double worldMX, double worldMY) {
+                                TreeDiagramLayout.PositionedNode node,
+                                double worldMX, double worldMY) {
         NodeRenderer<T> renderer = (NodeRenderer<T>) binding.renderer;
         renderer.render(g, node, binding.data, worldMX, worldMY);
     }
@@ -772,7 +759,7 @@ public class TreeDiagramWidget {
     }
 
     public boolean mouseDragged(double mouseX, double mouseY, int button,
-                                 double dragX, double dragY) {
+                                double dragX, double dragY) {
         return inputHandler.handleMouseDragged(mouseX - viewX, mouseY - viewY,
                 button, dragX, dragY);
     }
@@ -799,7 +786,7 @@ public class TreeDiagramWidget {
     }
 
     private static boolean mouseInNode(TreeDiagramLayout.PositionedNode node,
-                                        double worldX, double worldY) {
+                                       double worldX, double worldY) {
         return worldX >= node.x() && worldX < node.x() + node.width()
                 && worldY >= node.y() && worldY < node.y() + node.height();
     }

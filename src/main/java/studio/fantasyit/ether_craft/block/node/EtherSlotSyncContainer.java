@@ -13,7 +13,7 @@ import studio.fantasyit.ether_craft.register.ItemRegistry;
 
 public class EtherSlotSyncContainer implements Container, ResourceHandler<ItemResource> {
     private final EtherJournal journal;
-    private EtherContainer etherContainer;
+    private final EtherContainer etherContainer;
 
     public EtherSlotSyncContainer(EtherContainer etherContainer) {
         this.etherContainer = etherContainer;

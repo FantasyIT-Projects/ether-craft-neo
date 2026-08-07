@@ -35,7 +35,6 @@ import studio.fantasyit.ether_craft.plating.helper.PlatingChargingUtil;
 import studio.fantasyit.ether_craft.plating.helper.PlatingUtil;
 import studio.fantasyit.ether_craft.register.*;
 import studio.fantasyit.ether_craft.stream.EtherConsumer;
-import studio.fantasyit.ether_craft.stream.IEntityGetter;
 import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
 import studio.fantasyit.ether_craft.stream.PosDir;
 import studio.fantasyit.ether_craft.stream.cap.IStreamCapability;
@@ -65,7 +64,7 @@ public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
     public int tailHead = -1;
     public int tailCount;
     private PosDir posDir;
-    private List<IStreamCapability> capabilities = new ArrayList<>();
+    private final List<IStreamCapability> capabilities = new ArrayList<>();
     public final EtherConsumer consumer = new EtherConsumer();
     private List<IEtherStreamSyncedData> toSyncData = new ArrayList<>();
 
@@ -197,7 +196,7 @@ public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
             }
 
             for (IStreamCapability capability : capabilities) {
-                capability.tick(this, IEntityGetter.DUMMY);
+                capability.tick(this);
             }
             int consumption = consumer.getTotalConsumption(ether, tickCount);
             this.consumeEtherInternal(consumption);
@@ -240,8 +239,7 @@ public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
         }
         if (entity instanceof ItemEntity ie) {
             if (PlatingUtil.isPlatedItemEntity(ie)) return false;
-            if (ie.getItem().is(Items.GLASS)) return false;
-            return true;
+            return !ie.getItem().is(Items.GLASS);
         }
         for (IStreamCapability cap : capabilities)
             if (cap.shouldPassThrough(entity))

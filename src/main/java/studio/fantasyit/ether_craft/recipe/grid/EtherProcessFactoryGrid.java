@@ -151,9 +151,7 @@ public class EtherProcessFactoryGrid implements Recipe<EtherProcessFactoryGridIn
     @Override
     public boolean matches(EtherProcessFactoryGridInput etherProcessFactoryGridInput, Level level) {
         Rect rect = getRect();
-        if (rect.height > etherProcessFactoryGridInput.h() || rect.width > etherProcessFactoryGridInput.w())
-            return false;
-        return true;
+        return rect.height <= etherProcessFactoryGridInput.h() && rect.width <= etherProcessFactoryGridInput.w();
     }
 
     @Override
@@ -215,7 +213,7 @@ public class EtherProcessFactoryGrid implements Recipe<EtherProcessFactoryGridIn
         return _rect;
     }
 
-    private static int[][] DIRECTIONS = {
+    private static final int[][] DIRECTIONS = {
             {0, 1},
             {0, -1},
             {1, 0},
