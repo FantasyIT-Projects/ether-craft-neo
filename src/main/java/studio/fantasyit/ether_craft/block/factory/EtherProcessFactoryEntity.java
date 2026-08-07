@@ -85,6 +85,9 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
     //上次 processFactoryInput 的候选缓存（芯片布局不变时复用，仅刷新输入引用）
     private List<EtherFactoryMultiStepInput> cachedCandidates = null;
     private int cachedLeak = 0;
+    //服务端以太分配参数缓存（仅芯片布局变化或配置热改时重算）
+    private long cachedMinSum = 0;
+    private int lastConfigVersion = Config.configVersion;
     //服务端累计芯片以太总和（Jade 显示用）
     public long chipEtherTotal = 0;
     //芯片标准存量标尺总和（GUI 以太条填充参考，经 data slot 同步）
@@ -139,7 +142,7 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
     public void updateChips() {
         for (int i = 0; i < ROWS; i++) {
             for (int j = 0; j < COLS; j++) {
-                ItemStack itemStack = internalContainer.getItem(i * ROWS + j);
+                ItemStack itemStack = internalContainer.getItem(i * COLS + j);
                 @Nullable EtherProcessWorkingChip originalChip = slotChips[i][j];
                 if (originalChip != null && itemStack == originalChip.item)
                     continue;
@@ -164,14 +167,28 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
             }
         }
 
-        //计算最小输入量的总和
-        long minSum = 0;
-        for (int i = 0; i < ROWS; i++)
-            for (int j = 0; j < COLS; j++) {
-                EtherProcessWorkingChip chip = slotChips[i][j];
-                if (chip == null || chip.item.isEmpty()) continue;
-                minSum += Math.round(Config.factoryReserveMultiplier * chip.etherConsume);
+        //计算最小输入量的总和（仅芯片布局变化或配置热改时重算缓存）
+        boolean needRefresh = lastConfigVersion != Config.configVersion;
+        if (needRefresh || chipLayoutDirty) {
+            if (needRefresh) {
+                lastConfigVersion = Config.configVersion;
+                for (int i = 0; i < ROWS; i++)
+                    for (int j = 0; j < COLS; j++) {
+                        EtherProcessWorkingChip chip = slotChips[i][j];
+                        if (chip == null || chip.item.isEmpty()) continue;
+                        chip.refreshReservePer();
+                    }
             }
+            long sum = 0;
+            for (int i = 0; i < ROWS; i++)
+                for (int j = 0; j < COLS; j++) {
+                    EtherProcessWorkingChip chip = slotChips[i][j];
+                    if (chip == null || chip.item.isEmpty()) continue;
+                    sum += chip.reservePer;
+                }
+            cachedMinSum = sum;
+        }
+        long minSum = cachedMinSum;
 
         //如果有任何可以输入以太的芯片
         if (minSum > 0) {
@@ -183,17 +200,19 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
                     for (int j = 0; j < COLS; j++) {
                         EtherProcessWorkingChip chip = slotChips[i][j];
                         if (chip == null || chip.item.isEmpty()) continue;
-                        long addPer = Math.round(Config.factoryReserveMultiplier * chip.etherConsume);
+                        long addPer = chip.reservePer;
                         long add = addPer * batches;
                         long capped;
                         if (add >= Integer.MAX_VALUE - chip.ether) capped = Integer.MAX_VALUE;
                         else capped = chip.ether + add;
+                        if (capped == chip.ether) continue;
                         distributed += capped - chip.ether;
                         chip.ether = capped;
                     }
                 machineEther -= Math.min(distributed, machineEther);
+                if (machineEther != getEther())
+                    setEtherNoUpdate(machineEther);
             }
-            setEtherNoUpdate(machineEther);
         }
         //芯片tick（消耗）
         long etherTotal = 0;

@@ -549,6 +549,7 @@ public class Config {
     public static double factoryOvershoot;
     public static double factoryPeakRatio;
     public static double factoryDecayLambda;
+    public static int configVersion = 0;
 
     @SubscribeEvent
     static void onLoad(final ModConfigEvent event) {
@@ -648,5 +649,6 @@ public class Config {
         factoryOvershoot = FACTORY_OVERSHOOT.get();
         factoryPeakRatio = FACTORY_PEAK_RATIO.get();
         factoryDecayLambda = FACTORY_DECAY_LAMBDA.get();
+        configVersion++;
     }
 }

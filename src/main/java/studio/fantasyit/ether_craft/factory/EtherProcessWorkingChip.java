@@ -22,6 +22,7 @@ public class EtherProcessWorkingChip {
     public long storage;
     public long etherConsume;
     public EtherProcessChipManager.ProcessChipEffectConfig effect;
+    public long reservePer;
 
     private EtherProcessWorkingChip() {
         this(ItemStack.EMPTY, 0, 0, 0);
@@ -47,6 +48,7 @@ public class EtherProcessWorkingChip {
             this.effect = r.effect();
         }
         this.ether = Math.max(0, beforeEther);
+        this.reservePer = Math.round(Config.factoryReserveMultiplier * this.etherConsume);
     }
 
     public EtherProcessWorkingChip(ItemStack item, long ether, long storage, long etherConsume) {
@@ -59,6 +61,11 @@ public class EtherProcessWorkingChip {
         this.storage = storage;
         this.etherConsume = etherConsume;
         this.effect = effect;
+        this.reservePer = Math.round(Config.factoryReserveMultiplier * etherConsume);
+    }
+
+    public void refreshReservePer() {
+        this.reservePer = Math.round(Config.factoryReserveMultiplier * this.etherConsume);
     }
 
     /**
@@ -71,25 +78,28 @@ public class EtherProcessWorkingChip {
         double a = Config.factoryBaseRatio;
         if (ether <= t) return ether * a;
         if (t <= 0) return 0;
-        double x = ether / t;
         double r = Config.factoryPeakRatio;
-        double y = (x - 1) / (r - 1);
+        double denom = r - 1;
+        double y = (ether / t - 1) / denom;
         double h = Config.factoryOvershoot * y * Math.exp(Config.factoryDecayLambda * (1 - y));
         return t * a * (1 + h);
     }
 
     /**
-     * 速度倍率 p(e) = floor(1 + e/storage)（始终取整）
+     * 速度倍率 p(e) = max(1, 1 + floor(e/storage))（整数运算，与 floor(1 + e/storage) 等价）
      */
-    public double speedMul() {
+    public long speedMul() {
         if (storage <= 0) return 1;
-        return Math.max(1, Math.floor(1 + (double) ether / storage));
+        return Math.max(1, 1 + ether / storage);
     }
 
     /**
      * 每 tick 维持开销 C(e) = base(e) * p(e)
      */
     public long maintainCost() {
+        if (ether <= 0) return 0;
+        if (ether <= etherConsume)
+            return Math.round(ether * Config.factoryBaseRatio * speedMul());
         return Math.round(baseCost() * speedMul());
     }
 
@@ -97,6 +107,7 @@ public class EtherProcessWorkingChip {
      * 每 tick 扣除维持开销
      */
     public void tickMaintain() {
+        if (ether <= 0) return;
         ether = Math.max(0, ether - maintainCost());
     }
 
