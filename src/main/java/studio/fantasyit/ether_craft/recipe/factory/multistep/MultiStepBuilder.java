@@ -68,7 +68,7 @@ public class MultiStepBuilder {
 
         int maxDepth = workingPath.stream().mapToInt(PathNode::depth).max().orElse(0);
 
-        return new EtherFactoryMultiStepInput(refTree, inputIds, inputStacks, outputI, relevantChip, workingPath, maxDepth, outputPositions, globalOutputMapping, new HashMap<>());
+        return new EtherFactoryMultiStepInput(refTree, inputIds, inputStacks, outputI, relevantChip, workingPath, maxDepth, outputPositions, globalOutputMapping, new HashMap<>(), inputTreeIds);
     }
 
     public void trimScanAndTransformTree(

@@ -82,6 +82,9 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
     boolean chipLayoutDirty = true;
     final boolean[] inputDirty;
     final ItemStack[] lastInputStacks;
+    //上次 processFactoryInput 的候选缓存（芯片布局不变时复用，仅刷新输入引用）
+    private List<EtherFactoryMultiStepInput> cachedCandidates = null;
+    private int cachedLeak = 0;
     //服务端累计芯片以太总和（Jade 显示用）
     public long chipEtherTotal = 0;
     //芯片标准存量标尺总和（GUI 以太条填充参考，经 data slot 同步）
@@ -132,6 +135,7 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
         if (level != null && !level.isClientSide())
             markUpdate = true;
     }
+
     public void updateChips() {
         for (int i = 0; i < ROWS; i++) {
             for (int j = 0; j < COLS; j++) {
@@ -139,8 +143,11 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
                 @Nullable EtherProcessWorkingChip originalChip = slotChips[i][j];
                 if (originalChip != null && itemStack == originalChip.item)
                     continue;
-                if (originalChip != null && !itemStack.isEmpty() && isSameChip(itemStack, originalChip.item))
+                if (originalChip != null && !itemStack.isEmpty() && isSameChip(itemStack, originalChip.item)) {
+                    //重置为同一物品引用来节约时间
+                    originalChip.item = itemStack;
                     continue;
+                }
                 if (itemStack.isEmpty() && originalChip == null)
                     continue;
                 //芯片布局变化时，完整重新计算所有配方
@@ -227,7 +234,23 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
     }
 
     public void updateRecipe(ServerLevel level, boolean inputChangeOnly) {
-        EtherProcessorRecipeUtil.FactoryStructure factoryStructure = EtherProcessorRecipeUtil.processFactoryInput(ROWS, COLS, inputContainer, slotChips);
+        EtherProcessorRecipeUtil.FactoryStructure factoryStructure;
+        if (!chipLayoutDirty && cachedCandidates != null) {
+            //芯片布局未变：复用缓存候选，仅刷新输入引用，跳过 processFactoryInput 的全量扫描/建树
+            List<EtherFactoryMultiStepInput> recipes = new ArrayList<>(cachedCandidates.size());
+            for (EtherFactoryMultiStepInput candidate : cachedCandidates) {
+                if (candidate != null)
+                    recipes.add(candidate.refreshedWith(inputContainer));
+            }
+            factoryStructure = new EtherProcessorRecipeUtil.FactoryStructure(ROWS, COLS);
+            factoryStructure.recipes = recipes;
+            factoryStructure.leakingSpeed = cachedLeak;
+        } else {
+            //芯片布局变化或首次加载：全量重建并更新缓存
+            factoryStructure = EtherProcessorRecipeUtil.processFactoryInput(ROWS, COLS, inputContainer, slotChips);
+            cachedCandidates = factoryStructure.recipes;
+            cachedLeak = factoryStructure.leakingSpeed;
+        }
         leak = factoryStructure.leakingSpeed;
         boolean[] hasRecipe = new boolean[ROWS];
         boolean[][] affected = new boolean[ROWS][COLS];
@@ -326,12 +349,21 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
         boolean changed = false;
         for (int i = 0; i < this.processingRecipes.length; i++) {
             if (this.processingRecipes[i] != null) {
-                if (this.processingInputs[i].relevantChip().stream().anyMatch(item -> (!item.canWork()))) {
+                Set<EtherProcessWorkingChip> relevant = this.processingInputs[i].relevantChip();
+                boolean canWorkAll = true;
+                double pMin = Double.POSITIVE_INFINITY;
+                for (EtherProcessWorkingChip chip : relevant) {
+                    if (!chip.canWork()) {
+                        canWorkAll = false;
+                        break;
+                    }
+                    double s = chip.speedMul();
+                    if (s < pMin) pMin = s;
+                }
+                if (!canWorkAll) {
                     processingProgress[i] = 0;
                 } else if (processingProgress[i] < MAX_PROGRESS * processingRecipes[i].maxStepMultiplier()) {
-                    double pMin = this.processingInputs[i].relevantChip().stream()
-                            .mapToDouble(EtherProcessWorkingChip::speedMul).min().orElse(1);
-                    processingProgress[i] += (int) pMin;
+                    processingProgress[i] += pMin == Double.POSITIVE_INFINITY ? 1 : (int) pMin;
                 } else {
                     consumeAndPlaceOutput(i);
                     processingProgress[i] = 0;
@@ -514,8 +546,9 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
         MultiStepMatchIO recipe = processingRecipes[row];
         EtherFactoryMultiStepInput input = processingInputs[row];
 
-        if (!input.relevantChip().stream().allMatch(EtherProcessWorkingChip::canConsume))
-            return false;
+        for (EtherProcessWorkingChip chip : input.relevantChip()) {
+            if (!chip.canConsume()) return false;
+        }
 
         ItemStack[] results = new ItemStack[recipe.outputs().size()];
         for (int j = 0; j < recipe.outputs().size(); j++) {
