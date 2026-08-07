@@ -59,10 +59,10 @@ public class VirtualEtherStreamHolder {
     CachedEtherStreamEntry lastCreateSnapshot = null;
     private int blockScanTickCounter = 0;
     private int cachedMaxClipDist = -1;
-    private List<BlockState> cachedBlockStates;
-    private List<BlockPos> cachedBlockPoses;
-    private List<VoxelShape> cachedShapes;
-    private List<Boolean> cachedIsPassThrough;
+    private BlockState[] cachedBlockStates;
+    private BlockPos[] cachedBlockPoses;
+    private VoxelShape[] cachedShapes;
+    private boolean[] cachedSkip;
 
 
     public VirtualEtherStreamHolder(PosDir posDir, @NotNull ServerLevel level) {
@@ -176,23 +176,23 @@ public class VirtualEtherStreamHolder {
         if (!expired && !tooSmall) return;
         blockScanTickCounter = 0;
         cachedMaxClipDist = maxClipDist;
-        List<BlockState> blockStates = new ArrayList<>(maxClipDist + 1);
-        List<BlockPos> blockPoses = new ArrayList<>(maxClipDist + 1);
-        List<VoxelShape> shapes = new ArrayList<>(maxClipDist + 1);
-        List<Boolean> isPassThrough = new ArrayList<>(maxClipDist + 1);
+        BlockState[] blockStates = new BlockState[maxClipDist + 1];
+        BlockPos[] blockPoses = new BlockPos[maxClipDist + 1];
+        VoxelShape[] shapes = new VoxelShape[maxClipDist + 1];
+        boolean[] skip = new boolean[maxClipDist + 1];
         BlockPos.MutableBlockPos blockScanPos = pos.mutable();
         for (int i = 0; i <= maxClipDist; i++) {
             BlockState blockState = level.getBlockState(blockScanPos);
-            blockStates.add(blockState);
-            blockPoses.add(blockScanPos.immutable());
-            shapes.add(blockState.getCollisionShape(level, blockScanPos));
-            isPassThrough.add(!blockState.isAir() && blockState.is(Tags.ETHER_STREAM_PASS_THROUGH));
+            blockStates[i] = blockState;
+            blockPoses[i] = blockScanPos.immutable();
+            shapes[i] = blockState.getCollisionShape(level, blockScanPos);
+            skip[i] = blockState.isAir() || blockState.is(Tags.ETHER_STREAM_PASS_THROUGH) || shapes[i].isEmpty();
             blockScanPos.move(direction);
         }
         cachedBlockStates = blockStates;
         cachedBlockPoses = blockPoses;
         cachedShapes = shapes;
-        cachedIsPassThrough = isPassThrough;
+        cachedSkip = skip;
     }
 
     private void tickCollideAll(int maxBlockDist) {
@@ -210,10 +210,10 @@ public class VirtualEtherStreamHolder {
         if (anyNormalStream) {
             ensureBlockSnapshot(maxClipDist);
         }
-        List<BlockState> blockStates = cachedBlockStates;
-        List<BlockPos> blockPoses = cachedBlockPoses;
-        List<VoxelShape> shapes = cachedShapes;
-        List<Boolean> isPassThrough = cachedIsPassThrough;
+        BlockState[] blockStates = cachedBlockStates;
+        BlockPos[] blockPoses = cachedBlockPoses;
+        VoxelShape[] shapes = cachedShapes;
+        boolean[] skip = cachedSkip;
         List<Entity> canHitEntity = null;
         if (anyNormalStream) {
             canHitEntity = new ArrayList<>(allEntities);
@@ -232,12 +232,17 @@ public class VirtualEtherStreamHolder {
                 continue;
             }
 
-            int clipStart = Math.clamp(ves.blockDistancePrev(), 0, blockStates.size() - 1);
-            int clipEnd = Math.clamp(ves.blockDistance(), 0, blockStates.size() - 1);
+            int clipStart = Math.clamp(ves.blockDistancePrev(), 0, blockStates.length - 1);
+            int clipEnd = Math.clamp(ves.blockDistance(), 0, blockStates.length - 1);
             Vec3 newPos = ves.position();
             Vec3 oldPos = newPos.subtract(ves.motion);
-            //获取最近的方块碰撞
-            BlockHitResult blockHit = collideTryBlock(ves, blockStates, blockPoses, isPassThrough, shapes, clipStart, clipEnd, oldPos, newPos);
+            BlockHitResult blockHit;
+            if (collideBlockSkipAll(skip, clipStart, clipEnd)) {
+                blockHit = null;
+            } else {
+                //获取最近的方块碰撞
+                blockHit = collideTryBlock(ves, blockStates, blockPoses, skip, shapes, clipStart, clipEnd, oldPos, newPos);
+            }
             double blockDist = blockHit != null ? oldPos.distanceToSqr(blockHit.getLocation()) : Double.MAX_VALUE;
             //判断必方块更近的实体碰撞
             EntityHitResult entityHit = collideTryEntity(ves, canHitEntity, blockDist, oldPos);
@@ -261,9 +266,9 @@ public class VirtualEtherStreamHolder {
                 Vec3 oldPosF = newPosF.subtract(ves.motion);
                 BlockPos oldPos = BlockPos.containing(oldPosF);
                 BlockPos newPos = BlockPos.containing(newPosF);
-                int id1 = Math.clamp(bdp, 0, blockStates.size() - 1);
-                int id2 = Math.clamp(bd, 0, blockStates.size() - 1);
-                ves.onRunIntoNewBlock(oldPos, blockStates.get(id1), newPos, blockStates.get(id2));
+                int id1 = Math.clamp(bdp, 0, blockStates.length - 1);
+                int id2 = Math.clamp(bd, 0, blockStates.length - 1);
+                ves.onRunIntoNewBlock(oldPos, blockStates[id1], newPos, blockStates[id2]);
             }
         }
     }
@@ -356,31 +361,33 @@ public class VirtualEtherStreamHolder {
         return hit;
     }
 
-    private @Nullable BlockHitResult collideTryBlock(VirtualEtherStream ves, List<BlockState> blockStates, List<BlockPos> blockPoses, List<Boolean> isPassThrough, List<VoxelShape> shapes, int clipStart, int clipEnd, Vec3 oldPos, Vec3 newPos) {
-        BlockHitResult blockHit = null;
+    private boolean collideBlockSkipAll(boolean[] skip, int clipStart, int clipEnd) {
         for (int j = clipStart; j <= clipEnd; j++) {
-            BlockState blockState = blockStates.get(j);
-            if (blockState.isAir()) continue;
-            BlockPos pos = blockPoses.get(j);
-            if (isPassThrough.get(j)) continue;
-            boolean skip = false;
+            if (!skip[j]) return false;
+        }
+        return true;
+    }
+
+    private @Nullable BlockHitResult collideTryBlock(VirtualEtherStream ves, BlockState[] blockStates, BlockPos[] blockPoses, boolean[] skip, VoxelShape[] shapes, int clipStart, int clipEnd, Vec3 oldPos, Vec3 newPos) {
+        for (int j = clipStart; j <= clipEnd; j++) {
+            if (skip[j]) continue;
+            BlockState blockState = blockStates[j];
+            BlockPos pos = blockPoses[j];
+            boolean passThrough = false;
             for (IStreamCapability cap : ves.capabilities) {
                 if (cap.shouldPassThrough(blockState, level, pos)) {
-                    skip = true;
+                    passThrough = true;
                     break;
                 }
             }
-            if (skip)
+            if (passThrough)
                 continue;
-            VoxelShape shape = shapes.get(j);
-            if (shape.isEmpty()) continue;
-            BlockHitResult hit = shape.clip(oldPos, newPos, pos);
+            BlockHitResult hit = shapes[j].clip(oldPos, newPos, pos);
             if (hit != null) {
-                blockHit = hit;
-                break;
+                return hit;
             }
         }
-        return blockHit;
+        return null;
     }
 
     private void updateTracking() {
