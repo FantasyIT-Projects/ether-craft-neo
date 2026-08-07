@@ -4,6 +4,7 @@ import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Vec3i;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
@@ -29,14 +30,18 @@ import java.util.List;
 import java.util.Optional;
 
 public class VirtualEtherStream implements IEtherStreamLike {
-    Vec3 pos;
     final Level level;
     final Direction direction;
     final float startOffset;
     final float startSpeed;
     final Vec3 motion;
     final PosDir posDir;
+    final Vec3 startPos;
+    final Vec3 offsetUnit;
+    final Vec3 offsetCenter;
+    final Vec3i blockOffsetUnit;
 
+    public float currentDistance;
     public boolean trackingDirty = false;
     public boolean trackingInitial = true;
     public boolean markToSyncCreation = false;
@@ -66,19 +71,23 @@ public class VirtualEtherStream implements IEtherStreamLike {
         this.streamId = streamId;
         this.ether = ether;
         this.level = level;
-        this.motion = posDir.dir().getUnitVec3().scale(startSpeed);
+        this.blockOffsetUnit = posDir.dir().getUnitVec3i();
+        this.offsetUnit = posDir.dir().getUnitVec3();
+        this.offsetCenter = posDir.pos().getCenter();
+        this.startPos = offsetCenter.add(offsetUnit.scale(startOffset));
+        this.motion = offsetUnit.scale(startSpeed);
         this.holder = holder;
         this.markToSyncCreation = true;
-        this.pos = posDir.pos().getCenter().add(posDir.dir().getUnitVec3().scale(startOffset));
         this.direction = posDir.dir();
         this.posDir = posDir;
-        BlockState blockState = level.getBlockState(BlockPos.containing(this.pos));
+        this.currentDistance = startOffset + startSpeed * tickCount;
+        BlockState blockState = level.getBlockState(BlockPos.containing(startPos));
         this.setRunIntoEtherGlass(EtherGlassUtil.isEtherGlass(blockState));
         this.needsEtherConsumerSync = false;
         this.needsEtherSync = false;
         if (level instanceof ServerLevel sl) {
             sl.getServer().getPlayerList().getPlayers().forEach(player -> {
-                if (player.distanceToSqr(pos) <= Config.etherStreamSyncDistance * Config.etherStreamSyncDistance)
+                if (player.distanceToSqr(startPos) <= Config.etherStreamSyncDistance * Config.etherStreamSyncDistance)
                     trackingPlayers.add(player.getId());
             });
         }
@@ -86,12 +95,12 @@ public class VirtualEtherStream implements IEtherStreamLike {
 
     @Override
     public BlockPos blockPosition() {
-        return BlockPos.containing(pos);
+        return posDir.pos().offset(this.blockOffsetUnit.multiply(blockDistance()));
     }
 
     @Override
     public Vec3 position() {
-        return pos;
+        return offsetCenter.add(offsetUnit.scale(currentDistance));
     }
 
     @Override
@@ -162,6 +171,14 @@ public class VirtualEtherStream implements IEtherStreamLike {
         return false;
     }
 
+    public int blockDistance() {
+        //从center开始计算的完整长度，当超过0.5，曼哈顿距离会+1，又因为正整数，直接转换到整型即可。
+        return (int) (currentDistance + 0.5);
+    }
+    public int blockDistancePrev() {
+        return (int) (currentDistance + 0.5 - startSpeed);
+    }
+
     public boolean isDisplayTime() {
         return getCapability(EtherStreamDisplayTimeCapability.ID).isPresent();
     }
@@ -220,7 +237,6 @@ public class VirtualEtherStream implements IEtherStreamLike {
             this.needsEtherConsumerSync = true;
         }
 
-
         if (this.tickCount == 0) {
             for (IStreamCapability cap : this.capabilities) {
                 cap.firstTick(this);
@@ -240,6 +256,10 @@ public class VirtualEtherStream implements IEtherStreamLike {
         if (this.getEther() <= 0 || this.tickCount > Config.etherStreamMaxTick) {
             this.markDead(null);
         }
+
+        if (this.markToRemove) return;
+
+        currentDistance += this.startSpeed;
     }
 
     public IEtherStreamLike recreate(BlockPos pos, Direction direction, float offset, float speed) {
@@ -314,7 +334,6 @@ public class VirtualEtherStream implements IEtherStreamLike {
     VirtualEtherStreamData toData() {
         return new VirtualEtherStreamData(
                 streamId,
-                pos,
                 startOffset,
                 startSpeed,
                 posDir,
@@ -336,7 +355,6 @@ public class VirtualEtherStream implements IEtherStreamLike {
                 level,
                 holder
         );
-        ves.pos = data.pos();
         ves.tickCount = data.tickCount();
         ves.consumer.fromState(data.consumerState());
         ves.capabilities.addAll(data.capabilities());

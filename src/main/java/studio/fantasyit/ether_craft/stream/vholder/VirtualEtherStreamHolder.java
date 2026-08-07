@@ -40,7 +40,9 @@ import studio.fantasyit.ether_craft.stream.idx.AutoIndexPosDir;
 import studio.fantasyit.ether_craft.stream.idx.IndexMappingManager;
 import studio.fantasyit.ether_craft.util.LevelUtil;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 public class VirtualEtherStreamHolder {
     private final Direction direction;
@@ -119,28 +121,37 @@ public class VirtualEtherStreamHolder {
 
         ServerPerf.startRecording(posDir);
         updateTracking();
+
+        //VES tick，包含以太量处理/位置变化等
         for (int i = 0, size = streams.size(); i < size; i++) {
             VirtualEtherStream ves = streams.get(i);
             if (ves.isDisplayTime()) ves.displayTimeTick();
             else ves.tick();
         }
+
+        //碰撞
         tickCollideAll(holderMaxDistance);
+        //合并单格过密项
         mergeAll(holderMaxDistance);
+
+        holderMaxDistance = getNxtMaxDist() + 1;
+        collectSync(acc);
+        updateNoLongerTracking();
+        streams.removeIf(ves -> ves.markToRemove);
+        ServerPerf.end(level);
+    }
+
+    private int getNxtMaxDist() {
         int nxtMaxDist = 0;
         for (VirtualEtherStream ves : streams) {
             if (!ves.markToRemove) {
-                ves.pos = ves.pos.add(ves.motion);
-                int distance = ves.blockPosition().distManhattan(posDir.pos()) + Mth.ceil(ves.startSpeed);
+                int distance = ves.blockDistance();
                 if (distance > nxtMaxDist) {
                     nxtMaxDist = distance;
                 }
             }
         }
-        holderMaxDistance = nxtMaxDist + 1;
-        collectSync(acc);
-        updateNoLongerTracking();
-        streams.removeIf(ves -> ves.markToRemove);
-        ServerPerf.end(level);
+        return nxtMaxDist;
     }
 
     private void mergeAll(int maxDistance) {
@@ -212,8 +223,6 @@ public class VirtualEtherStreamHolder {
         for (int i = 0, size = streams.size(); i < size; i++) {
             VirtualEtherStream ves = streams.get(i);
             if (ves.markToRemove) continue;
-            Vec3 oldPos = ves.pos;
-            Vec3 newPos = oldPos.add(ves.motion);
 
             //DisplayTime流：仅极简实体判定(contains)，命中即消失
             if (ves.isDisplayTime()) {
@@ -223,8 +232,10 @@ public class VirtualEtherStreamHolder {
                 continue;
             }
 
-            int clipStart = Math.clamp(BlockPos.containing(oldPos).distManhattan(pos), 0, blockStates.size() - 1);
-            int clipEnd = Math.clamp(BlockPos.containing(newPos).distManhattan(pos), 0, blockStates.size() - 1);
+            int clipStart = Math.clamp(ves.blockDistancePrev(), 0, blockStates.size() - 1);
+            int clipEnd = Math.clamp(ves.blockDistance(), 0, blockStates.size() - 1);
+            Vec3 newPos = ves.position();
+            Vec3 oldPos = newPos.subtract(ves.motion);
             //获取最近的方块碰撞
             BlockHitResult blockHit = collideTryBlock(ves, blockStates, blockPoses, isPassThrough, shapes, clipStart, clipEnd, oldPos, newPos);
             double blockDist = blockHit != null ? oldPos.distanceToSqr(blockHit.getLocation()) : Double.MAX_VALUE;
@@ -243,18 +254,22 @@ public class VirtualEtherStreamHolder {
             for (int i = 0, size = streams.size(); i < size; i++) {
                 VirtualEtherStream ves = streams.get(i);
                 if (ves.markToSyncCreation || ves.markToRemove || ves.isDisplayTime()) continue;
-                BlockPos oldPos = BlockPos.containing(ves.pos.subtract(ves.motion));
-                BlockPos newPos = BlockPos.containing(ves.pos);
-                if (oldPos.equals(newPos)) continue;
-                int id1 = Math.clamp(oldPos.distManhattan(pos), 0, blockStates.size() - 1);
-                int id2 = Math.clamp(newPos.distManhattan(pos), 0, blockStates.size() - 1);
+                int bdp = ves.blockDistancePrev();
+                int bd = ves.blockDistance();
+                if (bdp == bd) continue;
+                Vec3 newPosF = ves.position();
+                Vec3 oldPosF = newPosF.subtract(ves.motion);
+                BlockPos oldPos = BlockPos.containing(oldPosF);
+                BlockPos newPos = BlockPos.containing(newPosF);
+                int id1 = Math.clamp(bdp, 0, blockStates.size() - 1);
+                int id2 = Math.clamp(bd, 0, blockStates.size() - 1);
                 ves.onRunIntoNewBlock(oldPos, blockStates.get(id1), newPos, blockStates.get(id2));
             }
         }
     }
 
     private boolean hitEntityForDisplayTime(VirtualEtherStream ves, List<Entity> entities) {
-        Vec3 pos = ves.pos;
+        Vec3 pos = ves.position();
         for (Entity entity : entities) {
             if (entity.is(Tags.ETHER_STREAM_PASS_THROUGH_ENTITY)) continue;
             if (entity instanceof ItemEntity) continue;
@@ -306,6 +321,8 @@ public class VirtualEtherStreamHolder {
     }
 
     private @Nullable EntityHitResult collideTryEntity(VirtualEtherStream ves, List<Entity> entities, double blockDist, Vec3 oldPos) {
+        Vec3 oldEntityPos = ves.position();
+        Vec3 newEntityPos = oldPos.add(ves.motion);
         Entity hitEntity = null;
         Vec3 entityHitAt = null;
         double nearestDist = blockDist;
@@ -314,11 +331,9 @@ public class VirtualEtherStreamHolder {
                 continue;
             AABB bb = entity.getBoundingBox().inflate(0.3);
             double localDist = entity.distanceToSqr(oldPos);
-            boolean currentCanHit = bb.contains(ves.pos) && localDist < nearestDist;
+            boolean currentCanHit = bb.contains(oldEntityPos) && localDist < nearestDist;
             Vec3 localHitAt = bb.getCenter();
             if (!currentCanHit) {
-                Vec3 oldEntityPos = ves.pos;
-                Vec3 newEntityPos = oldPos.add(ves.motion);
                 Optional<Vec3> clip = bb.clip(oldEntityPos, newEntityPos);
                 if (clip.isPresent()) {
                     localDist = clip.get().distanceToSqr(oldPos);
@@ -345,8 +360,8 @@ public class VirtualEtherStreamHolder {
         BlockHitResult blockHit = null;
         for (int j = clipStart; j <= clipEnd; j++) {
             BlockState blockState = blockStates.get(j);
-            BlockPos pos = blockPoses.get(j);
             if (blockState.isAir()) continue;
+            BlockPos pos = blockPoses.get(j);
             if (isPassThrough.get(j)) continue;
             boolean skip = false;
             for (IStreamCapability cap : ves.capabilities) {
