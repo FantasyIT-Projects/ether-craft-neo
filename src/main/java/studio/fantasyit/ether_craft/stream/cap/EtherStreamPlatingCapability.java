@@ -41,6 +41,8 @@ public class EtherStreamPlatingCapability implements IStreamCapability {
     public void tick(@UnknownNullability IEtherStreamLike streamEntity) {
         if (!(streamEntity.level() instanceof ServerLevel level)) return;
 
+        if (streamEntity.isInFullBlock()) return;
+
         Optional<IStreamCapability> optStorage = streamEntity.getCapability(EtherStreamStorageCapability.ID);
         EtherStreamStorageCapability storage = optStorage.filter(EtherStreamStorageCapability.class::isInstance)
                 .map(EtherStreamStorageCapability.class::cast).orElse(null);

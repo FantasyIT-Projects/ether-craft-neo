@@ -9,10 +9,12 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.block.base.EtherContainer;
@@ -51,6 +53,7 @@ public class VirtualEtherStream implements IEtherStreamLike {
     public boolean needsEtherSync = false;
     public boolean needsEtherConsumerSync = false;
     public boolean runIntoEtherGlass = false;
+    boolean inFullBlock;
 
     List<IStreamCapability> capabilities = new ArrayList<>();
     Object2ObjectOpenHashMap<Identifier, IStreamCapability> capabilityMap = new Object2ObjectOpenHashMap<>();
@@ -83,8 +86,10 @@ public class VirtualEtherStream implements IEtherStreamLike {
         this.direction = posDir.dir();
         this.posDir = posDir;
         this.currentDistance = startOffset + startSpeed * tickCount;
-        BlockState blockState = level.getBlockState(BlockPos.containing(startPos));
+        BlockPos startBlockPos = BlockPos.containing(startPos);
+        BlockState blockState = level.getBlockState(startBlockPos);
         this.setRunIntoEtherGlass(EtherGlassUtil.isEtherGlass(blockState));
+        this.inFullBlock = blockState.isCollisionShapeFullBlock(level, startBlockPos);
         this.needsEtherConsumerSync = false;
         this.needsEtherSync = false;
         if (level instanceof ServerLevel sl) {
@@ -191,6 +196,11 @@ public class VirtualEtherStream implements IEtherStreamLike {
         return extraProperty.isDisplayTime;
     }
 
+    @Override
+    public boolean isInFullBlock() {
+        return inFullBlock;
+    }
+
     public void displayTimeTick() {
         this.tickCount++;
         currentDistance += this.startSpeed;
@@ -243,7 +253,8 @@ public class VirtualEtherStream implements IEtherStreamLike {
                 cap.firstTick(this);
             }
             BlockPos pos = blockPosition();
-            this.onRunIntoNewBlock(null, null, pos, level.getBlockState(pos));
+            BlockState blockState = level.getBlockState(pos);
+            this.onRunIntoNewBlock(null, null, pos, blockState, blockState.getCollisionShape(level, pos));
         }
         this.tickCount++;
 
@@ -374,7 +385,7 @@ public class VirtualEtherStream implements IEtherStreamLike {
         return ves;
     }
 
-    public void onRunIntoNewBlock(@Nullable BlockPos oldPos, @Nullable BlockState oldState, BlockPos newPos, BlockState newState) {
+    public void onRunIntoNewBlock(@Nullable BlockPos oldPos, @Nullable BlockState oldState, BlockPos newPos, BlockState newState, VoxelShape newShape) {
         if (isDisplayTime()) return;
         if (oldState != null) {
             boolean isEtherGlass1 = EtherGlassUtil.isEtherGlass(oldState);
@@ -383,6 +394,7 @@ public class VirtualEtherStream implements IEtherStreamLike {
                 setRunIntoEtherGlass(isEtherGlass2);
             }
         }
+        this.inFullBlock = Block.isShapeFullBlock(newShape);
         for (IStreamCapability cap : capabilities) {
             cap.runIntoNewBlock(this, oldPos, oldState, newPos, newState);
         }

@@ -67,6 +67,8 @@ public class VirtualEtherStreamHolder {
     private VoxelShape[] cachedShapes;
     private boolean[] cachedSkip;
 
+    StreamHolderPropertyCounter propertyCounter = new StreamHolderPropertyCounter();
+
 
     public VirtualEtherStreamHolder(PosDir posDir, VirtualEtherStreamHolderManager manager, @NotNull ServerLevel level) {
         this.manager = manager;
@@ -288,7 +290,7 @@ public class VirtualEtherStreamHolder {
                 BlockPos newPos = BlockPos.containing(newPosF);
                 int id1 = Math.clamp(bdp, 0, blockStates.length - 1);
                 int id2 = Math.clamp(bd, 0, blockStates.length - 1);
-                ves.onRunIntoNewBlock(oldPos, blockStates[id1], newPos, blockStates[id2]);
+                ves.onRunIntoNewBlock(oldPos, blockStates[id1], newPos, blockStates[id2], shapes[id2]);
             }
         }
     }
@@ -322,9 +324,21 @@ public class VirtualEtherStreamHolder {
         for (IStreamCapability cap : ves.capabilities) {
             handled |= cap.hitBlock(level, ves, blockHit, hitBlockState);
         }
-        if (!handled) {
+        if (handled) {
+            markBlockSkipped(blockHit.getBlockPos());
+        } else {
             ves.markDead(blockHit);
         }
+    }
+
+    private void markBlockSkipped(BlockPos blockPos) {
+        if (cachedBlockStates == null || cachedBlockPoses == null) return;
+        int index = blockPos.get(direction.getAxis()) - pos.get(direction.getAxis());
+        if (direction.getAxisDirection() == Direction.AxisDirection.NEGATIVE) {
+            index = -index;
+        }
+        if (index < 0 || index >= cachedBlockStates.length) return;
+        cachedSkip[index] = true;
     }
 
     private void commonHitEntity(EntityHitResult entityHit, VirtualEtherStream ves) {

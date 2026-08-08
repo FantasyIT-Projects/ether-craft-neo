@@ -150,6 +150,25 @@ public class FeatureContainerInteract extends AbstractDirectionalFilterFeature {
         long costPerItem = Config.nodeContainerInteractEtherPerItem;
         int maxTransfer = (int) (nodeEntity.getEther() / costPerItem);
 
+        if (fromNode.nodeProperty.itemifyEther) {
+            int etherMaxTransfer = (int) (nodeEntity.getEther() / (costPerItem + Config.etherConvert));
+            if (etherMaxTransfer > 0) {
+                int canReceive = (int) (toFactory.getCanReceive((long) etherMaxTransfer * Config.etherConvert) / Config.etherConvert);
+                int toTransfer = Math.min(etherMaxTransfer, canReceive);
+                if (toTransfer > 0) {
+                    ItemStack etherStack = fromNode.etherStorage.removeItem(0, toTransfer);
+                    if (!etherStack.isEmpty()) {
+                        int transferred = etherStack.getCount();
+                        toFactory.receiveEtherNoUpdate((long) transferred * Config.etherConvert);
+                        nodeEntity.extractEther((long) transferred * costPerItem);
+                        fromNode.setChanged();
+                        toFactory.setChanged();
+                        return;
+                    }
+                }
+            }
+        }
+
         Set<ItemResource> tried = Collections.newSetFromMap(new IdentityHashMap<>());
         for (int slot = 0; slot < fromNode.normalStorage.getContainerSize(); slot++) {
             ItemStack stack = fromNode.normalStorage.getItem(slot);

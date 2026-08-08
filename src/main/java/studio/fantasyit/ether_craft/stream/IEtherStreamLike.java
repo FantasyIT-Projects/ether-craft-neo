@@ -60,4 +60,8 @@ public interface IEtherStreamLike {
     int tickCount();
 
     int getCanConveyEther();
+
+    default boolean isInFullBlock() {
+        return false;
+    }
 }

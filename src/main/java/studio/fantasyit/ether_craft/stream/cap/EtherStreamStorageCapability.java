@@ -102,35 +102,29 @@ public class EtherStreamStorageCapability implements IStreamCapability, Containe
         if (streamEntity.getCapability(EtherStreamPlatingCapability.ID).isPresent())
             return;
         if (!(streamEntity.level() instanceof ServerLevel level)) return;
+        if (streamEntity.isInFullBlock()) return;
         AABB currentBlockPos = new AABB(streamEntity.blockPosition());
-        List<ItemEntity> entities = EntityGetterUtil.getEntities(level, currentBlockPos).stream()
-                .filter(ItemEntity.class::isInstance)
-                .map(ItemEntity.class::cast)
-                .filter(t -> t.isAlive() && !t.hasPickUpDelay())
-                .toList();
-        boolean changed = false;
-        if (!entities.isEmpty()) {
-            for (ItemEntity e : entities) {
-                if (e.hasData(AttachmentDataRegistry.CD_TO_TAKE_BY_ETHER_STREAM))
-                    if (e.getData(AttachmentDataRegistry.CD_TO_TAKE_BY_ETHER_STREAM) > e.tickCount)
-                        continue;
-                ItemStack tpItem = e.getItem();
-                if (tpItem.isEmpty()) continue;
-                int toInsert = tpItem.count();
+        for (Entity e : EntityGetterUtil.getEntities(level, currentBlockPos)) {
+            if (!(e instanceof ItemEntity itemEntity)) continue;
+            if (!itemEntity.isAlive() || itemEntity.hasPickUpDelay()) continue;
+            if (itemEntity.hasData(AttachmentDataRegistry.CD_TO_TAKE_BY_ETHER_STREAM))
+                if (itemEntity.getData(AttachmentDataRegistry.CD_TO_TAKE_BY_ETHER_STREAM) > itemEntity.tickCount)
+                    continue;
+            ItemStack tpItem = itemEntity.getItem();
+            if (tpItem.isEmpty()) continue;
+            int toInsert = tpItem.count();
+            try (Transaction transaction = Transaction.openRoot()) {
+                toInsert = handler.insert(ItemResource.of(tpItem), toInsert, transaction);
+            }
+            if (toInsert != 0) {
                 try (Transaction transaction = Transaction.openRoot()) {
-                    toInsert = handler.insert(ItemResource.of(tpItem), toInsert, transaction);
-                }
-                if (toInsert != 0) {
-                    try (Transaction transaction = Transaction.openRoot()) {
-                        handler.insert(ItemResource.of(tpItem), toInsert, transaction);
-                        ItemStack copy = tpItem.copy();
-                        copy.shrink(toInsert);
-                        e.setItem(copy);
-                        transaction.commit();
-                        changed = true;
-                        if (tpItem.isEmpty())
-                            e.discard();
-                    }
+                    handler.insert(ItemResource.of(tpItem), toInsert, transaction);
+                    ItemStack copy = tpItem.copy();
+                    copy.shrink(toInsert);
+                    itemEntity.setItem(copy);
+                    transaction.commit();
+                    if (tpItem.isEmpty())
+                        itemEntity.discard();
                 }
             }
         }
@@ -187,7 +181,10 @@ public class EtherStreamStorageCapability implements IStreamCapability, Containe
 
     @Override
     public boolean isEmpty() {
-        return itemStack.stream().anyMatch(t -> !t.isEmpty());
+        for (ItemStack i : itemStack) {
+            if (!i.isEmpty()) return true;
+        }
+        return false;
     }
 
     @Override
