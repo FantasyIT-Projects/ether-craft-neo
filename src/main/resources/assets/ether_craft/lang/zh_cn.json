@@ -254,7 +254,9 @@
   "ether_craft.gui.node.stream_property.no_block_on": "当前: 进行方块碰撞",
   "ether_craft.gui.node.stream_property.no_block_off": "当前: 穿过方块",
   "ether_craft.gui.node.stream_property.no_block_label": "碰撞方块",
-  "ether_craft.gui.node.stream_property.status": "状态: 展示 %s | 距离 %s | 实体碰撞 %s | 方块碰撞 %s",
+  "ether_craft.gui.node.stream_property.no_ether_cost_on": "当前: 无以太消耗",
+  "ether_craft.gui.node.stream_property.no_ether_cost_off": "当前: 正常以太消耗",
+  "ether_craft.gui.node.stream_property.no_ether_cost_label": "无以太消耗",
 
   "tooltip.ether_craft.plating.in_progress": "镀层进行中...",
   "tooltip.ether_craft.plating.title": "镀层:",

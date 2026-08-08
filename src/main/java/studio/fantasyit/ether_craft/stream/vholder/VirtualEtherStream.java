@@ -243,6 +243,9 @@ public class VirtualEtherStream implements IEtherStreamLike {
     }
 
     public void tick() {
+        if (this.consumer.isNoEtherCost() != this.extraProperty.noEtherCost) {
+            this.consumer.setNoEtherCost(this.extraProperty.noEtherCost);
+        }
         if (this.consumer.isDirty()) {
             this.consumer.recompute(this, this.capabilities);
             this.needsEtherSync = true;
@@ -382,6 +385,7 @@ public class VirtualEtherStream implements IEtherStreamLike {
         ves.extraProperty.maxTravelLength = data.extraProperty().maxTravelLength;
         ves.extraProperty.noEntityHit = data.extraProperty().noEntityHit;
         ves.extraProperty.noBlockHit = data.extraProperty().noBlockHit;
+        ves.extraProperty.noEtherCost = data.extraProperty().noEtherCost;
         ves.markToSyncCreation = false;
         return ves;
     }

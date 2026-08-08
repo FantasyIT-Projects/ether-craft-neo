@@ -22,6 +22,7 @@ public class FeatureEtherStreamProperty extends AbstractNodePlugin implements IE
     public static final Identifier SYNC_MAX_TRAVEL = EtherCraft.id("stream_property/max_travel");
     public static final Identifier SYNC_NO_ENTITY_HIT = EtherCraft.id("stream_property/no_entity_hit");
     public static final Identifier SYNC_NO_BLOCK_HIT = EtherCraft.id("stream_property/no_block_hit");
+    public static final Identifier SYNC_NO_ETHER_COST = EtherCraft.id("stream_property/no_ether_cost");
 
     public static final float MAX_TRAVEL_LENGTH = 100000f;
     private static final int SCALE = 100;
@@ -31,6 +32,7 @@ public class FeatureEtherStreamProperty extends AbstractNodePlugin implements IE
     public float maxTravelLength = 0f;
     public boolean noEntityHit = false;
     public boolean noBlockHit = false;
+    public boolean noEtherCost = false;
 
     public FeatureEtherStreamProperty(EtherAdaptNodeEntity nodeEntity, InstalledPlugin installedId) {
         super(nodeEntity, installedId);
@@ -44,6 +46,7 @@ public class FeatureEtherStreamProperty extends AbstractNodePlugin implements IE
         }
         extraProperty.noEntityHit = noEntityHit;
         extraProperty.noBlockHit = noBlockHit;
+        extraProperty.noEtherCost = noEtherCost;
     }
 
     public static int toIntData(float value) {
@@ -62,6 +65,7 @@ public class FeatureEtherStreamProperty extends AbstractNodePlugin implements IE
         output.store("maxTravel", Codec.FLOAT, maxTravelLength);
         output.putBoolean("noEntityHit", noEntityHit);
         output.putBoolean("noBlockHit", noBlockHit);
+        output.putBoolean("noEtherCost", noEtherCost);
     }
 
     @Override
@@ -72,6 +76,7 @@ public class FeatureEtherStreamProperty extends AbstractNodePlugin implements IE
         maxTravelLength = input.read("maxTravel", Codec.FLOAT).orElse(0f);
         noEntityHit = input.getBooleanOr("noEntityHit", false);
         noBlockHit = input.getBooleanOr("noBlockHit", false);
+        noEtherCost = input.getBooleanOr("noEtherCost", false);
     }
 
     @Override
@@ -97,6 +102,10 @@ public class FeatureEtherStreamProperty extends AbstractNodePlugin implements IE
             noBlockHit = message.data() == 1;
             nodeEntity.setChanged();
         }
+        if (message.id().equals(SYNC_NO_ETHER_COST)) {
+            noEtherCost = message.data() == 1;
+            nodeEntity.setChanged();
+        }
     }
 
     @Override
@@ -107,5 +116,6 @@ public class FeatureEtherStreamProperty extends AbstractNodePlugin implements IE
         menu.addDataSlot(new BaseDataSlot(() -> toIntData(maxTravelLength), t -> maxTravelLength = Math.clamp(fromIntData(t), 0f, MAX_TRAVEL_LENGTH)));
         menu.addDataSlot(new BaseDataSlot(() -> noEntityHit ? 1 : 0, t -> noEntityHit = t == 1));
         menu.addDataSlot(new BaseDataSlot(() -> noBlockHit ? 1 : 0, t -> noBlockHit = t == 1));
+        menu.addDataSlot(new BaseDataSlot(() -> noEtherCost ? 1 : 0, t -> noEtherCost = t == 1));
     }
 }

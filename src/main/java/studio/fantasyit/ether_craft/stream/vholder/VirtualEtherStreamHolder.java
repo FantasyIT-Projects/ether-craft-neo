@@ -177,7 +177,7 @@ public class VirtualEtherStreamHolder {
     }
 
     private void mergeAll(int maxDistance) {
-        if (streams.isEmpty()) return;
+        if (streams.size() < Config.etherStreamDestroyThreshold) return;
         int size = maxDistance + 2;
         int[] streamCountAt = new int[size];
         for (int i = streams.size() - 1; i >= 0; i--) {

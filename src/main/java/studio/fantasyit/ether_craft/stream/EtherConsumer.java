@@ -16,9 +16,12 @@ public class EtherConsumer {
     private int capConsumptionSum;
     private float globalFactor;
     private boolean isInEtherGlass;
+    private boolean noEtherCost = false;
     private boolean dirty = true;
 
     public int getTotalConsumption(int ether, int tickCount) {
+        if (noEtherCost)
+            return 0;
         if (isInEtherGlass)
             tickCount = 0;
         float factor = baseFactor + factorByTime * tickCount;
@@ -37,6 +40,10 @@ public class EtherConsumer {
     }
 
     public void recompute(IEtherStreamLike iEtherStreamLike, List<IStreamCapability> caps) {
+        if (noEtherCost) {
+            resetToZero();
+            return;
+        }
         this.baseFactor = (float) Config.etherStreamConsumptionFactor;
         this.factorByTime = (float) Config.etherStreamConsumptionByTimeFactor;
         this.factorByTime *= (float) (iEtherStreamLike.deltaMovement().length() / 0.055);
@@ -45,6 +52,27 @@ public class EtherConsumer {
         for (IStreamCapability cap : caps) {
             cap.getConsumption(this, iEtherStreamLike);
         }
+        this.dirty = false;
+    }
+
+    public void setNoEtherCost(boolean noEtherCost) {
+        this.noEtherCost = noEtherCost;
+        if (noEtherCost) {
+            resetToZero();
+        } else {
+            this.dirty = true;
+        }
+    }
+
+    public boolean isNoEtherCost() {
+        return noEtherCost;
+    }
+
+    private void resetToZero() {
+        this.baseFactor = 0;
+        this.factorByTime = 0;
+        this.capConsumptionSum = 0;
+        this.globalFactor = 1.0f;
         this.dirty = false;
     }
 

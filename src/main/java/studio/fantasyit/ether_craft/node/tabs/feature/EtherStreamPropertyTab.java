@@ -42,7 +42,7 @@ public class EtherStreamPropertyTab extends BaseEtherNodeTabWidgetProvider<Featu
                 EtherAdaptNodeAsset.BTN_BLANK_HOVER,
                 EtherAdaptNodeAsset.BTN_BLANK_DOWN,
                 EtherAdaptNodeAsset.BTN_BLANK_DOWN_HOVER,
-                null, onMsg, offMsg,
+                null, offMsg, onMsg,
                 t -> {
                     int data = invert ? (t ? 1 : 0) : ((!t) ? 1 : 0);
                     ClientPacketDistributor.sendToServer(new SyncScreenDataC2S(plugin.installedId, syncId, 0, data));
@@ -100,6 +100,12 @@ public class EtherStreamPropertyTab extends BaseEtherNodeTabWidgetProvider<Featu
                 FeatureEtherStreamProperty.SYNC_NO_BLOCK_HIT, plugin.noBlockHit, true);
         screen.registerMenuSyncer(new ScreenMenuSyncer<>(() -> !plugin.noBlockHit, noBlockHitButton::setDown));
 
+        IASwitchButton noEtherCostButton = makeSwitch(ROW_START_Y + ROW_DY * 4,
+                Component.translatable("ether_craft.gui.node.stream_property.no_ether_cost_on"),
+                Component.translatable("ether_craft.gui.node.stream_property.no_ether_cost_off"),
+                FeatureEtherStreamProperty.SYNC_NO_ETHER_COST, plugin.noEtherCost, false);
+        screen.registerMenuSyncer(new ScreenMenuSyncer<>(() -> plugin.noEtherCost, noEtherCostButton::setDown));
+
         lastLimitEnabled = plugin.limitEnabled;
         lastMaxTravel = plugin.maxTravelLength;
     }
@@ -116,9 +122,8 @@ public class EtherStreamPropertyTab extends BaseEtherNodeTabWidgetProvider<Featu
                 lx(LABEL_X), ly(ROW_START_Y + ROW_DY * 2 + 3), 0xFFFFFFFF);
         graphics.text(font, Component.translatable("ether_craft.gui.node.stream_property.no_block_label"),
                 lx(LABEL_X), ly(ROW_START_Y + ROW_DY * 3 + 3), 0xFFFFFFFF);
-        graphics.text(font, Component.translatable("ether_craft.gui.node.stream_property.status",
-                        plugin.isDisplayTime, plugin.maxTravelLength, !plugin.noEntityHit, !plugin.noBlockHit),
-                lx(ROW_X), ly(ROW_START_Y + ROW_DY * 4 + 2), 0xFFFFFFFF);
+        graphics.text(font, Component.translatable("ether_craft.gui.node.stream_property.no_ether_cost_label"),
+                lx(LABEL_X), ly(ROW_START_Y + ROW_DY * 4 + 3), 0xFFFFFFFF);
     }
 
     @Override
