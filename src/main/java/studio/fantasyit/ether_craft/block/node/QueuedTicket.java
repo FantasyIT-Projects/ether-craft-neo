@@ -20,16 +20,12 @@ public class QueuedTicket {
             return false;
         List<InstalledPlugin> queue = queuedPlugins.get(actionId);
         if (queue == null) {
-            List<InstalledPlugin> fresh = new ArrayList<>(1);
-            fresh.add(plugin);
-            queuedPlugins.put(actionId, fresh);
-            return true;
+            queue = new ArrayList<>(1);
+            queuedPlugins.put(actionId, queue);
         }
-        if (queue.isEmpty() || queue.getFirst().equals(plugin))
-            return true;
         if (!queue.contains(plugin))
             queue.add(plugin);
-        return false;
+        return queue.getFirst().equals(plugin);
     }
 
     public void requeue(Identifier actionId, InstalledPlugin plugin, int cd) {
