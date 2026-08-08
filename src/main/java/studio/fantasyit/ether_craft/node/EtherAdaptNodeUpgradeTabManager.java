@@ -8,6 +8,7 @@ import studio.fantasyit.ether_craft.node.plugins.base.PluginMenuContext;
 import studio.fantasyit.ether_craft.node.plugins.feature.FeatureContainerInteract;
 import studio.fantasyit.ether_craft.node.plugins.feature.FeatureDropperThrower;
 import studio.fantasyit.ether_craft.node.plugins.feature.FeatureEtherStreamEmitter;
+import studio.fantasyit.ether_craft.node.plugins.feature.FeatureEtherStreamProperty;
 import studio.fantasyit.ether_craft.node.plugins.feature.FeatureRedstoneSignal;
 import studio.fantasyit.ether_craft.node.plugins.function.*;
 import studio.fantasyit.ether_craft.node.plugins.feature.DestructionUpgrade;
@@ -17,6 +18,7 @@ import studio.fantasyit.ether_craft.node.tabs.feature.ContainerInteractScreen;
 import studio.fantasyit.ether_craft.node.tabs.feature.DestructionTab;
 import studio.fantasyit.ether_craft.node.tabs.feature.DropperThrowerScreen;
 import studio.fantasyit.ether_craft.node.tabs.feature.EtherStreamEmitterScreen;
+import studio.fantasyit.ether_craft.node.tabs.feature.EtherStreamPropertyTab;
 import studio.fantasyit.ether_craft.node.tabs.feature.RedstoneSignalTab;
 import studio.fantasyit.ether_craft.node.tabs.function.*;
 
@@ -43,6 +45,7 @@ public class EtherAdaptNodeUpgradeTabManager {
         register(FeatureDropperThrower.ID, wrap(DropperThrowerScreen::new));
         register(FeatureContainerInteract.ID, wrap(ContainerInteractScreen::new));
         register(FeatureRedstoneSignal.ID, wrap(RedstoneSignalTab::new));
+        register(FeatureEtherStreamProperty.ID, wrap(EtherStreamPropertyTab::new));
         register(DestructionUpgrade.ID, wrap(DestructionTab::new));
     }
 
