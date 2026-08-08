@@ -110,6 +110,7 @@ public class NodePluginManager {
         ALL_PLUGINS.add(new PluginInfo(PluginType.UPGRADE, EtherFilterUpgrade.ID, EtherFilterUpgrade::new, t -> t.is(Items.PAPER), Items.PAPER));
         ALL_PLUGINS.add(new PluginInfo(PluginType.UPGRADE, EtherItemifyUpgrade.ID, EtherItemifyUpgrade::new, t -> t.is(ItemRegistry.INACTIVATED_ETHER), ItemRegistry.INACTIVATED_ETHER.get()));
         ALL_PLUGINS.add(new PluginInfo(PluginType.UPGRADE, EtherStreamTextUpgrade.ID, EtherStreamTextUpgrade::new, t -> t.is(Items.WRITTEN_BOOK), Items.WRITTEN_BOOK));
+        ALL_PLUGINS.add(new PluginInfo(PluginType.UPGRADE, EtherStreamRandomBookUpgrade.ID, EtherStreamRandomBookUpgrade::new, t -> t.is(Items.INK_SAC), Items.INK_SAC));
         ALL_PLUGINS.add(new PluginInfo(PluginType.UPGRADE, EtherStreamGrowthAcceleratorUpgrade.ID, EtherStreamGrowthAcceleratorUpgrade::new, t -> t.is(Items.BONE_MEAL), Items.BONE_MEAL));
         ALL_PLUGINS.add(new PluginInfo(PluginType.UPGRADE, EtherStreamGrowthAcceleratorUpgrade.ID_ALL, EtherStreamGrowthAcceleratorUpgrade::new, t -> t.is(Items.SCULK_CATALYST), Items.SCULK_CATALYST));
         ALL_PLUGINS.add(new PluginInfo(PluginType.UPGRADE, EtherStreamCarryEntityUpgrade.ID, EtherStreamCarryEntityUpgrade::new, t -> t.is(ItemTags.BOATS) && !t.is(ItemTags.CHEST_BOATS), Items.OAK_BOAT));

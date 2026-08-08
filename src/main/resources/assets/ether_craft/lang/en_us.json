@@ -187,6 +187,7 @@
   "jei.ether_craft.plugin.ether_craft.ether_stream_storage_upgrade_2": "Greatly increases ether stream transfer amount (+5).",
   "jei.ether_craft.plugin.ether_craft.ether_itemify_upgrade": "Makes ether behave as a physical item that can be transferred between inventories.",
   "jei.ether_craft.plugin.ether_craft.ether_stream_text_upgrade": "Makes ether streams emit text particles from books placed in the upgrade slot.",
+  "jei.ether_craft.plugin.ether_craft.ether_stream_random_book_upgrade": "Makes ether streams emit text particles from a random written book or book and quill in the main storage.",
   "jei.ether_craft.plugin.ether_craft.ether_stream_display_item_upgrade": "Displays the carried item inside ether streams.",
   "jei.ether_craft.plugin.ether_craft.growth_accelerator_upgrade": "Allows ether streams to accelerate crop and tree growth on contact.",
   "jei.ether_craft.plugin.ether_craft.growth_accelerator_upgrade_allow_all": "Allows ether streams to accelerate all block types (uses sculk catalyst).",

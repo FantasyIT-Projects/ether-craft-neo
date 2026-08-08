@@ -483,7 +483,7 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
             ItemStack etherStack = etherStorage.getItem(0);
             if (!etherStack.isEmpty() && predicate.test(etherStack)) {
                 totalAvailable += etherStorage.getAmountAsLong(0);
-                matchedStack = etherStack;
+                matchedStack = etherStack.copy();
             }
         }
 
@@ -494,7 +494,7 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
             if (!predicate.test(stack))
                 continue;
             if (matchedStack == null)
-                matchedStack = stack;
+                matchedStack = stack.copy();
             totalAvailable += stack.getCount();
         }
 

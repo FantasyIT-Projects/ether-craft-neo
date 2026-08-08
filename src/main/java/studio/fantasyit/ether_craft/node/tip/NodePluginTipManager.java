@@ -89,6 +89,8 @@ public class NodePluginTipManager {
                 new TipInfo(List.of(Ingredient.of(ItemRegistry.INACTIVATED_ETHER.get())), List.of(), Set.of(TipConcept.ETHER_STORAGE)));
         registerTip(EtherStreamTextUpgrade.ID,
                 new TipInfo(List.of(Ingredient.of(Items.WRITTEN_BOOK)), List.of(), Set.of(TipConcept.DECORATION)));
+        registerTip(EtherStreamRandomBookUpgrade.ID,
+                new TipInfo(List.of(Ingredient.of(Items.INK_SAC)), List.of(), Set.of(TipConcept.DECORATION)));
         registerTip(EtherStreamGrowthAcceleratorUpgrade.ID,
                 new TipInfo(List.of(Ingredient.of(Items.BONE_MEAL)), List.of(), Set.of(TipConcept.WORLD_INTERACTION, TipConcept.ETHER_FLOW)));
         registerTip(EtherStreamGrowthAcceleratorUpgrade.ID_ALL,

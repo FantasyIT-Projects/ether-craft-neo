@@ -181,6 +181,7 @@
   "jei.ether_craft.plugin.ether_craft.ether_stream_storage_upgrade_2": "大幅增加以太流传输量 (+5)。",
   "jei.ether_craft.plugin.ether_craft.ether_itemify_upgrade": "使以太表现为可跨物品栏传输的实体物品。",
   "jei.ether_craft.plugin.ether_craft.ether_stream_text_upgrade": "使以太流从升级槽中放置的书籍中发射文字粒子。",
+  "jei.ether_craft.plugin.ether_craft.ether_stream_random_book_upgrade": "使以太流从主容器中随机一本成书或书与笔发射文字粒子。",
   "jei.ether_craft.plugin.ether_craft.ether_stream_display_item_upgrade": "在以太流中显示携带的物品。",
   "jei.ether_craft.plugin.ether_craft.growth_accelerator_upgrade": "允许以太流在接触时加速作物和树木生长。",
   "jei.ether_craft.plugin.ether_craft.growth_accelerator_upgrade_allow_all": "允许以太流在接触时加速所有方块类型（使用幽匿催发体）。",
