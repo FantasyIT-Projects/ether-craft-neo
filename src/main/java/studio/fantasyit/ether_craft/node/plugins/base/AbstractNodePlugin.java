@@ -3,6 +3,7 @@ package studio.fantasyit.ether_craft.node.plugins.base;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
@@ -19,6 +20,7 @@ import java.util.function.Supplier;
 public abstract class AbstractNodePlugin implements ISyncTargetMenu {
     protected final EtherAdaptNodeEntity nodeEntity;
     public InstalledPlugin installedId;
+    private long nextActionTick = Long.MIN_VALUE;
 
     public AbstractNodePlugin(EtherAdaptNodeEntity nodeEntity, InstalledPlugin installedId) {
         this.nodeEntity = nodeEntity;
@@ -26,10 +28,16 @@ public abstract class AbstractNodePlugin implements ISyncTargetMenu {
     }
 
     public void queueWithCd(Identifier action, int cd, Supplier<Boolean> runnable) {
+        Level level = nodeEntity.getLevel();
+        if (level != null && level.getGameTime() < nextActionTick)
+            return;
         if (!nodeEntity.ticket.allowed(action, installedId))
             return;
-        if (runnable.get())
+        if (runnable.get()) {
             nodeEntity.ticket.requeue(action, installedId, cd);
+            if (level != null)
+                nextActionTick = level.getGameTime() + cd + 1;
+        }
     }
 
     public void modifyNodeProperty(NodeProperty nodeProperty) {

@@ -18,17 +18,25 @@ public class QueuedTicket {
     public boolean allowed(Identifier actionId, InstalledPlugin plugin) {
         if (queuedCd.containsKey(plugin))
             return false;
-        List<InstalledPlugin> queue = queuedPlugins.computeIfAbsent(actionId, _ -> new ArrayList<>());
+        List<InstalledPlugin> queue = queuedPlugins.get(actionId);
+        if (queue == null) {
+            List<InstalledPlugin> fresh = new ArrayList<>(1);
+            fresh.add(plugin);
+            queuedPlugins.put(actionId, fresh);
+            return true;
+        }
+        if (queue.isEmpty() || queue.getFirst().equals(plugin))
+            return true;
         if (!queue.contains(plugin))
             queue.add(plugin);
-        return queue.getFirst().equals(plugin);
+        return false;
     }
 
     public void requeue(Identifier actionId, InstalledPlugin plugin, int cd) {
         List<InstalledPlugin> queue = queuedPlugins.get(actionId);
         if (queue == null)
             return;
-        if (queue.getFirst().equals(plugin))
+        if (!queue.isEmpty() && queue.getFirst().equals(plugin))
             queue.removeFirst();
         if (cd > 0)
             queuedCd.put(plugin, cd);
@@ -38,8 +46,7 @@ public class QueuedTicket {
         Iterator<Map.Entry<InstalledPlugin, Integer>> it = queuedCd.entrySet().iterator();
         while (it.hasNext()) {
             Map.Entry<InstalledPlugin, Integer> entry = it.next();
-            InstalledPlugin plugin = entry.getKey();
-            if (entry.getValue() <= 0 || !nodeEntity.isPluginInstalled(plugin) || !isCurrentInstance(nodeEntity, plugin))
+            if (entry.getValue() <= 0 || !isCurrentInstance(nodeEntity, entry.getKey()))
                 it.remove();
             else
                 entry.setValue(entry.getValue() - 1);

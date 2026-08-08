@@ -163,7 +163,10 @@ public class VirtualEtherStreamHolder {
     public void tick(PlayerPayloadAccumulator acc) {
         if (streams.isEmpty()) return;
         lastHadStreamInUnloadedChunk = hasStreamInUnloadedChunk(holderMaxDistance);
-        if (lastHadStreamInUnloadedChunk) return;
+        if (lastHadStreamInUnloadedChunk) {
+            blockScanTickCounter = Config.etherStreamBlockScanInterval;
+            return;
+        }
 
         ServerPerf.startRecording(posDir);
         updateTracking();
