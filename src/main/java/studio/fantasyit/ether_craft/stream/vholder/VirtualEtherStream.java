@@ -55,6 +55,8 @@ public class VirtualEtherStream implements IEtherStreamLike {
     public boolean runIntoEtherGlass = false;
     boolean inFullBlock;
     boolean propertyRegistered = false;
+    boolean propertyRegisterPending = false;
+    boolean propertyRemovePending = false;
 
     List<IStreamCapability> capabilities = new ArrayList<>();
     Object2ObjectOpenHashMap<Identifier, IStreamCapability> capabilityMap = new Object2ObjectOpenHashMap<>();
@@ -214,6 +216,7 @@ public class VirtualEtherStream implements IEtherStreamLike {
         if (markToRemove) return;
         if (isDisplayTime()) {
             markToRemove = true;
+            holder.markPropertyRemovePending(this);
             return;
         }
         for (IStreamCapability cap : capabilities) {
@@ -229,6 +232,7 @@ public class VirtualEtherStream implements IEtherStreamLike {
             cap.onDestroy(this, hitResult);
         }
         markToRemove = true;
+        holder.markPropertyRemovePending(this);
     }
 
     public int getConsumption() {
@@ -303,6 +307,7 @@ public class VirtualEtherStream implements IEtherStreamLike {
             newStream.markToSyncCreation = true;
             this.ether = 0;
             this.markToRemove = true;
+            holder.markPropertyRemovePending(this);
         }
         return stream;
     }

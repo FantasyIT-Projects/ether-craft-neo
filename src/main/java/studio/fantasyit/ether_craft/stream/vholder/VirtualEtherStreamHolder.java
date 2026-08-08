@@ -53,6 +53,8 @@ public class VirtualEtherStreamHolder {
     private final ServerLevel level;
     final List<VirtualEtherStream> streams = new ArrayList<>();
     private final List<VirtualEtherStream> pendingTrackingStreams = new ArrayList<>();
+    private final List<VirtualEtherStream> pendingPropertyRegisterStreams = new ArrayList<>();
+    private final List<VirtualEtherStream> pendingPropertyRemoveStreams = new ArrayList<>();
     private final Vec3i chunkVec;
     Int2IntOpenHashMap trackingPlayers = new Int2IntOpenHashMap();
     Int2IntOpenHashMap playerLastCreateId = new Int2IntOpenHashMap();
@@ -100,6 +102,7 @@ public class VirtualEtherStreamHolder {
         );
         streams.add(ves);
         markTrackingPending(ves);
+        markPropertyRegisterPending(ves);
         return ves;
     }
 
@@ -107,6 +110,40 @@ public class VirtualEtherStreamHolder {
         if (ves.trackingPending) return;
         ves.trackingPending = true;
         pendingTrackingStreams.add(ves);
+    }
+
+    void markPropertyRegisterPending(VirtualEtherStream ves) {
+        if (ves.propertyRegisterPending) return;
+        ves.propertyRegisterPending = true;
+        pendingPropertyRegisterStreams.add(ves);
+    }
+
+    void markPropertyRemovePending(VirtualEtherStream ves) {
+        if (!ves.propertyRegistered || ves.propertyRemovePending) return;
+        ves.propertyRemovePending = true;
+        pendingPropertyRemoveStreams.add(ves);
+    }
+
+    private void registerPendingProperties() {
+        for (int i = 0, size = pendingPropertyRegisterStreams.size(); i < size; i++) {
+            VirtualEtherStream ves = pendingPropertyRegisterStreams.get(i);
+            ves.propertyRegisterPending = false;
+            if (ves.markToRemove || ves.propertyRegistered) continue;
+            propertyCounter.addStream(ves.getExtraProperty());
+            ves.propertyRegistered = true;
+        }
+        pendingPropertyRegisterStreams.clear();
+    }
+
+    private void unregisterPendingProperties() {
+        for (int i = 0, size = pendingPropertyRemoveStreams.size(); i < size; i++) {
+            VirtualEtherStream ves = pendingPropertyRemoveStreams.get(i);
+            ves.propertyRemovePending = false;
+            if (!ves.propertyRegistered) continue;
+            propertyCounter.removeStream(ves.getExtraProperty());
+            ves.propertyRegistered = false;
+        }
+        pendingPropertyRemoveStreams.clear();
     }
 
     public boolean hasStreamInUnloadedChunk(int maxBlockDist) {
@@ -130,13 +167,7 @@ public class VirtualEtherStreamHolder {
 
         ServerPerf.startRecording(posDir);
         updateTracking();
-
-        for (int i = 0, size = streams.size(); i < size; i++) {
-            VirtualEtherStream ves = streams.get(i);
-            if (ves.markToRemove || ves.propertyRegistered) continue;
-            propertyCounter.addStream(ves.getExtraProperty());
-            ves.propertyRegistered = true;
-        }
+        registerPendingProperties();
 
         //VES tick，包含以太量处理/位置变化等
         for (int i = 0, size = streams.size(); i < size; i++) {
@@ -153,12 +184,7 @@ public class VirtualEtherStreamHolder {
         holderMaxDistance = getNxtMaxDist() + 1;
         collectSync(acc);
         updateNoLongerTracking();
-        for (int i = 0, size = streams.size(); i < size; i++) {
-            VirtualEtherStream ves = streams.get(i);
-            if (!ves.markToRemove || !ves.propertyRegistered) continue;
-            propertyCounter.removeStream(ves.getExtraProperty());
-            ves.propertyRegistered = false;
-        }
+        unregisterPendingProperties();
         streams.removeIf(ves -> ves.markToRemove);
         ServerPerf.end(level);
     }
@@ -654,6 +680,7 @@ public class VirtualEtherStreamHolder {
             VirtualEtherStream ves = VirtualEtherStream.fromData(level, data, this);
             streams.add(ves);
             markTrackingPending(ves);
+            markPropertyRegisterPending(ves);
         }
         int nxtMaxDist = 0;
         for (VirtualEtherStream ves : streams) {
