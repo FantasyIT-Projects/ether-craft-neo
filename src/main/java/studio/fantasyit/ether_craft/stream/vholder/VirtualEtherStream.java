@@ -54,6 +54,7 @@ public class VirtualEtherStream implements IEtherStreamLike {
     public boolean needsEtherConsumerSync = false;
     public boolean runIntoEtherGlass = false;
     boolean inFullBlock;
+    boolean propertyRegistered = false;
 
     List<IStreamCapability> capabilities = new ArrayList<>();
     Object2ObjectOpenHashMap<Identifier, IStreamCapability> capabilityMap = new Object2ObjectOpenHashMap<>();

@@ -131,6 +131,13 @@ public class VirtualEtherStreamHolder {
         ServerPerf.startRecording(posDir);
         updateTracking();
 
+        for (int i = 0, size = streams.size(); i < size; i++) {
+            VirtualEtherStream ves = streams.get(i);
+            if (ves.markToRemove || ves.propertyRegistered) continue;
+            propertyCounter.addStream(ves.getExtraProperty());
+            ves.propertyRegistered = true;
+        }
+
         //VES tick，包含以太量处理/位置变化等
         for (int i = 0, size = streams.size(); i < size; i++) {
             VirtualEtherStream ves = streams.get(i);
@@ -146,6 +153,12 @@ public class VirtualEtherStreamHolder {
         holderMaxDistance = getNxtMaxDist() + 1;
         collectSync(acc);
         updateNoLongerTracking();
+        for (int i = 0, size = streams.size(); i < size; i++) {
+            VirtualEtherStream ves = streams.get(i);
+            if (!ves.markToRemove || !ves.propertyRegistered) continue;
+            propertyCounter.removeStream(ves.getExtraProperty());
+            ves.propertyRegistered = false;
+        }
         streams.removeIf(ves -> ves.markToRemove);
         ServerPerf.end(level);
     }
@@ -206,17 +219,12 @@ public class VirtualEtherStreamHolder {
 
     private void tickCollideAll(int maxBlockDist) {
         int maxClipDist = maxBlockDist + 1;
-        Vec3 queryVec = direction.getUnitVec3().scale(maxBlockDist + 1);
-        List<Entity> allEntities = EntityGetterUtil.getEntities(level, new AABB(pos).expandTowards(queryVec).inflate(1.0));
+        boolean needBlockCollide = !propertyCounter.isNoBlockCollide();
+        boolean needEntityCollide = !propertyCounter.isNoEntityCollide();
+        if (!needEntityCollide && !needBlockCollide) return;
+        boolean isDisplayTimeFull = propertyCounter.isDisplayTime();
 
-        boolean anyNormalStream = false;
-        for (VirtualEtherStream ves : streams) {
-            if (!ves.markToRemove && !ves.isDisplayTime()) {
-                anyNormalStream = true;
-                break;
-            }
-        }
-        if (anyNormalStream) {
+        if (needBlockCollide && !isDisplayTimeFull) {
             ensureBlockSnapshot(maxClipDist);
         }
         BlockState[] blockStates = cachedBlockStates;
@@ -224,48 +232,51 @@ public class VirtualEtherStreamHolder {
         VoxelShape[] shapes = cachedShapes;
         boolean[] skip = cachedSkip;
         List<Entity> canHitEntity = null;
-        if (anyNormalStream) {
-            canHitEntity = new ArrayList<>(allEntities);
+        if (needEntityCollide) {
+            Vec3 queryVec = direction.getUnitVec3().scale(maxBlockDist + 1);
+            canHitEntity = EntityGetterUtil.getEntities(level, new AABB(pos).expandTowards(queryVec).inflate(1.0));
             canHitEntity.removeIf(this::entityNoCollidePredicator);
         }
 
         for (int i = 0, size = streams.size(); i < size; i++) {
             VirtualEtherStream ves = streams.get(i);
             if (ves.markToRemove) continue;
+            Vec3 newPos = ves.position();
+            Vec3 oldPos = newPos.subtract(ves.motion);
 
             //DisplayTime流：仅极简实体判定(contains)，命中即消失
             if (ves.isDisplayTime()) {
-                if (!ves.getExtraProperty().noEntityHit && hitEntityForDisplayTime(ves, allEntities)) {
+                if (needEntityCollide && !ves.getExtraProperty().noEntityHit && hitEntityForDisplayTime(ves, newPos, canHitEntity)) {
                     ves.markDead(null);
                 }
                 continue;
             }
 
-            int clipStart = Math.clamp(ves.blockDistancePrev(), 0, blockStates.length - 1);
-            int clipEnd = Math.clamp(ves.blockDistance(), 0, blockStates.length - 1);
-            Vec3 newPos = ves.position();
-            Vec3 oldPos = newPos.subtract(ves.motion);
-            //计算是否可以跳过
-            boolean noSkip = false;
-            for (int j = clipStart; j <= clipEnd; j++) {
-                if (!skip[j]) {
-                    noSkip = true;
-                    break;
-                }
-            }
             BlockHitResult blockHit = null;
             double blockDist = Double.MAX_VALUE;
-            if (!ves.getExtraProperty().noBlockHit && noSkip) {
-                //获取最近的方块碰撞
-                blockHit = collideTryBlock(ves, blockStates, blockPoses, skip, shapes, clipStart, clipEnd, oldPos, newPos);
-                if (blockHit != null) {
-                    blockDist = oldPos.distanceToSqr(blockHit.getLocation());
+            if (needBlockCollide && !ves.getExtraProperty().noBlockHit) {
+                int clipStart = Math.clamp(ves.blockDistancePrev(), 0, blockStates.length - 1);
+                int clipEnd = Math.clamp(ves.blockDistance(), 0, blockStates.length - 1);
+                //计算是否可以跳过
+                boolean noSkip = false;
+                for (int j = clipStart; j <= clipEnd; j++) {
+                    if (!skip[j]) {
+                        noSkip = true;
+                        break;
+                    }
+                }
+                if (noSkip) {
+                    //获取最近的方块碰撞
+                    blockHit = collideTryBlock(ves, blockStates, blockPoses, skip, shapes, clipStart, clipEnd, oldPos, newPos);
+                    if (blockHit != null) {
+                        blockDist = oldPos.distanceToSqr(blockHit.getLocation());
+                    }
                 }
             }
 
             //判断比方块更近的实体碰撞
             EntityHitResult entityHit = null;
-            if (!ves.getExtraProperty().noEntityHit) {
+            if (needEntityCollide && !ves.getExtraProperty().noEntityHit) {
                 entityHit = collideTryEntity(ves, canHitEntity, blockDist, oldPos, newPos);
             }
 
@@ -277,7 +288,7 @@ public class VirtualEtherStreamHolder {
             }
         }
 
-        if (anyNormalStream) {
+        if (needBlockCollide) {
             for (int i = 0, size = streams.size(); i < size; i++) {
                 VirtualEtherStream ves = streams.get(i);
                 if (ves.markToSyncCreation || ves.markToRemove || ves.isDisplayTime()) continue;
@@ -295,11 +306,8 @@ public class VirtualEtherStreamHolder {
         }
     }
 
-    private boolean hitEntityForDisplayTime(VirtualEtherStream ves, List<Entity> entities) {
-        Vec3 pos = ves.position();
+    private boolean hitEntityForDisplayTime(VirtualEtherStream ves, Vec3 pos, List<Entity> entities) {
         for (Entity entity : entities) {
-            if (entity.is(Tags.ETHER_STREAM_PASS_THROUGH_ENTITY)) continue;
-            if (entity instanceof ItemEntity) continue;
             if (entity.getBoundingBox().inflate(0.3).contains(pos)) return true;
         }
         return false;
