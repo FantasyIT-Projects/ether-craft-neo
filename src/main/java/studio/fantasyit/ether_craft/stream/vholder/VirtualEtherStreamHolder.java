@@ -51,7 +51,6 @@ public class VirtualEtherStreamHolder {
     private final Direction direction;
     private final BlockPos pos;
     private final PosDir posDir;
-    private final VirtualEtherStreamHolderManager manager;
     private final ServerLevel level;
     final List<VirtualEtherStream> streams = new ArrayList<>();
     private final List<VirtualEtherStream> pendingTrackingStreams = new ArrayList<>();
@@ -66,12 +65,16 @@ public class VirtualEtherStreamHolder {
     CachedEtherStreamEntry lastCreateSnapshot = null;
     private int blockScanTickCounter = 0;
     private int cachedMaxClipDist = -1;
+    //方块快照
     private BlockState[] cachedBlockStates;
     private BlockPos[] cachedBlockPoses;
     private VoxelShape[] cachedShapes;
     private boolean[] cachedSkip;
     private boolean[] cachedChanged;
     private boolean cachedHasAnyChanged = false;
+    //maxDistance维护
+    private boolean sameSpeedHolder = false;
+
 
     StreamHolderPropertyCounter propertyCounter = new StreamHolderPropertyCounter();
 
@@ -80,7 +83,6 @@ public class VirtualEtherStreamHolder {
 
 
     public VirtualEtherStreamHolder(PosDir posDir, VirtualEtherStreamHolderManager manager, @NotNull ServerLevel level) {
-        this.manager = manager;
         this.level = level;
         this.pos = posDir.pos();
         this.direction = posDir.dir();
@@ -107,9 +109,17 @@ public class VirtualEtherStreamHolder {
                 level,
                 this
         );
+        if (sameSpeedHolder) {
+            if (streams.getFirst().startSpeed != speed) {
+                sameSpeedHolder = false;
+            }
+        } else if (streams.isEmpty()) {
+            sameSpeedHolder = true;
+        }
         streams.add(ves);
         markTrackingPending(ves);
         markPropertyRegisterPending(ves);
+
         return ves;
     }
 
@@ -176,7 +186,7 @@ public class VirtualEtherStreamHolder {
         }
 
         ServerPerf.startRecording(posDir);
-        holderMaxDistance = getMaxDistance() + 1;
+        updateMaxDistance();
         updateTracking();
         registerPendingProperties();
 
@@ -216,17 +226,32 @@ public class VirtualEtherStreamHolder {
         }
     }
 
-    private int getMaxDistance() {
+    private void updateMaxDistance() {
+        if (sameSpeedHolder) {
+            VirtualEtherStream fs = streams.getFirst();
+            holderMaxDistance = fs.blockDistance() + 1;
+            return;
+        }
         int nxtMaxDist = 0;
+        boolean sameSpeed = true;
+        float speed = 0;
         for (VirtualEtherStream ves : streams) {
             if (!ves.markToRemove) {
                 int distance = ves.blockDistance();
                 if (distance > nxtMaxDist) {
                     nxtMaxDist = distance;
                 }
+                if (sameSpeed) {
+                    if (speed == 0)
+                        speed = ves.startSpeed;
+                    if (speed != ves.startSpeed)
+                        sameSpeed = false;
+                }
             }
         }
-        return nxtMaxDist;
+        if (sameSpeed)
+            sameSpeedHolder = true;
+        holderMaxDistance = nxtMaxDist + 1;
     }
 
     private void mergeAll(int maxDistance) {
@@ -450,7 +475,7 @@ public class VirtualEtherStreamHolder {
     }
 
     private @Nullable EntityHitResult collideTryEntity(VirtualEtherStream ves, List<Entity> entities, double blockDist,
-            double nx, double ny, double nz, double ox, double oy, double oz) {
+                                                       double nx, double ny, double nz, double ox, double oy, double oz) {
         Entity hitEntity = null;
         Vec3 oldPos = new Vec3(ox, oy, oz);
         Vec3 newPos = new Vec3(nx, ny, nz);
@@ -487,8 +512,8 @@ public class VirtualEtherStreamHolder {
     }
 
     private @Nullable BlockCollision collideTryBlock(VirtualEtherStream ves, BlockState[] blockStates, BlockPos[] blockPoses,
-            boolean[] skip, VoxelShape[] shapes,
-            int clipStart, int clipEnd, double nx, double ny, double nz, double ox, double oy, double oz) {
+                                                     boolean[] skip, VoxelShape[] shapes,
+                                                     int clipStart, int clipEnd, double nx, double ny, double nz, double ox, double oy, double oz) {
         for (int j = clipStart; j <= clipEnd; j++) {
             if (skip[j]) continue;
             BlockState blockState = blockStates[j];
