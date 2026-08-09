@@ -101,6 +101,7 @@ public class NodePluginManager {
         ALL_PLUGINS.add(new PluginInfo(PluginType.UPGRADE, RedstoneSwitchUpgrade.ID_REVERT, (a, b) -> new RedstoneSwitchUpgrade(a, b, false), t -> t.is(Items.REDSTONE_TORCH), Items.REDSTONE_TORCH));
         ALL_PLUGINS.add(new PluginInfo(PluginType.UPGRADE, EtherStorageUpgrade.ID, EtherStorageUpgrade::new, t -> t.is(ItemRegistry.ETHERPHILIC_BOWL), ItemRegistry.ETHERPHILIC_BOWL.get()));
         ALL_PLUGINS.add(new PluginInfo(PluginType.UPGRADE, StorageUpgrade.ID, StorageUpgrade::new, t -> t.is(Items.CHEST) || t.is(ItemTags.COPPER_CHESTS), Items.CHEST));
+        ALL_PLUGINS.add(new PluginInfo(PluginType.UPGRADE, MiniStorageUpgrade.ID, MiniStorageUpgrade::new, t -> t.is(Items.DECORATED_POT), Items.DECORATED_POT));
         ALL_PLUGINS.add(new PluginInfo(PluginType.UPGRADE, EtherStreamStorageUpgrade.ID, (a, b) -> new EtherStreamStorageUpgrade(a, b, 1), t -> t.is(ItemTags.CHEST_BOATS), Items.OAK_CHEST_BOAT));
         ALL_PLUGINS.add(new PluginInfo(PluginType.UPGRADE, EtherStreamStorageUpgrade.ID_1, (a, b) -> new EtherStreamStorageUpgrade(a, b, 3), t -> t.is(Items.CHEST_MINECART), Items.CHEST_MINECART));
         ALL_PLUGINS.add(new PluginInfo(PluginType.UPGRADE, EtherStreamStorageUpgrade.ID_2, (a, b) -> new EtherStreamStorageUpgrade(a, b, 5), t -> t.is(ItemTags.SHULKER_BOXES), Items.SHULKER_BOX));

@@ -9,14 +9,24 @@ import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
+import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.stream.client.data.ClientStreamEntry;
 import studio.fantasyit.ether_craft.stream.data.EtherStreamLabelData;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static studio.fantasyit.ether_craft.register.AttachmentDataRegistry.STREAM_LABEL_OVERRIDE;
+
 public class EtherStreamLabelLogic implements IEtherStreamExtraClientLogic {
     private static final float LABEL_SCALE = 0.010416667F;
+
+    private static boolean shouldRenderText() {
+        if (!Config.streamLabelHiddenByDefault) return true;
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null) return false;
+        return mc.player.getData(STREAM_LABEL_OVERRIDE);
+    }
 
     @Override
     public boolean shouldAttach(ClientStreamEntry entry) {
@@ -25,7 +35,8 @@ public class EtherStreamLabelLogic implements IEtherStreamExtraClientLogic {
 
     @Override
     public boolean shouldRender(ClientStreamEntry entry) {
-        return entry.getSyncedData(EtherStreamLabelData.ID) == null;
+        if (entry.getSyncedData(EtherStreamLabelData.ID) == null) return true;
+        return !shouldRenderText();
     }
 
     @Override
@@ -37,6 +48,7 @@ public class EtherStreamLabelLogic implements IEtherStreamExtraClientLogic {
     public void onRender(ClientStreamEntry stream, Vec3 currentPos, CameraRenderState camera, PoseStack poseStack, SubmitNodeCollector collector, float partialTick) {
         @Nullable EtherStreamLabelData labelData = (EtherStreamLabelData) stream.getSyncedData(EtherStreamLabelData.ID);
         if (labelData == null) return;
+        if (!shouldRenderText()) return;
         Vec3 motion = stream.motion;
         if (motion.lengthSqr() < 0.0001) return;
 
@@ -157,6 +169,7 @@ public class EtherStreamLabelLogic implements IEtherStreamExtraClientLogic {
     public boolean shouldAlwaysRender(ClientStreamEntry entry, Vec3 currentPos, CameraRenderState camera) {
         @Nullable EtherStreamLabelData labelData = (EtherStreamLabelData) entry.getSyncedData(EtherStreamLabelData.ID);
         if (labelData == null) return false;
+        if (!shouldRenderText()) return false;
         Font font = Minecraft.getInstance().font;
         double maxLen = 60 * entry.motion.length() * 100;
         float totalWidth = 0;

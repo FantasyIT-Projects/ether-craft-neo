@@ -143,6 +143,7 @@
 | 英文 | 中文 | 匹配物品 | 注册 ID |
 |------|------|---------|---------|
 | Storage Upgrade | 存储扩容 | 箱子/铜箱 | `storage_upgrade` |
+| Mini Storage Upgrade | 迷你存储升级 | 饰纹陶罐 | `mini_storage_upgrade` |
 | Ether Storage Upgrade | 以太容量 | 以太皿 | `ether_storage_upgrade` |
 | Ether Stream Storage +1 | 以太流传输量+1 | 运输船 | `ether_stream_storage_upgrade` |
 | Ether Stream Storage +2 | 以太流传输量+2 | 漏斗矿车 | `ether_stream_storage_upgrade_1` |

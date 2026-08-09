@@ -210,6 +210,10 @@ public class Config {
             .comment("Maximum size of label rendered on Ether Stream")
             .defineInRange("ether_stream.label.max_size", 10, 1, 1e6);
 
+    private static final ModConfigSpec.BooleanValue ETHER_STREAM_LABEL_HIDE_BY_DEFAULT = BUILDER
+            .comment("If true, Ether Stream text labels are hidden by default (particles render instead). Players can opt back in via /ether_craft stream_label.")
+            .define("ether_stream.label.hide_by_default", false);
+
     // -- ether_stream.upgrade --
     private static final ModConfigSpec.DoubleValue ETHER_STORAGE_MULTIPLIER = BUILDER
             .comment("The multipiler each ether storage upgrade plugin will provide")
@@ -484,6 +488,7 @@ public class Config {
     public static int etherStreamDamageConstantCost;
     public static int etherStreamGrowthAcceleratorEtherCost;
     public static double etherStreamLabelMaxSize;
+    public static boolean streamLabelHiddenByDefault;
     public static List<Integer> nodeEnchanterEtherCosts;
     public static int nodeEnchanterMaxProgress;
     public static double etherStorageMultiplier;
@@ -580,6 +585,7 @@ public class Config {
         etherStreamDamageConstantCost = ETHER_STREAM_DAMAGE_CONSTANT_COST.get();
         etherStreamGrowthAcceleratorEtherCost = ETHER_STREAM_GROWTH_ACCELERATOR_ETHER_COST.get();
         etherStreamLabelMaxSize = ETHER_STREAM_LABEL_MAX_SIZE.get();
+        streamLabelHiddenByDefault = ETHER_STREAM_LABEL_HIDE_BY_DEFAULT.get();
         nodeEnchanterEtherCosts = NODE_ENCHANTER_ETHER_COSTS.get().stream().map(t -> (Integer) t).toList();
         nodeEnchanterMaxProgress = NODE_ENCHANTER_MAX_PROGRESS.get();
         etherStorageMultiplier = ETHER_STORAGE_MULTIPLIER.get();

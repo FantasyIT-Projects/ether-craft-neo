@@ -87,6 +87,14 @@ public class AttachmentDataRegistry {
             "perf_tick_data", () -> AttachmentType.builder(PerfTickData::new).build()
     );
 
+    public static final Supplier<AttachmentType<Boolean>> STREAM_LABEL_OVERRIDE = ATTACHMENT_TYPES.register(
+            "stream_label_override", () -> AttachmentType.builder(() -> false)
+                    .sync(ByteBufCodecs.BOOL)
+                    .serialize(Codec.BOOL.fieldOf("stream_label_override"))
+                    .copyOnDeath()
+                    .build()
+    );
+
     public static void register(IEventBus modbus) {
         ATTACHMENT_TYPES.register(modbus);
     }
