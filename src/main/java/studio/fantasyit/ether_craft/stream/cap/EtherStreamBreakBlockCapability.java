@@ -61,7 +61,7 @@ public class EtherStreamBreakBlockCapability implements IStreamCapability {
     }
 
     @Override
-    public void runIntoNewBlock(IEtherStreamLike streamEntity, @Nullable BlockPos oldPos, @Nullable BlockState oldState, BlockPos newPos, BlockState newState) {
+    public void runIntoNewBlock(IEtherStreamLike streamEntity, BlockPos newPos, BlockState newState) {
         if (streamEntity.level() instanceof ServerLevel level) {
             if (newState.isAir()) return;
             if (newState.is(Tags.ETHER_STREAM_SKIP_BREAKING)) return;

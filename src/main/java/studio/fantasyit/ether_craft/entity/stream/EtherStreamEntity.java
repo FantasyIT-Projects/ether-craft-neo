@@ -194,7 +194,7 @@ public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
 
             if (this.tickCount == 0) {
                 firstTick();
-                capabilities.forEach(t -> t.runIntoNewBlock(this, null, null, blockPos, level().getBlockState(blockPos)));
+                capabilities.forEach(t -> t.runIntoNewBlock(this, blockPos, level().getBlockState(blockPos)));
             }
 
             for (IStreamCapability capability : capabilities) {
@@ -227,7 +227,7 @@ public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
             if (wasGlass != isGlass) {
                 setRunIntoEtherGlass(isGlass);
             }
-            capabilities.forEach(t -> t.runIntoNewBlock(this, oldBlock, oldState, newBlock, newState));
+            capabilities.forEach(t -> t.runIntoNewBlock(this, newBlock, newState));
         }
     }
 

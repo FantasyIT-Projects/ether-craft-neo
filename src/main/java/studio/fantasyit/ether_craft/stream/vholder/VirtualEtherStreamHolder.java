@@ -43,6 +43,7 @@ import studio.fantasyit.ether_craft.util.EntityGetterUtil;
 import studio.fantasyit.ether_craft.util.LevelUtil;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -69,6 +70,8 @@ public class VirtualEtherStreamHolder {
     private BlockPos[] cachedBlockPoses;
     private VoxelShape[] cachedShapes;
     private boolean[] cachedSkip;
+    private boolean[] cachedChanged;
+    private boolean cachedHasAnyChanged = false;
 
     StreamHolderPropertyCounter propertyCounter = new StreamHolderPropertyCounter();
 
@@ -185,6 +188,10 @@ public class VirtualEtherStreamHolder {
         tickAllStreams();
         //碰撞
         tickCollideAll(holderMaxDistance);
+        if (cachedHasAnyChanged) {
+            Arrays.fill(cachedChanged, false);
+            cachedHasAnyChanged = false;
+        }
         //合并单格过密项
         mergeAll(holderMaxDistance);
         collectSync(acc);
@@ -248,6 +255,10 @@ public class VirtualEtherStreamHolder {
         BlockPos[] blockPoses = new BlockPos[maxClipDist + 1];
         VoxelShape[] shapes = new VoxelShape[maxClipDist + 1];
         boolean[] skip = new boolean[maxClipDist + 1];
+        boolean[] changed = new boolean[maxClipDist + 1];
+        BlockState[] prevStates = cachedBlockStates;
+        int prevLen = prevStates == null ? 0 : prevStates.length;
+        boolean hasAnyChanged = false;
         BlockPos.MutableBlockPos blockScanPos = pos.mutable();
         for (int i = 0; i <= maxClipDist; i++) {
             BlockState blockState = level.getBlockState(blockScanPos);
@@ -255,16 +266,24 @@ public class VirtualEtherStreamHolder {
             blockPoses[i] = blockScanPos.immutable();
             shapes[i] = blockState.getCollisionShape(level, blockScanPos);
             skip[i] = blockState.isAir() || blockState.is(Tags.ETHER_STREAM_PASS_THROUGH) || shapes[i].isEmpty();
+            changed[i] = i < prevLen && blockState != prevStates[i];
+            hasAnyChanged |= changed[i];
             blockScanPos.move(direction);
         }
         cachedBlockStates = blockStates;
         cachedBlockPoses = blockPoses;
         cachedShapes = shapes;
         cachedSkip = skip;
+        cachedChanged = changed;
+        cachedHasAnyChanged = hasAnyChanged;
     }
 
     BlockState getBlockState(int dist) {
         return cachedBlockStates[dist];
+    }
+
+    boolean isBlockChanged(int dist) {
+        return cachedChanged != null && cachedChanged[dist];
     }
 
     VoxelShape getCollisionShape(int dist) {
@@ -346,14 +365,12 @@ public class VirtualEtherStreamHolder {
                 if (ves.markToSyncCreation || ves.markToRemove || ves.isDisplayTime()) continue;
                 int bdp = ves.blockDistancePrev();
                 int bd = ves.blockDistance();
-                if (bdp == bd) continue;
-                Vec3 newPosF = ves.position();
-                Vec3 oldPosF = newPosF.subtract(ves.motion);
-                BlockPos oldPos = BlockPos.containing(oldPosF);
-                BlockPos newPos = BlockPos.containing(newPosF);
-                int id1 = Math.clamp(bdp, 0, blockStates.length - 1);
                 int id2 = Math.clamp(bd, 0, blockStates.length - 1);
-                ves.onRunIntoNewBlock(oldPos, blockStates[id1], newPos, blockStates[id2], shapes[id2]);
+                boolean crossed = bdp != bd;
+                boolean changedAtCurrent = isBlockChanged(id2);
+                if (!crossed && !changedAtCurrent) continue;
+                BlockPos newPos = BlockPos.containing(ves.position());
+                ves.onRunIntoNewBlock(newPos, blockStates[id2], shapes[id2]);
             }
         }
     }

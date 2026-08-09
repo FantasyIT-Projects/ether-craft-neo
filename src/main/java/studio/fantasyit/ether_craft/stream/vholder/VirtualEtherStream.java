@@ -245,7 +245,7 @@ public class VirtualEtherStream implements IEtherStreamLike {
         for (IStreamCapability cap : this.capabilities) {
             cap.firstTick(this);
         }
-        this.onRunIntoNewBlock(null, null, pos, currentBlockState, voxelShape);
+        this.onRunIntoNewBlock(pos, currentBlockState, voxelShape);
         this.needsEtherConsumerSync = false;
         this.needsEtherSync = false;
     }
@@ -390,18 +390,15 @@ public class VirtualEtherStream implements IEtherStreamLike {
         return ves;
     }
 
-    public void onRunIntoNewBlock(@Nullable BlockPos oldPos, @Nullable BlockState oldState, BlockPos newPos, BlockState newState, VoxelShape newShape) {
+    public void onRunIntoNewBlock(BlockPos newPos, BlockState newState, VoxelShape newShape) {
         if (isDisplayTime()) return;
-        if (oldState != null) {
-            boolean isEtherGlass1 = EtherGlassUtil.isEtherGlass(oldState);
-            boolean isEtherGlass2 = EtherGlassUtil.isEtherGlass(newState);
-            if (isEtherGlass1 != isEtherGlass2) {
-                setRunIntoEtherGlass(isEtherGlass2);
-            }
+        boolean isEtherGlass2 = EtherGlassUtil.isEtherGlass(newState);
+        if (runIntoEtherGlass != isEtherGlass2) {
+            setRunIntoEtherGlass(isEtherGlass2);
         }
         this.inFullBlock = Block.isShapeFullBlock(newShape);
         for (IStreamCapability cap : capabilities) {
-            cap.runIntoNewBlock(this, oldPos, oldState, newPos, newState);
+            cap.runIntoNewBlock(this, newPos, newState);
         }
     }
 

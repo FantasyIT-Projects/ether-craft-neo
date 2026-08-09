@@ -54,7 +54,7 @@ public class EtherStreamTransformGlassCapability implements IStreamCapability{
     }
 
     @Override
-    public void runIntoNewBlock(IEtherStreamLike streamEntity,@Nullable BlockPos oldPos, @Nullable BlockState oldState, BlockPos newPos, BlockState newState) {
+    public void runIntoNewBlock(IEtherStreamLike streamEntity, BlockPos newPos, BlockState newState) {
         if (newState.is(Blocks.GLASS)) {
             if (streamEntity.level().getRandom().nextDouble() <= Config.etherStreamGlassTransformChance)
                 streamEntity.level().setBlockAndUpdate(newPos, BlockRegistry.ETHER_GLASS.get().defaultBlockState());
