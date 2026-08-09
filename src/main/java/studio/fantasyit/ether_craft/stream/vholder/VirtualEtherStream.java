@@ -119,6 +119,7 @@ public class VirtualEtherStream implements IEtherStreamLike {
 
     @Override
     public void consumeEther(int ether) {
+        if (consumer.isNoEtherCost()) return;
         consumeEtherInternal(ether);
         this.needsEtherSync = true;
     }
@@ -147,6 +148,7 @@ public class VirtualEtherStream implements IEtherStreamLike {
 
     @Override
     public void dirtyConsumer() {
+        if (consumer.isNoEtherCost()) return;
         consumer.markDirty();
     }
 
@@ -254,7 +256,7 @@ public class VirtualEtherStream implements IEtherStreamLike {
         if (this.consumer.isNoEtherCost() != this.extraProperty.noEtherCost) {
             this.consumer.setNoEtherCost(this.extraProperty.noEtherCost);
         }
-        if (this.consumer.isDirty()) {
+        if (this.consumer.isDirty() && !this.consumer.isNoEtherCost()) {
             this.consumer.recompute(this, this.capabilities);
             this.needsEtherSync = true;
             this.needsEtherConsumerSync = true;
@@ -344,8 +346,11 @@ public class VirtualEtherStream implements IEtherStreamLike {
         runIntoEtherGlass = isEtherGlass2;
         this.consumer.setIsInEtherGlass(isEtherGlass2);
         this.consumer.recompute(this, this.capabilities);
-        needsEtherSync = true;
-        needsEtherConsumerSync = true;
+
+        if (!consumer.isNoEtherCost()) {
+            needsEtherSync = true;
+            needsEtherConsumerSync = true;
+        }
     }
 
     VirtualEtherStreamData toData() {
