@@ -12,8 +12,9 @@ import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeContainerMenu;
 import studio.fantasyit.ether_craft.network.c2s.SyncScreenDataC2S;
 import studio.fantasyit.ether_craft.node.NodeProperty;
 import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
+import studio.fantasyit.ether_craft.node.plugins.base.IModifyNodePropertyPlugin;
 
-public class FeatureRedstoneSignal extends AbstractDirectionalFeature {
+public class FeatureRedstoneSignal extends AbstractDirectionalFeature implements IModifyNodePropertyPlugin {
     public static final Identifier ID = EtherCraft.id("redstone_signal");
     public static final Identifier SYNC_MODE = EtherCraft.id("redstone_signal/mode");
     public static final Identifier SYNC_ENABLED = EtherCraft.id("redstone_signal/enabled");
@@ -35,7 +36,6 @@ public class FeatureRedstoneSignal extends AbstractDirectionalFeature {
 
     @Override
     public void modifyNodeProperty(NodeProperty nodeProperty) {
-        super.modifyNodeProperty(nodeProperty);
         nodeProperty.sendRedstoneSignal = true;
     }
 

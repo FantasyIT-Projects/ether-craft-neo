@@ -54,6 +54,11 @@ import studio.fantasyit.ether_craft.node.NodePluginManager;
 import studio.fantasyit.ether_craft.node.NodeProperty;
 import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
 import studio.fantasyit.ether_craft.node.plugins.base.AbstractNodePlugin;
+import studio.fantasyit.ether_craft.node.plugins.base.IEarlyHandleInputPlugin;
+import studio.fantasyit.ether_craft.node.plugins.base.IOnBlockUpdatePlugin;
+import studio.fantasyit.ether_craft.node.plugins.base.IOnWrenchRotatePlugin;
+import studio.fantasyit.ether_craft.node.plugins.base.IOverflowHandlerPlugin;
+import studio.fantasyit.ether_craft.node.plugins.base.IShouldSyncEtherPlugin;
 import studio.fantasyit.ether_craft.node.plugins.base.SimpleEtherSyncController;
 import studio.fantasyit.ether_craft.node.plugins.feature.AbstractDirectionalFeature;
 import studio.fantasyit.ether_craft.node.plugins.feature.FeatureRedstoneSignal;
@@ -170,7 +175,9 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
         }
         if (pluginBlockUpdateDirty) {
             pluginBlockUpdateDirty = false;
-            for (AbstractNodePlugin plugin : getPlugins())
+            for (IOnBlockUpdatePlugin plugin : functionStorage.onBlockUpdatePlugins())
+                plugin.onBlockUpdate();
+            for (IOnBlockUpdatePlugin plugin : featureUpgradeStorage.onBlockUpdatePlugins())
                 plugin.onBlockUpdate();
         }
         if (functionStorage.preTick() && featureUpgradeStorage.preTick()) {
@@ -324,20 +331,14 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
             return 0;
         int earlyCosted = 0;
         ItemStack stack = resource.toStack();
-        for (AbstractNodePlugin plugin : getPlugins()) {
-            earlyCosted += plugin.earlyHandleInput(stack, amount - earlyCosted, transaction);
-            if (earlyCosted >= amount)
-                return earlyCosted;
-        }
+        earlyCosted = handleEarlyInput(stack, amount, transaction);
+        if (earlyCosted >= amount)
+            return earlyCosted;
         int handlerInserted = normalHandler.insert(index - 1, resource, amount - earlyCosted, transaction);
         int overflow = amount - earlyCosted - handlerInserted;
         int overflowConsumed = 0;
         if (index == nodeProperty.slotUnlock)
-            for (AbstractNodePlugin plugin : getPlugins()) {
-                overflowConsumed += plugin.handleOverflow(stack, overflow - overflowConsumed, transaction);
-                if (overflowConsumed >= overflow)
-                    break;
-            }
+            overflowConsumed = handleOverflow(stack, overflow, transaction);
         return handlerInserted + earlyCosted + overflowConsumed;
     }
 
@@ -421,26 +422,49 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
         }
         if (nodeProperty.slotUnlock <= 0)
             return 0;
-        int earlyCosted = 0;
-        for (AbstractNodePlugin plugin : getPlugins()) {
-            earlyCosted += plugin.earlyHandleInput(stack, amount - earlyCosted, null);
-            if (earlyCosted >= amount)
-                return earlyCosted;
-        }
+        int earlyCosted = handleEarlyInput(stack, amount, null);
+        if (earlyCosted >= amount)
+            return earlyCosted;
         int toPlace = amount - earlyCosted;
         ItemStack remaining = insertItemToNormal(stack.copyWithCount(toPlace));
         int placed = toPlace - remaining.getCount();
         int overflow = remaining.getCount();
         int overflowConsumed = 0;
         if (overflow > 0)
-            for (AbstractNodePlugin plugin : getPlugins()) {
-                overflowConsumed += plugin.handleOverflow(stack, overflow - overflowConsumed, null);
-                if (overflowConsumed >= overflow)
-                    break;
-            }
+            overflowConsumed = handleOverflow(stack, overflow, null);
         if (placed > 0 || overflowConsumed > 0)
             setChanged();
         return earlyCosted + placed + overflowConsumed;
+    }
+
+    private int handleEarlyInput(ItemStack stack, int amount, @Nullable TransactionContext transaction) {
+        int earlyCosted = 0;
+        for (IEarlyHandleInputPlugin plugin : functionStorage.earlyHandleInputPlugins()) {
+            earlyCosted += plugin.earlyHandleInput(stack, amount - earlyCosted, transaction);
+            if (earlyCosted >= amount)
+                return earlyCosted;
+        }
+        for (IEarlyHandleInputPlugin plugin : featureUpgradeStorage.earlyHandleInputPlugins()) {
+            earlyCosted += plugin.earlyHandleInput(stack, amount - earlyCosted, transaction);
+            if (earlyCosted >= amount)
+                return earlyCosted;
+        }
+        return earlyCosted;
+    }
+
+    private int handleOverflow(ItemStack stack, int overflow, @Nullable TransactionContext transaction) {
+        int overflowConsumed = 0;
+        for (IOverflowHandlerPlugin plugin : functionStorage.overflowHandlerPlugins()) {
+            overflowConsumed += plugin.handleOverflow(stack, overflow - overflowConsumed, transaction);
+            if (overflowConsumed >= overflow)
+                break;
+        }
+        for (IOverflowHandlerPlugin plugin : featureUpgradeStorage.overflowHandlerPlugins()) {
+            overflowConsumed += plugin.handleOverflow(stack, overflow - overflowConsumed, transaction);
+            if (overflowConsumed >= overflow)
+                break;
+        }
+        return overflowConsumed;
     }
 
     public void insertAllFrom(Container container) {
@@ -581,7 +605,11 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
     @Override
     public boolean shouldSync() {
         if (nodeProperty.specialRenderer) {
-            for (AbstractNodePlugin plugin : getPlugins()) {
+            for (IShouldSyncEtherPlugin plugin : functionStorage.shouldSyncEtherPlugins()) {
+                if (!plugin.shouldSyncEther())
+                    return false;
+            }
+            for (IShouldSyncEtherPlugin plugin : featureUpgradeStorage.shouldSyncEtherPlugins()) {
                 if (!plugin.shouldSyncEther())
                     return false;
             }
@@ -733,8 +761,11 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
     }
 
     public void rotatePluginsByAxis(Direction.Axis axis) {
-        for (AbstractNodePlugin plugin : getPlugins()) {
+        for (IOnWrenchRotatePlugin plugin : functionStorage.onWrenchRotatePlugins())
             plugin.onWrenchRotate(axis);
+        for (IOnWrenchRotatePlugin plugin : featureUpgradeStorage.onWrenchRotatePlugins())
+            plugin.onWrenchRotate(axis);
+        for (AbstractNodePlugin plugin : getPlugins()) {
             if (plugin instanceof AbstractDirectionalFeature directional) {
                 if (directional.direction != null) {
                     directional.direction = directional.direction.getCounterClockWise(axis);

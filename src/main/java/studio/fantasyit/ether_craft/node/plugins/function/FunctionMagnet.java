@@ -16,10 +16,15 @@ import studio.fantasyit.ether_craft.network.c2s.SyncScreenDataC2S;
 import studio.fantasyit.ether_craft.node.filter.FilterGuiRegCommon;
 import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
 import studio.fantasyit.ether_craft.node.plugins.base.AbstractNodePlugin;
+import studio.fantasyit.ether_craft.node.plugins.base.ILoadAdditionalPlugin;
+import studio.fantasyit.ether_craft.node.plugins.base.IRegisterSlotsPlugin;
+import studio.fantasyit.ether_craft.node.plugins.base.ISaveAdditionalPlugin;
+import studio.fantasyit.ether_craft.node.plugins.base.ISyncScreenDataPlugin;
+import studio.fantasyit.ether_craft.node.plugins.base.ITickInputPlugin;
 
 import java.util.List;
 
-public class FunctionMagnet extends AbstractNodePlugin {
+public class FunctionMagnet extends AbstractNodePlugin implements ITickInputPlugin, ISaveAdditionalPlugin, ILoadAdditionalPlugin, ISyncScreenDataPlugin, IRegisterSlotsPlugin {
     public static final Identifier ID = EtherCraft.id("magnet");
     public static final Identifier SYNC_VALUE = EtherCraft.id("magnet_function_feature/sync");
     public int centerX = 0, centerY = 0, centerZ = 0;
@@ -33,7 +38,6 @@ public class FunctionMagnet extends AbstractNodePlugin {
 
     @Override
     public void loadAdditional(ValueInput input) {
-        super.loadAdditional(input);
         filter.deserialize(input);
         centerX = input.getIntOr("centerX", 0);
         centerY = input.getIntOr("centerY", 0);
@@ -45,7 +49,6 @@ public class FunctionMagnet extends AbstractNodePlugin {
 
     @Override
     public void saveAdditional(ValueOutput output) {
-        super.saveAdditional(output);
         filter.serialize(output);
         output.putInt("centerX", centerX);
         output.putInt("centerY", centerY);
@@ -84,7 +87,6 @@ public class FunctionMagnet extends AbstractNodePlugin {
 
     @Override
     public void registerSlots(EtherAdaptNodeContainerMenu menu) {
-        super.registerSlots(menu);
         menu.addDataSlot(new BaseDataSlot(() -> centerX, t -> centerX = t));
         menu.addDataSlot(new BaseDataSlot(() -> centerY, t -> centerY = t));
         menu.addDataSlot(new BaseDataSlot(() -> centerZ, t -> centerZ = t));

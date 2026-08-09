@@ -6,8 +6,9 @@ import studio.fantasyit.ether_craft.block.node.EtherAdaptNodeEntity;
 import studio.fantasyit.ether_craft.node.NodeProperty;
 import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
 import studio.fantasyit.ether_craft.node.plugins.base.AbstractNodePlugin;
+import studio.fantasyit.ether_craft.node.plugins.base.IModifyNodePropertyPlugin;
 
-public class EtherFilterUpgrade extends AbstractNodePlugin {
+public class EtherFilterUpgrade extends AbstractNodePlugin implements IModifyNodePropertyPlugin {
     public static final Identifier ID = EtherCraft.id("ether_filter_upgrade");
 
     public EtherFilterUpgrade(EtherAdaptNodeEntity nodeEntity, InstalledPlugin installedId) {

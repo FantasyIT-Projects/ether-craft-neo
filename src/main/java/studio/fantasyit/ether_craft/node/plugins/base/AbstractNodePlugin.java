@@ -1,22 +1,13 @@
 package studio.fantasyit.ether_craft.node.plugins.base;
 
-import net.minecraft.core.Direction;
 import net.minecraft.resources.Identifier;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.storage.ValueInput;
-import net.minecraft.world.level.storage.ValueOutput;
-import net.neoforged.neoforge.transfer.transaction.TransactionContext;
-import org.jetbrains.annotations.Nullable;
 import studio.fantasyit.ether_craft.block.node.EtherAdaptNodeEntity;
 import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeContainerMenu;
-import studio.fantasyit.ether_craft.network.base.ISyncTargetMenu;
-import studio.fantasyit.ether_craft.network.c2s.SyncScreenDataC2S;
-import studio.fantasyit.ether_craft.node.NodeProperty;
 import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
 
 import java.util.function.Supplier;
 
-public abstract class AbstractNodePlugin implements ISyncTargetMenu {
+public abstract class AbstractNodePlugin {
     protected final EtherAdaptNodeEntity nodeEntity;
     public InstalledPlugin installedId;
 
@@ -32,57 +23,7 @@ public abstract class AbstractNodePlugin implements ISyncTargetMenu {
             nodeEntity.ticket.requeue(action, installedId, cd);
     }
 
-    public void modifyNodeProperty(NodeProperty nodeProperty) {
-    }
-
-    public void tickInput() {
-    }
-
-    public void tickWork() {
-    }
-
-    public void tickOutput() {
-    }
-
-    public void saveAdditional(ValueOutput output) {
-    }
-
-    public void loadAdditional(ValueInput input) {
-    }
-
-    public int earlyHandleInput(ItemStack stack, int amount, @Nullable TransactionContext context) {
-        return 0;
-    }
-
-    public void onDestroy() {
-    }
-
-    public void onBlockUpdate() {
-    }
-
-    public boolean shouldSyncEther() {
-        return true;
-    }
-
-    public void onWrenchRotate(Direction.Axis axis) {
-    }
-
-    public void registerSlots(EtherAdaptNodeContainerMenu menu) {
-    }
-
-    @Override
-    public void syncScreenData(SyncScreenDataC2S message) {
-    }
-
     public PluginMenuContext<?> makeContext(EtherAdaptNodeContainerMenu etherAdaptNodeContainerMenu) {
         return PluginMenuContext.of(etherAdaptNodeContainerMenu, this);
-    }
-
-    public boolean preTick() {
-        return true;
-    }
-
-    public int handleOverflow(ItemStack stack, int amount, @Nullable TransactionContext transaction) {
-        return 0;
     }
 }

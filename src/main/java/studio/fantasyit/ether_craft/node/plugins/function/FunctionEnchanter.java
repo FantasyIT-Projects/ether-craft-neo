@@ -31,12 +31,19 @@ import studio.fantasyit.ether_craft.node.NodeProperty;
 import studio.fantasyit.ether_craft.node.filter.FilterGuiRegCommon;
 import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
 import studio.fantasyit.ether_craft.node.plugins.base.AbstractNodePlugin;
+import studio.fantasyit.ether_craft.node.plugins.base.ILoadAdditionalPlugin;
+import studio.fantasyit.ether_craft.node.plugins.base.IModifyNodePropertyPlugin;
+import studio.fantasyit.ether_craft.node.plugins.base.IOnDestroyPlugin;
+import studio.fantasyit.ether_craft.node.plugins.base.IRegisterSlotsPlugin;
+import studio.fantasyit.ether_craft.node.plugins.base.ISaveAdditionalPlugin;
+import studio.fantasyit.ether_craft.node.plugins.base.ISyncScreenDataPlugin;
+import studio.fantasyit.ether_craft.node.plugins.base.ITickWorkPlugin;
 import studio.fantasyit.ether_craft.util.ContainerOps;
 
 import java.util.List;
 import java.util.Optional;
 
-public class FunctionEnchanter extends AbstractNodePlugin {
+public class FunctionEnchanter extends AbstractNodePlugin implements ITickWorkPlugin, IModifyNodePropertyPlugin, ISyncScreenDataPlugin, ISaveAdditionalPlugin, ILoadAdditionalPlugin, IRegisterSlotsPlugin, IOnDestroyPlugin {
     public static final Identifier ID = EtherCraft.id("enchanter");
     public static final Identifier SYNC_LEVEL = EtherCraft.id("enchanter_level");
     public int selectedLevel = 1;
@@ -66,7 +73,6 @@ public class FunctionEnchanter extends AbstractNodePlugin {
 
     @Override
     public void syncScreenData(SyncScreenDataC2S message) {
-        super.syncScreenData(message);
         FilterGuiRegCommon.sync(message, filter, nodeEntity);
         if (message.id().equals(SYNC_LEVEL)) {
             int level = message.data();

@@ -6,8 +6,10 @@ import studio.fantasyit.ether_craft.block.node.EtherAdaptNodeEntity;
 import studio.fantasyit.ether_craft.node.NodeProperty;
 import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
 import studio.fantasyit.ether_craft.node.plugins.base.AbstractNodePlugin;
+import studio.fantasyit.ether_craft.node.plugins.base.IModifyNodePropertyPlugin;
+import studio.fantasyit.ether_craft.node.plugins.base.IPreTickPlugin;
 
-public class RedstoneSwitchUpgrade extends AbstractNodePlugin {
+public class RedstoneSwitchUpgrade extends AbstractNodePlugin implements IModifyNodePropertyPlugin, IPreTickPlugin {
     public static final Identifier ID = EtherCraft.id("redstone_switch");
     public static final Identifier ID_REVERT = EtherCraft.id("redstone_switch_revert");
 
@@ -20,7 +22,6 @@ public class RedstoneSwitchUpgrade extends AbstractNodePlugin {
 
     @Override
     public void modifyNodeProperty(NodeProperty nodeProperty) {
-        super.modifyNodeProperty(nodeProperty);
         nodeProperty.receiveRedstoneSignal = true;
     }
 

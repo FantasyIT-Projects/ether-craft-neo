@@ -23,10 +23,19 @@ import studio.fantasyit.ether_craft.node.NodeProperty;
 import studio.fantasyit.ether_craft.node.filter.FilterGuiRegCommon;
 import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
 import studio.fantasyit.ether_craft.node.plugins.base.AbstractNodePlugin;
+import studio.fantasyit.ether_craft.node.plugins.base.ILoadAdditionalPlugin;
+import studio.fantasyit.ether_craft.node.plugins.base.IModifyNodePropertyPlugin;
+import studio.fantasyit.ether_craft.node.plugins.base.IOnBlockUpdatePlugin;
+import studio.fantasyit.ether_craft.node.plugins.base.IOnDestroyPlugin;
+import studio.fantasyit.ether_craft.node.plugins.base.IRegisterSlotsPlugin;
+import studio.fantasyit.ether_craft.node.plugins.base.ISaveAdditionalPlugin;
+import studio.fantasyit.ether_craft.node.plugins.base.IShouldSyncEtherPlugin;
+import studio.fantasyit.ether_craft.node.plugins.base.ISyncScreenDataPlugin;
+import studio.fantasyit.ether_craft.node.plugins.base.ITickWorkPlugin;
 import studio.fantasyit.ether_craft.node.plugins.upgrade.IGeneratorAdjuster;
 import studio.fantasyit.ether_craft.util.ContainerOps;
 
-public abstract class AbstractItemConsumeFunction extends AbstractNodePlugin {
+public abstract class AbstractItemConsumeFunction extends AbstractNodePlugin implements ITickWorkPlugin, IModifyNodePropertyPlugin, ISaveAdditionalPlugin, ILoadAdditionalPlugin, IRegisterSlotsPlugin, ISyncScreenDataPlugin, IOnDestroyPlugin, IOnBlockUpdatePlugin, IShouldSyncEtherPlugin {
     public static final Identifier WORKING_MATERIAL = EtherCraft.id("generator/material");
     public ItemFilter filter = new ItemFilter(21, nodeEntity::setChanged);
     public SimpleContainer container = new SimpleContainer(1);
@@ -110,7 +119,6 @@ public abstract class AbstractItemConsumeFunction extends AbstractNodePlugin {
 
     @Override
     public void syncScreenData(SyncScreenDataC2S message) {
-        super.syncScreenData(message);
         FilterGuiRegCommon.sync(message, filter, nodeEntity);
     }
 
@@ -132,7 +140,6 @@ public abstract class AbstractItemConsumeFunction extends AbstractNodePlugin {
 
     @Override
     public void registerSlots(EtherAdaptNodeContainerMenu menu) {
-        super.registerSlots(menu);
         menu.addSlotDraw(new OversizedEtherSlot(nodeEntity.etherStorage, 0, 28, 20));
         menu.addSlotDraw(new Slot(container, 0, 28, 44));
         menu.addDataSlot(new BaseDataSlot(() -> remainBurnTicks, (a) -> remainBurnTicks = a));
@@ -141,7 +148,6 @@ public abstract class AbstractItemConsumeFunction extends AbstractNodePlugin {
 
     @Override
     public void onDestroy() {
-        super.onDestroy();
         if (!container.isEmpty()) {
             nodeEntity.insertAllFrom(container);
             if (nodeEntity.getLevel() != null) {

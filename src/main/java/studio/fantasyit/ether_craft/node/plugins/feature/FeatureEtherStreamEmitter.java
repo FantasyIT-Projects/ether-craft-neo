@@ -15,6 +15,7 @@ import studio.fantasyit.ether_craft.network.c2s.SyncScreenDataC2S;
 import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
 import studio.fantasyit.ether_craft.node.plugins.base.AbstractNodePlugin;
 import studio.fantasyit.ether_craft.node.plugins.base.IEtherStreamCapabilityProviderPlugin;
+import studio.fantasyit.ether_craft.node.plugins.base.ITickOutputPlugin;
 import studio.fantasyit.ether_craft.node.plugins.base.PluginMenuContext;
 import studio.fantasyit.ether_craft.node.plugins.upgrade.EtherStreamSpeedDownUpgrade;
 import studio.fantasyit.ether_craft.node.plugins.upgrade.EtherStreamSpeedUpUpgrade;
@@ -26,7 +27,7 @@ import studio.fantasyit.ether_craft.stream.vholder.VirtualEtherStreamHolderManag
 
 import java.util.Optional;
 
-public class FeatureEtherStreamEmitter extends AbstractDirectionalFilterFeature {
+public class FeatureEtherStreamEmitter extends AbstractDirectionalFilterFeature implements ITickOutputPlugin {
     public static class MenuContext extends PluginMenuContext<FeatureEtherStreamEmitter> {
         public MenuContext(EtherAdaptNodeContainerMenu menu, FeatureEtherStreamEmitter plugin) {
             super(menu, plugin);

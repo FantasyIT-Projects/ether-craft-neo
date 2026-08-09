@@ -11,6 +11,7 @@ public class PluginMenuContext<T extends AbstractNodePlugin> {
 
     public PluginMenuContext(EtherAdaptNodeContainerMenu menu, T plugin) {
         this.plugin = plugin;
-        plugin.registerSlots(menu);
+        if (plugin instanceof IRegisterSlotsPlugin registerSlots)
+            registerSlots.registerSlots(menu);
     }
 }

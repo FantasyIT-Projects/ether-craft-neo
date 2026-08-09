@@ -12,10 +12,14 @@ import studio.fantasyit.ether_craft.network.c2s.SyncScreenDataC2S;
 import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
 import studio.fantasyit.ether_craft.node.plugins.base.AbstractNodePlugin;
 import studio.fantasyit.ether_craft.node.plugins.base.IEtherStreamCapabilityProviderPlugin;
+import studio.fantasyit.ether_craft.node.plugins.base.ILoadAdditionalPlugin;
+import studio.fantasyit.ether_craft.node.plugins.base.IRegisterSlotsPlugin;
+import studio.fantasyit.ether_craft.node.plugins.base.ISaveAdditionalPlugin;
+import studio.fantasyit.ether_craft.node.plugins.base.ISyncScreenDataPlugin;
 import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
 import studio.fantasyit.ether_craft.stream.data.StreamExtraProperty;
 
-public class FeatureEtherStreamProperty extends AbstractNodePlugin implements IEtherStreamCapabilityProviderPlugin {
+public class FeatureEtherStreamProperty extends AbstractNodePlugin implements IEtherStreamCapabilityProviderPlugin, ISaveAdditionalPlugin, ILoadAdditionalPlugin, ISyncScreenDataPlugin, IRegisterSlotsPlugin {
     public static final Identifier ID = EtherCraft.id("ether_stream_property");
     public static final Identifier SYNC_DISPLAY_TIME = EtherCraft.id("stream_property/display_time");
     public static final Identifier SYNC_LIMIT_ENABLED = EtherCraft.id("stream_property/limit_enabled");
@@ -59,7 +63,6 @@ public class FeatureEtherStreamProperty extends AbstractNodePlugin implements IE
 
     @Override
     public void saveAdditional(ValueOutput output) {
-        super.saveAdditional(output);
         output.putBoolean("displayTime", isDisplayTime);
         output.putBoolean("limitEnabled", limitEnabled);
         output.store("maxTravel", Codec.FLOAT, maxTravelLength);
@@ -70,7 +73,6 @@ public class FeatureEtherStreamProperty extends AbstractNodePlugin implements IE
 
     @Override
     public void loadAdditional(ValueInput input) {
-        super.loadAdditional(input);
         isDisplayTime = input.getBooleanOr("displayTime", false);
         limitEnabled = input.getBooleanOr("limitEnabled", false);
         maxTravelLength = input.read("maxTravel", Codec.FLOAT).orElse(0f);
@@ -81,7 +83,6 @@ public class FeatureEtherStreamProperty extends AbstractNodePlugin implements IE
 
     @Override
     public void syncScreenData(SyncScreenDataC2S message) {
-        super.syncScreenData(message);
         if (message.id().equals(SYNC_DISPLAY_TIME)) {
             isDisplayTime = message.data() == 1;
             nodeEntity.setChanged();
@@ -110,7 +111,6 @@ public class FeatureEtherStreamProperty extends AbstractNodePlugin implements IE
 
     @Override
     public void registerSlots(EtherAdaptNodeContainerMenu menu) {
-        super.registerSlots(menu);
         menu.addDataSlot(new BaseDataSlot(() -> isDisplayTime ? 1 : 0, t -> isDisplayTime = t == 1));
         menu.addDataSlot(new BaseDataSlot(() -> limitEnabled ? 1 : 0, t -> limitEnabled = t == 1));
         menu.addDataSlot(new BaseDataSlot(() -> toIntData(maxTravelLength), t -> maxTravelLength = Math.clamp(fromIntData(t), 0f, MAX_TRAVEL_LENGTH)));

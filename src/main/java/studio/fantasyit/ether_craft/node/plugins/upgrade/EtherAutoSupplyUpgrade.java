@@ -6,8 +6,9 @@ import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.block.node.EtherAdaptNodeEntity;
 import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
 import studio.fantasyit.ether_craft.node.plugins.base.AbstractNodePlugin;
+import studio.fantasyit.ether_craft.node.plugins.base.ITickWorkPlugin;
 
-public class EtherAutoSupplyUpgrade extends AbstractNodePlugin {
+public class EtherAutoSupplyUpgrade extends AbstractNodePlugin implements ITickWorkPlugin {
     public static final Identifier ID = EtherCraft.id("ether_auto_supply_upgrade");
 
     public EtherAutoSupplyUpgrade(EtherAdaptNodeEntity nodeEntity, InstalledPlugin installedId) {

@@ -1,27 +1,15 @@
 package studio.fantasyit.ether_craft.event;
 
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.level.ServerLevel;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.perf.ServerPerf;
-import studio.fantasyit.ether_craft.register.AttachmentDataRegistry;
-import studio.fantasyit.ether_craft.stream.vholder.VirtualEtherStreamHolderManager;
 
 @EventBusSubscriber(modid = EtherCraft.MODID)
 public class ServerTickHandler {
     @SubscribeEvent
     public static void onServerTick(ServerTickEvent.Post event) {
-        MinecraftServer server = event.getServer();
-        for (ServerLevel level : server.getAllLevels()) {
-            level.getData(AttachmentDataRegistry.INDEX_MAPPING_MANAGER).tick(level);
-            VirtualEtherStreamHolderManager.get(level).tick(level);
-            if (level.hasData(AttachmentDataRegistry.LEVEL_MUTE_SOURCE)) {
-                level.getData(AttachmentDataRegistry.LEVEL_MUTE_SOURCE).tick(level);
-            }
-        }
-        ServerPerf.tick(server);
+        ServerPerf.tick(event.getServer());
     }
 }

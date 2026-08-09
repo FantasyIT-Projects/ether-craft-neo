@@ -10,8 +10,13 @@ import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeContainerMenu;
 import studio.fantasyit.ether_craft.network.c2s.SyncScreenDataC2S;
 import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
 import studio.fantasyit.ether_craft.node.plugins.base.AbstractNodePlugin;
+import studio.fantasyit.ether_craft.node.plugins.base.ILoadAdditionalPlugin;
+import studio.fantasyit.ether_craft.node.plugins.base.IRegisterSlotsPlugin;
+import studio.fantasyit.ether_craft.node.plugins.base.ISaveAdditionalPlugin;
+import studio.fantasyit.ether_craft.node.plugins.base.ISyncScreenDataPlugin;
+import studio.fantasyit.ether_craft.node.plugins.base.ITickWorkPlugin;
 
-public class FunctionCreativeEther extends AbstractNodePlugin {
+public class FunctionCreativeEther extends AbstractNodePlugin implements ITickWorkPlugin, ILoadAdditionalPlugin, ISaveAdditionalPlugin, IRegisterSlotsPlugin, ISyncScreenDataPlugin {
     public static final Identifier ID = EtherCraft.id("generator/creative");
     public static final Identifier ID_FUNC = EtherCraft.id("generator/creative_f");
     public static final Identifier SYNC_VALUE = EtherCraft.id("generator/creative/sync");
@@ -31,19 +36,16 @@ public class FunctionCreativeEther extends AbstractNodePlugin {
 
     @Override
     public void loadAdditional(ValueInput input) {
-        super.loadAdditional(input);
         fillAmount = input.getIntOr("fillAmount", (int) nodeEntity.getMaxEther());
     }
 
     @Override
     public void saveAdditional(ValueOutput output) {
-        super.saveAdditional(output);
         output.putInt("fillAmount", fillAmount);
     }
 
     @Override
     public void registerSlots(EtherAdaptNodeContainerMenu menu) {
-        super.registerSlots(menu);
         menu.addDataSlot(new BaseDataSlot(() -> fillAmount, t -> fillAmount = t));
     }
 

@@ -1,8 +1,6 @@
 package studio.fantasyit.ether_craft.node.plugins;
 
 import net.minecraft.resources.Identifier;
-import net.minecraft.world.level.storage.ValueInput;
-import net.minecraft.world.level.storage.ValueOutput;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.block.base.ItemFilter;
 import studio.fantasyit.ether_craft.block.node.EtherAdaptNodeEntity;
@@ -14,7 +12,6 @@ import studio.fantasyit.ether_craft.menu.factory.slot.SingleStackSlot;
 import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeContainerMenu;
 import studio.fantasyit.ether_craft.menu.node.slot.OversizedEtherSlot;
 import studio.fantasyit.ether_craft.menu.node.slot.RangeLimitFilterSlot;
-import studio.fantasyit.ether_craft.node.NodeProperty;
 import studio.fantasyit.ether_craft.node.plugins.base.AbstractNodePlugin;
 import studio.fantasyit.ether_craft.node.plugins.base.PluginMenuContext;
 
@@ -27,23 +24,6 @@ public class MainPageDummyPlugin extends AbstractNodePlugin {
 
     public MainPageDummyPlugin(EtherAdaptNodeEntity nodeEntity, InstalledPlugin installedId) {
         super(nodeEntity, installedId);
-    }
-
-
-    @Override
-    public void modifyNodeProperty(NodeProperty nodeProperty) {
-
-    }
-
-
-    @Override
-    public void saveAdditional(ValueOutput output) {
-
-    }
-
-    @Override
-    public void loadAdditional(ValueInput input) {
-
     }
 
     public static int[][] SLOT_POS = {

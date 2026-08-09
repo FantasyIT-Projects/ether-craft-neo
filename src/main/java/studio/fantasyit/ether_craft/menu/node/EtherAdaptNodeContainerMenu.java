@@ -31,6 +31,7 @@ import studio.fantasyit.ether_craft.node.NodePluginManager;
 import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
 import studio.fantasyit.ether_craft.node.plugins.MainPageDummyPlugin;
 import studio.fantasyit.ether_craft.node.plugins.base.AbstractNodePlugin;
+import studio.fantasyit.ether_craft.node.plugins.base.ISyncScreenDataPlugin;
 import studio.fantasyit.ether_craft.node.plugins.base.PluginMenuContext;
 import studio.fantasyit.ether_craft.register.ItemRegistry;
 
@@ -223,8 +224,8 @@ public class EtherAdaptNodeContainerMenu extends BaseMenu<EtherAdaptNodeEntity> 
         } else {
             plugin = entity.featureUpgradeStorage.getPlugin(target.id());
         }
-        if (plugin != null) {
-            plugin.syncScreenData(message);
+        if (plugin instanceof ISyncScreenDataPlugin syncScreenData) {
+            syncScreenData.syncScreenData(message);
         }
     }
 

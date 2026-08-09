@@ -11,9 +11,14 @@ import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeContainerMenu;
 import studio.fantasyit.ether_craft.network.c2s.SyncScreenDataC2S;
 import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
 import studio.fantasyit.ether_craft.node.plugins.base.AbstractNodePlugin;
+import studio.fantasyit.ether_craft.node.plugins.base.ILoadAdditionalPlugin;
+import studio.fantasyit.ether_craft.node.plugins.base.IRegisterSlotsPlugin;
+import studio.fantasyit.ether_craft.node.plugins.base.ISaveAdditionalPlugin;
+import studio.fantasyit.ether_craft.node.plugins.base.ISyncScreenDataPlugin;
+import studio.fantasyit.ether_craft.node.plugins.base.ITickWorkPlugin;
 import studio.fantasyit.ether_craft.register.AttachmentDataRegistry;
 
-public class FunctionMute extends AbstractNodePlugin {
+public class FunctionMute extends AbstractNodePlugin implements ITickWorkPlugin, ILoadAdditionalPlugin, ISaveAdditionalPlugin, IRegisterSlotsPlugin, ISyncScreenDataPlugin {
     public static final Identifier ID = EtherCraft.id("mute");
     public static final Identifier SYNC_RX = EtherCraft.id("mute/rx");
     public static final Identifier SYNC_RY = EtherCraft.id("mute/ry");
@@ -29,7 +34,6 @@ public class FunctionMute extends AbstractNodePlugin {
 
     @Override
     public void loadAdditional(ValueInput input) {
-        super.loadAdditional(input);
         rx = input.getIntOr("rx", 1);
         ry = input.getIntOr("ry", 1);
         rz = input.getIntOr("rz", 1);
@@ -37,7 +41,6 @@ public class FunctionMute extends AbstractNodePlugin {
 
     @Override
     public void saveAdditional(ValueOutput output) {
-        super.saveAdditional(output);
         output.putInt("rx", rx);
         output.putInt("ry", ry);
         output.putInt("rz", rz);
@@ -45,7 +48,6 @@ public class FunctionMute extends AbstractNodePlugin {
 
     @Override
     public void registerSlots(EtherAdaptNodeContainerMenu menu) {
-        super.registerSlots(menu);
         menu.addDataSlot(new BaseDataSlot(() -> rx, t -> rx = t));
         menu.addDataSlot(new BaseDataSlot(() -> ry, t -> ry = t));
         menu.addDataSlot(new BaseDataSlot(() -> rz, t -> rz = t));

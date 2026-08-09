@@ -14,8 +14,14 @@ import studio.fantasyit.ether_craft.network.c2s.SyncScreenDataC2S;
 import studio.fantasyit.ether_craft.node.filter.FilterGuiRegCommon;
 import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
 import studio.fantasyit.ether_craft.node.plugins.base.AbstractNodePlugin;
+import studio.fantasyit.ether_craft.node.plugins.base.IEarlyHandleInputPlugin;
+import studio.fantasyit.ether_craft.node.plugins.base.ILoadAdditionalPlugin;
+import studio.fantasyit.ether_craft.node.plugins.base.IOverflowHandlerPlugin;
+import studio.fantasyit.ether_craft.node.plugins.base.IRegisterSlotsPlugin;
+import studio.fantasyit.ether_craft.node.plugins.base.ISaveAdditionalPlugin;
+import studio.fantasyit.ether_craft.node.plugins.base.ISyncScreenDataPlugin;
 
-public class DestructionUpgrade extends AbstractNodePlugin {
+public class DestructionUpgrade extends AbstractNodePlugin implements IEarlyHandleInputPlugin, IOverflowHandlerPlugin, ISyncScreenDataPlugin, IRegisterSlotsPlugin, ISaveAdditionalPlugin, ILoadAdditionalPlugin {
     public static final Identifier ID = EtherCraft.id("destruction");
     public static final Identifier SYNC_MODE = EtherCraft.id("destruction/mode");
 

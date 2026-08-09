@@ -14,8 +14,14 @@ import studio.fantasyit.ether_craft.menu.node.slot.OversizedEtherSlot;
 import studio.fantasyit.ether_craft.node.NodeProperty;
 import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
 import studio.fantasyit.ether_craft.node.plugins.base.AbstractNodePlugin;
+import studio.fantasyit.ether_craft.node.plugins.base.IEarlyHandleInputPlugin;
+import studio.fantasyit.ether_craft.node.plugins.base.ILoadAdditionalPlugin;
+import studio.fantasyit.ether_craft.node.plugins.base.IModifyNodePropertyPlugin;
+import studio.fantasyit.ether_craft.node.plugins.base.IRegisterSlotsPlugin;
+import studio.fantasyit.ether_craft.node.plugins.base.ISaveAdditionalPlugin;
+import studio.fantasyit.ether_craft.node.plugins.base.ITickWorkPlugin;
 
-public class FunctionEtherConverter extends AbstractNodePlugin {
+public class FunctionEtherConverter extends AbstractNodePlugin implements IEarlyHandleInputPlugin, IModifyNodePropertyPlugin, ITickWorkPlugin, ISaveAdditionalPlugin, ILoadAdditionalPlugin, IRegisterSlotsPlugin {
     public static final Identifier ID = EtherCraft.id("generator/ether_converter");
     public static final Identifier STATE = EtherCraft.id("generator/ether_converter_state");
 

@@ -15,9 +15,10 @@ import studio.fantasyit.ether_craft.menu.base.slot.BaseDataSlot;
 import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeContainerMenu;
 import studio.fantasyit.ether_craft.network.c2s.SyncScreenDataC2S;
 import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
+import studio.fantasyit.ether_craft.node.plugins.base.ITickOutputPlugin;
 import studio.fantasyit.ether_craft.register.ItemRegistry;
 
-public class FeatureDropperThrower extends AbstractDirectionalFilterFeature {
+public class FeatureDropperThrower extends AbstractDirectionalFilterFeature implements ITickOutputPlugin {
     public static final Identifier ID = EtherCraft.id("dropper_thrower");
     public static final Identifier SYNC_THROW_COUNT = EtherCraft.id("dropper_thrower/throw_count");
 

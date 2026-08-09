@@ -12,9 +12,10 @@ import studio.fantasyit.ether_craft.block.node.EtherAdaptNodeEntity;
 import studio.fantasyit.ether_craft.datapack.AccelerateRepeatCounts;
 import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
 import studio.fantasyit.ether_craft.node.plugins.base.AbstractNodePlugin;
+import studio.fantasyit.ether_craft.node.plugins.base.ITickWorkPlugin;
 import studio.fantasyit.ether_craft.register.Tags;
 
-public class FunctionGrowthAccelerator extends AbstractNodePlugin {
+public class FunctionGrowthAccelerator extends AbstractNodePlugin implements ITickWorkPlugin {
     public static final Identifier ID = EtherCraft.id("growth_accelerator");
     public static final Identifier ID_ALL = EtherCraft.id("growth_accelerator_all");
 

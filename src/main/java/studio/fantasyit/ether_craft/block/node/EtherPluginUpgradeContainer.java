@@ -8,11 +8,13 @@ import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import org.jetbrains.annotations.Nullable;
 import studio.fantasyit.ether_craft.EtherCraft;
-import studio.fantasyit.ether_craft.node.plugins.base.AbstractNodePlugin;
-import studio.fantasyit.ether_craft.node.NodePluginManager;
 import studio.fantasyit.ether_craft.node.NodeProperty;
+import studio.fantasyit.ether_craft.node.NodePluginManager;
 import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
+import studio.fantasyit.ether_craft.node.plugins.base.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -21,6 +23,22 @@ public class EtherPluginUpgradeContainer extends SimpleContainer {
     private final AbstractNodePlugin[] plugin;
     private final Predicate<NodePluginManager.PluginType> type;
     private final EtherAdaptNodeEntity entity;
+
+    private IPreTickPlugin[] preTickPlugins = new IPreTickPlugin[0];
+    private ITickInputPlugin[] tickInputPlugins = new ITickInputPlugin[0];
+    private ITickWorkPlugin[] tickWorkPlugins = new ITickWorkPlugin[0];
+    private ITickOutputPlugin[] tickOutputPlugins = new ITickOutputPlugin[0];
+    private IModifyNodePropertyPlugin[] modifyNodePropertyPlugins = new IModifyNodePropertyPlugin[0];
+    private IEarlyHandleInputPlugin[] earlyHandleInputPlugins = new IEarlyHandleInputPlugin[0];
+    private IOverflowHandlerPlugin[] overflowHandlerPlugins = new IOverflowHandlerPlugin[0];
+    private IOnDestroyPlugin[] onDestroyPlugins = new IOnDestroyPlugin[0];
+    private IOnBlockUpdatePlugin[] onBlockUpdatePlugins = new IOnBlockUpdatePlugin[0];
+    private IShouldSyncEtherPlugin[] shouldSyncEtherPlugins = new IShouldSyncEtherPlugin[0];
+    private IOnWrenchRotatePlugin[] onWrenchRotatePlugins = new IOnWrenchRotatePlugin[0];
+    private ISaveAdditionalPlugin[] saveAdditionalPlugins = new ISaveAdditionalPlugin[0];
+    private ILoadAdditionalPlugin[] loadAdditionalPlugins = new ILoadAdditionalPlugin[0];
+    private IRegisterSlotsPlugin[] registerSlotsPlugins = new IRegisterSlotsPlugin[0];
+    private ISyncScreenDataPlugin[] syncScreenDataPlugins = new ISyncScreenDataPlugin[0];
 
     public EtherPluginUpgradeContainer(int size, Predicate<NodePluginManager.PluginType> typePredicate, EtherAdaptNodeEntity etherAdaptNodeEntity) {
         super(size);
@@ -42,13 +60,33 @@ public class EtherPluginUpgradeContainer extends SimpleContainer {
         return pluginId[index];
     }
 
+    public IEarlyHandleInputPlugin[] earlyHandleInputPlugins() {
+        return earlyHandleInputPlugins;
+    }
+
+    public IOverflowHandlerPlugin[] overflowHandlerPlugins() {
+        return overflowHandlerPlugins;
+    }
+
+    public IOnBlockUpdatePlugin[] onBlockUpdatePlugins() {
+        return onBlockUpdatePlugins;
+    }
+
+    public IShouldSyncEtherPlugin[] shouldSyncEtherPlugins() {
+        return shouldSyncEtherPlugins;
+    }
+
+    public IOnWrenchRotatePlugin[] onWrenchRotatePlugins() {
+        return onWrenchRotatePlugins;
+    }
+
     @Override
     public void setChanged() {
         super.setChanged();
         for (int i = 0; i < plugin.length; i++) {
             if (!NodePluginManager.Instance.matches(this.type, getItem(i), pluginId[i])) {
-                if (plugin[i] != null)
-                    plugin[i].onDestroy();
+                if (plugin[i] instanceof IOnDestroyPlugin onDestroy)
+                    onDestroy.onDestroy();
                 plugin[i] = null;
                 pluginId[i] = NodePluginManager.Instance.getMatchingPluginId(this.type, getItem(i));
                 if (pluginId[i] != null) {
@@ -58,7 +96,60 @@ public class EtherPluginUpgradeContainer extends SimpleContainer {
                 }
             }
         }
+        rebuildPluginArrays();
         this.entity.pluginUpdate();
+    }
+
+    private void rebuildPluginArrays() {
+        List<IPreTickPlugin> preTick = new ArrayList<>();
+        List<ITickInputPlugin> tickInput = new ArrayList<>();
+        List<ITickWorkPlugin> tickWork = new ArrayList<>();
+        List<ITickOutputPlugin> tickOutput = new ArrayList<>();
+        List<IModifyNodePropertyPlugin> modifyNodeProperty = new ArrayList<>();
+        List<IEarlyHandleInputPlugin> earlyHandleInput = new ArrayList<>();
+        List<IOverflowHandlerPlugin> overflowHandler = new ArrayList<>();
+        List<IOnDestroyPlugin> onDestroy = new ArrayList<>();
+        List<IOnBlockUpdatePlugin> onBlockUpdate = new ArrayList<>();
+        List<IShouldSyncEtherPlugin> shouldSyncEther = new ArrayList<>();
+        List<IOnWrenchRotatePlugin> onWrenchRotate = new ArrayList<>();
+        List<ISaveAdditionalPlugin> saveAdditional = new ArrayList<>();
+        List<ILoadAdditionalPlugin> loadAdditional = new ArrayList<>();
+        List<IRegisterSlotsPlugin> registerSlots = new ArrayList<>();
+        List<ISyncScreenDataPlugin> syncScreenData = new ArrayList<>();
+        for (AbstractNodePlugin p : plugin) {
+            if (p == null)
+                continue;
+            if (p instanceof IPreTickPlugin t) preTick.add(t);
+            if (p instanceof ITickInputPlugin t) tickInput.add(t);
+            if (p instanceof ITickWorkPlugin t) tickWork.add(t);
+            if (p instanceof ITickOutputPlugin t) tickOutput.add(t);
+            if (p instanceof IModifyNodePropertyPlugin t) modifyNodeProperty.add(t);
+            if (p instanceof IEarlyHandleInputPlugin t) earlyHandleInput.add(t);
+            if (p instanceof IOverflowHandlerPlugin t) overflowHandler.add(t);
+            if (p instanceof IOnDestroyPlugin t) onDestroy.add(t);
+            if (p instanceof IOnBlockUpdatePlugin t) onBlockUpdate.add(t);
+            if (p instanceof IShouldSyncEtherPlugin t) shouldSyncEther.add(t);
+            if (p instanceof IOnWrenchRotatePlugin t) onWrenchRotate.add(t);
+            if (p instanceof ISaveAdditionalPlugin t) saveAdditional.add(t);
+            if (p instanceof ILoadAdditionalPlugin t) loadAdditional.add(t);
+            if (p instanceof IRegisterSlotsPlugin t) registerSlots.add(t);
+            if (p instanceof ISyncScreenDataPlugin t) syncScreenData.add(t);
+        }
+        preTickPlugins = preTick.toArray(new IPreTickPlugin[0]);
+        tickInputPlugins = tickInput.toArray(new ITickInputPlugin[0]);
+        tickWorkPlugins = tickWork.toArray(new ITickWorkPlugin[0]);
+        tickOutputPlugins = tickOutput.toArray(new ITickOutputPlugin[0]);
+        modifyNodePropertyPlugins = modifyNodeProperty.toArray(new IModifyNodePropertyPlugin[0]);
+        earlyHandleInputPlugins = earlyHandleInput.toArray(new IEarlyHandleInputPlugin[0]);
+        overflowHandlerPlugins = overflowHandler.toArray(new IOverflowHandlerPlugin[0]);
+        onDestroyPlugins = onDestroy.toArray(new IOnDestroyPlugin[0]);
+        onBlockUpdatePlugins = onBlockUpdate.toArray(new IOnBlockUpdatePlugin[0]);
+        shouldSyncEtherPlugins = shouldSyncEther.toArray(new IShouldSyncEtherPlugin[0]);
+        onWrenchRotatePlugins = onWrenchRotate.toArray(new IOnWrenchRotatePlugin[0]);
+        saveAdditionalPlugins = saveAdditional.toArray(new ISaveAdditionalPlugin[0]);
+        loadAdditionalPlugins = loadAdditional.toArray(new ILoadAdditionalPlugin[0]);
+        registerSlotsPlugins = registerSlots.toArray(new IRegisterSlotsPlugin[0]);
+        syncScreenDataPlugins = syncScreenData.toArray(new ISyncScreenDataPlugin[0]);
     }
 
     public static Identifier ID_NULL = EtherCraft.id("null");
@@ -66,10 +157,8 @@ public class EtherPluginUpgradeContainer extends SimpleContainer {
     public void saveAddition(ValueOutput output) {
         output.store("items", ItemStack.OPTIONAL_CODEC.listOf(), getItems());
         output.store("plugins", Identifier.CODEC.listOf(), Stream.of(pluginId).map(id -> id == null ? ID_NULL : id).toList());
-        for (int i = 0; i < pluginId.length; i++) {
-            if (pluginId[i] != null)
-                plugin[i].saveAdditional(output.child(String.format("plugin-%d", i)));
-        }
+        for (ISaveAdditionalPlugin save : saveAdditionalPlugins)
+            save.saveAdditional(output.child(String.format("plugin-%d", ((AbstractNodePlugin) save).installedId.id())));
     }
 
     public void loadAddition(ValueInput input) {
@@ -91,50 +180,35 @@ public class EtherPluginUpgradeContainer extends SimpleContainer {
                 }
             }
         });
-        for (int i = 0; i < pluginId.length; i++) {
-            if (pluginId[i] != null && plugin[i] != null)
-                plugin[i].loadAdditional(input.childOrEmpty(String.format("plugin-%d", i)));
-        }
+        rebuildPluginArrays();
+        for (ILoadAdditionalPlugin load : loadAdditionalPlugins)
+            load.loadAdditional(input.childOrEmpty(String.format("plugin-%d", ((AbstractNodePlugin) load).installedId.id())));
         setChanged();
     }
 
     public void tickInput() {
-        for (int i = 0; i < plugin.length; i++) {
-            AbstractNodePlugin AbstractNodePlugin = plugin[i];
-            if (AbstractNodePlugin != null) {
-                AbstractNodePlugin.tickInput();
-            }
-        }
+        for (ITickInputPlugin p : tickInputPlugins)
+            p.tickInput();
     }
 
     public void tickWork() {
-        for (int i = 0; i < plugin.length; i++) {
-            AbstractNodePlugin AbstractNodePlugin = plugin[i];
-            if (AbstractNodePlugin != null) {
-                AbstractNodePlugin.tickWork();
-            }
-        }
+        for (ITickWorkPlugin p : tickWorkPlugins)
+            p.tickWork();
     }
 
     public void tickOutput() {
-        for (int i = 0; i < plugin.length; i++) {
-            AbstractNodePlugin AbstractNodePlugin = plugin[i];
-            if (AbstractNodePlugin != null) {
-                AbstractNodePlugin.tickOutput();
-            }
-        }
+        for (ITickOutputPlugin p : tickOutputPlugins)
+            p.tickOutput();
     }
 
     public void modifyNodeProperty(NodeProperty nodeProperty) {
-        for (AbstractNodePlugin AbstractNodePlugin : plugin) {
-            if (AbstractNodePlugin != null)
-                AbstractNodePlugin.modifyNodeProperty(nodeProperty);
-        }
+        for (IModifyNodePropertyPlugin p : modifyNodePropertyPlugins)
+            p.modifyNodeProperty(nodeProperty);
     }
 
     public boolean preTick() {
-        for (AbstractNodePlugin plugin : this.plugin) {
-            if (plugin != null && !plugin.preTick())
+        for (IPreTickPlugin p : preTickPlugins) {
+            if (!p.preTick())
                 return false;
         }
         return true;
@@ -142,10 +216,8 @@ public class EtherPluginUpgradeContainer extends SimpleContainer {
 
     public int handleOverflow(ItemStack stack, int amount, TransactionContext transaction) {
         int consumed = 0;
-        for (AbstractNodePlugin plugin : this.plugin) {
-            if (plugin != null)
-                consumed += plugin.handleOverflow(stack, amount - consumed, transaction);
-        }
+        for (IOverflowHandlerPlugin p : overflowHandlerPlugins)
+            consumed += p.handleOverflow(stack, amount - consumed, transaction);
         return consumed;
     }
 }

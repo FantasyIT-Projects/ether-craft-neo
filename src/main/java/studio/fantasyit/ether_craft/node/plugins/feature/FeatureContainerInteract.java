@@ -21,6 +21,8 @@ import studio.fantasyit.ether_craft.menu.base.slot.BaseDataSlot;
 import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeContainerMenu;
 import studio.fantasyit.ether_craft.network.c2s.SyncScreenDataC2S;
 import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
+import studio.fantasyit.ether_craft.node.plugins.base.ITickInputPlugin;
+import studio.fantasyit.ether_craft.node.plugins.base.ITickOutputPlugin;
 import studio.fantasyit.ether_craft.register.ItemRegistry;
 
 import java.util.Collections;
@@ -28,7 +30,7 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Set;
 
-public class FeatureContainerInteract extends AbstractDirectionalFilterFeature {
+public class FeatureContainerInteract extends AbstractDirectionalFilterFeature implements ITickInputPlugin, ITickOutputPlugin {
     public static final Identifier ID = EtherCraft.id("container_interact");
     public static final Identifier SYNC_EXTRACT_MODE = EtherCraft.id("container_interact/extract_mode");
     public static final Identifier WORKING_MODE = EtherCraft.id("container_interact/working_mode");
