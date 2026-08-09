@@ -55,6 +55,8 @@ public class EtherProcessFactoryBlock extends BaseBlock {
     @Override
     protected InteractionResult useItemOn(ItemStack itemStack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
         if (itemStack.is(ItemRegistry.WRENCH)) {
+            if (!player.mayBuild())
+                return InteractionResult.PASS;
             @NotNull Direction facing = state.getValue(FACING);
             Direction counterClockWise = facing.getCounterClockWise(Direction.Axis.Y);
             level.setBlockAndUpdate(pos, state.setValue(FACING, counterClockWise));

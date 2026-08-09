@@ -26,6 +26,9 @@ public class ItemWrench extends Item {
         if (player == null)
             return InteractionResult.PASS;
 
+        if (!player.mayBuild())
+            return InteractionResult.PASS;
+
         if (!player.isShiftKeyDown())
             return InteractionResult.PASS;
 

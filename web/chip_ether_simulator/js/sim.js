@@ -26,6 +26,7 @@
 
 const params = {
     rateIn: 200,
+    batchSize: 1,
     a: 0.02,
     k: 5,
     overshoot: 1,
@@ -44,7 +45,7 @@ let chipDefs = [
 let nextChipId = 2;
 let chipE = new Map(); // id -> 当前以太（每颗）
 
-let state = { tick: 0, cache: 0, progress: 0, produced: 0 };
+let state = { tick: 0, buffer: 0, cache: 0, progress: 0, produced: 0 };
 let history = [];
 let windowSize = 2000;
 
@@ -96,8 +97,14 @@ function minSum() {
 function step() {
     state.tick++;
 
-    // 1) 输入
-    state.cache += params.rateIn;
+    // 1) 外部产生 → 外部缓存
+    state.buffer += params.rateIn;
+    // 2) 攒够单批次 → 整批注入机器缓存（残量留在外部缓存继续攒；batchSize=1 时每 tick 全注入，退化为原均匀输入）
+    const batches = Math.floor(state.buffer / params.batchSize);
+    if (batches > 0) {
+        state.cache += batches * params.batchSize;
+        state.buffer -= batches * params.batchSize;
+    }
 
     // 2) 批量脉冲分发（路径 B，按批次因数一次性分发）
     const ms = minSum();
@@ -151,7 +158,7 @@ function step() {
 }
 
 function resetSim() {
-    state = { tick: 0, cache: 0, progress: 0, produced: 0 };
+    state = { tick: 0, buffer: 0, cache: 0, progress: 0, produced: 0 };
     history = [];
     chipE.clear();
 }
@@ -376,6 +383,7 @@ function renderStats() {
         <span class="stat">tick <b>${state.tick}</b></span>
         <span class="stat">机器状态 <b style="color:${statusColor}">${statusTxt}</b></span>
         <span class="stat">机器缓存 <b>${fmt(state.cache)}</b></span>
+        <span class="stat">外部缓存 <b>${fmt(state.buffer)}</b></span>
         <span class="stat">总芯片以太 <b>${fmt(totalEther)}</b></span>
         <span class="stat">pMin <b>${pMin.toFixed(2)}</b></span>
         <span class="stat">产出 <b>${state.produced}</b></span>
@@ -456,6 +464,7 @@ function loadConfig() {
 function applyParamsToUI() {
     const setNum = (id, v) => { const el = document.getElementById(id); if (el) el.value = v; };
     setNum('rate-in', params.rateIn);
+    setNum('batch-size', params.batchSize);
     setNum('p-a', params.a); syncRangeVal('p-a', 'p-a-val', 3);
     setNum('p-k', params.k); syncRangeVal('p-k', 'p-k-val', 1);
     setNum('p-ov', params.overshoot); syncRangeVal('p-ov', 'p-ov-val', 2);
@@ -479,6 +488,7 @@ function bindInput(id, setter) {
 
 function readParams() {
     params.rateIn = Number(document.getElementById('rate-in').value) || 0;
+    params.batchSize = Math.max(1, Number(document.getElementById('batch-size').value) || 1);
     params.a = Number(document.getElementById('p-a').value);
     params.k = Number(document.getElementById('p-k').value);
     params.overshoot = Number(document.getElementById('p-ov').value);
@@ -576,6 +586,7 @@ function init() {
     bindInput('p-maxprogress', el => readParams());
     bindInput('p-msm', el => readParams());
     bindInput('rate-in', el => readParams());
+    bindInput('batch-size', el => readParams());
     bindInput('window-size', el => readParams());
 
     // 播放/暂停/单步/重置

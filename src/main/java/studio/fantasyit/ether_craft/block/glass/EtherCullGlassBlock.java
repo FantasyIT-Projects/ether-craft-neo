@@ -71,6 +71,8 @@ public class EtherCullGlassBlock extends EtherGlassBlock {
     @Override
     protected InteractionResult useItemOn(ItemStack itemStack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
         if (itemStack.is(ItemRegistry.WRENCH) && !player.isShiftKeyDown()) {
+            if (!player.mayBuild())
+                return InteractionResult.PASS;
             BooleanProperty prop = CULL_PROPS.get(hitResult.getDirection().getOpposite());
             level.setBlockAndUpdate(pos, state.cycle(prop));
             return InteractionResult.SUCCESS_SERVER;

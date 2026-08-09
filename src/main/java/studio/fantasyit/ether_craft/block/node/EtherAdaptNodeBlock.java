@@ -102,6 +102,8 @@ public class EtherAdaptNodeBlock extends BaseBlock {
 
     @Override
     protected InteractionResult useItemOn(ItemStack itemStack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+        if (!player.mayBuild() && (itemStack.is(ItemRegistry.WRENCH) || player.getOffhandItem().is(ItemRegistry.WRENCH)))
+            return InteractionResult.PASS;
         if (!player.isShiftKeyDown() && !level.isClientSide() && level.getBlockEntity(pos) instanceof EtherAdaptNodeEntity eane && player.getOffhandItem().is(ItemRegistry.WRENCH)) {
             NodePluginManager.PluginInfo info = NodePluginManager.Instance.getInfoFor(itemStack, NodePluginManager.FEATURE_UPGRADE_TYPE);
             if (info == null)
