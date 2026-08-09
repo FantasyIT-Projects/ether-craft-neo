@@ -64,4 +64,7 @@ public interface IEtherStreamLike {
     default boolean isInFullBlock() {
         return false;
     }
+
+    default void setSkip(BlockPos pos) {
+    }
 }

@@ -117,6 +117,7 @@ public class EtherStreamBreakBlockCapability implements IStreamCapability {
         } else {
             level.removeBlock(pos, false);
         }
+        streamEntity.setSkip(pos);
 
         drops.removeIf(ItemStack::isEmpty);
 

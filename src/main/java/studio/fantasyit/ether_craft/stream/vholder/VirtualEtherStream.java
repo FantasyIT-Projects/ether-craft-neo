@@ -415,4 +415,9 @@ public class VirtualEtherStream implements IEtherStreamLike {
         trackingDirty = true;
         holder.markTrackingPending(this);
     }
+
+    @Override
+    public void setSkip(BlockPos pos) {
+        holder.markBlockSkipped(pos);
+    }
 }

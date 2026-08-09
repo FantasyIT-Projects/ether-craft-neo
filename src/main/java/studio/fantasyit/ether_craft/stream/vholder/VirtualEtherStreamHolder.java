@@ -368,7 +368,7 @@ public class VirtualEtherStreamHolder {
         }
     }
 
-    private void markBlockSkipped(BlockPos blockPos) {
+    public void markBlockSkipped(BlockPos blockPos) {
         if (cachedBlockStates == null || cachedBlockPoses == null) return;
         int index = blockPos.get(direction.getAxis()) - pos.get(direction.getAxis());
         if (direction.getAxisDirection() == Direction.AxisDirection.NEGATIVE) {

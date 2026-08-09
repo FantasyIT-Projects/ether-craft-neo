@@ -1,64 +1,106 @@
 package studio.fantasyit.ether_craft.block.node;
 
 import net.minecraft.resources.Identifier;
-import studio.fantasyit.ether_craft.node.NodePluginManager;
 import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
-import studio.fantasyit.ether_craft.node.plugins.base.AbstractNodePlugin;
 
-import java.util.ArrayList;
 import java.util.IdentityHashMap;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 public class QueuedTicket {
-    public Map<Identifier, List<InstalledPlugin>> queuedPlugins = new IdentityHashMap<>();
-    public Map<InstalledPlugin, Integer> queuedCd = new IdentityHashMap<>();
+    private final Map<Identifier, Slot> slots = new IdentityHashMap<>(4);
+    private final Map<InstalledPlugin, Node> byPlugin = new IdentityHashMap<>(8);
+    private long tickCount;
+
+    private static final class Slot {
+        Node first, last;
+
+        void append(Node node) {
+            node.slot = this;
+            node.qPrev = last;
+            node.qNext = null;
+            if (last != null)
+                last.qNext = node;
+            last = node;
+            if (first == null)
+                first = node;
+        }
+
+        void remove(Node node) {
+            if (node.qPrev != null)
+                node.qPrev.qNext = node.qNext;
+            else
+                first = node.qNext;
+            if (node.qNext != null)
+                node.qNext.qPrev = node.qPrev;
+            else
+                last = node.qPrev;
+            node.slot = null;
+            node.qPrev = null;
+            node.qNext = null;
+        }
+    }
+
+    private static final class Node {
+        final InstalledPlugin plugin;
+        Slot slot;
+        Node qPrev, qNext;
+        long cdTargetTick;
+        boolean inCd;
+
+        Node(InstalledPlugin plugin) {
+            this.plugin = plugin;
+        }
+    }
 
     public boolean allowed(Identifier actionId, InstalledPlugin plugin) {
-        if (queuedCd.containsKey(plugin))
-            return false;
-        List<InstalledPlugin> queue = queuedPlugins.get(actionId);
-        if (queue == null) {
-            queue = new ArrayList<>(1);
-            queuedPlugins.put(actionId, queue);
+        Node node = byPlugin.get(plugin);
+        if (node == null) {
+            node = new Node(plugin);
+            byPlugin.put(plugin, node);
         }
-        if (!queue.contains(plugin))
-            queue.add(plugin);
-        return queue.getFirst().equals(plugin);
+        if (node.inCd) {
+            if (tickCount < node.cdTargetTick)
+                return false;
+            node.inCd = false;
+        }
+        if (node.slot != null)
+            return node.slot.first == node;
+        Slot slot = slots.get(actionId);
+        if (slot == null) {
+            slot = new Slot();
+            slots.put(actionId, slot);
+        }
+        boolean wasEmpty = slot.first == null;
+        slot.append(node);
+        return wasEmpty;
     }
 
     public void requeue(Identifier actionId, InstalledPlugin plugin, int cd) {
-        List<InstalledPlugin> queue = queuedPlugins.get(actionId);
-        if (queue == null)
+        Slot slot = slots.get(actionId);
+        if (slot == null)
             return;
-        if (!queue.isEmpty() && queue.getFirst().equals(plugin))
-            queue.removeFirst();
-        if (cd > 0)
-            queuedCd.put(plugin, cd);
+        Node node = byPlugin.get(plugin);
+        if (node == null) {
+            node = new Node(plugin);
+            byPlugin.put(plugin, node);
+        }
+        if (node.slot == slot && slot.first == node)
+            slot.remove(node);
+        if (cd > 0) {
+            node.inCd = true;
+            node.cdTargetTick = tickCount + cd + 1;
+        }
     }
 
     public void tick(EtherAdaptNodeEntity nodeEntity) {
-        Iterator<Map.Entry<InstalledPlugin, Integer>> it = queuedCd.entrySet().iterator();
-        while (it.hasNext()) {
-            Map.Entry<InstalledPlugin, Integer> entry = it.next();
-            if (entry.getValue() <= 0 || !isCurrentInstance(nodeEntity, entry.getKey()))
-                it.remove();
-            else
-                entry.setValue(entry.getValue() - 1);
+        tickCount++;
+        for (Slot slot : slots.values()) {
+            for (Node node = slot.first; node != null; ) {
+                Node next = node.qNext;
+                if (!nodeEntity.isPluginInstalled(node.plugin))
+                    slot.remove(node);
+                node = next;
+            }
         }
-        for (List<InstalledPlugin> queue : queuedPlugins.values())
-            queue.removeIf(plugin -> !nodeEntity.isPluginInstalled(plugin));
-    }
-
-    private boolean isCurrentInstance(EtherAdaptNodeEntity nodeEntity, InstalledPlugin plugin) {
-        AbstractNodePlugin current;
-        if (plugin.type() == NodePluginManager.PluginType.FUNCTION)
-            current = nodeEntity.functionStorage.getPlugin(plugin.id());
-        else if (plugin.type() == NodePluginManager.PluginType.FEATURE || plugin.type() == NodePluginManager.PluginType.UPGRADE)
-            current = nodeEntity.featureUpgradeStorage.getPlugin(plugin.id());
-        else
-            return false;
-        return current != null && current.installedId == plugin;
     }
 }
