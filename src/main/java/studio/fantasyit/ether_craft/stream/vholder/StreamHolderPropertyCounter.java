@@ -8,21 +8,25 @@ public class StreamHolderPropertyCounter {
     private int countNotDisplayTime;
 
     public void addStream(StreamExtraProperty streamExtraProperty) {
-        if(!streamExtraProperty.isDisplayTime) countNotDisplayTime++;
-        if(!streamExtraProperty.isDisplayTime && !streamExtraProperty.noBlockHit) countBlockCollide++;
-        if(!streamExtraProperty.noEntityHit) countEntityCollide++;
+        if (!streamExtraProperty.isDisplayTime) countNotDisplayTime++;
+        if (!streamExtraProperty.noBlockHit) countBlockCollide++;
+        if (!streamExtraProperty.noEntityHit) countEntityCollide++;
     }
+
     public void removeStream(StreamExtraProperty streamExtraProperty) {
-        if(!streamExtraProperty.isDisplayTime) countNotDisplayTime--;
-        if(!streamExtraProperty.isDisplayTime && !streamExtraProperty.noBlockHit) countBlockCollide--;
-        if(!streamExtraProperty.noEntityHit) countEntityCollide--;
+        if (!streamExtraProperty.isDisplayTime) countNotDisplayTime--;
+        if (!streamExtraProperty.noBlockHit) countBlockCollide--;
+        if (!streamExtraProperty.noEntityHit) countEntityCollide--;
     }
+
     public boolean isNoBlockCollide() {
         return countBlockCollide == 0;
     }
+
     public boolean isNoEntityCollide() {
         return countEntityCollide == 0;
     }
+
     public boolean isDisplayTime() {
         return countNotDisplayTime == 0;
     }

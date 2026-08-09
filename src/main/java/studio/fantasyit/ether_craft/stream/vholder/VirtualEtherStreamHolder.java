@@ -14,6 +14,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.ShelfBlock;
 import net.minecraft.world.level.block.entity.ShelfBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -70,6 +71,9 @@ public class VirtualEtherStreamHolder {
     private boolean[] cachedSkip;
 
     StreamHolderPropertyCounter propertyCounter = new StreamHolderPropertyCounter();
+
+    private record BlockCollision(BlockHitResult hit, BlockState state) {
+    }
 
 
     public VirtualEtherStreamHolder(PosDir posDir, VirtualEtherStreamHolderManager manager, @NotNull ServerLevel level) {
@@ -169,22 +173,20 @@ public class VirtualEtherStreamHolder {
         }
 
         ServerPerf.startRecording(posDir);
+        holderMaxDistance = getMaxDistance() + 1;
         updateTracking();
         registerPendingProperties();
 
-        //VES tick，包含以太量处理/位置变化等
-        for (int i = 0, size = streams.size(); i < size; i++) {
-            VirtualEtherStream ves = streams.get(i);
-            if (ves.isDisplayTime()) ves.displayTimeTick();
-            else ves.tick();
+        if (!propertyCounter.isNoBlockCollide() && !propertyCounter.isDisplayTime()) {
+            ensureBlockSnapshot(holderMaxDistance + 1);
         }
 
+        //VES tick，包含以太量处理/位置变化等
+        tickAllStreams();
         //碰撞
         tickCollideAll(holderMaxDistance);
         //合并单格过密项
         mergeAll(holderMaxDistance);
-
-        holderMaxDistance = getNxtMaxDist() + 1;
         collectSync(acc);
         updateNoLongerTracking();
         unregisterPendingProperties();
@@ -192,7 +194,22 @@ public class VirtualEtherStreamHolder {
         ServerPerf.end(level);
     }
 
-    private int getNxtMaxDist() {
+    private void tickAllStreams() {
+        BlockState[] blockStates = cachedBlockStates;
+        BlockPos[] blockPoses = cachedBlockPoses;
+        VoxelShape[] shapes = cachedShapes;
+        for (int i = 0, size = streams.size(); i < size; i++) {
+            VirtualEtherStream ves = streams.get(i);
+            if (ves.tickCount == 0) {
+                int dist = ves.blockDistance();
+                ves.firstTick(blockPoses[dist], blockStates[dist], shapes[dist]);
+            }
+            if (ves.isDisplayTime()) ves.displayTimeTick();
+            else ves.tick();
+        }
+    }
+
+    private int getMaxDistance() {
         int nxtMaxDist = 0;
         for (VirtualEtherStream ves : streams) {
             if (!ves.markToRemove) {
@@ -246,16 +263,22 @@ public class VirtualEtherStreamHolder {
         cachedSkip = skip;
     }
 
+    BlockState getBlockState(int dist) {
+        return cachedBlockStates[dist];
+    }
+
+    VoxelShape getCollisionShape(int dist) {
+        return cachedShapes[dist];
+    }
+
+    boolean isFullBlock(int dist) {
+        return Block.isShapeFullBlock(getCollisionShape(dist));
+    }
+
     private void tickCollideAll(int maxBlockDist) {
-        int maxClipDist = maxBlockDist + 1;
         boolean needBlockCollide = !propertyCounter.isNoBlockCollide();
         boolean needEntityCollide = !propertyCounter.isNoEntityCollide();
         if (!needEntityCollide && !needBlockCollide) return;
-        boolean isDisplayTimeFull = propertyCounter.isDisplayTime();
-
-        if (needBlockCollide && !isDisplayTimeFull) {
-            ensureBlockSnapshot(maxClipDist);
-        }
         BlockState[] blockStates = cachedBlockStates;
         BlockPos[] blockPoses = cachedBlockPoses;
         VoxelShape[] shapes = cachedShapes;
@@ -281,7 +304,7 @@ public class VirtualEtherStreamHolder {
                 continue;
             }
 
-            BlockHitResult blockHit = null;
+            BlockCollision blockCollision = null;
             double blockDist = Double.MAX_VALUE;
             if (needBlockCollide && !ves.getExtraProperty().noBlockHit) {
                 int clipStart = Math.clamp(ves.blockDistancePrev(), 0, blockStates.length - 1);
@@ -296,9 +319,9 @@ public class VirtualEtherStreamHolder {
                 }
                 if (noSkip) {
                     //获取最近的方块碰撞
-                    blockHit = collideTryBlock(ves, blockStates, blockPoses, skip, shapes, clipStart, clipEnd, oldPos, newPos);
-                    if (blockHit != null) {
-                        blockDist = oldPos.distanceToSqr(blockHit.getLocation());
+                    blockCollision = collideTryBlock(ves, blockStates, blockPoses, skip, shapes, clipStart, clipEnd, oldPos, newPos);
+                    if (blockCollision != null) {
+                        blockDist = oldPos.distanceToSqr(blockCollision.hit().getLocation());
                     }
                 }
             }
@@ -312,8 +335,8 @@ public class VirtualEtherStreamHolder {
             //确认将碰到entity
             if (entityHit != null) {
                 commonHitEntity(entityHit, ves);
-            } else if (blockHit != null) {
-                commonHitBlock(blockHit, ves);
+            } else if (blockCollision != null) {
+                commonHitBlock(blockCollision, ves);
             }
         }
 
@@ -350,9 +373,10 @@ public class VirtualEtherStreamHolder {
         return false;
     }
 
-    private void commonHitBlock(BlockHitResult blockHit, VirtualEtherStream ves) {
+    private void commonHitBlock(BlockCollision blockCollision, VirtualEtherStream ves) {
+        BlockHitResult blockHit = blockCollision.hit();
+        BlockState hitBlockState = blockCollision.state();
         boolean handled = false;
-        BlockState hitBlockState = level.getBlockState(blockHit.getBlockPos());
         if (hitBlockState.getBlock() instanceof ShelfBlock) {
             if (level.getBlockEntity(blockHit.getBlockPos()) instanceof ShelfBlockEntity shelf) {
                 PlatingChargingUtil.tryChargeShelf(ves, shelf);
@@ -429,7 +453,7 @@ public class VirtualEtherStreamHolder {
         return hit;
     }
 
-    private @Nullable BlockHitResult collideTryBlock(VirtualEtherStream ves, BlockState[] blockStates, BlockPos[] blockPoses, boolean[] skip, VoxelShape[] shapes, int clipStart, int clipEnd, Vec3 oldPos, Vec3 newPos) {
+    private @Nullable BlockCollision collideTryBlock(VirtualEtherStream ves, BlockState[] blockStates, BlockPos[] blockPoses, boolean[] skip, VoxelShape[] shapes, int clipStart, int clipEnd, Vec3 oldPos, Vec3 newPos) {
         for (int j = clipStart; j <= clipEnd; j++) {
             if (skip[j]) continue;
             BlockState blockState = blockStates[j];
@@ -445,7 +469,7 @@ public class VirtualEtherStreamHolder {
                 continue;
             BlockHitResult hit = shapes[j].clip(oldPos, newPos, pos);
             if (hit != null) {
-                return hit;
+                return new BlockCollision(hit, blockState);
             }
         }
         return null;

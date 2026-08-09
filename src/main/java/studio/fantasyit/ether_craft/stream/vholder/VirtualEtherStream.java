@@ -89,12 +89,6 @@ public class VirtualEtherStream implements IEtherStreamLike {
         this.direction = posDir.dir();
         this.posDir = posDir;
         this.currentDistance = startOffset + startSpeed * tickCount;
-        BlockPos startBlockPos = BlockPos.containing(startPos);
-        BlockState blockState = level.getBlockState(startBlockPos);
-        this.setRunIntoEtherGlass(EtherGlassUtil.isEtherGlass(blockState));
-        this.inFullBlock = blockState.isCollisionShapeFullBlock(level, startBlockPos);
-        this.needsEtherConsumerSync = false;
-        this.needsEtherSync = false;
         if (level instanceof ServerLevel sl) {
             sl.getServer().getPlayerList().getPlayers().forEach(player -> {
                 if (player.distanceToSqr(startPos) <= Config.etherStreamSyncDistance * Config.etherStreamSyncDistance)
@@ -246,6 +240,16 @@ public class VirtualEtherStream implements IEtherStreamLike {
         markToSyncData = true;
     }
 
+    public void firstTick(BlockPos pos, BlockState currentBlockState, VoxelShape voxelShape) {
+        setRunIntoEtherGlass(EtherGlassUtil.isEtherGlass(currentBlockState));
+        for (IStreamCapability cap : this.capabilities) {
+            cap.firstTick(this);
+        }
+        this.onRunIntoNewBlock(null, null, pos, currentBlockState, voxelShape);
+        this.needsEtherConsumerSync = false;
+        this.needsEtherSync = false;
+    }
+
     public void tick() {
         if (this.consumer.isNoEtherCost() != this.extraProperty.noEtherCost) {
             this.consumer.setNoEtherCost(this.extraProperty.noEtherCost);
@@ -256,14 +260,6 @@ public class VirtualEtherStream implements IEtherStreamLike {
             this.needsEtherConsumerSync = true;
         }
 
-        if (this.tickCount == 0) {
-            for (IStreamCapability cap : this.capabilities) {
-                cap.firstTick(this);
-            }
-            BlockPos pos = blockPosition();
-            BlockState blockState = level.getBlockState(pos);
-            this.onRunIntoNewBlock(null, null, pos, blockState, blockState.getCollisionShape(level, pos));
-        }
         this.tickCount++;
 
         for (IStreamCapability cap : this.capabilities) {
@@ -298,7 +294,6 @@ public class VirtualEtherStream implements IEtherStreamLike {
                 cap.setConsumer(newStream.consumer);
             }
             newStream.consumer.fromState(this.consumer.toState());
-            newStream.consumer.setIsInEtherGlass(newStream.runIntoEtherGlass);
             newStream.toSyncData = new ArrayList<>(this.toSyncData);
             newStream.tickCount = 0;
             for (IStreamCapability cap : newStream.capabilities) {
