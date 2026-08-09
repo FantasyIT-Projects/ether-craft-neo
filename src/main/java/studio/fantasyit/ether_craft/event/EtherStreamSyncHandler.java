@@ -17,6 +17,7 @@ public class EtherStreamSyncHandler {
             level.getData(AttachmentDataRegistry.INDEX_MAPPING_MANAGER).syncToPlayer(player);
             VirtualEtherStreamHolderManager mgr = VirtualEtherStreamHolderManager.get(level);
             mgr.syncAndStratTrackingByPlayer(player);
+            mgr.clearQuickState(player.getId());
         }
     }
 }

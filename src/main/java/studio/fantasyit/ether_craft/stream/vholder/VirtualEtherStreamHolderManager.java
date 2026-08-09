@@ -86,6 +86,12 @@ public class VirtualEtherStreamHolderManager {
         }
     }
 
+    public void clearQuickState(int playerId) {
+        for (Map.Entry<PosDir, VirtualEtherStreamHolder> entry : holders.entrySet()) {
+            entry.getValue().clearPlayerQuickState(playerId);
+        }
+    }
+
     public static VirtualEtherStreamHolderManager get(ServerLevel level) {
         VirtualEtherStreamHolderManager mgr = level.getData(AttachmentDataRegistry.VESHM);
         mgr.ensureLazy(level);

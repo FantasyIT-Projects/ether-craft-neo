@@ -549,6 +549,10 @@ public class VirtualEtherStreamHolder {
         });
     }
 
+    void clearPlayerQuickState(int playerId) {
+        playerLastCreateId.remove(playerId);
+    }
+
     private void collectSync(PlayerPayloadAccumulator acc) {
         List<VirtualEtherStream> collectedToCreate = new ArrayList<>();
         List<Integer> collectedToRemove = new ArrayList<>();
