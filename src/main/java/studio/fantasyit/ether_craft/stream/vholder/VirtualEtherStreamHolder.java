@@ -312,12 +312,17 @@ public class VirtualEtherStreamHolder {
         for (int i = 0, size = streams.size(); i < size; i++) {
             VirtualEtherStream ves = streams.get(i);
             if (ves.markToRemove) continue;
-            Vec3 newPos = ves.position();
-            Vec3 oldPos = newPos.subtract(ves.motion);
+            double d = ves.currentDistance;
+            double nx = ves.offsetCenter.x + ves.offsetUnit.x * d;
+            double ny = ves.offsetCenter.y + ves.offsetUnit.y * d;
+            double nz = ves.offsetCenter.z + ves.offsetUnit.z * d;
+            double ox = nx - ves.motion.x;
+            double oy = ny - ves.motion.y;
+            double oz = nz - ves.motion.z;
 
             //DisplayTime流：仅极简实体判定(contains)，命中即消失
             if (ves.isDisplayTime()) {
-                if (needEntityCollide && !ves.getExtraProperty().noEntityHit && hitEntityForDisplayTime(ves, newPos, canHitEntity)) {
+                if (needEntityCollide && !ves.getExtraProperty().noEntityHit && hitEntityForDisplayTime(ves, nx, ny, nz, canHitEntity)) {
                     ves.markDead(null);
                 }
                 continue;
@@ -338,9 +343,13 @@ public class VirtualEtherStreamHolder {
                 }
                 if (noSkip) {
                     //获取最近的方块碰撞
-                    blockCollision = collideTryBlock(ves, blockStates, blockPoses, skip, shapes, clipStart, clipEnd, oldPos, newPos);
+                    blockCollision = collideTryBlock(ves, blockStates, blockPoses, skip, shapes,
+                            clipStart, clipEnd, nx, ny, nz, ox, oy, oz);
                     if (blockCollision != null) {
-                        blockDist = oldPos.distanceToSqr(blockCollision.hit().getLocation());
+                        Vec3 hitLoc = blockCollision.hit().getLocation();
+                        blockDist = (ox - hitLoc.x) * (ox - hitLoc.x)
+                                + (oy - hitLoc.y) * (oy - hitLoc.y)
+                                + (oz - hitLoc.z) * (oz - hitLoc.z);
                     }
                 }
             }
@@ -348,7 +357,7 @@ public class VirtualEtherStreamHolder {
             //判断比方块更近的实体碰撞
             EntityHitResult entityHit = null;
             if (needEntityCollide && !ves.getExtraProperty().noEntityHit) {
-                entityHit = collideTryEntity(ves, canHitEntity, blockDist, oldPos, newPos);
+                entityHit = collideTryEntity(ves, canHitEntity, blockDist, nx, ny, nz, ox, oy, oz);
             }
 
             //确认将碰到entity
@@ -369,15 +378,19 @@ public class VirtualEtherStreamHolder {
                 boolean crossed = bdp != bd;
                 boolean changedAtCurrent = isBlockChanged(id2);
                 if (!crossed && !changedAtCurrent) continue;
-                BlockPos newPos = BlockPos.containing(ves.position());
+                double d = ves.currentDistance;
+                BlockPos newPos = BlockPos.containing(
+                        ves.offsetCenter.x + ves.offsetUnit.x * d,
+                        ves.offsetCenter.y + ves.offsetUnit.y * d,
+                        ves.offsetCenter.z + ves.offsetUnit.z * d);
                 ves.onRunIntoNewBlock(newPos, blockStates[id2], shapes[id2]);
             }
         }
     }
 
-    private boolean hitEntityForDisplayTime(VirtualEtherStream ves, Vec3 pos, List<Entity> entities) {
+    private boolean hitEntityForDisplayTime(VirtualEtherStream ves, double nx, double ny, double nz, List<Entity> entities) {
         for (Entity entity : entities) {
-            if (entity.getBoundingBox().inflate(0.3).contains(pos)) return true;
+            if (entity.getBoundingBox().inflate(0.3).contains(nx, ny, nz)) return true;
         }
         return false;
     }
@@ -436,10 +449,14 @@ public class VirtualEtherStreamHolder {
         }
     }
 
-    private @Nullable EntityHitResult collideTryEntity(VirtualEtherStream ves, List<Entity> entities, double blockDist, Vec3 oldPos, Vec3 newPos) {
+    private @Nullable EntityHitResult collideTryEntity(VirtualEtherStream ves, List<Entity> entities, double blockDist,
+            double nx, double ny, double nz, double ox, double oy, double oz) {
         Entity hitEntity = null;
-        Vec3 entityHitAt = null;
+        Vec3 oldPos = new Vec3(ox, oy, oz);
+        Vec3 newPos = new Vec3(nx, ny, nz);
         double nearestDist = blockDist;
+        EntityHitResult hit = null;
+        Vec3 entityHitAt = null;
         for (Entity entity : entities) {
             if (entity.is(Tags.ETHER_STREAM_PASS_THROUGH_ENTITY))
                 continue;
@@ -463,14 +480,15 @@ public class VirtualEtherStreamHolder {
                 entityHitAt = localHitAt;
             }
         }
-        EntityHitResult hit = null;
         if (hitEntity != null) {
             hit = new EntityHitResult(hitEntity, entityHitAt);
         }
         return hit;
     }
 
-    private @Nullable BlockCollision collideTryBlock(VirtualEtherStream ves, BlockState[] blockStates, BlockPos[] blockPoses, boolean[] skip, VoxelShape[] shapes, int clipStart, int clipEnd, Vec3 oldPos, Vec3 newPos) {
+    private @Nullable BlockCollision collideTryBlock(VirtualEtherStream ves, BlockState[] blockStates, BlockPos[] blockPoses,
+            boolean[] skip, VoxelShape[] shapes,
+            int clipStart, int clipEnd, double nx, double ny, double nz, double ox, double oy, double oz) {
         for (int j = clipStart; j <= clipEnd; j++) {
             if (skip[j]) continue;
             BlockState blockState = blockStates[j];
@@ -484,7 +502,7 @@ public class VirtualEtherStreamHolder {
             }
             if (passThrough)
                 continue;
-            BlockHitResult hit = shapes[j].clip(oldPos, newPos, pos);
+            BlockHitResult hit = shapes[j].clip(new Vec3(ox, oy, oz), new Vec3(nx, ny, nz), pos);
             if (hit != null) {
                 return new BlockCollision(hit, blockState);
             }

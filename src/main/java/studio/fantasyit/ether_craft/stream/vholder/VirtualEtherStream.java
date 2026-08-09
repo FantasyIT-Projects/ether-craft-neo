@@ -396,7 +396,7 @@ public class VirtualEtherStream implements IEtherStreamLike {
         if (runIntoEtherGlass != isEtherGlass2) {
             setRunIntoEtherGlass(isEtherGlass2);
         }
-        this.inFullBlock = Block.isShapeFullBlock(newShape);
+        this.inFullBlock = !newShape.isEmpty() && Block.isShapeFullBlock(newShape);
         for (IStreamCapability cap : capabilities) {
             cap.runIntoNewBlock(this, newPos, newState);
         }
