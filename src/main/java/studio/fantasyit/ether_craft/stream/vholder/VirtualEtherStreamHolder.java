@@ -111,7 +111,7 @@ public class VirtualEtherStreamHolder {
                 level,
                 this
         );
-        if (sameSpeedHolder) {
+        if (sameSpeedHolder && !streams.isEmpty()) {
             if (streams.getFirst().startSpeed != speed) {
                 sameSpeedHolder = false;
             }
@@ -210,6 +210,7 @@ public class VirtualEtherStreamHolder {
         updateNoLongerTracking();
         unregisterPendingProperties();
         streams.removeIf(ves -> ves.markToRemove);
+        if (streams.isEmpty()) sameSpeedHolder = false;
         ServerPerf.end(level);
     }
 
@@ -231,7 +232,7 @@ public class VirtualEtherStreamHolder {
     }
 
     private void updateMaxDistance() {
-        if (sameSpeedHolder) {
+        if (sameSpeedHolder && !streams.isEmpty()) {
             VirtualEtherStream fs = streams.getFirst();
             holderMaxDistance = fs.blockDistance() + 1;
             return;
@@ -307,7 +308,9 @@ public class VirtualEtherStreamHolder {
         cachedHasAnyChanged = hasAnyChanged;
     }
 
+    @Nullable
     BlockState getBlockState(int dist) {
+        if (cachedBlockStates == null) return null;
         return cachedBlockStates[dist];
     }
 
@@ -315,12 +318,15 @@ public class VirtualEtherStreamHolder {
         return cachedChanged != null && cachedChanged[dist];
     }
 
+    @Nullable
     VoxelShape getCollisionShape(int dist) {
+        if (cachedShapes == null) return null;
         return cachedShapes[dist];
     }
 
     boolean isFullBlock(int dist) {
-        return Block.isShapeFullBlock(getCollisionShape(dist));
+        VoxelShape shape = getCollisionShape(dist);
+        return shape != null && Block.isShapeFullBlock(shape);
     }
 
     private void tickCollideAll(int maxBlockDist) {
