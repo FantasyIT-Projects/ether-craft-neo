@@ -115,6 +115,9 @@ gradle-app.setting
 run/
 runs/
 
+# Test-save working copies for coverage collection
+test_saves/
+
 # Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
 !gradle-wrapper.jar
 /src/generated/**/.cache
