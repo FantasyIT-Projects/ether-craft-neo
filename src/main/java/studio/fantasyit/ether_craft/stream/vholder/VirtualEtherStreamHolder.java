@@ -221,7 +221,9 @@ public class VirtualEtherStreamHolder {
             VirtualEtherStream ves = streams.get(i);
             if (ves.tickCount == 0) {
                 int dist = ves.blockDistance();
-                ves.firstTick(blockPoses[dist], blockStates[dist], shapes[dist]);
+                if (ves.getExtraProperty().noBlockHit && blockStates != null)
+                    ves.firstBlock(blockPoses[dist], blockStates[dist], shapes[dist]);
+                ves.firstTick();
             }
             if (ves.isDisplayTime()) ves.displayTimeTick();
             else ves.tick();
@@ -325,6 +327,7 @@ public class VirtualEtherStreamHolder {
         boolean needBlockCollide = !propertyCounter.isNoBlockCollide();
         boolean needEntityCollide = !propertyCounter.isNoEntityCollide();
         if (!needEntityCollide && !needBlockCollide) return;
+        if (cachedBlockStates == null) return;
         BlockState[] blockStates = cachedBlockStates;
         BlockPos[] blockPoses = cachedBlockPoses;
         VoxelShape[] shapes = cachedShapes;

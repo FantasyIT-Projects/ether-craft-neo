@@ -450,6 +450,9 @@ public class Config {
     private static final ModConfigSpec.DoubleValue FACTORY_DECAY_LAMBDA = BUILDER
             .comment("Decay lambda controlling falloff speed after the peak")
             .defineInRange("factory.decay_lambda", 1.5, 0.01, 20);
+    private static final ModConfigSpec.LongValue FACTORY_MIN_RESERVE_PER = BUILDER
+            .comment("Minimum per-batch charging quota per chip: reservePer = max(min, round(k*consume))")
+            .defineInRange("factory.min_reserve_per", 2L, 0L, 100000L);
 
     static final ModConfigSpec SPEC = BUILDER.build();
 
@@ -549,6 +552,7 @@ public class Config {
     public static double factoryOvershoot;
     public static double factoryPeakRatio;
     public static double factoryDecayLambda;
+    public static long factoryMinReservePer;
     public static int configVersion = 0;
 
     @SubscribeEvent
@@ -649,6 +653,7 @@ public class Config {
         factoryOvershoot = FACTORY_OVERSHOOT.get();
         factoryPeakRatio = FACTORY_PEAK_RATIO.get();
         factoryDecayLambda = FACTORY_DECAY_LAMBDA.get();
+        factoryMinReservePer = FACTORY_MIN_RESERVE_PER.get();
         configVersion++;
     }
 }

@@ -29,6 +29,7 @@ const params = {
     batchSize: 1,
     a: 0.02,
     k: 5,
+    minReservePer: 2,
     overshoot: 1,
     ratio: 2,
     lambda: 1,
@@ -39,18 +40,18 @@ const params = {
 };
 
 let chipDefs = [
-    { id: 0, name: 'heating', count: 4, consume: 50, max: 500, enabled: true },
-    { id: 1, name: 'cutting', count: 3, consume: 75, max: 750, enabled: true },
+    {id: 0, name: 'heating', count: 4, consume: 50, max: 500, enabled: true},
+    {id: 1, name: 'cutting', count: 3, consume: 75, max: 750, enabled: true},
 ];
 let nextChipId = 2;
 let chipE = new Map(); // id -> 当前以太（每颗）
 
-let state = { tick: 0, buffer: 0, cache: 0, progress: 0, produced: 0 };
+let state = {tick: 0, buffer: 0, cache: 0, progress: 0, produced: 0};
 let history = [];
 let windowSize = 2000;
 
 function getChips() {
-    return chipDefs.map(c => ({ ...c, e: chipE.get(c.id) || 0 }));
+    return chipDefs.map(c => ({...c, e: chipE.get(c.id) || 0}));
 }
 
 function baseCost(e, consume) {
@@ -70,15 +71,20 @@ function speedMul(e, max) {
     const u = e / max;
     let v;
     switch (params.pFunc) {
-        case 'sqrt': v = 1 + Math.sqrt(u); break;
-        case 'linear': v = 1 + u; break;
-        default: v = 1 + Math.log2(1 + u);
+        case 'sqrt':
+            v = 1 + Math.sqrt(u);
+            break;
+        case 'linear':
+            v = 1 + u;
+            break;
+        default:
+            v = 1 + Math.log2(1 + u);
     }
     return Math.max(1, Math.floor(v));
 }
 
 function totalCost(e, consume, max) {
-    return baseCost(e, consume) * speedMul(e, max);
+    return Math.round(baseCost(e, consume) * speedMul(e, max));
 }
 
 /* 有效加工速度：以太不足 consume 时无法产出，速度为 0 */
@@ -86,9 +92,14 @@ function effSpeed(e, chip) {
     return e >= chip.consume ? speedMul(e, chip.max) : 0;
 }
 
+/* 每颗芯片单批配额：max(最小配额, round(k*consume))，与模组 reservePer 一致 */
+function reservePer(c) {
+    return Math.max(params.minReservePer, Math.round(params.k * c.consume));
+}
+
 function minSum() {
     let s = 0;
-    for (const c of chipDefs) if (c.enabled) s += params.k * c.consume * c.count;
+    for (const c of chipDefs) if (c.enabled) s += reservePer(c) * c.count;
     return s;
 }
 
@@ -102,8 +113,8 @@ function step() {
     // 2) 攒够单批次 → 整批注入机器缓存（残量留在外部缓存继续攒；batchSize=1 时每 tick 全注入，退化为原均匀输入）
     const batches = Math.floor(state.buffer / params.batchSize);
     if (batches > 0) {
-        state.cache += batches * params.batchSize;
-        state.buffer -= batches * params.batchSize;
+        state.cache += state.buffer;
+        state.buffer = 0;
     }
 
     // 2) 批量脉冲分发（路径 B，按批次因数一次性分发）
@@ -111,14 +122,17 @@ function step() {
     if (ms > 0) {
         const batches = Math.floor(state.cache / ms);
         if (batches > 0) {
-            for (const c of chipDefs) if (c.enabled) chipE.set(c.id, (chipE.get(c.id) || 0) + params.k * c.consume * batches);
+            for (const c of chipDefs) if (c.enabled) chipE.set(c.id, (chipE.get(c.id) || 0) + reservePer(c) * batches);
             state.cache -= batches * ms;
         }
     }
 
     // 3) 维持消耗（仅启用芯片）
     for (const c of chipDefs) {
-        if (!c.enabled) { chipE.set(c.id, 0); continue; }
+        if (!c.enabled) {
+            chipE.set(c.id, 0);
+            continue;
+        }
         const e = chipE.get(c.id) || 0;
         let ne = e - totalCost(e, c.consume, c.max);
         if (ne < 0) ne = 0;
@@ -158,7 +172,7 @@ function step() {
 }
 
 function resetSim() {
-    state = { tick: 0, buffer: 0, cache: 0, progress: 0, produced: 0 };
+    state = {tick: 0, buffer: 0, cache: 0, progress: 0, produced: 0};
     history = [];
     chipE.clear();
 }
@@ -204,7 +218,7 @@ function drawChart(canvas, series, opts) {
     ctx.clearRect(0, 0, W, H);
     ctx.font = '10px Segoe UI, Microsoft YaHei';
 
-    const pad = { l: 54, r: 56, t: 10, b: 20 };
+    const pad = {l: 54, r: 56, t: 10, b: 20};
     const pw = W - pad.l - pad.r, ph = H - pad.t - pad.b;
 
     // 范围
@@ -213,13 +227,29 @@ function drawChart(canvas, series, opts) {
     for (const s of series) {
         if (!s.data.length) continue;
         const [mn, mx] = minMax(s.data);
-        if (s.axis === 'right') { rmin = hasR ? Math.min(rmin, mn) : mn; rmax = hasR ? Math.max(rmax, mx) : mx; hasR = true; }
-        else { lmin = hasL ? Math.min(lmin, mn) : mn; lmax = hasL ? Math.max(lmax, mx) : mx; hasL = true; }
+        if (s.axis === 'right') {
+            rmin = hasR ? Math.min(rmin, mn) : mn;
+            rmax = hasR ? Math.max(rmax, mx) : mx;
+            hasR = true;
+        } else {
+            lmin = hasL ? Math.min(lmin, mn) : mn;
+            lmax = hasL ? Math.max(lmax, mx) : mx;
+            hasL = true;
+        }
     }
-    if (opts.zero) { lmin = 0; if (hasR) rmin = 0; }
+    if (opts.zero) {
+        lmin = 0;
+        if (hasR) rmin = 0;
+    }
     if (opts.minLeft != null) lmin = opts.minLeft;
-    if (!hasL) { lmin = 0; lmax = 1; }
-    if (!hasR) { rmin = 0; rmax = 1; }
+    if (!hasL) {
+        lmin = 0;
+        lmax = 1;
+    }
+    if (!hasR) {
+        rmin = 0;
+        rmax = 1;
+    }
     if (lmin === lmax) lmax = lmin + 1;
     if (rmin === rmax) rmax = rmin + 1;
 
@@ -234,7 +264,10 @@ function drawChart(canvas, series, opts) {
     ctx.lineWidth = 1;
     for (const v of niceTicks(lmin, lmax, 5)) {
         const y = YL(v);
-        ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(W - pad.r, y); ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(pad.l, y);
+        ctx.lineTo(W - pad.r, y);
+        ctx.stroke();
         ctx.fillText(fmt(v), 2, y + 3);
     }
     // 右轴
@@ -260,7 +293,10 @@ function drawChart(canvas, series, opts) {
         const x = xVal(opts.markX);
         ctx.strokeStyle = '#888';
         ctx.setLineDash([4, 4]);
-        ctx.beginPath(); ctx.moveTo(x, pad.t); ctx.lineTo(x, pad.t + ph); ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(x, pad.t);
+        ctx.lineTo(x, pad.t + ph);
+        ctx.stroke();
         ctx.setLineDash([]);
         ctx.fillStyle = '#ccc';
         ctx.fillText('峰值 ' + opts.markX.toFixed(0), x - 30, pad.t - 2);
@@ -320,19 +356,25 @@ function renderCharts() {
 
     // 以太图（主轴: 每类型每颗 e；副轴: 缓存）
     const sE = active.map((c, i) => ({
-        name: c.name, color: CHIP_COLORS[i % CHIP_COLORS.length], data: history.map(h => h.e[idxOf(c.id)] || 0), axis: 'left',
+        name: c.name,
+        color: CHIP_COLORS[i % CHIP_COLORS.length],
+        data: history.map(h => h.e[idxOf(c.id)] || 0),
+        axis: 'left',
     }));
-    sE.push({ name: '机器缓存', color: '#e0e0e0', data: history.map(h => h.cache), axis: 'right', dash: [5, 3] });
-    drawChart(document.getElementById('chart-ether'), sE, { zero: true });
-    setLegend('chart-ether', sE.map(s => ({ name: s.name, color: s.color })));
+    sE.push({name: '机器缓存', color: '#e0e0e0', data: history.map(h => h.cache), axis: 'right', dash: [5, 3]});
+    drawChart(document.getElementById('chart-ether'), sE, {zero: true});
+    setLegend('chart-ether', sE.map(s => ({name: s.name, color: s.color})));
 
     // 速度图（有效加工速度：e < consume 时为 0）
     const sP = active.map((c, i) => ({
-        name: c.name + ' 速度', color: CHIP_COLORS[i % CHIP_COLORS.length], data: history.map(h => h.p[idxOf(c.id)] || 0), axis: 'left',
+        name: c.name + ' 速度',
+        color: CHIP_COLORS[i % CHIP_COLORS.length],
+        data: history.map(h => h.p[idxOf(c.id)] || 0),
+        axis: 'left',
     }));
-    sP.push({ name: 'pMin(路径速度)', color: '#e94560', data: history.map(h => h.pMin), axis: 'left', width: 2 });
-    drawChart(document.getElementById('chart-speed'), sP, { zero: true });
-    setLegend('chart-speed', sP.map(s => ({ name: s.name, color: s.color })));
+    sP.push({name: 'pMin(路径速度)', color: '#e94560', data: history.map(h => h.pMin), axis: 'left', width: 2});
+    drawChart(document.getElementById('chart-speed'), sP, {zero: true});
+    setLegend('chart-speed', sP.map(s => ({name: s.name, color: s.color})));
 
     // 函数曲线（参考类型）
     const refSel = document.getElementById('fn-chip-select');
@@ -352,13 +394,13 @@ function renderCharts() {
             tc.push(totalCost(e, ref.consume, ref.max));
         }
         const sFn = [
-            { name: 'base(e)', color: '#26c6da', data: bd, xvals: xs },
-            { name: 'p(e) 倍率', color: '#f1c40f', data: sp, xvals: xs, dash: [4, 3] },
-            { name: '有效速度(e<consume=0)', color: '#f1c40f', data: es, xvals: xs },
-            { name: 'C(e)=base·p', color: '#e94560', data: tc, xvals: xs, width: 2 },
+            {name: 'base(e)', color: '#26c6da', data: bd, xvals: xs},
+            {name: 'p(e) 倍率', color: '#f1c40f', data: sp, xvals: xs, dash: [4, 3]},
+            {name: '有效速度(e<consume=0)', color: '#f1c40f', data: es, xvals: xs},
+            {name: 'C(e)=base·p', color: '#e94560', data: tc, xvals: xs, width: 2},
         ];
-        drawChart(document.getElementById('chart-fn'), sFn, { xMax: xMax, markX: ref.consume });
-        setLegend('chart-fn', sFn.map(s => ({ name: s.name, color: s.color })));
+        drawChart(document.getElementById('chart-fn'), sFn, {xMax: xMax, markX: ref.consume});
+        setLegend('chart-fn', sFn.map(s => ({name: s.name, color: s.color})));
     }
 }
 
@@ -375,9 +417,16 @@ function renderStats() {
 
     // 机器状态
     let statusTxt, statusColor;
-    if (!active.length) { statusTxt = '无芯片'; statusColor = '#a0a0a0'; }
-    else if (pMin === 0) { statusTxt = '待机（不足 consume）'; statusColor = '#f4a261'; }
-    else { statusTxt = '运行'; statusColor = '#2ecc71'; }
+    if (!active.length) {
+        statusTxt = '无芯片';
+        statusColor = '#a0a0a0';
+    } else if (pMin === 0) {
+        statusTxt = '待机（不足 consume）';
+        statusColor = '#f4a261';
+    } else {
+        statusTxt = '运行';
+        statusColor = '#2ecc71';
+    }
 
     let html = `
         <span class="stat">tick <b>${state.tick}</b></span>
@@ -421,7 +470,13 @@ function setPlaying(p) {
     if (p) startTimer(); else stopTimer();
 }
 
-function stopTimer() { if (timer) { clearInterval(timer); timer = null; } }
+function stopTimer() {
+    if (timer) {
+        clearInterval(timer);
+        timer = null;
+    }
+}
+
 function startTimer() {
     stopTimer();
     const tps = Number(document.getElementById('tick-per-sec').value);
@@ -438,12 +493,16 @@ const STORE_KEY = 'etherCraftChipSimConfig';
 
 function saveConfig() {
     const cfg = {
-        params: { ...params },
-        chips: chipDefs.map(c => ({ ...c })),
+        params: {...params},
+        chips: chipDefs.map(c => ({...c})),
         windowSize: windowSize,
         tps: Number(document.getElementById('tick-per-sec').value) || 60,
     };
-    try { localStorage.setItem(STORE_KEY, JSON.stringify(cfg)); } catch (e) { console.warn('save config failed', e); }
+    try {
+        localStorage.setItem(STORE_KEY, JSON.stringify(cfg));
+    } catch (e) {
+        console.warn('save config failed', e);
+    }
 }
 
 function loadConfig() {
@@ -453,23 +512,34 @@ function loadConfig() {
         const cfg = JSON.parse(raw);
         if (cfg.params) Object.assign(params, cfg.params);
         if (Array.isArray(cfg.chips) && cfg.chips.length) {
-            chipDefs = cfg.chips.map(c => ({ enabled: true, ...c }));
+            chipDefs = cfg.chips.map(c => ({enabled: true, ...c}));
             nextChipId = Math.max(...chipDefs.map(c => c.id)) + 1;
         }
         if (cfg.windowSize) windowSize = cfg.windowSize;
         if (cfg.tps) document.getElementById('tick-per-sec').value = cfg.tps;
-    } catch (e) { console.warn('load config failed', e); }
+    } catch (e) {
+        console.warn('load config failed', e);
+    }
 }
 
 function applyParamsToUI() {
-    const setNum = (id, v) => { const el = document.getElementById(id); if (el) el.value = v; };
+    const setNum = (id, v) => {
+        const el = document.getElementById(id);
+        if (el) el.value = v;
+    };
     setNum('rate-in', params.rateIn);
     setNum('batch-size', params.batchSize);
-    setNum('p-a', params.a); syncRangeVal('p-a', 'p-a-val', 3);
-    setNum('p-k', params.k); syncRangeVal('p-k', 'p-k-val', 1);
-    setNum('p-ov', params.overshoot); syncRangeVal('p-ov', 'p-ov-val', 2);
-    setNum('p-ratio', params.ratio); syncRangeVal('p-ratio', 'p-ratio-val', 1);
-    setNum('p-lambda', params.lambda); syncRangeVal('p-lambda', 'p-lambda-val', 2);
+    setNum('min-reserve-per', params.minReservePer);
+    setNum('p-a', params.a);
+    syncRangeVal('p-a', 'p-a-val', 3);
+    setNum('p-k', params.k);
+    syncRangeVal('p-k', 'p-k-val', 1);
+    setNum('p-ov', params.overshoot);
+    syncRangeVal('p-ov', 'p-ov-val', 2);
+    setNum('p-ratio', params.ratio);
+    syncRangeVal('p-ratio', 'p-ratio-val', 1);
+    setNum('p-lambda', params.lambda);
+    syncRangeVal('p-lambda', 'p-lambda-val', 2);
     document.getElementById('p-func').value = params.pFunc;
     document.getElementById('no-input').checked = !!params.noInput;
     setNum('p-maxprogress', params.maxProgress);
@@ -489,6 +559,7 @@ function bindInput(id, setter) {
 function readParams() {
     params.rateIn = Number(document.getElementById('rate-in').value) || 0;
     params.batchSize = Math.max(1, Number(document.getElementById('batch-size').value) || 1);
+    params.minReservePer = Math.max(0, Number(document.getElementById('min-reserve-per').value) || 2);
     params.a = Number(document.getElementById('p-a').value);
     params.k = Number(document.getElementById('p-k').value);
     params.overshoot = Number(document.getElementById('p-ov').value);
@@ -575,28 +646,58 @@ function init() {
     loadConfig();
     applyParamsToUI();
 
-    bindInput('tick-per-sec', el => { syncRangeVal('tick-per-sec', 'tick-per-sec-val', 0); saveConfig(); if (playing) startTimer(); });
-    bindInput('p-a', el => { syncRangeVal('p-a', 'p-a-val', 3); readParams(); });
-    bindInput('p-k', el => { syncRangeVal('p-k', 'p-k-val', 1); readParams(); });
-    bindInput('p-ov', el => { syncRangeVal('p-ov', 'p-ov-val', 2); readParams(); });
-    bindInput('p-ratio', el => { syncRangeVal('p-ratio', 'p-ratio-val', 1); readParams(); });
-    bindInput('p-lambda', el => { syncRangeVal('p-lambda', 'p-lambda-val', 2); readParams(); });
+    bindInput('tick-per-sec', el => {
+        syncRangeVal('tick-per-sec', 'tick-per-sec-val', 0);
+        saveConfig();
+        if (playing) startTimer();
+    });
+    bindInput('p-a', el => {
+        syncRangeVal('p-a', 'p-a-val', 3);
+        readParams();
+    });
+    bindInput('p-k', el => {
+        syncRangeVal('p-k', 'p-k-val', 1);
+        readParams();
+    });
+    bindInput('p-ov', el => {
+        syncRangeVal('p-ov', 'p-ov-val', 2);
+        readParams();
+    });
+    bindInput('p-ratio', el => {
+        syncRangeVal('p-ratio', 'p-ratio-val', 1);
+        readParams();
+    });
+    bindInput('p-lambda', el => {
+        syncRangeVal('p-lambda', 'p-lambda-val', 2);
+        readParams();
+    });
     bindInput('p-func', el => readParams());
     bindInput('no-input', el => readParams());
     bindInput('p-maxprogress', el => readParams());
     bindInput('p-msm', el => readParams());
     bindInput('rate-in', el => readParams());
     bindInput('batch-size', el => readParams());
+    bindInput('min-reserve-per', el => readParams());
     bindInput('window-size', el => readParams());
 
     // 播放/暂停/单步/重置
     document.getElementById('btn-play').addEventListener('click', () => setPlaying(!playing));
-    document.getElementById('btn-step').addEventListener('click', () => { setPlaying(false); step(); renderCharts(); renderStats(); });
-    document.getElementById('btn-reset').addEventListener('click', () => { resetSim(); setPlaying(false); renderCharts(); renderStats(); });
+    document.getElementById('btn-step').addEventListener('click', () => {
+        setPlaying(false);
+        step();
+        renderCharts();
+        renderStats();
+    });
+    document.getElementById('btn-reset').addEventListener('click', () => {
+        resetSim();
+        setPlaying(false);
+        renderCharts();
+        renderStats();
+    });
 
     // 添加芯片
     document.getElementById('btn-add-chip').addEventListener('click', () => {
-        chipDefs.push({ id: nextChipId++, name: 'chip' + nextChipId, count: 1, consume: 50, max: 500, enabled: true });
+        chipDefs.push({id: nextChipId++, name: 'chip' + nextChipId, count: 1, consume: 50, max: 500, enabled: true});
         chipE.set(chipDefs[chipDefs.length - 1].id, 0);
         buildChipRows();
         readChipsFromUI();

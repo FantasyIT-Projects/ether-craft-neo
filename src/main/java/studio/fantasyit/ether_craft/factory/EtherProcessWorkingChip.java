@@ -48,7 +48,7 @@ public class EtherProcessWorkingChip {
             this.effect = r.effect();
         }
         this.ether = Math.max(0, beforeEther);
-        this.reservePer = Math.round(Config.factoryReserveMultiplier * this.etherConsume);
+        this.reservePer = calcReservePer(this.etherConsume);
     }
 
     public EtherProcessWorkingChip(ItemStack item, long ether, long storage, long etherConsume) {
@@ -61,11 +61,15 @@ public class EtherProcessWorkingChip {
         this.storage = storage;
         this.etherConsume = etherConsume;
         this.effect = effect;
-        this.reservePer = Math.round(Config.factoryReserveMultiplier * etherConsume);
+        this.reservePer = calcReservePer(etherConsume);
     }
 
     public void refreshReservePer() {
-        this.reservePer = Math.round(Config.factoryReserveMultiplier * this.etherConsume);
+        this.reservePer = calcReservePer(this.etherConsume);
+    }
+
+    private static long calcReservePer(long etherConsume) {
+        return Math.max(Config.factoryMinReservePer, Math.round(Config.factoryReserveMultiplier * etherConsume));
     }
 
     /**

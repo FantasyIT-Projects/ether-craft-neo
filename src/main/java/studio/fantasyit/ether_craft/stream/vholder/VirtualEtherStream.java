@@ -242,12 +242,14 @@ public class VirtualEtherStream implements IEtherStreamLike {
         markToSyncData = true;
     }
 
-    public void firstTick(BlockPos pos, BlockState currentBlockState, VoxelShape voxelShape) {
+    public void firstBlock(BlockPos pos, BlockState currentBlockState, VoxelShape voxelShape){
         setRunIntoEtherGlass(EtherGlassUtil.isEtherGlass(currentBlockState));
+        this.onRunIntoNewBlock(pos, currentBlockState, voxelShape);
+    }
+    public void firstTick() {
         for (IStreamCapability cap : this.capabilities) {
             cap.firstTick(this);
         }
-        this.onRunIntoNewBlock(pos, currentBlockState, voxelShape);
         this.needsEtherConsumerSync = false;
         this.needsEtherSync = false;
     }
