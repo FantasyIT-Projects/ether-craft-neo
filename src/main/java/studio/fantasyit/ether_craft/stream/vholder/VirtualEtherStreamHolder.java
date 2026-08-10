@@ -333,7 +333,6 @@ public class VirtualEtherStreamHolder {
         boolean needBlockCollide = !propertyCounter.isNoBlockCollide();
         boolean needEntityCollide = !propertyCounter.isNoEntityCollide();
         if (!needEntityCollide && !needBlockCollide) return;
-        if (cachedBlockStates == null) return;
         BlockState[] blockStates = cachedBlockStates;
         BlockPos[] blockPoses = cachedBlockPoses;
         VoxelShape[] shapes = cachedShapes;
@@ -366,7 +365,7 @@ public class VirtualEtherStreamHolder {
 
             BlockCollision blockCollision = null;
             double blockDist = Double.MAX_VALUE;
-            if (needBlockCollide && !ves.getExtraProperty().noBlockHit) {
+            if (needBlockCollide && blockStates != null && !ves.getExtraProperty().noBlockHit) {
                 int clipStart = Math.clamp(ves.blockDistancePrev(), 0, blockStates.length - 1);
                 int clipEnd = Math.clamp(ves.blockDistance(), 0, blockStates.length - 1);
                 //计算是否可以跳过
@@ -404,7 +403,7 @@ public class VirtualEtherStreamHolder {
             }
         }
 
-        if (needBlockCollide) {
+        if (needBlockCollide && blockStates != null) {
             for (int i = 0, size = streams.size(); i < size; i++) {
                 VirtualEtherStream ves = streams.get(i);
                 if (ves.markToSyncCreation || ves.markToRemove || ves.isDisplayTime()) continue;
