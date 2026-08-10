@@ -35,7 +35,7 @@ public class ExtraFurnaceRecipe implements ExtraRecipeProvider {
     public List<EtherProcessRecipeManager.ExtraRecipe> generate(RecipeManager recipeManager) {
         return recipeManager.getRecipes()
                 .stream()
-                .filter(r -> r.value().getType() == RecipeType.SMELTING)
+                .filter(r -> r.value().getType() == RecipeType.SMELTING && r.value() instanceof SmeltingRecipe)
                 .map(t -> new EtherProcessRecipeManager.ExtraRecipe(
                         CATEGORY,
                         t.id().identifier(),

@@ -30,6 +30,7 @@ public class EtherStreamBounceBackCapability implements IStreamCapability {
     public boolean onBeforeDestroy(IEtherStreamLike streamEntity, @Nullable HitResult hitResult) {
         if (streamEntity.getEther() > 0 && streamEntity instanceof VirtualEtherStream ves && streamEntity.tickCount() > 1) {
             Vec3 dm = streamEntity.deltaMovement().reverse();
+            if (dm.lengthSqr() < 1.0E-8) return true;
             Vec3 pos = streamEntity.position().add(dm);
             BlockPos createPos = BlockPos.containing(pos);
             double distanceAlongDm = (pos.subtract(createPos.getCenter())).dot(dm) / dm.length();

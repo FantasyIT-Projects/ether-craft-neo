@@ -141,6 +141,7 @@ public class AnswerFetchMenu extends AbstractContainerMenu {
                 resultContainer.setItem(0, ItemStack.EMPTY);
             } else {
                 int resultIndex = currentPage * SLOTS_PER_PAGE + slot.getContainerSlot();
+                if (resultIndex >= targets.size()) return;
                 resultContainer.setItem(0, targets.get(resultIndex));
                 selectedGrid = grids.get(resultIndex);
                 PacketDistributor.sendToPlayer((ServerPlayer) player, new SyncFetchAnswerS2C(selectedGrid));

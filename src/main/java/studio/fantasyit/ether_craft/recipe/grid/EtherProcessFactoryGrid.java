@@ -115,6 +115,7 @@ public class EtherProcessFactoryGrid implements Recipe<EtherProcessFactoryGridIn
             chip[entry.y][entry.x] = true;
         }
 
+        if (maxX == 0 || maxY == 0) return;
         for (int i = 1; i < maxY; i++) {
             if (chip[i][maxX - 1])
                 continue;

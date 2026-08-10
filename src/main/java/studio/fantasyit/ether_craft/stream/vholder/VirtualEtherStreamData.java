@@ -33,7 +33,7 @@ public record VirtualEtherStreamData(
             Codec.INT.fieldOf("ether").forGetter(VirtualEtherStreamData::ether),
             Codec.INT.fieldOf("tickCount").forGetter(VirtualEtherStreamData::tickCount),
             EtherConsumer.State.CODEC.fieldOf("consumerState").forGetter(VirtualEtherStreamData::consumerState),
-            CapabilityFactoryManager.CODEC.listOf().fieldOf("capabilities").forGetter(VirtualEtherStreamData::capabilities),
+            CapabilityFactoryManager.CODEC.orElse(null).listOf().fieldOf("capabilities").forGetter(VirtualEtherStreamData::capabilities),
             SyncedEtherStreamDataManager.CODEC.listOf().fieldOf("toSyncData").forGetter(VirtualEtherStreamData::toSyncData),
             StreamExtraProperty.CODEC.fieldOf("extraProperty").orElseGet(StreamExtraProperty::new).forGetter(VirtualEtherStreamData::extraProperty)
     ).apply(instance, VirtualEtherStreamData::new));

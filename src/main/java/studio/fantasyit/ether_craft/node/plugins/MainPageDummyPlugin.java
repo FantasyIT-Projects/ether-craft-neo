@@ -44,7 +44,7 @@ public class MainPageDummyPlugin extends AbstractNodePlugin {
         menu.addSlot(new OversizedEtherSlot(nodeEntity.etherStorage, 0, 28, 19));
         ctx.functionStorage = (SingleStackSlot) menu.addSlot(new SingleStackSlot(nodeEntity.functionStorage, 0, 28, 45));
 
-        int slots = nodeEntity.getUpgradeCount();
+        int slots = Math.min(nodeEntity.getUpgradeCount(), Math.min(SLOT_POS.length, nodeEntity.featureUpgradeStorage.getContainerSize()));
         ctx.normalStorage = new ArrayList<>(slots);
         for (int i = 0; i < slots; i++) {
             SingleStackSlot slot = (SingleStackSlot) menu.addSlotDraw(new SingleStackSlot(nodeEntity.featureUpgradeStorage, i, SLOT_POS[i][0], SLOT_POS[i][1]));

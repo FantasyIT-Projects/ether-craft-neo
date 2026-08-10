@@ -123,7 +123,7 @@ public class EtherStreamStorageCapability implements IStreamCapability, Containe
                     copy.shrink(toInsert);
                     itemEntity.setItem(copy);
                     transaction.commit();
-                    if (tpItem.isEmpty())
+                    if (copy.isEmpty())
                         itemEntity.discard();
                 }
             }

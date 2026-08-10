@@ -156,6 +156,7 @@ public class EtherProcessRecipeManager {
             recipe.get().output.stream().map(ItemStackTemplate::create).forEach(t -> io.addOutput(t, node.value.output()));
         } else {
             List<ItemStackTemplate> output = recipe.get().output;
+            if (output.isEmpty()) return;
             if (output.size() != 1) {
                 for (int i = 1; i < output.size(); i++) {
                     io.addExtraOutput(output.get(i).create(), node.value.output());

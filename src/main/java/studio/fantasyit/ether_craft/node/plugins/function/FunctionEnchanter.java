@@ -95,6 +95,9 @@ public class FunctionEnchanter extends AbstractNodePlugin implements ITickWorkPl
         if (nodeEntity.getLevel() == null || nodeEntity.getLevel().isClientSide())
             return;
 
+        if (selectedLevel != -1 && (selectedLevel < 0 || selectedLevel >= Config.nodeEnchanterEtherCosts.size())) {
+            selectedLevel = -1;
+        }
         int etherCost = selectedLevel == -1 ? 0 : Config.nodeEnchanterEtherCosts.get(selectedLevel);
         if (selectedLevel == -1) {
             progress = 0;
@@ -232,6 +235,9 @@ public class FunctionEnchanter extends AbstractNodePlugin implements ITickWorkPl
     @Override
     public void loadAdditional(ValueInput input) {
         selectedLevel = input.read("selectedLevel", Codec.INT).orElse(0);
+        if (selectedLevel != -1 && (selectedLevel < 0 || selectedLevel >= Config.nodeEnchanterEtherCosts.size())) {
+            selectedLevel = -1;
+        }
         progress = input.read("progress", Codec.INT).orElse(0);
         processSlot.setItem(0, input.read("processSlot", ItemStack.OPTIONAL_CODEC).orElse(ItemStack.EMPTY));
         filter.deserialize(input);

@@ -32,8 +32,7 @@ public record SyncExtraRecipesS2C(List<EtherProcessRecipeManager.ExtraRecipe> re
 
     public void handle(IPayloadContext ctx) {
         ctx.enqueueWork(() -> {
-            EtherProcessRecipeManager.extraRecipes = new ArrayList<>();
-            EtherProcessRecipeManager.extraRecipes.addAll(recipes);
+            EtherProcessRecipeManager.extraRecipes = new ArrayList<>(recipes);
         });
     }
 }

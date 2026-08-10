@@ -49,14 +49,17 @@ public class EtherPluginUpgradeContainer extends SimpleContainer {
     }
 
     public boolean hasPlugin(int index) {
+        if (index < 0 || index >= plugin.length) return false;
         return pluginId[index] != null && plugin[index] != null;
     }
 
     public @Nullable AbstractNodePlugin getPlugin(int index) {
+        if (index < 0 || index >= plugin.length) return null;
         return plugin[index];
     }
 
     public @Nullable Identifier getPluginId(int index) {
+        if (index < 0 || index >= pluginId.length) return null;
         return pluginId[index];
     }
 

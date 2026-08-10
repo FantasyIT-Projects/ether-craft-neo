@@ -435,7 +435,7 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
             toRenderName = name.isEmpty() ? null : Component.literal(name);
         });
         input.read("progress", Codec.INT.listOf()).ifPresent(l -> {
-            for (int i = 0; i < l.size(); i++)
+            for (int i = 0; i < l.size() && i < processingProgress.length; i++)
                 processingProgress[i] = l.get(i);
         });
         input.read("chips", EtherProcessWorkingChip.CODEC.listOf()).ifPresent(l -> {
@@ -589,6 +589,12 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
         );
         if (Arrays.stream(matchingRecipes).anyMatch(t -> t == -1))
             return false;
+
+        for (int j = 0; j < input.inputIds().size(); j++) {
+            int cNum = recipe.inputs().get(matchingRecipes[j]).count();
+            if (inputContainer.getItem(input.inputIds().get(j)).getCount() < cNum)
+                return false;
+        }
 
         if (!tryPlaceOutputs(row, results))
             return false;

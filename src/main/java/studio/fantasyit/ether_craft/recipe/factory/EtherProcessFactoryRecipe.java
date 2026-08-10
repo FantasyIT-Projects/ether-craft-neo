@@ -108,7 +108,10 @@ public class EtherProcessFactoryRecipe implements Recipe<@NotNull EtherFactoryRe
             if (nxtId == null) {
                 nxtId = recipeTree.getRoot().value;
             }
-            recipeTree.addEdge(nxtId, id, vid2ProcessIngredient.get(nxtId));
+            List<DelayedIngredient> ingredients = vid2ProcessIngredient.get(nxtId);
+            if (ingredients != null) {
+                recipeTree.addEdge(nxtId, id, ingredients);
+            }
         }
         for (EtherProcessRecipeJson.ProcessEntry entry : processEntries) {
             int id = idMapping.get(entry.id());
@@ -120,7 +123,10 @@ public class EtherProcessFactoryRecipe implements Recipe<@NotNull EtherFactoryRe
             if (nxtId == null) {
                 nxtId = recipeTree.getRoot().value;
             }
-            recipeTree.addEdge(nxtId, id, vid2ProcessIngredient.get(nxtId));
+            List<DelayedIngredient> ingredients = vid2ProcessIngredient.get(nxtId);
+            if (ingredients != null) {
+                recipeTree.addEdge(nxtId, id, ingredients);
+            }
         }
 
         // Step 5: 构建输入输出 Ingredient 列表

@@ -624,7 +624,10 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
 
     public int getUpgradeCount() {
         int level = getBlockState().getValueOrElse(EtherAdaptNodeBlock.LEVEL, 1);
-        return Config.nodeUpgradeSlots.get(level - 1);
+        var slots = Config.nodeUpgradeSlots;
+        if (slots.isEmpty()) return 0;
+        int idx = Math.clamp(level - 1, 0, slots.size() - 1);
+        return Math.clamp(slots.get(idx), 0, featureUpgradeStorage.getContainerSize());
     }
 
     public ItemFilter getNormalStorageFilter() {

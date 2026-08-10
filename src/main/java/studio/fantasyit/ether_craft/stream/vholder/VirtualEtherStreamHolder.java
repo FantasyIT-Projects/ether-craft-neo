@@ -222,7 +222,7 @@ public class VirtualEtherStreamHolder {
             VirtualEtherStream ves = streams.get(i);
             if (ves.tickCount == 0) {
                 int dist = ves.blockDistance();
-                if (ves.getExtraProperty().noBlockHit && blockStates != null)
+                if (ves.getExtraProperty().noBlockHit && blockStates != null && blockPoses != null && shapes != null)
                     ves.firstBlock(blockPoses[dist], blockStates[dist], shapes[dist]);
                 ves.firstTick();
             }
@@ -266,7 +266,7 @@ public class VirtualEtherStreamHolder {
         for (int i = streams.size() - 1; i >= 0; i--) {
             VirtualEtherStream ves = streams.get(i);
             int d = pos.distManhattan(ves.blockPosition());
-            if (d < 0) continue;
+            if (d < 0 || d >= size) continue;
             streamCountAt[d]++;
             if (streamCountAt[d] > Config.etherStreamDestroyThreshold) {
                 ves.ether = 0;

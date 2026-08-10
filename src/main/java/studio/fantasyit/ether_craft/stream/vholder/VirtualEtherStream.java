@@ -384,10 +384,14 @@ public class VirtualEtherStream implements IEtherStreamLike {
         );
         ves.tickCount = data.tickCount();
         ves.consumer.fromState(data.consumerState());
-        ves.capabilities.addAll(data.capabilities());
-        for (IStreamCapability cap : data.capabilities()) {
-            ves.capabilityMap.put(cap.getId(), cap);
-            cap.setConsumer(ves.consumer);
+        List<IStreamCapability> loadedCaps = data.capabilities();
+        if (loadedCaps != null) {
+            for (IStreamCapability cap : loadedCaps) {
+                if (cap == null) continue;
+                ves.capabilities.add(cap);
+                ves.capabilityMap.put(cap.getId(), cap);
+                cap.setConsumer(ves.consumer);
+            }
         }
         ves.toSyncData = new ArrayList<>(data.toSyncData());
         ves.extraProperty.isDisplayTime = data.extraProperty().isDisplayTime;

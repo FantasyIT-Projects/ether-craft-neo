@@ -259,7 +259,7 @@ public class EtherStreamCarryEntityCapability implements IStreamCapability {
     public void serialize(ValueOutput output) {
         if (source != null)
             output.store("source", BlockPos.CODEC, source);
-        output.putInt("carryStart", startCarryTick);
+        output.putInt("startCarryTick", startCarryTick);
         output.putBoolean("playerOnly", playerOnly);
     }
 

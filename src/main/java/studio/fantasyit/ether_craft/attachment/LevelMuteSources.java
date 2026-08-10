@@ -50,6 +50,10 @@ public class LevelMuteSources {
         }
 
         if (shouldUpdate) {
+            sourceToId.clear();
+            for (int j = 0; j < sources.size(); j++) {
+                sourceToId.put(sources.get(j).pos(), j);
+            }
             level.syncData(AttachmentDataRegistry.LEVEL_MUTE_SOURCE);
             shouldUpdate = false;
         }

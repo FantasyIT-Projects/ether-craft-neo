@@ -38,16 +38,19 @@ public abstract class AbstractDirectionalFeature extends AbstractNodePlugin impl
     @Override
     public void syncScreenData(SyncScreenDataC2S message) {
         if (message.id().equals(SYNC_DIRECTION)) {
-            if (message.data() == -1)
-                direction = null;
-            else
-                direction = Direction.values()[message.data()];
+            direction = resolveDirection(message.data());
             nodeEntity.pluginUpdate();
         }
     }
 
     @Override
     public void registerSlots(EtherAdaptNodeContainerMenu menu) {
-        menu.addDataSlot(new BaseDataSlot(() -> direction == null ? -1 : direction.ordinal(), t -> direction = (t == -1 ? null : Direction.values()[t])));
+        menu.addDataSlot(new BaseDataSlot(() -> direction == null ? -1 : direction.ordinal(), t -> direction = resolveDirection(t)));
+    }
+
+    private static @Nullable Direction resolveDirection(int data) {
+        if (data == -1) return null;
+        if (data < 0 || data >= Direction.values().length) return null;
+        return Direction.values()[data];
     }
 }
