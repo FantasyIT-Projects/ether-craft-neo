@@ -9,6 +9,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.attachment.LevelMuteSources;
+import studio.fantasyit.ether_craft.attachment.StreamHandoffData;
 import studio.fantasyit.ether_craft.plating.data.CamouflageState;
 import studio.fantasyit.ether_craft.perf.PerfTickData;
 import studio.fantasyit.ether_craft.plating.data.TrackingData;
@@ -54,6 +55,10 @@ public class AttachmentDataRegistry {
             "taken_by_ether_stream", () -> AttachmentType.builder(() -> false)
                     .sync(ByteBufCodecs.BOOL)
                     .build()
+    );
+
+    public static final Supplier<AttachmentType<StreamHandoffData>> STREAM_HANDOFF = ATTACHMENT_TYPES.register(
+            "stream_handoff", () -> AttachmentType.<StreamHandoffData>builder(() -> null).build()
     );
 
     public static final Supplier<AttachmentType<Integer>> CD_TO_TAKE_BY_ETHER_STREAM = ATTACHMENT_TYPES.register(

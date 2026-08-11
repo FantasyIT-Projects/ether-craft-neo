@@ -166,6 +166,10 @@ public class Config {
             .comment("When more than this many same-source ether streams are in one block, destroy the first one")
             .defineInRange("ether_stream.destroy_threshold", 100, 1, Integer.MAX_VALUE);
 
+    private static final ModConfigSpec.DoubleValue ETHER_STREAM_HANDOFF_DISTANCE = BUILDER
+            .comment("Max distance between an entity and its recorded handoff stream for entity handoff between ether streams")
+            .defineInRange("ether_stream.handoff_distance", 1.5, 0.0, 64.0);
+
     private static final ModConfigSpec.DoubleValue ETHER_STREAM_SYNC_DISTANCE = BUILDER
             .comment("Maximum distance in blocks from an emitter to sync ether stream packets to nearby players. Set to -1 to sync to the entire dimension.")
             .defineInRange("ether_stream.sync_distance", 128.0, -1, 512);
@@ -479,6 +483,7 @@ public class Config {
     public static int nodeEmitterMinEtherMax;
     public static int etherStreamMaxTick;
     public static int etherStreamDestroyThreshold;
+    public static double etherStreamHandoffDistance;
     public static double etherStreamSyncDistance;
     public static int etherStreamBlockScanInterval;
     public static double etherStreamGlassTransformChance;
@@ -595,6 +600,7 @@ public class Config {
         etherStorageMultiplier = ETHER_STORAGE_MULTIPLIER.get();
         etherGlassPreventConsume = ETHER_GLASS_PREVENT_CONSUME.get();
         etherStreamDestroyThreshold = ETHER_STREAM_DESTROY_THRESHOLD.get();
+        etherStreamHandoffDistance = ETHER_STREAM_HANDOFF_DISTANCE.get();
         etherStreamSyncDistance = ETHER_STREAM_SYNC_DISTANCE.get();
         etherStreamBlockScanInterval = ETHER_STREAM_BLOCK_SCAN_INTERVAL.get();
         nodeProcessEtherConsumePreUnmatched = ETHER_PROCESS_ETHER_CONSUME_PRE_UNMATCHED.get();

@@ -19,12 +19,17 @@ import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
+import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.EtherCraft;
+import studio.fantasyit.ether_craft.attachment.StreamHandoffData;
 import studio.fantasyit.ether_craft.register.AttachmentDataRegistry;
 import studio.fantasyit.ether_craft.register.Tags;
 import studio.fantasyit.ether_craft.stream.EtherConsumer;
 import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
 import studio.fantasyit.ether_craft.stream.data.EtherStreamCarryingEntityData;
+import studio.fantasyit.ether_craft.stream.vholder.VirtualEtherStream;
+import studio.fantasyit.ether_craft.stream.vholder.VirtualEtherStreamHolder;
+import studio.fantasyit.ether_craft.stream.vholder.VirtualEtherStreamHolderManager;
 
 import java.util.Optional;
 
@@ -96,7 +101,9 @@ public class EtherStreamCarryEntityCapability implements IStreamCapability {
         }
         //维度变化 ： 原地走一遍释放实体流程
         if (cachedEntity.level() != null && cachedEntity.level() != streamEntity.level()) {
-            dropEntityTo(cachedEntity.level(), cachedEntity.position(), Vec3.ZERO, cachedEntity);
+            if (!tryHandoffToOtherStream(streamEntity, cachedEntity)) {
+                dropEntityTo(cachedEntity.level(), cachedEntity.position(), Vec3.ZERO, cachedEntity);
+            }
             streamEntity.clearSyncedData(EtherStreamCarryingEntityData.ID);
             streamEntity.dirtyConsumer();
             return;
@@ -136,8 +143,13 @@ public class EtherStreamCarryEntityCapability implements IStreamCapability {
                 if (source.isEmpty() || source.get().equals(this.source))
                     return true;
             }
-            if (entity.hasData(AttachmentDataRegistry.TAKEN_BY_ETHER_STREAM) && entity.getData(AttachmentDataRegistry.TAKEN_BY_ETHER_STREAM))
+            if (entity.hasData(AttachmentDataRegistry.TAKEN_BY_ETHER_STREAM) && entity.getData(AttachmentDataRegistry.TAKEN_BY_ETHER_STREAM)) {
+                if (streamEntity instanceof VirtualEtherStream) {
+                    entity.setData(AttachmentDataRegistry.STREAM_HANDOFF,
+                            new StreamHandoffData(streamEntity.getPosDir(), streamEntity.getStreamId()));
+                }
                 return true;
+            }
 
             if (entity.isVehicle()) {
                 entity.ejectPassengers();
@@ -188,6 +200,31 @@ public class EtherStreamCarryEntityCapability implements IStreamCapability {
         streamEntity.dirtyConsumer();
     }
 
+    private boolean tryHandoffToOtherStream(IEtherStreamLike streamEntity, Entity entity) {
+        if (!(streamEntity.level() instanceof ServerLevel sl)) return false;
+        if (!entity.hasData(AttachmentDataRegistry.STREAM_HANDOFF)) return false;
+        StreamHandoffData handoff = entity.getData(AttachmentDataRegistry.STREAM_HANDOFF);
+        entity.removeData(AttachmentDataRegistry.STREAM_HANDOFF.get());
+
+        VirtualEtherStreamHolderManager mgr = VirtualEtherStreamHolderManager.get(sl);
+        VirtualEtherStreamHolder holder = mgr.getHolder(handoff.posDir());
+        if (holder == null) return false;
+        VirtualEtherStream target = holder.findStreamById(handoff.streamId());
+        if (target == null || target.markToRemove) return false;
+        if (target.position().distanceToSqr(entity.position()) > Config.etherStreamHandoffDistance * Config.etherStreamHandoffDistance)
+            return false;
+
+        Optional<IStreamCapability> capOpt = target.getCapability(EtherStreamCarryEntityCapability.ID);
+        if (capOpt.isEmpty())
+            capOpt = target.getCapability(EtherStreamCarryEntityCapability.ID_PLAYER);
+        if (capOpt.isEmpty() || !(capOpt.get() instanceof EtherStreamCarryEntityCapability targetCap)) return false;
+
+        targetCap.forceTakeEntity(target, entity);
+        streamEntity.clearSyncedData(EtherStreamCarryingEntityData.ID);
+        streamEntity.dirtyConsumer();
+        return true;
+    }
+
     @Override
     public boolean hitBlock(ServerLevel level, IEtherStreamLike streamEntity, BlockHitResult hit, BlockState blockState) {
         return false;
@@ -209,6 +246,9 @@ public class EtherStreamCarryEntityCapability implements IStreamCapability {
         if (entity != null && entity.isAlive()) {
             entity.noPhysics = false;
             entity.setDeltaMovement(Vec3.ZERO);
+            if (tryHandoffToOtherStream(streamEntity, entity)) {
+                return;
+            }
             Vec3 dropPlayerPos = streamEntity.position();
             if (hitResult != null && hitResult.getType() != HitResult.Type.MISS) {
                 dropPlayerPos = hitResult.getLocation();
@@ -221,6 +261,7 @@ public class EtherStreamCarryEntityCapability implements IStreamCapability {
     }
 
     public static void dropEntityTo(Level level, Vec3 dropPlayerPos, Vec3 motion, Entity entity) {
+        entity.removeData(AttachmentDataRegistry.STREAM_HANDOFF.get());
         Vec3 subtract = dropPlayerPos.subtract(motion.normalize().scale(0.5));
         dropPlayerPos = new Vec3(Math.floor(subtract.x) + 0.5, dropPlayerPos.y, Math.floor(subtract.z) + 0.5);
         BlockPos currentBlockPos = BlockPos.containing((dropPlayerPos));
