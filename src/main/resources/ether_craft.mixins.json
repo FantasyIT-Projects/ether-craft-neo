@@ -5,12 +5,13 @@
   "plugin": "studio.fantasyit.ether_craft.integration.IntegrationMixinControlPlugin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
-    "player.PlayerCarryNoPhysicsMixin",
     "plating.EntitySetOnGroundMixin",
-    "plating.ItemStackMixin"
+    "plating.ItemStackMixin",
+    "player.PlayerCarryNoPhysicsMixin"
   ],
   "client": [
     "BufferBuilderAccessor",
+    "player.ClientPlayerCarryNoBobMixin",
     "pt.JEIRecipeDisplayScreenMixin"
   ],
   "injectors": {
