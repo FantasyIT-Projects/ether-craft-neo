@@ -398,7 +398,9 @@ public class VirtualEtherStream implements IEtherStreamLike {
                 holder
         );
         ves.tickCount = data.tickCount();
+        ves.currentDistance = data.startOffset() + data.startSpeed() * data.tickCount();
         ves.consumer.fromState(data.consumerState());
+        ves.runIntoEtherGlass = data.consumerState().isInEtherGlass();
         List<IStreamCapability> loadedCaps = data.capabilities();
         if (loadedCaps != null) {
             for (IStreamCapability cap : loadedCaps) {

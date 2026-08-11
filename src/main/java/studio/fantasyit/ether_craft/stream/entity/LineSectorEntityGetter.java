@@ -24,6 +24,10 @@ public class LineSectorEntityGetter {
     List<AABB>[] boundingBoxes;
     Vec3i pos;
     Vec3i dirVec;
+    private final int axisComp;
+    private final double axisX;
+    private final double axisY;
+    private final double axisZ;
 
     public LineSectorEntityGetter(List<List<List<Entity>>> entityList, BlockPos startPos, Vec3i dirVec, int holderMaxDistance) {
         this.entitySections = entityList;
@@ -35,6 +39,10 @@ public class LineSectorEntityGetter {
 
         int posLocal = startPos.getX() * dirVec.getX() + startPos.getY() * dirVec.getY() + startPos.getZ() * dirVec.getZ();
         this.firstOffset = posLocal - ((posLocal >> 4) << 4);
+        this.axisComp = dirVec.getX() != 0 ? 0 : (dirVec.getY() != 0 ? 1 : 2);
+        this.axisX = pos.getX() + 0.5;
+        this.axisY = pos.getY() + 0.5;
+        this.axisZ = pos.getZ() + 0.5;
     }
 
     private int getSecIdx(int offset) {
@@ -68,14 +76,30 @@ public class LineSectorEntityGetter {
         if (this.flattenAndCanHit[t] == null) {
             ArrayList<Entity> objects = new ArrayList<>(getSectionRelatedEntity(distance));
             objects.removeIf(this::noHitByStream);
-            this.flattenAndCanHit[t] = objects;
+            ArrayList<Entity> hitList = new ArrayList<>(objects.size());
             ArrayList<AABB> boundingBoxes = new ArrayList<>(objects.size());
             for (Entity e : objects) {
+                hitList.add(e);
                 boundingBoxes.add(e.getBoundingBox().inflate(0.3));
             }
+            this.flattenAndCanHit[t] = hitList;
             this.boundingBoxes[t] = boundingBoxes;
         }
         return t;
+    }
+
+    private boolean isOnAxisLine(Entity entity) {
+        AABB bb = entity.getBoundingBox();
+        if (axisComp == 0) {
+            return (bb.minY - 0.3) <= axisY && (bb.maxY + 0.3) >= axisY
+                    && (bb.minZ - 0.3) <= axisZ && (bb.maxZ + 0.3) >= axisZ;
+        }
+        if (axisComp == 1) {
+            return (bb.minX - 0.3) <= axisX && (bb.maxX + 0.3) >= axisX
+                    && (bb.minZ - 0.3) <= axisZ && (bb.maxZ + 0.3) >= axisZ;
+        }
+        return (bb.minX - 0.3) <= axisX && (bb.maxX + 0.3) >= axisX
+                && (bb.minY - 0.3) <= axisY && (bb.maxY + 0.3) >= axisY;
     }
 
     public List<Entity> getEntityAt(int blockDistance) {
@@ -142,6 +166,7 @@ public class LineSectorEntityGetter {
     }
 
     private boolean noHitByStream(Entity entity) {
+        if (!isOnAxisLine(entity)) return true;
         if (entity instanceof ItemEntity ie) {
             if (PlatingUtil.isPlatedItemEntity(ie)) return false;
             return !ie.getItem().is(Items.GLASS);

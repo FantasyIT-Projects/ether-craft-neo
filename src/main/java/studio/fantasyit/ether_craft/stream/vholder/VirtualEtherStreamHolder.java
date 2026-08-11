@@ -234,7 +234,7 @@ public class VirtualEtherStreamHolder {
             if (ves.tickCount == 0) {
                 int dist = ves.blockDistance();
                 if (dist < 0 || dist > holderMaxDistance) continue;
-                if (ves.getExtraProperty().noBlockHit && hasBlockData)
+                if (!ves.getExtraProperty().noBlockHit && hasBlockData)
                     ves.firstBlock(blockPoses[dist], blockStates[dist], shapes[dist]);
                 ves.firstTick();
             }
