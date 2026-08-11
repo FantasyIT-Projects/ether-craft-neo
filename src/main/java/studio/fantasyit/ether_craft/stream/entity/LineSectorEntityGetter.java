@@ -47,12 +47,13 @@ public class LineSectorEntityGetter {
 
     private int getSecIdx(int offset) {
         int t = (offset + firstOffset) >> 4;
+        if (t < 0) return 0;
         if (t >= this.flatten.length) return this.flatten.length - 1;
         return t;
     }
 
-    private List<Entity> getSectionRelatedEntity(int distance) {
-        int t = getSecIdx(distance);
+    private List<Entity> getSectionRelatedEntity(int section) {
+        int t = Math.clamp(section, 0, this.flatten.length - 1);
         if (t >= this.flatten.length) return List.of();
         if (this.flatten[t] == null) {
             int tc = 0;
@@ -71,10 +72,10 @@ public class LineSectorEntityGetter {
         return this.flatten[t];
     }
 
-    private int prepareSectionRelatedCanHitEntity(int distance) {
-        int t = getSecIdx(distance);
+    private int prepareSectionRelatedCanHitEntity(int section) {
+        int t = Math.clamp(section, 0, this.flatten.length - 1);
         if (this.flattenAndCanHit[t] == null) {
-            ArrayList<Entity> objects = new ArrayList<>(getSectionRelatedEntity(distance));
+            ArrayList<Entity> objects = new ArrayList<>(getSectionRelatedEntity(t));
             objects.removeIf(this::noHitByStream);
             ArrayList<Entity> hitList = new ArrayList<>(objects.size());
             ArrayList<AABB> boundingBoxes = new ArrayList<>(objects.size());
@@ -104,7 +105,7 @@ public class LineSectorEntityGetter {
 
     public List<Entity> getEntityAt(int blockDistance) {
         AABB aabb = new AABB(new BlockPos(pos.getX() + dirVec.getX() * blockDistance, pos.getY() + dirVec.getY() * blockDistance, pos.getZ() + dirVec.getZ() * blockDistance));
-        List<Entity> entities = getSectionRelatedEntity(blockDistance);
+        List<Entity> entities = getSectionRelatedEntity(getSecIdx(blockDistance));
         List<Entity> list = new ArrayList<>();
         for (Entity entity : entities) {
             if (entity.getBoundingBox().intersects(aabb)) {

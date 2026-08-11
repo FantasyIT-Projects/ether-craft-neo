@@ -195,14 +195,6 @@ public class EntitySectorCache {
         boolean notAloneY = dirVec.getY() == 0;
         boolean notAloneZ = dirVec.getZ() == 0;
 
-        boolean nearMinX = pos.getX() - (sectionMinY << 4) > 2;
-        boolean nearMinY = pos.getY() - (sectionMinZ << 4) > 2;
-        boolean nearMinZ = pos.getZ() - (sectionMinY << 4) > 2;
-        boolean nearMaxX = pos.getX() + (sectionMaxY << 4) > 2;
-        boolean nearMaxY = pos.getY() + (sectionMaxZ << 4) > 2;
-        boolean nearMaxZ = pos.getZ() + (sectionMaxY << 4) > 2;
-
-
         int sectionLineCount = (sectionMaxX - sectionMinX) * dirVec.getX() + (sectionMaxZ - sectionMinZ) * dirVec.getZ() + (sectionMaxY - sectionMinY) * dirVec.getY() + 1;
         if (sectionLineCount <= 0) return null;
 
@@ -217,6 +209,13 @@ public class EntitySectorCache {
             int sectionBlockMinX = sectionX << 4;
             int sectionBlockMinY = sectionY << 4;
             int sectionBlockMinZ = sectionZ << 4;
+
+            boolean nearMinX = pos.getX() - sectionBlockMinX < 2;
+            boolean nearMaxX = blockMaxX - sectionBlockMinX >= 14;
+            boolean nearMinY = pos.getY() - sectionBlockMinY < 2;
+            boolean nearMaxY = blockMaxY - sectionBlockMinY >= 14;
+            boolean nearMinZ = pos.getZ() - sectionBlockMinZ < 2;
+            boolean nearMaxZ = blockMaxZ - sectionBlockMinZ >= 14;
 
             double scanMinX = Math.max(blockMinX, sectionBlockMinX);
             double scanMinY = Math.max(blockMinY, sectionBlockMinY);
@@ -233,21 +232,21 @@ public class EntitySectorCache {
             list.add(el);
 
             for (int dx = -1; dx <= 1; dx++) {
-                if (dx == -1 && !(notAloneX && nearMinX)) continue;
-                if (dx == 1 && !(notAloneX && nearMaxX)) continue;
+                if (dx == -1 && notAloneX && !nearMinX) continue;
+                if (dx == 1 && notAloneX && !nearMaxX) continue;
 
                 for (int dy = -1; dy <= 1; dy++) {
-                    if (dy == -1 && !(notAloneY && nearMinY)) continue;
-                    if (dy == 1 && !(notAloneY && nearMaxY)) continue;
+                    if (dy == -1 && notAloneY && !nearMinY) continue;
+                    if (dy == 1 && notAloneY && !nearMaxY) continue;
 
                     for (int dz = -1; dz <= 1; dz++) {
-                        if (dz == -1 && !(notAloneZ && nearMinZ)) continue;
-                        if (dz == 1 && !(notAloneZ && nearMaxZ)) continue;
+                        if (dz == -1 && notAloneZ && !nearMinZ) continue;
+                        if (dz == 1 && notAloneZ && !nearMaxZ) continue;
                         if (dx == 0 && dy == 0 && dz == 0) continue;
 
                         long ok = SectionPos.offset(key, dx, dy, dz);
                         ensureCached(storage, ok);
-                        List<Entity> elc = crossSectionCache.get(key);
+                        List<Entity> elc = crossSectionCache.get(ok);
                         list.add(elc);
                     }
                 }
