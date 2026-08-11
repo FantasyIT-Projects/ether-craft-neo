@@ -38,7 +38,10 @@ public class LineSectorEntityGetter {
         this.boundingBoxes = new List[entityList.size()];
 
         int posLocal = startPos.getX() * dirVec.getX() + startPos.getY() * dirVec.getY() + startPos.getZ() * dirVec.getZ();
-        this.firstOffset = posLocal - ((posLocal >> 4) << 4);
+        int axisCoord = Math.abs(posLocal);
+        int local = axisCoord & 15;
+        int dirSign = dirVec.getX() + dirVec.getY() + dirVec.getZ();
+        this.firstOffset = dirSign > 0 ? local : 15 - local;
         this.axisComp = dirVec.getX() != 0 ? 0 : (dirVec.getY() != 0 ? 1 : 2);
         this.axisX = pos.getX() + 0.5;
         this.axisY = pos.getY() + 0.5;
@@ -116,7 +119,7 @@ public class LineSectorEntityGetter {
     }
 
     public boolean hasEntityContainsAndCanHitAt(int blockDistance, double x, double y, double z) {
-        int i = prepareSectionRelatedCanHitEntity(blockDistance);
+        int i = prepareSectionRelatedCanHitEntity(getSecIdx(blockDistance));
         for (AABB aabb : this.boundingBoxes[i]) {
             if (aabb.contains(x, y, z)) {
                 return true;
@@ -129,8 +132,8 @@ public class LineSectorEntityGetter {
         Entity hitEntity = null;
         EntityHitResult hit = null;
         Vec3 entityHitAt = null;
-        int s1 = getSecIdx(startOffset);
-        int s2 = getSecIdx(endOffset);
+        int s1 = getSecIdx(startOffset - 1);
+        int s2 = getSecIdx(endOffset + 1);
         for (int i = s1; i <= s2; ++i) {
             int i1 = prepareSectionRelatedCanHitEntity(i);
             List<AABB> boxes = boundingBoxes[i1];

@@ -10,6 +10,7 @@ import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.level.ClipContext;
@@ -42,6 +43,10 @@ public class EtherStreamCarriedEntityLogic implements IEtherStreamExtraClientLog
         if (!data.entityUUID().equals(clientEntity.getUUID())) return;
 
         Vec3 currentPos = entry.getCurrentPosition();
+        if (clientEntity instanceof Player player) {
+            player.setForcedPose(Pose.STANDING);
+        }
+        clientEntity.noPhysics = true;
         clientEntity.setPos(currentPos.x, currentPos.y - clientEntity.getEyeHeight(), currentPos.z);
         clientEntity.setDeltaMovement(entry.motion);
 

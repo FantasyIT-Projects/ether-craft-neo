@@ -158,9 +158,9 @@ public class EntitySectorCache {
             all.add(entity);
             AABB aabb = entity.getBoundingBox();
             if (
-                    aabb.minX < minX || aabb.maxX > maxX ||
-                            aabb.minZ < minZ || aabb.maxZ > maxZ ||
-                            aabb.minY < minY || aabb.maxY > maxY
+                    aabb.minX - 0.3 < minX || aabb.maxX + 0.3 > maxX ||
+                            aabb.minZ - 0.3 < minZ || aabb.maxZ + 0.3 > maxZ ||
+                            aabb.minY - 0.3 < minY || aabb.maxY + 0.3 > maxY
             )
                 cross.add(entity);
         });

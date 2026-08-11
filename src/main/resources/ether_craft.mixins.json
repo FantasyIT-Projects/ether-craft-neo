@@ -5,6 +5,7 @@
   "plugin": "studio.fantasyit.ether_craft.integration.IntegrationMixinControlPlugin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
+    "player.PlayerCarryNoPhysicsMixin",
     "plating.EntitySetOnGroundMixin",
     "plating.ItemStackMixin"
   ],

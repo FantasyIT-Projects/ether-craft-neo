@@ -103,6 +103,9 @@ public class EtherStreamCarryEntityCapability implements IStreamCapability {
         }
 
         cachedEntity.noPhysics = true;
+        if (cachedEntity instanceof Player player) {
+            player.setForcedPose(Pose.STANDING);
+        }
         Vec3 position = streamEntity.position();
         cachedEntity.setPos(position.x, position.y - cachedEntity.getEyeHeight(), position.z);
         cachedEntity.setDeltaMovement(streamEntity.deltaMovement());
@@ -236,6 +239,7 @@ public class EtherStreamCarryEntityCapability implements IStreamCapability {
         }
         entity.setDeltaMovement(Vec3.ZERO);
         entity.fallDistance = 0;
+        entity.noPhysics = false;
         entity.setInvulnerable(false);
         entity.setData(AttachmentDataRegistry.TAKEN_BY_ETHER_STREAM, false);
         if (entity.level() instanceof ServerLevel) {
