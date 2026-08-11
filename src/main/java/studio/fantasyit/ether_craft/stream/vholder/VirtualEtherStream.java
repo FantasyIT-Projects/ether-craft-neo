@@ -11,6 +11,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
@@ -32,7 +33,7 @@ import java.util.List;
 import java.util.Optional;
 
 public class VirtualEtherStream implements IEtherStreamLike {
-    final Level level;
+    final ServerLevel level;
     final Direction direction;
     final float startOffset;
     final float startSpeed;
@@ -73,7 +74,7 @@ public class VirtualEtherStream implements IEtherStreamLike {
     IntOpenHashSet trackingPlayers = new IntOpenHashSet();
     IntOpenHashSet lastTrackingPlayers = new IntOpenHashSet();
 
-    public VirtualEtherStream(int streamId, int ether, PosDir posDir, float startOffset, float startSpeed, Level level, VirtualEtherStreamHolder holder) {
+    public VirtualEtherStream(int streamId, int ether, PosDir posDir, float startOffset, float startSpeed, ServerLevel level, VirtualEtherStreamHolder holder) {
         this.startOffset = startOffset;
         this.startSpeed = startSpeed;
         this.streamId = streamId;
@@ -144,6 +145,20 @@ public class VirtualEtherStream implements IEtherStreamLike {
         if (realCanReceiveEther != -1 && realCanReceiveEther < ether)
             return realCanReceiveEther;
         return ether;
+    }
+
+    @Override
+    public List<Entity> getEntities(AABB aabb) {
+        return holder.entityGetter.getEntities(level, aabb);
+    }
+
+    @Override
+    public List<Entity> getEntitiesInCurrentPos() {
+        if (holder.lineSectorEntityGetter != null) {
+            return holder.lineSectorEntityGetter.getEntityAt(blockDistance());
+        } else {
+            return getEntities(new AABB(blockPosition()));
+        }
     }
 
     @Override

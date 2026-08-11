@@ -33,7 +33,10 @@ import studio.fantasyit.ether_craft.block.base.EtherContainer;
 import studio.fantasyit.ether_craft.block.glass.EtherGlassUtil;
 import studio.fantasyit.ether_craft.plating.helper.PlatingChargingUtil;
 import studio.fantasyit.ether_craft.plating.helper.PlatingUtil;
-import studio.fantasyit.ether_craft.register.*;
+import studio.fantasyit.ether_craft.register.EntityDataSerializerRegistry;
+import studio.fantasyit.ether_craft.register.EntityRegistry;
+import studio.fantasyit.ether_craft.register.ItemRegistry;
+import studio.fantasyit.ether_craft.register.Tags;
 import studio.fantasyit.ether_craft.stream.EtherConsumer;
 import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
 import studio.fantasyit.ether_craft.stream.PosDir;
@@ -130,6 +133,16 @@ public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
         if (realCanReceiveEther != -1 && realCanReceiveEther < ether)
             return realCanReceiveEther;
         return ether;
+    }
+
+    @Override
+    public List<Entity> getEntities(AABB aabb) {
+        return level().getEntities(this, aabb);
+    }
+
+    @Override
+    public List<Entity> getEntitiesInCurrentPos() {
+        return getEntities(new AABB(blockPosition()));
     }
 
     @Override

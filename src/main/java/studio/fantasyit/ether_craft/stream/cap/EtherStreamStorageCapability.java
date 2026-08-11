@@ -35,7 +35,6 @@ import studio.fantasyit.ether_craft.register.AttachmentDataRegistry;
 import studio.fantasyit.ether_craft.stream.EtherConsumer;
 import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
 import studio.fantasyit.ether_craft.util.ContainerOps;
-import studio.fantasyit.ether_craft.util.EntityGetterUtil;
 
 import java.util.Collections;
 import java.util.List;
@@ -101,10 +100,9 @@ public class EtherStreamStorageCapability implements IStreamCapability, Containe
     public void tick(@UnknownNullability IEtherStreamLike streamEntity) {
         if (streamEntity.getCapability(EtherStreamPlatingCapability.ID).isPresent())
             return;
-        if (!(streamEntity.level() instanceof ServerLevel level)) return;
+        if (!(streamEntity.level() instanceof ServerLevel)) return;
         if (streamEntity.isInFullBlock()) return;
-        AABB currentBlockPos = new AABB(streamEntity.blockPosition());
-        for (Entity e : EntityGetterUtil.getEntities(level, currentBlockPos)) {
+        for (Entity e : streamEntity.getEntitiesInCurrentPos()) {
             if (!(e instanceof ItemEntity itemEntity)) continue;
             if (!itemEntity.isAlive() || itemEntity.hasPickUpDelay()) continue;
             if (itemEntity.hasData(AttachmentDataRegistry.CD_TO_TAKE_BY_ETHER_STREAM))

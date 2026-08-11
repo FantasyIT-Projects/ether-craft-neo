@@ -24,7 +24,6 @@ import studio.fantasyit.ether_craft.register.DataComponentRegistry;
 import studio.fantasyit.ether_craft.register.ItemRegistry;
 import studio.fantasyit.ether_craft.register.RecipeTypeRegistry;
 import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
-import studio.fantasyit.ether_craft.util.EntityGetterUtil;
 
 import java.util.*;
 
@@ -47,8 +46,7 @@ public class EtherStreamPlatingCapability implements IStreamCapability {
         EtherStreamStorageCapability storage = optStorage.filter(EtherStreamStorageCapability.class::isInstance)
                 .map(EtherStreamStorageCapability.class::cast).orElse(null);
 
-        AABB currentBlockPos = new AABB(streamEntity.blockPosition());
-        List<ItemEntity> entities = EntityGetterUtil.getEntities(level, currentBlockPos).stream()
+        List<ItemEntity> entities = streamEntity.getEntitiesInCurrentPos().stream()
                 .filter(ItemEntity.class::isInstance)
                 .map(ItemEntity.class::cast)
                 .filter(Entity::isAlive)

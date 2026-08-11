@@ -5,12 +5,14 @@ import net.minecraft.core.Direction;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import studio.fantasyit.ether_craft.stream.cap.IStreamCapability;
 import studio.fantasyit.ether_craft.stream.data.IEtherStreamSyncedData;
 import studio.fantasyit.ether_craft.stream.data.StreamExtraProperty;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface IEtherStreamLike {
@@ -60,6 +62,9 @@ public interface IEtherStreamLike {
     int tickCount();
 
     int getCanConveyEther();
+
+    List<Entity> getEntities(AABB aabb);
+    List<Entity> getEntitiesInCurrentPos();
 
     default boolean isInFullBlock() {
         return false;
