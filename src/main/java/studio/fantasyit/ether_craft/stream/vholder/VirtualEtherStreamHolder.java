@@ -489,7 +489,9 @@ public class VirtualEtherStreamHolder {
     private @Nullable EntityHitResult collideTryEntity(VirtualEtherStream ves, double blockDist,
                                                        double nx, double ny, double nz, double ox, double oy, double oz) {
         if (lineSectorEntityGetter == null) return null;
-        return lineSectorEntityGetter.getEntityHit(ves.blockDistancePrev(), ves.blockDistance(), new Vec3(ox, oy, oz), new Vec3(nx, ny, nz), blockDist, ves);
+        return lineSectorEntityGetter.getEntityHit(
+                ves.blockDistancePrev(), ves.blockDistance(),
+                ox, oy, oz, nx, ny, nz, blockDist, ves);
     }
 
     private @Nullable BlockCollision collideTryBlock(VirtualEtherStream ves, BlockState[] blockStates, BlockPos[] blockPoses,

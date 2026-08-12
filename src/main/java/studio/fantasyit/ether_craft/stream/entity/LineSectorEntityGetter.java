@@ -14,108 +14,124 @@ import studio.fantasyit.ether_craft.stream.vholder.VirtualEtherStream;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 public class LineSectorEntityGetter {
+    record SectionEntityList(List<Entity> entities, AABB[] boxes) {
+    }
+
     private final int firstOffset;
-    List<List<List<Entity>>> entitySections;
-    List<Entity>[] flatten;
-    List<Entity>[] flattenAndCanHit;
-    List<AABB>[] boundingBoxes;
+    List<List<SectionEntityList>> entitySections;
+    Entity[][] flattenAndCanHit;
+    AABB[][] boundingBoxes;
     Vec3i pos;
     Vec3i dirVec;
     private final int axisComp;
-    private final double axisX;
-    private final double axisY;
-    private final double axisZ;
+    private final double axisXMin;
+    private final double axisXMax;
+    private final double axisYMin;
+    private final double axisYMax;
+    private final double axisZMin;
+    private final double axisZMax;
 
-    public LineSectorEntityGetter(List<List<List<Entity>>> entityList, BlockPos startPos, Vec3i dirVec, int holderMaxDistance) {
+    public LineSectorEntityGetter(List<List<SectionEntityList>> entityList, BlockPos startPos, Vec3i dirVec, int holderMaxDistance) {
         this.entitySections = entityList;
         this.pos = startPos;
         this.dirVec = dirVec;
-        this.flatten = new List[entityList.size()];
-        this.flattenAndCanHit = new List[entityList.size()];
-        this.boundingBoxes = new List[entityList.size()];
+        this.flattenAndCanHit = new Entity[entityList.size()][];
+        this.boundingBoxes = new AABB[entityList.size()][];
 
         int posLocal = startPos.getX() * dirVec.getX() + startPos.getY() * dirVec.getY() + startPos.getZ() * dirVec.getZ();
-        int axisCoord = Math.abs(posLocal);
-        int local = axisCoord & 15;
         int dirSign = dirVec.getX() + dirVec.getY() + dirVec.getZ();
+        int posCoord = posLocal * dirSign;
+        int local = posCoord & 15;
         this.firstOffset = dirSign > 0 ? local : 15 - local;
         this.axisComp = dirVec.getX() != 0 ? 0 : (dirVec.getY() != 0 ? 1 : 2);
-        this.axisX = pos.getX() + 0.5;
-        this.axisY = pos.getY() + 0.5;
-        this.axisZ = pos.getZ() + 0.5;
+        double axisX = pos.getX() + 0.5;
+        double axisY = pos.getY() + 0.5;
+        double axisZ = pos.getZ() + 0.5;
+        this.axisXMin = axisX - 0.3;
+        this.axisXMax = axisX + 0.3;
+        this.axisYMin = axisY - 0.3;
+        this.axisYMax = axisY + 0.3;
+        this.axisZMin = axisZ - 0.3;
+        this.axisZMax = axisZ + 0.3;
     }
 
     private int getSecIdx(int offset) {
         int t = (offset + firstOffset) >> 4;
         if (t < 0) return 0;
-        if (t >= this.flatten.length) return this.flatten.length - 1;
+        if (t >= this.flattenAndCanHit.length) return this.flattenAndCanHit.length - 1;
         return t;
-    }
-
-    private List<Entity> getSectionRelatedEntity(int section) {
-        int t = Math.clamp(section, 0, this.flatten.length - 1);
-        if (t >= this.flatten.length) return List.of();
-        if (this.flatten[t] == null) {
-            int tc = 0;
-            for (List<Entity> el : entitySections.get(t)) {
-                if (el == null) continue;
-                tc += el.size();
-            }
-            ArrayList<Entity> objects = new ArrayList<>(tc);
-            for (List<Entity> el : entitySections.get(t)) {
-                if (el == null) continue;
-                objects.addAll(el);
-            }
-            this.flatten[t] = objects;
-            return objects;
-        }
-        return this.flatten[t];
     }
 
     private int prepareSectionRelatedCanHitEntity(int section) {
-        int t = Math.clamp(section, 0, this.flatten.length - 1);
-        if (this.flattenAndCanHit[t] == null) {
-            ArrayList<Entity> objects = new ArrayList<>(getSectionRelatedEntity(t));
-            objects.removeIf(this::noHitByStream);
-            ArrayList<Entity> hitList = new ArrayList<>(objects.size());
-            ArrayList<AABB> boundingBoxes = new ArrayList<>(objects.size());
-            for (Entity e : objects) {
-                hitList.add(e);
-                boundingBoxes.add(e.getBoundingBox().inflate(0.3));
+        if (this.flattenAndCanHit[section] == null) {
+            List<SectionEntityList> sectionList = entitySections.get(section);
+            int count = 0;
+            for (int k = 0; k < sectionList.size(); k++) {
+                SectionEntityList sel = sectionList.get(k);
+                if (sel == null) continue;
+                List<Entity> entities = sel.entities();
+                for (int i = 0; i < entities.size(); i++) {
+                    if (!noHitByStream(entities.get(i))) count++;
+                }
             }
-            this.flattenAndCanHit[t] = hitList;
-            this.boundingBoxes[t] = boundingBoxes;
+            Entity[] hitList = new Entity[count];
+            AABB[] boxList = new AABB[count];
+            int fill = 0;
+            for (int k = 0; k < sectionList.size(); k++) {
+                SectionEntityList sel = sectionList.get(k);
+                if (sel == null) continue;
+                List<Entity> entities = sel.entities();
+                AABB[] boxes = sel.boxes();
+                for (int i = 0; i < entities.size(); i++) {
+                    Entity e = entities.get(i);
+                    if (noHitByStream(e)) continue;
+                    hitList[fill] = e;
+                    boxList[fill] = boxes[i];
+                    fill++;
+                }
+            }
+            this.flattenAndCanHit[section] = hitList;
+            this.boundingBoxes[section] = boxList;
         }
-        return t;
+        return section;
     }
 
     private boolean isOnAxisLine(Entity entity) {
         AABB bb = entity.getBoundingBox();
         if (axisComp == 0) {
-            return (bb.minY - 0.3) <= axisY && (bb.maxY + 0.3) >= axisY
-                    && (bb.minZ - 0.3) <= axisZ && (bb.maxZ + 0.3) >= axisZ;
+            return bb.minY <= axisYMax && bb.maxY >= axisYMin
+                    && bb.minZ <= axisZMax && bb.maxZ >= axisZMin;
         }
         if (axisComp == 1) {
-            return (bb.minX - 0.3) <= axisX && (bb.maxX + 0.3) >= axisX
-                    && (bb.minZ - 0.3) <= axisZ && (bb.maxZ + 0.3) >= axisZ;
+            return bb.minX <= axisXMax && bb.maxX >= axisXMin
+                    && bb.minZ <= axisZMax && bb.maxZ >= axisZMin;
         }
-        return (bb.minX - 0.3) <= axisX && (bb.maxX + 0.3) >= axisX
-                && (bb.minY - 0.3) <= axisY && (bb.maxY + 0.3) >= axisY;
+        return bb.minX <= axisXMax && bb.maxX >= axisXMin
+                && bb.minY <= axisYMax && bb.maxY >= axisYMin;
     }
 
     public List<Entity> getEntityAt(int blockDistance) {
-        AABB aabb = new AABB(new BlockPos(pos.getX() + dirVec.getX() * blockDistance, pos.getY() + dirVec.getY() * blockDistance, pos.getZ() + dirVec.getZ() * blockDistance));
-        List<Entity> entities = getSectionRelatedEntity(getSecIdx(blockDistance));
-        List<Entity> list = new ArrayList<>();
-        for (Entity entity : entities) {
-            if (entity.getBoundingBox().intersects(aabb)) {
-                list.add(entity);
+        int x = pos.getX() + dirVec.getX() * blockDistance;
+        int y = pos.getY() + dirVec.getY() * blockDistance;
+        int z = pos.getZ() + dirVec.getZ() * blockDistance;
+        int t = getSecIdx(blockDistance);
+        List<Entity> list = null;
+        List<SectionEntityList> sectionList = entitySections.get(t);
+        for (int k = 0; k < sectionList.size(); k++) {
+            SectionEntityList sel = sectionList.get(k);
+            if (sel == null) continue;
+            List<Entity> entities = sel.entities();
+            for (int i = 0; i < entities.size(); i++) {
+                Entity entity = entities.get(i);
+                if (AABBRayHit.unitBoxIntersects(entity.getBoundingBox(), x, y, z)) {
+                    if (list == null) list = new ArrayList<>();
+                    list.add(entity);
+                }
             }
         }
-        return list;
+        return list == null ? List.of() : list;
     }
 
     public boolean hasEntityContainsAndCanHitAt(int blockDistance, double x, double y, double z) {
@@ -128,45 +144,50 @@ public class LineSectorEntityGetter {
         return false;
     }
 
-    public EntityHitResult getEntityHit(int startOffset, int endOffset, Vec3 oldPos, Vec3 newPos, double nearestDist, VirtualEtherStream extraSkip) {
+    public EntityHitResult getEntityHit(int startOffset, int endOffset,
+                                        double oldX, double oldY, double oldZ,
+                                        double newX, double newY, double newZ,
+                                        double nearestDist, VirtualEtherStream extraSkip) {
+        double dx = newX - oldX;
+        double dy = newY - oldY;
+        double dz = newZ - oldZ;
+        double rayLenSqr = dx * dx + dy * dy + dz * dz;
         Entity hitEntity = null;
-        EntityHitResult hit = null;
         Vec3 entityHitAt = null;
         int s1 = getSecIdx(startOffset - 1);
         int s2 = getSecIdx(endOffset + 1);
         for (int i = s1; i <= s2; ++i) {
             int i1 = prepareSectionRelatedCanHitEntity(i);
-            List<AABB> boxes = boundingBoxes[i1];
-            List<Entity> list = flattenAndCanHit[i1];
-            for (int j = 0; j < list.size(); ++j) {
-                Entity entity = list.get(j);
+            AABB[] boxes = boundingBoxes[i1];
+            Entity[] list = flattenAndCanHit[i1];
+            for (int j = 0; j < list.length; ++j) {
+                Entity entity = list[j];
                 if (extraSkip.shouldPassThrough(entity)) continue;
-                AABB bb = boxes.get(j);
-                double localDist = entity.distanceToSqr(oldPos);
-                boolean currentCanHit = bb.contains(oldPos) && localDist < nearestDist;
-                Vec3 localHitAt = bb.getCenter();
-                if (!currentCanHit) {
-                    Optional<Vec3> clip = bb.clip(oldPos, newPos);
-                    if (clip.isPresent()) {
-                        localDist = clip.get().distanceToSqr(oldPos);
+                AABB bb = boxes[j];
+                if (AABBRayHit.contains(bb, oldX, oldY, oldZ)) {
+                    double localDist = entity.distanceToSqr(oldX, oldY, oldZ);
+                    if (localDist < nearestDist) {
+                        nearestDist = localDist;
+                        hitEntity = entity;
+                        entityHitAt = bb.getCenter();
+                    }
+                } else {
+                    double t = AABBRayHit.clip(bb, oldX, oldY, oldZ, dx, dy, dz);
+                    if (t > 0) {
+                        double localDist = t * t * rayLenSqr;
                         if (localDist < nearestDist) {
-                            currentCanHit = true;
-                            localHitAt = clip.get();
+                            nearestDist = localDist;
+                            hitEntity = entity;
+                            entityHitAt = new Vec3(oldX + t * dx, oldY + t * dy, oldZ + t * dz);
                         }
                     }
                 }
-                if (currentCanHit) {
-                    nearestDist = localDist;
-                    hitEntity = entity;
-                    entityHitAt = localHitAt;
-                }
-
             }
         }
         if (hitEntity != null) {
-            hit = new EntityHitResult(hitEntity, entityHitAt);
+            return new EntityHitResult(hitEntity, entityHitAt);
         }
-        return hit;
+        return null;
     }
 
     private boolean noHitByStream(Entity entity) {

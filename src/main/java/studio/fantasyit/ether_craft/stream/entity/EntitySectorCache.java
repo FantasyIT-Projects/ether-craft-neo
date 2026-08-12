@@ -17,8 +17,11 @@ import java.util.Collection;
 import java.util.List;
 
 public class EntitySectorCache {
-    private final Long2ObjectOpenHashMap<List<Entity>> crossSectionCache = new Long2ObjectOpenHashMap<>(1024);
-    private final Long2ObjectOpenHashMap<List<Entity>> allEntitiesCache = new Long2ObjectOpenHashMap<>(1024);
+    record SectionCacheData(List<Entity> all, AABB[] allBoxes,
+                            List<Entity> cross, AABB[] crossBoxes) {
+    }
+
+    private final Long2ObjectOpenHashMap<SectionCacheData> sectionCache = new Long2ObjectOpenHashMap<>(1024);
 
     public List<Entity> getEntities(ServerLevel level, BlockPos pos) {
         int x = pos.getX();
@@ -110,7 +113,9 @@ public class EntitySectorCache {
 
     private void collectAll(EntitySectionStorage<Entity> storage, long key, double minX, double minY, double minZ, double maxX, double maxY, double maxZ, List<Entity> result) {
         ensureCached(storage, key);
-        List<Entity> list = allEntitiesCache.get(key);
+        SectionCacheData data = sectionCache.get(key);
+        if (data == null) return;
+        List<Entity> list = data.all();
         if (list == null || list.isEmpty()) return;
         for (Entity e : list) {
             if (!e.isSpectator() && intersects(e, minX, minY, minZ, maxX, maxY, maxZ)) {
@@ -121,7 +126,9 @@ public class EntitySectorCache {
 
     private void collectCross(EntitySectionStorage<Entity> storage, long key, double minX, double minY, double minZ, double maxX, double maxY, double maxZ, List<Entity> result) {
         ensureCached(storage, key);
-        List<Entity> list = crossSectionCache.get(key);
+        SectionCacheData data = sectionCache.get(key);
+        if (data == null) return;
+        List<Entity> list = data.cross();
         if (list == null || list.isEmpty()) return;
         for (Entity e : list) {
             if (!e.isSpectator() && intersects(e, minX, minY, minZ, maxX, maxY, maxZ)) {
@@ -138,7 +145,7 @@ public class EntitySectorCache {
     }
 
     private void ensureCached(EntitySectionStorage<Entity> storage, long key) {
-        if (allEntitiesCache.containsKey(key)) return;
+        if (sectionCache.containsKey(key)) return;
         EntitySection<Entity> section = storage.getSection(key);
         if (section == null || !section.getStatus().isAccessible()) return;
         getAndCacheSection(section, key, SectionPos.x(key), SectionPos.y(key), SectionPos.z(key));
@@ -146,7 +153,9 @@ public class EntitySectorCache {
 
     private void getAndCacheSection(EntitySection<Entity> section, long key, int x, int y, int z) {
         List<Entity> all = new ArrayList<>();
+        List<AABB> allBoxes = new ArrayList<>();
         List<Entity> cross = new ArrayList<>();
+        List<AABB> crossBoxes = new ArrayList<>();
         int minX = x << 4;
         int minY = y << 4;
         int minZ = z << 4;
@@ -156,21 +165,25 @@ public class EntitySectorCache {
 
         section.getEntities().forEach(entity -> {
             all.add(entity);
-            AABB aabb = entity.getBoundingBox();
+            AABB inflated = entity.getBoundingBox().inflate(0.3);
+            allBoxes.add(inflated);
             if (
-                    aabb.minX - 0.3 < minX || aabb.maxX + 0.3 > maxX ||
-                            aabb.minZ - 0.3 < minZ || aabb.maxZ + 0.3 > maxZ ||
-                            aabb.minY - 0.3 < minY || aabb.maxY + 0.3 > maxY
-            )
+                    inflated.minX < minX || inflated.maxX > maxX ||
+                            inflated.minZ < minZ || inflated.maxZ > maxZ ||
+                            inflated.minY < minY || inflated.maxY > maxY
+            ) {
                 cross.add(entity);
+                crossBoxes.add(inflated);
+            }
         });
-        allEntitiesCache.put(key, all);
-        crossSectionCache.put(key, cross);
+        sectionCache.put(key, new SectionCacheData(
+                all, allBoxes.toArray(new AABB[0]),
+                cross, crossBoxes.toArray(new AABB[0])
+        ));
     }
 
     public void clear() {
-        allEntitiesCache.clear();
-        crossSectionCache.clear();
+        sectionCache.clear();
     }
 
     public @Nullable LineSectorEntityGetter getLineSectorGetter(ServerLevel level, BlockPos pos, Vec3i dirVec, int holderMaxDistance) {
@@ -198,8 +211,37 @@ public class EntitySectorCache {
         int sectionLineCount = (sectionMaxX - sectionMinX) * dirVec.getX() + (sectionMaxZ - sectionMinZ) * dirVec.getZ() + (sectionMaxY - sectionMinY) * dirVec.getY() + 1;
         if (sectionLineCount <= 0) return null;
 
+        // 沿线垂直轴 section 坐标恒定，因此其 near 判断恒定；运动轴邻居恒包含。
+        // 故邻居偏移集合对沿线所有 section 相同，可整体预计算一次。
+        int[] sectionMinCoord = {sectionMinX, sectionMinY, sectionMinZ};
+        int[] posCoord = {blockMinX, blockMinY, blockMinZ};
+        int[] blockMaxCoord = {blockMaxX, blockMaxY, blockMaxZ};
+        boolean[] notAlone = {notAloneX, notAloneY, notAloneZ};
+        int[] nearMin = new int[3];
+        int[] nearMax = new int[3];
+        for (int a = 0; a < 3; a++) {
+            int sectionBlockMin = sectionMinCoord[a] << 4;
+            nearMin[a] = posCoord[a] - sectionBlockMin < 2 ? 1 : 0;
+            nearMax[a] = blockMaxCoord[a] - sectionBlockMin >= 14 ? 1 : 0;
+        }
+        List<int[]> neighborOffsets = new ArrayList<>(26);
+        for (int dx = -1; dx <= 1; dx++) {
+            if (dx == -1 && notAlone[0] && nearMin[0] == 0) continue;
+            if (dx == 1 && notAlone[0] && nearMax[0] == 0) continue;
+            for (int dy = -1; dy <= 1; dy++) {
+                if (dy == -1 && notAlone[1] && nearMin[1] == 0) continue;
+                if (dy == 1 && notAlone[1] && nearMax[1] == 0) continue;
+                for (int dz = -1; dz <= 1; dz++) {
+                    if (dz == -1 && notAlone[2] && nearMin[2] == 0) continue;
+                    if (dz == 1 && notAlone[2] && nearMax[2] == 0) continue;
+                    if (dx == 0 && dy == 0 && dz == 0) continue;
+                    neighborOffsets.add(new int[]{dx, dy, dz});
+                }
+            }
+        }
+
         EntitySectionStorage<Entity> storage = level.entityManager.sectionStorage;
-        List<List<List<Entity>>> entitySections = new ArrayList<>(sectionLineCount);
+        List<List<LineSectorEntityGetter.SectionEntityList>> entitySections = new ArrayList<>(sectionLineCount);
         Collection<PartEntity<?>> partEntities = level.dragonParts();
         for (int sectionDistance = 0; sectionDistance < sectionLineCount; sectionDistance++) {
             int sectionX = sectionMinX + dirVec.getX() * sectionDistance;
@@ -210,13 +252,6 @@ public class EntitySectorCache {
             int sectionBlockMinY = sectionY << 4;
             int sectionBlockMinZ = sectionZ << 4;
 
-            boolean nearMinX = pos.getX() - sectionBlockMinX < 2;
-            boolean nearMaxX = blockMaxX - sectionBlockMinX >= 14;
-            boolean nearMinY = pos.getY() - sectionBlockMinY < 2;
-            boolean nearMaxY = blockMaxY - sectionBlockMinY >= 14;
-            boolean nearMinZ = pos.getZ() - sectionBlockMinZ < 2;
-            boolean nearMaxZ = blockMaxZ - sectionBlockMinZ >= 14;
-
             double scanMinX = Math.max(blockMinX, sectionBlockMinX);
             double scanMinY = Math.max(blockMinY, sectionBlockMinY);
             double scanMinZ = Math.max(blockMinZ, sectionBlockMinZ);
@@ -225,42 +260,35 @@ public class EntitySectorCache {
             double scanMaxZ = Math.min(blockMaxZ, sectionBlockMinZ + 15) + 1.0;
 
             long key = SectionPos.asLong(sectionX, sectionY, sectionZ);
-            List<List<Entity>> list = new ArrayList<>();
+            List<LineSectorEntityGetter.SectionEntityList> list = new ArrayList<>(neighborOffsets.size() + 2);
 
             ensureCached(storage, key);
-            List<Entity> el = allEntitiesCache.get(key);
-            list.add(el);
+            SectionCacheData self = sectionCache.get(key);
+            if (self != null && !self.all().isEmpty()) {
+                list.add(new LineSectorEntityGetter.SectionEntityList(self.all(), self.allBoxes()));
+            }
 
-            for (int dx = -1; dx <= 1; dx++) {
-                if (dx == -1 && notAloneX && !nearMinX) continue;
-                if (dx == 1 && notAloneX && !nearMaxX) continue;
-
-                for (int dy = -1; dy <= 1; dy++) {
-                    if (dy == -1 && notAloneY && !nearMinY) continue;
-                    if (dy == 1 && notAloneY && !nearMaxY) continue;
-
-                    for (int dz = -1; dz <= 1; dz++) {
-                        if (dz == -1 && notAloneZ && !nearMinZ) continue;
-                        if (dz == 1 && notAloneZ && !nearMaxZ) continue;
-                        if (dx == 0 && dy == 0 && dz == 0) continue;
-
-                        long ok = SectionPos.offset(key, dx, dy, dz);
-                        ensureCached(storage, ok);
-                        List<Entity> elc = crossSectionCache.get(ok);
-                        list.add(elc);
-                    }
+            for (int[] off : neighborOffsets) {
+                long ok = SectionPos.offset(key, off[0], off[1], off[2]);
+                ensureCached(storage, ok);
+                SectionCacheData data = sectionCache.get(ok);
+                if (data != null && !data.cross().isEmpty()) {
+                    list.add(new LineSectorEntityGetter.SectionEntityList(data.cross(), data.crossBoxes()));
                 }
             }
 
-
             if (!partEntities.isEmpty()) {
                 List<Entity> elc = new ArrayList<>();
+                List<AABB> elcBoxes = new ArrayList<>();
                 for (PartEntity<?> dragonPart : partEntities) {
                     if (!dragonPart.isSpectator() && intersects(dragonPart, scanMinX, scanMinY, scanMinZ, scanMaxX, scanMaxY, scanMaxZ)) {
                         elc.add(dragonPart);
+                        elcBoxes.add(dragonPart.getBoundingBox().inflate(0.3));
                     }
                 }
-                list.add(elc);
+                if (!elc.isEmpty()) {
+                    list.add(new LineSectorEntityGetter.SectionEntityList(elc, elcBoxes.toArray(new AABB[0])));
+                }
             }
             entitySections.add(list);
         }
