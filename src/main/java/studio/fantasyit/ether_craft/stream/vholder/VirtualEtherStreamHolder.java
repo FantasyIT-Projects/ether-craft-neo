@@ -38,8 +38,8 @@ import studio.fantasyit.ether_craft.register.Tags;
 import studio.fantasyit.ether_craft.stream.PosDir;
 import studio.fantasyit.ether_craft.stream.cap.IStreamCapability;
 import studio.fantasyit.ether_craft.stream.data.CachedEtherStreamEntry;
-import studio.fantasyit.ether_craft.stream.entity.EntitySectorCache;
-import studio.fantasyit.ether_craft.stream.entity.LineSectorEntityGetter;
+import studio.fantasyit.ether_craft.stream.entity.EntitySectionCache;
+import studio.fantasyit.ether_craft.stream.entity.LineSectionEntityGetter;
 import studio.fantasyit.ether_craft.stream.idx.AutoIndexPosDir;
 import studio.fantasyit.ether_craft.stream.idx.IndexMappingManager;
 import studio.fantasyit.ether_craft.util.LevelUtil;
@@ -60,7 +60,7 @@ public class VirtualEtherStreamHolder {
     private final List<VirtualEtherStream> pendingPropertyRegisterStreams = new ArrayList<>();
     private final List<VirtualEtherStream> pendingPropertyRemoveStreams = new ArrayList<>();
     private final Vec3i chunkVec;
-    public final EntitySectorCache entityGetter;
+    public final EntitySectionCache entityGetter;
     Int2IntOpenHashMap trackingPlayers = new Int2IntOpenHashMap();
     Int2IntOpenHashMap playerLastCreateId = new Int2IntOpenHashMap();
     int nextId = 0;
@@ -79,7 +79,7 @@ public class VirtualEtherStreamHolder {
     //maxDistance维护
     private boolean sameSpeedHolder = false;
     @Nullable
-    public LineSectorEntityGetter lineSectorEntityGetter;
+    public LineSectionEntityGetter lineSectorEntityGetter;
 
 
     StreamHolderPropertyCounter propertyCounter = new StreamHolderPropertyCounter();

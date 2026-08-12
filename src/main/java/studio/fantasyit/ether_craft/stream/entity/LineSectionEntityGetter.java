@@ -15,12 +15,10 @@ import studio.fantasyit.ether_craft.stream.vholder.VirtualEtherStream;
 import java.util.ArrayList;
 import java.util.List;
 
-public class LineSectorEntityGetter {
-    record SectionEntityList(List<Entity> entities, AABB[] boxes) {
-    }
-
+public class LineSectionEntityGetter {
     private final int firstOffset;
-    List<List<SectionEntityList>> entitySections;
+    private final Entity[][] rawEntities;
+    private final AABB[][] rawBoxes;
     Entity[][] flattenAndCanHit;
     AABB[][] boundingBoxes;
     Vec3i pos;
@@ -33,12 +31,13 @@ public class LineSectorEntityGetter {
     private final double axisZMin;
     private final double axisZMax;
 
-    public LineSectorEntityGetter(List<List<SectionEntityList>> entityList, BlockPos startPos, Vec3i dirVec, int holderMaxDistance) {
-        this.entitySections = entityList;
+    public LineSectionEntityGetter(Entity[][] rawEntities, AABB[][] rawBoxes, BlockPos startPos, Vec3i dirVec, int holderMaxDistance) {
+        this.rawEntities = rawEntities;
+        this.rawBoxes = rawBoxes;
         this.pos = startPos;
         this.dirVec = dirVec;
-        this.flattenAndCanHit = new Entity[entityList.size()][];
-        this.boundingBoxes = new AABB[entityList.size()][];
+        this.flattenAndCanHit = new Entity[rawEntities.length][];
+        this.boundingBoxes = new AABB[rawEntities.length][];
 
         int posLocal = startPos.getX() * dirVec.getX() + startPos.getY() * dirVec.getY() + startPos.getZ() * dirVec.getZ();
         int dirSign = dirVec.getX() + dirVec.getY() + dirVec.getZ();
@@ -66,31 +65,21 @@ public class LineSectorEntityGetter {
 
     private int prepareSectionRelatedCanHitEntity(int section) {
         if (this.flattenAndCanHit[section] == null) {
-            List<SectionEntityList> sectionList = entitySections.get(section);
+            Entity[] raw = rawEntities[section];
+            AABB[] boxes = rawBoxes[section];
             int count = 0;
-            for (int k = 0; k < sectionList.size(); k++) {
-                SectionEntityList sel = sectionList.get(k);
-                if (sel == null) continue;
-                List<Entity> entities = sel.entities();
-                for (int i = 0; i < entities.size(); i++) {
-                    if (!noHitByStream(entities.get(i))) count++;
-                }
+            for (int i = 0; i < raw.length; i++) {
+                if (!noHitByStream(raw[i])) count++;
             }
             Entity[] hitList = new Entity[count];
             AABB[] boxList = new AABB[count];
             int fill = 0;
-            for (int k = 0; k < sectionList.size(); k++) {
-                SectionEntityList sel = sectionList.get(k);
-                if (sel == null) continue;
-                List<Entity> entities = sel.entities();
-                AABB[] boxes = sel.boxes();
-                for (int i = 0; i < entities.size(); i++) {
-                    Entity e = entities.get(i);
-                    if (noHitByStream(e)) continue;
-                    hitList[fill] = e;
-                    boxList[fill] = boxes[i];
-                    fill++;
-                }
+            for (int i = 0; i < raw.length; i++) {
+                Entity e = raw[i];
+                if (noHitByStream(e)) continue;
+                hitList[fill] = e;
+                boxList[fill] = boxes[i];
+                fill++;
             }
             this.flattenAndCanHit[section] = hitList;
             this.boundingBoxes[section] = boxList;
@@ -118,17 +107,12 @@ public class LineSectorEntityGetter {
         int z = pos.getZ() + dirVec.getZ() * blockDistance;
         int t = getSecIdx(blockDistance);
         List<Entity> list = null;
-        List<SectionEntityList> sectionList = entitySections.get(t);
-        for (int k = 0; k < sectionList.size(); k++) {
-            SectionEntityList sel = sectionList.get(k);
-            if (sel == null) continue;
-            List<Entity> entities = sel.entities();
-            for (int i = 0; i < entities.size(); i++) {
-                Entity entity = entities.get(i);
-                if (AABBRayHit.unitBoxIntersects(entity.getBoundingBox(), x, y, z)) {
-                    if (list == null) list = new ArrayList<>();
-                    list.add(entity);
-                }
+        Entity[] entities = rawEntities[t];
+        for (int i = 0; i < entities.length; i++) {
+            Entity entity = entities[i];
+            if (AABBRayHit.unitBoxIntersects(entity.getBoundingBox(), x, y, z)) {
+                if (list == null) list = new ArrayList<>();
+                list.add(entity);
             }
         }
         return list == null ? List.of() : list;
