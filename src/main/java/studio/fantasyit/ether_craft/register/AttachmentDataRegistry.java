@@ -2,6 +2,7 @@ package studio.fantasyit.ether_craft.register;
 
 import com.mojang.serialization.Codec;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.attachment.AttachmentType;
@@ -10,10 +11,11 @@ import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.attachment.LevelMuteSources;
 import studio.fantasyit.ether_craft.attachment.StreamHandoffData;
-import studio.fantasyit.ether_craft.plating.data.CamouflageState;
 import studio.fantasyit.ether_craft.perf.PerfTickData;
+import studio.fantasyit.ether_craft.plating.data.CamouflageState;
 import studio.fantasyit.ether_craft.plating.data.TrackingData;
 import studio.fantasyit.ether_craft.plating.trigger.data.TriggerOnNotExistRecord;
+import studio.fantasyit.ether_craft.stream.PosDir;
 import studio.fantasyit.ether_craft.stream.idx.IndexMappingManager;
 import studio.fantasyit.ether_craft.stream.idx.ReverseIndexMappingManager;
 import studio.fantasyit.ether_craft.stream.vholder.VirtualEtherStreamHolderManager;
@@ -54,6 +56,10 @@ public class AttachmentDataRegistry {
     public static final Supplier<AttachmentType<Boolean>> TAKEN_BY_ETHER_STREAM = ATTACHMENT_TYPES.register(
             "taken_by_ether_stream", () -> AttachmentType.builder(() -> false)
                     .sync(ByteBufCodecs.BOOL)
+                    .build()
+    );
+    public static final Supplier<AttachmentType<PosDir>> TAKEN_BY_ETHER_STREAM_SOURCE = ATTACHMENT_TYPES.register(
+            "taken_by_ether_stream_source", () -> AttachmentType.builder(() -> new PosDir(BlockPos.ZERO, Direction.NORTH))
                     .build()
     );
 

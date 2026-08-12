@@ -144,9 +144,11 @@ public class EtherStreamCarryEntityCapability implements IStreamCapability {
                     return true;
             }
             if (entity.hasData(AttachmentDataRegistry.TAKEN_BY_ETHER_STREAM) && entity.getData(AttachmentDataRegistry.TAKEN_BY_ETHER_STREAM)) {
-                if (streamEntity instanceof VirtualEtherStream) {
-                    entity.setData(AttachmentDataRegistry.STREAM_HANDOFF,
-                            new StreamHandoffData(streamEntity.getPosDir(), streamEntity.getStreamId()));
+                if (streamEntity instanceof VirtualEtherStream ves) {
+                    //同源的以太流，禁用handoff
+                    if (!entity.hasData(AttachmentDataRegistry.TAKEN_BY_ETHER_STREAM_SOURCE) || !entity.getData(AttachmentDataRegistry.TAKEN_BY_ETHER_STREAM_SOURCE).equals(ves.getPosDir()))
+                        entity.setData(AttachmentDataRegistry.STREAM_HANDOFF,
+                                new StreamHandoffData(streamEntity.getPosDir(), streamEntity.getStreamId()));
                 }
                 return true;
             }
@@ -164,6 +166,9 @@ public class EtherStreamCarryEntityCapability implements IStreamCapability {
             entity.noPhysics = true;
             entity.setInvulnerable(true);
             entity.setData(AttachmentDataRegistry.TAKEN_BY_ETHER_STREAM, true);
+            if (streamEntity instanceof VirtualEtherStream ves) {
+                entity.setData(AttachmentDataRegistry.TAKEN_BY_ETHER_STREAM_SOURCE, ves.getPosDir());
+            }
             startCarryTick = streamEntity.tickCount();
             if (entity instanceof Player player) {
                 player.setForcedPose(Pose.STANDING);
@@ -193,6 +198,9 @@ public class EtherStreamCarryEntityCapability implements IStreamCapability {
         entity.noPhysics = true;
         entity.setInvulnerable(true);
         entity.setData(AttachmentDataRegistry.TAKEN_BY_ETHER_STREAM, true);
+        if (streamEntity instanceof VirtualEtherStream ves) {
+            entity.setData(AttachmentDataRegistry.TAKEN_BY_ETHER_STREAM_SOURCE, ves.getPosDir());
+        }
         startCarryTick = streamEntity.tickCount();
         if (entity instanceof Player player) {
             player.setForcedPose(Pose.STANDING);
@@ -218,7 +226,7 @@ public class EtherStreamCarryEntityCapability implements IStreamCapability {
         if (capOpt.isEmpty())
             capOpt = target.getCapability(EtherStreamCarryEntityCapability.ID_PLAYER);
         if (capOpt.isEmpty() || !(capOpt.get() instanceof EtherStreamCarryEntityCapability targetCap)) return false;
-
+        if (targetCap.playerOnly && !(entity instanceof Player)) return false;
         targetCap.forceTakeEntity(target, entity);
         streamEntity.clearSyncedData(EtherStreamCarryingEntityData.ID);
         streamEntity.dirtyConsumer();
@@ -283,6 +291,7 @@ public class EtherStreamCarryEntityCapability implements IStreamCapability {
         entity.noPhysics = false;
         entity.setInvulnerable(false);
         entity.setData(AttachmentDataRegistry.TAKEN_BY_ETHER_STREAM, false);
+        entity.removeData(AttachmentDataRegistry.TAKEN_BY_ETHER_STREAM_SOURCE);
         if (entity.level() instanceof ServerLevel) {
             entity.teleportTo(dropPlayerPos.x, dropPlayerPos.y, dropPlayerPos.z);
             entity.setOldPosAndRot();

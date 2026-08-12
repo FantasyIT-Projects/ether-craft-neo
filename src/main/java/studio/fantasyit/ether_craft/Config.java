@@ -168,7 +168,7 @@ public class Config {
 
     private static final ModConfigSpec.DoubleValue ETHER_STREAM_HANDOFF_DISTANCE = BUILDER
             .comment("Max distance between an entity and its recorded handoff stream for entity handoff between ether streams")
-            .defineInRange("ether_stream.handoff_distance", 1.5, 0.0, 64.0);
+            .defineInRange("ether_stream.handoff_distance", 2.25, 0.0, 64.0);
 
     private static final ModConfigSpec.DoubleValue ETHER_STREAM_SYNC_DISTANCE = BUILDER
             .comment("Maximum distance in blocks from an emitter to sync ether stream packets to nearby players. Set to -1 to sync to the entire dimension.")
