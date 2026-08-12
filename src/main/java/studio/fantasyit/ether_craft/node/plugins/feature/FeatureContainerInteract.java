@@ -102,25 +102,6 @@ public class FeatureContainerInteract extends AbstractDirectionalFilterFeature i
         long costPerItem = Config.nodeContainerInteractEtherPerItem;
         int maxTransfer = (int) (nodeEntity.getEther() / costPerItem);
 
-        if (fromNode.nodeProperty.itemifyEther) {
-            int etherMaxTransfer = (int) (nodeEntity.getEther() / (costPerItem + Config.etherConvert));
-            if (etherMaxTransfer > 0) {
-                ItemStack etherStack = fromNode.etherStorage.removeItem(0, etherMaxTransfer);
-                if (!etherStack.isEmpty()) {
-                    ItemStack remaining = toNode.etherStorage.insertItemStack(etherStack);
-                    int transferred = etherStack.getCount() - remaining.getCount();
-                    if (!remaining.isEmpty())
-                        fromNode.etherStorage.setItem(0, remaining);
-                    if (transferred > 0) {
-                        nodeEntity.extractEther((long) transferred * costPerItem);
-                        fromNode.setChanged();
-                        toNode.setChanged();
-                        return;
-                    }
-                }
-            }
-        }
-
         Set<ItemResource> tried = Collections.newSetFromMap(new IdentityHashMap<>());
         for (int slot = 0; slot < fromNode.normalStorage.getContainerSize(); slot++) {
             ItemStack stack = fromNode.normalStorage.getItem(slot);
@@ -146,30 +127,30 @@ public class FeatureContainerInteract extends AbstractDirectionalFilterFeature i
                 return;
             }
         }
-    }
-
-    private void fastTransferToFactory(EtherAdaptNodeEntity fromNode, EtherProcessFactoryEntity toFactory) {
-        long costPerItem = Config.nodeContainerInteractEtherPerItem;
-        int maxTransfer = (int) (nodeEntity.getEther() / costPerItem);
 
         if (fromNode.nodeProperty.itemifyEther) {
             int etherMaxTransfer = (int) (nodeEntity.getEther() / (costPerItem + Config.etherConvert));
             if (etherMaxTransfer > 0) {
-                int canReceive = (int) (toFactory.getCanReceive((long) etherMaxTransfer * Config.etherConvert) / Config.etherConvert);
-                int toTransfer = Math.min(etherMaxTransfer, canReceive);
-                if (toTransfer > 0) {
-                    ItemStack etherStack = fromNode.etherStorage.removeItem(0, toTransfer);
-                    if (!etherStack.isEmpty()) {
-                        int transferred = etherStack.getCount();
-                        toFactory.receiveEtherNoUpdate((long) transferred * Config.etherConvert);
+                ItemStack etherStack = fromNode.etherStorage.removeItem(0, etherMaxTransfer);
+                if (!etherStack.isEmpty()) {
+                    ItemStack remaining = toNode.etherStorage.insertItemStack(etherStack);
+                    int transferred = etherStack.getCount() - remaining.getCount();
+                    if (!remaining.isEmpty())
+                        fromNode.etherStorage.setItem(0, remaining);
+                    if (transferred > 0) {
                         nodeEntity.extractEther((long) transferred * costPerItem);
                         fromNode.setChanged();
-                        toFactory.setChanged();
+                        toNode.setChanged();
                         return;
                     }
                 }
             }
         }
+    }
+
+    private void fastTransferToFactory(EtherAdaptNodeEntity fromNode, EtherProcessFactoryEntity toFactory) {
+        long costPerItem = Config.nodeContainerInteractEtherPerItem;
+        int maxTransfer = (int) (nodeEntity.getEther() / costPerItem);
 
         Set<ItemResource> tried = Collections.newSetFromMap(new IdentityHashMap<>());
         for (int slot = 0; slot < fromNode.normalStorage.getContainerSize(); slot++) {
@@ -194,6 +175,25 @@ public class FeatureContainerInteract extends AbstractDirectionalFilterFeature i
                 fromNode.setChanged();
                 toFactory.setChanged();
                 return;
+            }
+        }
+
+        if (fromNode.nodeProperty.itemifyEther) {
+            int etherMaxTransfer = (int) (nodeEntity.getEther() / (costPerItem + Config.etherConvert));
+            if (etherMaxTransfer > 0) {
+                int canReceive = (int) (toFactory.getCanReceive((long) etherMaxTransfer * Config.etherConvert) / Config.etherConvert);
+                int toTransfer = Math.min(etherMaxTransfer, canReceive);
+                if (toTransfer > 0) {
+                    ItemStack etherStack = fromNode.etherStorage.removeItem(0, toTransfer);
+                    if (!etherStack.isEmpty()) {
+                        int transferred = etherStack.getCount();
+                        toFactory.receiveEtherNoUpdate((long) transferred * Config.etherConvert);
+                        nodeEntity.extractEther((long) transferred * costPerItem);
+                        fromNode.setChanged();
+                        toFactory.setChanged();
+                        return;
+                    }
+                }
             }
         }
     }
