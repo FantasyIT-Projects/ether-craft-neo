@@ -279,6 +279,7 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
             syncedPluginData.putAll(m);
         });
         pluginUpdate();
+        updateProperty();
     }
 
     @Override

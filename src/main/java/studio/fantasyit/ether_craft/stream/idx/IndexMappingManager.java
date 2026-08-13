@@ -8,6 +8,7 @@ import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.network.s2c.IndexMappingSyncS2C;
 import studio.fantasyit.ether_craft.stream.PosDir;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,7 +16,18 @@ public class IndexMappingManager {
     public Object2IntOpenHashMap<PosDir> pos2IdDir = new Object2IntOpenHashMap<>();
     public Object2IntOpenHashMap<PosDir> counter = new Object2IntOpenHashMap<>();
     public ArrayList<PosDir> toSyncPosDir = new ArrayList<>();
+    final ArrayList<Integer> toRemoveIds = new ArrayList<>();
+    final ArrayDeque<Integer> freeIds = new ArrayDeque<>();
+    final IndexMappingStrategy strategy;
     int maxId = 0;
+
+    public IndexMappingManager() {
+        if ("frequency_topk".equals(Config.indexMappingStrategy)) {
+            this.strategy = new TopKFrequencyIndexMappingStrategy();
+        } else {
+            this.strategy = new FrequencyThresholdIndexMappingStrategy();
+        }
+    }
 
 
     public AutoIndexPosDir get(PosDir posDir) {
@@ -31,15 +43,18 @@ public class IndexMappingManager {
                 counter.addTo(posDir, -1);
             }
             counter.object2IntEntrySet().removeIf(t -> t.getIntValue() <= 0);
+            strategy.tick(this);
         }
 
-        if (!toSyncPosDir.isEmpty()) {
+        if (!toSyncPosDir.isEmpty() || !toRemoveIds.isEmpty()) {
             List<IndexMappingSyncS2C.Entry> entries = new ArrayList<>();
             for (PosDir posDir : toSyncPosDir) {
                 entries.add(new IndexMappingSyncS2C.Entry(pos2IdDir.get(posDir), posDir));
             }
             toSyncPosDir.clear();
-            PacketDistributor.sendToPlayersInDimension(level, new IndexMappingSyncS2C(entries));
+            List<Integer> removals = new ArrayList<>(toRemoveIds);
+            toRemoveIds.clear();
+            PacketDistributor.sendToPlayersInDimension(level, new IndexMappingSyncS2C(entries, removals));
         }
     }
 
@@ -49,18 +64,31 @@ public class IndexMappingManager {
             entries.add(new IndexMappingSyncS2C.Entry(entry.getIntValue(), entry.getKey()));
         }
         if (!entries.isEmpty()) {
-            PacketDistributor.sendToPlayer(player, new IndexMappingSyncS2C(entries));
+            PacketDistributor.sendToPlayer(player, new IndexMappingSyncS2C(entries, List.of()));
         }
     }
 
     public void recordAndPrepareSend(PosDir pos) {
+        strategy.recordAndPrepareSend(pos, this);
+    }
+
+    /**
+     * 为 posdir 分配索引（若尚未分配）：优先复用回收的 id，否则取新 id。
+     */
+    public void assignIfAbsent(PosDir pos) {
         if (pos2IdDir.containsKey(pos)) return;
-        int i = counter.addTo(pos, 1);
-        if (i >= Config.indexMappingRegisterThreshold) {
-            counter.remove(pos, i);
-            int id = maxId++;
-            pos2IdDir.put(pos, id);
-            toSyncPosDir.add(pos);
-        }
+        int id = freeIds.isEmpty() ? maxId++ : freeIds.pollFirst();
+        pos2IdDir.put(pos, id);
+        toSyncPosDir.add(pos);
+    }
+
+    /**
+     * 撤销 posdir 的索引并回收 id，同时登记删除同步。
+     */
+    public void unassign(PosDir pos) {
+        if (!pos2IdDir.containsKey(pos)) return;
+        int id = pos2IdDir.removeInt(pos);
+        freeIds.addLast(id);
+        toRemoveIds.add(id);
     }
 }

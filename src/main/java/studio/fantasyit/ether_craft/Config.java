@@ -441,6 +441,10 @@ public class Config {
             .comment("Records needed before a stream gets a stable index")
             .defineInRange("ether_stream.index_mapping_register_threshold", 20, 1, Integer.MAX_VALUE);
 
+    private static final ModConfigSpec.ConfigValue<String> INDEX_MAPPING_STRATEGY = BUILDER
+            .comment("Index mapping strategy: 'frequency_threshold' (legacy, permanent ids) or 'frequency_topk' (top-249 by frequency, reordered every 100 ticks). Takes effect after re-entering the world.")
+            .define("ether_stream.index_mapping_strategy", "frequency_threshold");
+
     // ===== factory — Ether Process Factory chip mechanics =====
 
     private static final ModConfigSpec.DoubleValue FACTORY_BASE_RATIO = BUILDER
@@ -557,6 +561,7 @@ public class Config {
     public static int nodeMuteEtherCostPer16Block;
     public static int indexMappingDecayInterval;
     public static int indexMappingRegisterThreshold;
+    public static String indexMappingStrategy;
     public static double factoryBaseRatio;
     public static double factoryReserveMultiplier;
     public static double factoryOvershoot;
@@ -660,6 +665,7 @@ public class Config {
         nodeMuteEtherCostPer16Block = NODE_MUTE_ETHER_COST_PER_16_BLOCK.get();
         indexMappingDecayInterval = INDEX_MAPPING_DECAY_INTERVAL.get();
         indexMappingRegisterThreshold = INDEX_MAPPING_REGISTER_THRESHOLD.get();
+        indexMappingStrategy = INDEX_MAPPING_STRATEGY.get();
         factoryBaseRatio = FACTORY_BASE_RATIO.get();
         factoryReserveMultiplier = FACTORY_RESERVE_MULTIPLIER.get();
         factoryOvershoot = FACTORY_OVERSHOOT.get();

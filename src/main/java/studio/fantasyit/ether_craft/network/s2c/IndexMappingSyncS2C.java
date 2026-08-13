@@ -16,7 +16,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public record IndexMappingSyncS2C(
-        List<Entry> entries
+        List<Entry> entries,
+        List<Integer> removals
 ) implements CustomPacketPayload {
 
     public record Entry(int id, PosDir posDir) {
@@ -33,6 +34,7 @@ public record IndexMappingSyncS2C(
 
     public static final StreamCodec<RegistryFriendlyByteBuf, @NotNull IndexMappingSyncS2C> CODEC = StreamCodec.composite(
             ByteBufCodecs.collection(ArrayList::new, Entry.CODEC), IndexMappingSyncS2C::entries,
+            ByteBufCodecs.collection(ArrayList::new, ByteBufCodecs.VAR_INT), IndexMappingSyncS2C::removals,
             IndexMappingSyncS2C::new
     );
 
@@ -44,6 +46,10 @@ public record IndexMappingSyncS2C(
     public void handle(IPayloadContext ctx) {
         ctx.enqueueWork(() -> {
             ReverseIndexMappingManager reverse = ctx.player().level().getData(AttachmentDataRegistry.REVERSE_INDEX_MAPPING_MANAGER);
+            // 先删后加：同一包内先移除旧绑定，再写入新绑定，杜绝 id 复用导致的错配
+            for (int id : removals) {
+                reverse.id2PosDir.remove(id);
+            }
             for (Entry entry : entries) {
                 reverse.id2PosDir.put(entry.id(), entry.posDir());
             }
