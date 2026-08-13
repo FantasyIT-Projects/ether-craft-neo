@@ -114,7 +114,7 @@ public class VirtualEtherStreamHolder {
     }
 
     public VirtualEtherStream createStream(int ether, float offset, float speed, int managerTickCount) {
-        int subTick = simulateInterval - (managerTickCount % simulateInterval + holderId) % simulateInterval;
+        int subTick = simulateInterval - (managerTickCount % simulateInterval + holderId) % simulateInterval - 1;
         indexMappingManager().recordAndPrepareSend(posDir);
         VirtualEtherStream ves = new VirtualEtherStream(
                 nextId++,

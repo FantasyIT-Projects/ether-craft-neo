@@ -65,7 +65,7 @@ public class ClientStreamEntry {
             this.motion = posDir.dir().getUnitVec3().scale(entry.startSpeed());
             this.startTickCount = entry.tickCount();
             this.tickCount = entry.tickCount();
-            this.currentPos = startPos.add(motion.scale(entry.tickCount() - 1));
+            this.currentPos = startPos.add(motion.scale(entry.tickCount()));
             this.ether = entry.ether();
             this.consumer.fromState(entry.consumerState());
             this.syncedData = new Object2ObjectOpenHashMap<>();
