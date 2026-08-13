@@ -8,6 +8,7 @@ import studio.fantasyit.ether_craft.stream.data.IEtherStreamEntryLike;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class ClientVESHEntry {
     public final PosDir posDir;
@@ -49,8 +50,13 @@ public class ClientVESHEntry {
         return lastCreateEntry.streamId();
     }
 
-    public IEtherStreamEntryLike getFromLastAndUpdate() {
-        lastCreateEntry = lastCreateEntry.withId(lastCreateEntry.streamId() + 1);
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+    public IEtherStreamEntryLike getFromLastAndUpdate(Optional<Integer> tickCount, Optional<Integer> ether) {
+        lastCreateEntry = lastCreateEntry.withNext(
+                lastCreateEntry.streamId() + 1,
+                tickCount.orElse(null),
+                ether.orElse(null)
+        );
         return lastCreateEntry;
     }
 }

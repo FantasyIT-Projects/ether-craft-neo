@@ -593,6 +593,10 @@ public class VirtualEtherStreamHolder {
                 boolean quickEligible = Config.etherStreamSyncDistance > 0
                         && lastCreateSnapshot != null
                         && snapshotMatches(lastCreateSnapshot, ves);
+                // 6-bit 内嵌值域保护：firstTick(tickCount) ≥ 64 时无法编码，回退全量
+                if (quickEligible && ves.tickCount != lastCreateSnapshot.tickCount() && ves.tickCount >= 64) {
+                    quickEligible = false;
+                }
 
                 if (quickEligible) {
                     IntArraySet quickPlayers = new IntArraySet();
@@ -613,7 +617,11 @@ public class VirtualEtherStreamHolder {
                         acc.add(fullPlayers, etherStreamCreateS2C);
                     }
                     if (!quickPlayers.isEmpty()) {
-                        acc.add(quickPlayers, new EtherStreamQuickCreateS2C(posDirAI));
+                        Optional<Integer> tickCountOpt = (ves.tickCount == lastCreateSnapshot.tickCount())
+                                ? Optional.empty() : Optional.of(ves.tickCount);
+                        Optional<Integer> etherOpt = (ves.getEther() == lastCreateSnapshot.ether())
+                                ? Optional.empty() : Optional.of(ves.getEther());
+                        acc.add(quickPlayers, new EtherStreamQuickCreateS2C(posDirAI, tickCountOpt, etherOpt));
                     }
                 } else {
                     EtherStreamInitialCreateS2C etherStreamCreateS2C = new EtherStreamInitialCreateS2C(
@@ -716,10 +724,8 @@ public class VirtualEtherStreamHolder {
 
     private static boolean snapshotMatches(CachedEtherStreamEntry snapshot, VirtualEtherStream ves) {
         return snapshot.streamId() == ves.getStreamId() - 1
-                && ves.tickCount == snapshot.tickCount()
                 && Float.compare(snapshot.startOffset(), ves.startOffset) == 0
                 && Float.compare(snapshot.startSpeed(), ves.startSpeed) == 0
-                && snapshot.ether() == ves.getEther()
                 && snapshot.consumerState().equals(ves.consumer.toState())
                 && ves.toSyncData.isEmpty();
     }

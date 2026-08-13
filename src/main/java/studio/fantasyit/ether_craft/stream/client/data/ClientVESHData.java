@@ -74,7 +74,7 @@ public class ClientVESHData {
         ClientVESHEntry entry = entries.get(posDir);
         if (entry == null || !entry.hasLast()) return;
         if (entry.streams.containsKey(entry.getLastCreateStreamId() + 1)) return;
-        IEtherStreamEntryLike quickEntry = entry.getFromLastAndUpdate();
+        IEtherStreamEntryLike quickEntry = entry.getFromLastAndUpdate(msg.tickCount(), msg.ether());
         entry.addStream(quickEntry.streamId(), posDir, quickEntry);
         ClientStreamEntry created = entry.streams.get(quickEntry.streamId());
         if (created != null) {
