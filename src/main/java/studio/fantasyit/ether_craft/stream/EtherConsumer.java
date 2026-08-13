@@ -46,7 +46,7 @@ public class EtherConsumer {
         }
         this.baseFactor = (float) Config.etherStreamConsumptionFactor;
         this.factorByTime = (float) Config.etherStreamConsumptionByTimeFactor;
-        this.factorByTime *= (float) (iEtherStreamLike.deltaMovement().length() / 0.055);
+        this.factorByTime *= iEtherStreamLike.getSpeed() / 0.055f;
         this.capConsumptionSum = 0;
         this.globalFactor = 1.0f;
         for (IStreamCapability cap : caps) {
@@ -108,6 +108,10 @@ public class EtherConsumer {
     public void setIsInEtherGlass(boolean isEtherGlass2) {
         isInEtherGlass = isEtherGlass2;
         this.dirty = true;
+    }
+
+    public boolean isInEtherGlass() {
+        return isInEtherGlass;
     }
 
     public record State(float baseFactor, float factorByTime, int capConsumptionSum, float globalFactor,

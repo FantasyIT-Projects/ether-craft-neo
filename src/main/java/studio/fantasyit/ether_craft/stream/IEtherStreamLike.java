@@ -21,6 +21,7 @@ public interface IEtherStreamLike {
     Vec3 position();
 
     Vec3 deltaMovement();
+    Vec3 getLastPosition();
 
     Level level();
 

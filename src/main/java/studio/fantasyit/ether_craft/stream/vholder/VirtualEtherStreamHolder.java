@@ -10,7 +10,6 @@ import net.minecraft.core.Vec3i;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -53,7 +52,7 @@ public class VirtualEtherStreamHolder {
     private final Direction direction;
     private final BlockPos pos;
     private final Vec3i dirVec;
-    private final PosDir posDir;
+    protected final PosDir posDir;
     private final ServerLevel level;
     final List<VirtualEtherStream> streams = new ArrayList<>();
     private final List<VirtualEtherStream> pendingTrackingStreams = new ArrayList<>();
@@ -61,6 +60,8 @@ public class VirtualEtherStreamHolder {
     private final List<VirtualEtherStream> pendingPropertyRemoveStreams = new ArrayList<>();
     private final Vec3i chunkVec;
     public final EntitySectionCache entityGetter;
+    protected final int simulateInterval;
+    private final int holderId;
     Int2IntOpenHashMap trackingPlayers = new Int2IntOpenHashMap();
     Int2IntOpenHashMap playerLastCreateId = new Int2IntOpenHashMap();
     int nextId = 0;
@@ -88,14 +89,20 @@ public class VirtualEtherStreamHolder {
     }
 
 
-    public VirtualEtherStreamHolder(PosDir posDir, VirtualEtherStreamHolderManager manager, @NotNull ServerLevel level) {
+    public VirtualEtherStreamHolder(PosDir posDir, VirtualEtherStreamHolderManager manager, @NotNull ServerLevel level, int simulateInterval, int holderId) {
         this.level = level;
         this.pos = posDir.pos();
         this.direction = posDir.dir();
         this.posDir = posDir;
         this.entityGetter = manager.sectorCache;
         this.dirVec = direction.getUnitVec3i();
+        this.simulateInterval = simulateInterval;
+        this.holderId = holderId;
         chunkVec = posDir.dir().getUnitVec3i().multiply(16);
+    }
+
+    public boolean shouldTick(int tickCount) {
+        return (tickCount % simulateInterval + holderId) % simulateInterval == 0;
     }
 
     private IndexMappingManager indexMappingManager() {
@@ -106,14 +113,17 @@ public class VirtualEtherStreamHolder {
         return indexMappingManager().get(posDir);
     }
 
-    public VirtualEtherStream createStream(int ether, float offset, float speed) {
+    public VirtualEtherStream createStream(int ether, float offset, float speed, int managerTickCount) {
+        int subTick = (managerTickCount % simulateInterval + holderId) % simulateInterval;
         indexMappingManager().recordAndPrepareSend(posDir);
         VirtualEtherStream ves = new VirtualEtherStream(
                 nextId++,
                 ether,
+                subTick,
                 posDir,
                 offset,
                 speed,
+                simulateInterval,
                 level,
                 this
         );
@@ -231,7 +241,8 @@ public class VirtualEtherStreamHolder {
         boolean hasBlockData = blockStates != null && blockPoses != null && shapes != null;
         for (int i = 0, size = streams.size(); i < size; i++) {
             VirtualEtherStream ves = streams.get(i);
-            if (ves.tickCount == 0) {
+            if (!ves.hasRunFirstTick) {
+                ves.hasRunFirstTick = true;
                 int dist = ves.blockDistance();
                 if (dist < 0 || dist > holderMaxDistance) continue;
                 if (!ves.getExtraProperty().noBlockHit && hasBlockData)
@@ -288,7 +299,8 @@ public class VirtualEtherStreamHolder {
     }
 
     private void ensureBlockSnapshot(int maxClipDist) {
-        boolean expired = ++blockScanTickCounter >= Config.etherStreamBlockScanInterval;
+        blockScanTickCounter += simulateInterval;
+        boolean expired = blockScanTickCounter >= Config.etherStreamBlockScanInterval;
         boolean tooSmall = cachedBlockStates == null || cachedMaxClipDist < maxClipDist;
         if (!expired && !tooSmall) return;
         blockScanTickCounter = 0;
@@ -358,9 +370,9 @@ public class VirtualEtherStreamHolder {
             double nx = ves.offsetCenter.x + ves.offsetUnit.x * d;
             double ny = ves.offsetCenter.y + ves.offsetUnit.y * d;
             double nz = ves.offsetCenter.z + ves.offsetUnit.z * d;
-            double ox = nx - ves.motion.x;
-            double oy = ny - ves.motion.y;
-            double oz = nz - ves.motion.z;
+            double ox = nx - ves.simulateMotion.x;
+            double oy = ny - ves.simulateMotion.y;
+            double oz = nz - ves.simulateMotion.z;
 
             //DisplayTime流：仅极简实体判定(contains)，命中即消失
             if (ves.isDisplayTime()) {
@@ -408,34 +420,18 @@ public class VirtualEtherStreamHolder {
             } else if (blockCollision != null) {
                 commonHitBlock(blockCollision, ves);
             }
-        }
 
-        if (needBlockCollide && blockStates != null) {
-            for (int i = 0, size = streams.size(); i < size; i++) {
-                VirtualEtherStream ves = streams.get(i);
+            if (needBlockCollide && blockStates != null) {
                 if (ves.markToSyncCreation || ves.markToRemove || ves.isDisplayTime()) continue;
                 int bdp = ves.blockDistancePrev();
-                int bd = ves.blockDistance();
                 int id2 = Math.clamp(bd, 0, blockStates.length - 1);
                 boolean crossed = bdp != bd;
                 boolean changedAtCurrent = isBlockChanged(id2);
                 if (!crossed && !changedAtCurrent) continue;
-                double d = ves.currentDistance;
-                BlockPos newPos = BlockPos.containing(
-                        ves.offsetCenter.x + ves.offsetUnit.x * d,
-                        ves.offsetCenter.y + ves.offsetUnit.y * d,
-                        ves.offsetCenter.z + ves.offsetUnit.z * d);
+                BlockPos newPos = BlockPos.containing(nx, ny, nz);
                 ves.onRunIntoNewBlock(newPos, blockStates[id2], shapes[id2]);
             }
         }
-    }
-
-    private boolean entityNoCollidePredicator(Entity entity) {
-        if (entity instanceof ItemEntity ie) {
-            if (PlatingUtil.isPlatedItemEntity(ie)) return false;
-            return !ie.getItem().is(Items.GLASS);
-        }
-        return false;
     }
 
     private void commonHitBlock(BlockCollision blockCollision, VirtualEtherStream ves) {

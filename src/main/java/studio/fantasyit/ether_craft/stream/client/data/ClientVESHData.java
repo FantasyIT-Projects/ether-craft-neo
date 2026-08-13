@@ -4,6 +4,7 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.level.Level;
 import studio.fantasyit.ether_craft.client.debug.EtherStreamSyncMarker;
+import studio.fantasyit.ether_craft.network.base.IEtherQuickCreator;
 import studio.fantasyit.ether_craft.network.s2c.*;
 import studio.fantasyit.ether_craft.stream.PosDir;
 import studio.fantasyit.ether_craft.stream.client.render.ClientVirtualEtherStreamRenderer;
@@ -68,7 +69,7 @@ public class ClientVESHData {
         }
     }
 
-    public void handleQuickCreate(PosDir posDir, EtherStreamQuickCreateS2C msg) {
+    public void handleQuickCreate(PosDir posDir, IEtherQuickCreator msg) {
         if (level.get() == null) return;
         ClientVESHEntry entry = entries.get(posDir);
         if (entry == null || !entry.hasLast()) return;
@@ -89,7 +90,7 @@ public class ClientVESHData {
             if (current == null || current.isDying || current.removed) continue;
             current.updateFromServer(se.ether(), se.consumerState());
             current.updateDynamic();
-            if(EtherStreamSyncMarker.isEnabled()) {
+            if (EtherStreamSyncMarker.isEnabled()) {
                 if (se.consumerState().isPresent())
                     EtherStreamSyncMarker.record(EtherStreamSyncMarker.Type.UPDATE_COST, current.currentPos, msg.posDir().hasIndex(), se.streamId());
                 else

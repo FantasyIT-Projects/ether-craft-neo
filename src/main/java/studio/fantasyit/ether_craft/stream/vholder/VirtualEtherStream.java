@@ -43,6 +43,9 @@ public class VirtualEtherStream implements IEtherStreamLike {
     final Vec3 offsetUnit;
     final Vec3 offsetCenter;
     final Vec3i blockOffsetUnit;
+    private final int simulateInterval;
+    final float simulateSpeed;
+    final Vec3 simulateMotion;
 
     public float currentDistance;
     public boolean trackingDirty = false;
@@ -54,6 +57,7 @@ public class VirtualEtherStream implements IEtherStreamLike {
     public boolean needsEtherSync = false;
     public boolean needsEtherConsumerSync = false;
     public boolean runIntoEtherGlass = false;
+    public boolean hasRunFirstTick = false;
     boolean inFullBlock;
     boolean propertyRegistered = false;
     boolean propertyRegisterPending = false;
@@ -74,7 +78,7 @@ public class VirtualEtherStream implements IEtherStreamLike {
     IntOpenHashSet trackingPlayers = new IntOpenHashSet();
     IntOpenHashSet lastTrackingPlayers = new IntOpenHashSet();
 
-    public VirtualEtherStream(int streamId, int ether, PosDir posDir, float startOffset, float startSpeed, ServerLevel level, VirtualEtherStreamHolder holder) {
+    public VirtualEtherStream(int streamId, int ether, int tickCount, PosDir posDir, float startOffset, float startSpeed, int simulateInterval, ServerLevel level, VirtualEtherStreamHolder holder) {
         this.startOffset = startOffset;
         this.startSpeed = startSpeed;
         this.streamId = streamId;
@@ -89,7 +93,12 @@ public class VirtualEtherStream implements IEtherStreamLike {
         this.markToSyncCreation = true;
         this.direction = posDir.dir();
         this.posDir = posDir;
+        this.tickCount = tickCount;
         this.currentDistance = startOffset + startSpeed * tickCount;
+        this.simulateInterval = simulateInterval;
+        this.hasRunFirstTick = this.tickCount >= this.simulateInterval;
+        this.simulateSpeed = startSpeed * simulateInterval;
+        this.simulateMotion = motion.scale(simulateInterval);
         if (level instanceof ServerLevel sl) {
             sl.getServer().getPlayerList().getPlayers().forEach(player -> {
                 if (player.distanceToSqr(startPos) <= Config.etherStreamSyncDistance * Config.etherStreamSyncDistance)
@@ -111,6 +120,11 @@ public class VirtualEtherStream implements IEtherStreamLike {
     @Override
     public Vec3 deltaMovement() {
         return motion;
+    }
+
+    @Override
+    public Vec3 getLastPosition() {
+        return position().subtract(simulateMotion);
     }
 
     @Override
@@ -203,7 +217,7 @@ public class VirtualEtherStream implements IEtherStreamLike {
     }
 
     public int blockDistancePrev() {
-        return (int) (currentDistance + 0.5 - startSpeed);
+        return (int) (currentDistance + 0.5 - simulateSpeed);
     }
 
     public boolean isDisplayTime() {
@@ -216,8 +230,8 @@ public class VirtualEtherStream implements IEtherStreamLike {
     }
 
     public void displayTimeTick() {
-        this.tickCount++;
-        currentDistance += this.startSpeed;
+        this.tickCount += simulateInterval;
+        currentDistance += this.simulateSpeed;
         if (currentDistance >= extraProperty.maxTravelLength || this.tickCount > Config.etherStreamMaxTick) {
             this.markDead(null);
         }
@@ -247,7 +261,17 @@ public class VirtualEtherStream implements IEtherStreamLike {
     }
 
     public int getConsumption() {
-        return consumer.getTotalConsumption(ether, tickCount);
+        if (simulateInterval == 1)
+            return consumer.getTotalConsumption(ether, tickCount);
+        int s = 0;
+        int se = ether;
+        for (int i = tickCount - simulateInterval + 1; i <= tickCount; i++) {
+            int c = consumer.getTotalConsumption(se, i);
+            s += c;
+            se -= c;
+            if (se <= 0) break;
+        }
+        return s;
     }
 
     @Override
@@ -281,7 +305,7 @@ public class VirtualEtherStream implements IEtherStreamLike {
             this.needsEtherConsumerSync = true;
         }
 
-        this.tickCount++;
+        this.tickCount += simulateInterval;
 
         for (IStreamCapability cap : this.capabilities) {
             cap.tick(this);
@@ -296,7 +320,7 @@ public class VirtualEtherStream implements IEtherStreamLike {
 
         if (this.markToRemove) return;
 
-        currentDistance += this.startSpeed;
+        currentDistance += this.simulateSpeed;
     }
 
     public IEtherStreamLike recreate(BlockPos pos, Direction direction, float offset, float speed) {
@@ -391,13 +415,14 @@ public class VirtualEtherStream implements IEtherStreamLike {
         VirtualEtherStream ves = new VirtualEtherStream(
                 data.streamId(),
                 data.ether(),
+                data.tickCount(),
                 data.posDir(),
                 data.startOffset(),
                 data.startSpeed(),
+                holder.simulateInterval,
                 level,
                 holder
         );
-        ves.tickCount = data.tickCount();
         ves.currentDistance = data.startOffset() + data.startSpeed() * data.tickCount();
         ves.consumer.fromState(data.consumerState());
         ves.runIntoEtherGlass = data.consumerState().isInEtherGlass();

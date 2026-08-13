@@ -19,7 +19,10 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
-import net.minecraft.world.phys.*;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
@@ -151,7 +154,7 @@ public class EtherStreamStorageCapability implements IStreamCapability, Containe
 
     @Override
     public void onDestroy(IEtherStreamLike streamEntity, @Nullable HitResult hitResult) {
-        Vec3 _position = streamEntity.position().subtract(streamEntity.deltaMovement());
+        Vec3 _position = streamEntity.getLastPosition();
         Vec3 position = BlockPos.containing(_position).getCenter();
         for (int i = 0; i < getContainerSize(); ++i) {
             dropItemStack(streamEntity.level(), position.x, position.y, position.z, getItem(i));

@@ -7,12 +7,13 @@ import net.minecraft.resources.Identifier;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.jetbrains.annotations.NotNull;
 import studio.fantasyit.ether_craft.EtherCraft;
+import studio.fantasyit.ether_craft.network.base.IEtherQuickCreator;
 import studio.fantasyit.ether_craft.register.AttachmentDataRegistry;
 import studio.fantasyit.ether_craft.stream.PosDir;
 import studio.fantasyit.ether_craft.stream.client.data.ClientVESHDataGetter;
 import studio.fantasyit.ether_craft.stream.idx.AutoIndexPosDir;
 
-public record EtherStreamQuickCreateS2C(AutoIndexPosDir posDir) implements CustomPacketPayload {
+public record EtherStreamQuickCreateS2C(AutoIndexPosDir posDir) implements CustomPacketPayload, IEtherQuickCreator {
 
     public static final Type<@NotNull EtherStreamQuickCreateS2C> TYPE = new Type<>(
             Identifier.fromNamespaceAndPath(EtherCraft.MODID, "es_quick")

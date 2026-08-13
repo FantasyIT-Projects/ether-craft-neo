@@ -151,6 +151,11 @@ public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
     }
 
     @Override
+    public Vec3 getLastPosition() {
+        return position().subtract(deltaMovement());
+    }
+
+    @Override
     public void consumeEther(int amount) {
         consumeEtherInternal(amount);
         this.entityData.set(ETHER_COUNT, ether);

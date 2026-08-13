@@ -146,6 +146,10 @@ public class Config {
             .comment("Maximum lifetime of an Ether Stream entity in ticks (20 ticks = 1 second)")
             .defineInRange("ether_stream.max_tick", 1200, 1, Integer.MAX_VALUE);
 
+    private static final ModConfigSpec.IntValue ETHER_STREAM_SIMULATE_INTERVAL = BUILDER
+            .comment("Simulate interval of Ether Stream (including movement/collitions and other), only affect VES(stream from machines). This value may NOT be hot reloaded. Big value may cause to delay of interactions from ether stream.")
+            .defineInRange("ether_stream.simulate_interval", 1, 1, 40);
+
     private static final ModConfigSpec.DoubleValue ETHER_STREAM_GLASS_TRANSFORM_CHANCE = BUILDER
             .comment("The chance when glass will be transformed when ether stream passes")
             .defineInRange("ether_stream.glass_transform_chance", 0.5f, 0, 1);
@@ -482,6 +486,7 @@ public class Config {
     public static int nodeEmitterMinEtherMin;
     public static int nodeEmitterMinEtherMax;
     public static int etherStreamMaxTick;
+    public static int etherStreamSimulateInterval;
     public static int etherStreamDestroyThreshold;
     public static double etherStreamHandoffDistance;
     public static double etherStreamSyncDistance;
@@ -584,6 +589,7 @@ public class Config {
         nodeEmitterMinEtherMin = NODE_EMITTER_MIN_ETHER_MIN.get();
         nodeEmitterMinEtherMax = NODE_EMITTER_MIN_ETHER_MAX.get();
         etherStreamMaxTick = ETHER_STREAM_MAX_TICK.get();
+        etherStreamSimulateInterval = ETHER_STREAM_SIMULATE_INTERVAL.get();
         etherStreamGlassTransformChance = ETHER_STREAM_GLASS_TRANSFORM_CHANCE.get();
         etherStreamConsumptionFactor = ETHER_STREAM_CONSUMPTION_FACTOR.get();
         etherStreamConsumptionByTimeFactor = ETHER_STREAM_CONSUMPTION_BY_TIME_FACTOR.get();
