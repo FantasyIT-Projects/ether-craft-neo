@@ -37,7 +37,7 @@ import studio.fantasyit.ether_craft.util.ContainerOps;
 
 public abstract class AbstractItemConsumeFunction extends AbstractNodePlugin implements ITickWorkPlugin, IModifyNodePropertyPlugin, ISaveAdditionalPlugin, ILoadAdditionalPlugin, IRegisterSlotsPlugin, ISyncScreenDataPlugin, IOnDestroyPlugin, IOnBlockUpdatePlugin, IShouldSyncEtherPlugin {
     public static final Identifier WORKING_MATERIAL = EtherCraft.id("generator/material");
-    public ItemFilter filter = new ItemFilter(21, nodeEntity::setChanged);
+    public ItemFilter filter = new ItemFilter(21, nodeEntity::markChanged);
     public SimpleContainer container = new SimpleContainer(1);
     public int remainBurnTicks = 0;
     public int generatePreTick = 0;
@@ -83,7 +83,7 @@ public abstract class AbstractItemConsumeFunction extends AbstractNodePlugin imp
             if (!toPlace.isEmpty()) {
                 ItemStack newStack = oItemStack.isEmpty() ? toPlace : oItemStack.copyWithCount(oItemStack.getCount() + toPlace.getCount());
                 container.setItem(0, newStack);
-                nodeEntity.setChanged();
+                nodeEntity.markChanged();
             }
         }
 
@@ -101,13 +101,13 @@ public abstract class AbstractItemConsumeFunction extends AbstractNodePlugin imp
                 generatePreTick = parameter.preTick();
                 remainBurnTicks = parameter.burnTicks();
                 nodeEntity.receiveEther(generatePreTick);
-                nodeEntity.setChanged();
+                nodeEntity.markChanged();
             }
         } else {
             if (remainBurnTicks > 0) {
                 nodeEntity.receiveEther(generatePreTick);
                 remainBurnTicks--;
-                nodeEntity.setChanged();
+                nodeEntity.markChanged();
             }
         }
 

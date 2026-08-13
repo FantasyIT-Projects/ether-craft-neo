@@ -10,7 +10,7 @@ import studio.fantasyit.ether_craft.node.filter.FilterGuiRegCommon;
 import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
 
 public abstract class AbstractDirectionalFilterFeature extends AbstractDirectionalFeature {
-    public ItemFilter filter = new ItemFilter(21, nodeEntity::setChanged);
+    public ItemFilter filter = new ItemFilter(21, nodeEntity::markChanged);
     public AbstractDirectionalFilterFeature(EtherAdaptNodeEntity nodeEntity, InstalledPlugin ID) {
         super(nodeEntity, ID);
     }

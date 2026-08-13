@@ -57,13 +57,13 @@ public class FunctionMute extends AbstractNodePlugin implements ITickWorkPlugin,
     public void syncScreenData(SyncScreenDataC2S message) {
         if (message.id().equals(SYNC_RX)) {
             rx = Math.clamp(message.data(), 0, Config.nodeMuteMaxRange);
-            nodeEntity.setChanged();
+            nodeEntity.markChanged();
         } else if (message.id().equals(SYNC_RY)) {
             ry = Math.clamp(message.data(), 0, Config.nodeMuteMaxRange);
-            nodeEntity.setChanged();
+            nodeEntity.markChanged();
         } else if (message.id().equals(SYNC_RZ)) {
             rz = Math.clamp(message.data(), 0, Config.nodeMuteMaxRange);
-            nodeEntity.setChanged();
+            nodeEntity.markChanged();
         }
     }
 

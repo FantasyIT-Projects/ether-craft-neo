@@ -122,8 +122,8 @@ public class FeatureContainerInteract extends AbstractDirectionalFilterFeature i
 
             if (totalConsumed > 0) {
                 nodeEntity.extractEther((long) totalConsumed * costPerItem);
-                fromNode.setChanged();
-                toNode.setChanged();
+                fromNode.markChanged();
+                toNode.markChanged();
                 return;
             }
         }
@@ -139,8 +139,8 @@ public class FeatureContainerInteract extends AbstractDirectionalFilterFeature i
                         fromNode.etherStorage.setItem(0, remaining);
                     if (transferred > 0) {
                         nodeEntity.extractEther((long) transferred * costPerItem);
-                        fromNode.setChanged();
-                        toNode.setChanged();
+                        fromNode.markChanged();
+                        toNode.markChanged();
                         return;
                     }
                 }
@@ -172,8 +172,8 @@ public class FeatureContainerInteract extends AbstractDirectionalFilterFeature i
 
             if (totalConsumed > 0) {
                 nodeEntity.extractEther((long) totalConsumed * costPerItem);
-                fromNode.setChanged();
-                toFactory.setChanged();
+                fromNode.markChanged();
+                toFactory.markChanged();
                 return;
             }
         }
@@ -189,8 +189,8 @@ public class FeatureContainerInteract extends AbstractDirectionalFilterFeature i
                         int transferred = etherStack.getCount();
                         toFactory.receiveEtherNoUpdate((long) transferred * Config.etherConvert);
                         nodeEntity.extractEther((long) transferred * costPerItem);
-                        fromNode.setChanged();
-                        toFactory.setChanged();
+                        fromNode.markChanged();
+                        toFactory.markChanged();
                         return;
                     }
                 }
@@ -245,8 +245,8 @@ public class FeatureContainerInteract extends AbstractDirectionalFilterFeature i
 
             if (totalConsumed > 0) {
                 nodeEntity.extractEther((long) totalConsumed * costPerItem);
-                fromFactory.setChanged();
-                toNode.setChanged();
+                fromFactory.markChanged();
+                toNode.markChanged();
                 return;
             }
         }
@@ -319,7 +319,7 @@ public class FeatureContainerInteract extends AbstractDirectionalFilterFeature i
         if (message.id().equals(SYNC_EXTRACT_MODE)) {
             extractMode = message.data() == 1;
             nodeEntity.setSyncedPluginData(installedId, WORKING_MODE, extractMode ? 1 : 0);
-            nodeEntity.setChanged();
+            nodeEntity.markChanged();
         }
     }
 

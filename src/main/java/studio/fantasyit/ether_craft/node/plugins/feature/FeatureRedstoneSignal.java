@@ -89,11 +89,11 @@ public class FeatureRedstoneSignal extends AbstractDirectionalFeature implements
         super.syncScreenData(message);
         if (message.id().equals(SYNC_MODE)) {
             mode = message.data() == 1 ? SignalMode.INVENTORY : SignalMode.ETHER;
-            nodeEntity.setChanged();
+            nodeEntity.markChanged();
         }
         if (message.id().equals(SYNC_ENABLED)) {
             revert = message.data() == 1;
-            nodeEntity.setChanged();
+            nodeEntity.markChanged();
         }
     }
 

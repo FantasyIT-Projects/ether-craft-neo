@@ -1,19 +1,17 @@
 package studio.fantasyit.ether_craft.block.base;
 
-import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
-import net.minecraft.world.level.block.entity.BlockEntity;
 
 public class SimpleNotifyContainer extends SimpleContainer {
-    private final BlockEntity container;
+    private final Runnable onChanged;
 
-    public SimpleNotifyContainer(int size, BlockEntity container) {
+    public SimpleNotifyContainer(int size, Runnable onChanged) {
         super(size);
-        this.container = container;
+        this.onChanged = onChanged;
     }
 
     @Override
     public void setChanged() {
-        this.container.setChanged();
+        onChanged.run();
     }
 }

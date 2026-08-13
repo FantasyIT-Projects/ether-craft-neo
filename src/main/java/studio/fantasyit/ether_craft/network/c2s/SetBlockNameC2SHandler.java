@@ -14,11 +14,11 @@ public class SetBlockNameC2SHandler {
         if (be instanceof EtherAdaptNodeEntity node) {
             node.name = message.name();
             node.toRenderName = node.name.isEmpty() ? null : Component.literal(node.name);
-            node.setChanged();
+            node.markChanged();
         } else if (be instanceof EtherProcessFactoryEntity factory) {
             factory.name = message.name();
             factory.toRenderName = factory.name.isEmpty() ? null : Component.literal(factory.name);
-            factory.setChanged();
+            factory.markChanged();
         }
         if (player.level() instanceof ServerLevel serverLevel) {
             PacketDistributor.sendToPlayersInDimension(serverLevel,

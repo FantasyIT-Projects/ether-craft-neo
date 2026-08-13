@@ -85,27 +85,27 @@ public class FeatureEtherStreamProperty extends AbstractNodePlugin implements IE
     public void syncScreenData(SyncScreenDataC2S message) {
         if (message.id().equals(SYNC_DISPLAY_TIME)) {
             isDisplayTime = message.data() == 1;
-            nodeEntity.setChanged();
+            nodeEntity.markChanged();
         }
         if (message.id().equals(SYNC_LIMIT_ENABLED)) {
             limitEnabled = message.data() == 1;
-            nodeEntity.setChanged();
+            nodeEntity.markChanged();
         }
         if (message.id().equals(SYNC_MAX_TRAVEL)) {
             maxTravelLength = Math.clamp(fromIntData(message.data()), 0f, MAX_TRAVEL_LENGTH);
-            nodeEntity.setChanged();
+            nodeEntity.markChanged();
         }
         if (message.id().equals(SYNC_NO_ENTITY_HIT)) {
             noEntityHit = message.data() == 1;
-            nodeEntity.setChanged();
+            nodeEntity.markChanged();
         }
         if (message.id().equals(SYNC_NO_BLOCK_HIT)) {
             noBlockHit = message.data() == 1;
-            nodeEntity.setChanged();
+            nodeEntity.markChanged();
         }
         if (message.id().equals(SYNC_NO_ETHER_COST)) {
             noEtherCost = message.data() == 1;
-            nodeEntity.setChanged();
+            nodeEntity.markChanged();
         }
     }
 

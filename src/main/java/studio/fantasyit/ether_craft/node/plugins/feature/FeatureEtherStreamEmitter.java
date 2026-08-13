@@ -125,7 +125,7 @@ public class FeatureEtherStreamEmitter extends AbstractDirectionalFilterFeature 
         if (message.id().equals(SYNC_MIN_ETHER)) {
             minEther = Math.clamp(message.data(), Config.nodeEmitterMinEtherMin, Config.nodeEmitterMinEtherMax);
             nodeEntity.setSyncedPluginData(installedId, SYNC_MIN_ETHER, minEther);
-            nodeEntity.setChanged();
+            nodeEntity.markChanged();
         }
     }
 

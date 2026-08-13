@@ -33,7 +33,7 @@ public class FunctionMagnet extends AbstractNodePlugin implements ITickInputPlug
 
     public FunctionMagnet(EtherAdaptNodeEntity nodeEntity, InstalledPlugin installedId) {
         super(nodeEntity, installedId);
-        filter = new ItemFilter(21, nodeEntity::setChanged);
+        filter = new ItemFilter(21, nodeEntity::markChanged);
     }
 
     @Override
@@ -108,7 +108,7 @@ public class FunctionMagnet extends AbstractNodePlugin implements ITickInputPlug
                 case 4 -> shapeY = message.data();
                 case 5 -> shapeZ = message.data();
             }
-            nodeEntity.setChanged();
+            nodeEntity.markChanged();
         }
     }
 }

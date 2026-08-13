@@ -77,7 +77,9 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
     private final ResourceHandler<ItemResource> normalHandler;
     private long ether;
     private boolean markUpdate = true;
-    private boolean markRedstoneUpdate = true;
+    private boolean dirtySave = false;
+    private boolean dirtySignal = false;
+    private int[] cachedSignals = new int[]{-1, -1, -1, -1, -1, -1};
     public final NodeProperty nodeProperty;
     public final EtherSlotSyncContainer etherStorage;
     public final EtherPluginUpgradeContainer functionStorage;
@@ -103,18 +105,20 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
         normalStorage = new RangeLimitPlaceContainer(new SimpleContainer(27) {
             @Override
             public void setChanged() {
-                super.setChanged();
+                EtherAdaptNodeEntity.this.markChanged();
             }
         }, 0);
-        normalStorageFilter = new ItemFilter(27, this::setChanged);
+        normalStorageFilter = new ItemFilter(27, this::markChanged);
         normalHandler = VanillaContainerWrapper.of(normalStorage);
         functionStorage = new EtherPluginUpgradeContainer(1, NodePluginManager.FUNCTION_TYPE, this);
         featureUpgradeStorage = new EtherPluginUpgradeContainer(6, NodePluginManager.FEATURE_UPGRADE_TYPE, this);
     }
 
-    @Override
-    public void setChanged() {
-        super.setChanged();
+    public void markChanged() {
+        if (level != null && !level.isClientSide()) {
+            dirtySave = true;
+            dirtySignal = true;
+        }
     }
 
 
@@ -196,11 +200,20 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
             if (!name.isEmpty() && level instanceof ServerLevel sl)
                 PacketDistributor.sendToPlayersTrackingChunk(sl, ChunkPos.containing(getBlockPos()), new SyncBlockNameS2C(getBlockPos(), name));
         }
-        if (markRedstoneUpdate) {
-            if (nodeProperty.sendRedstoneSignal)
-                level.updateNeighborsAt(worldPosition, getBlockState().getBlock());
-            setChanged();
-            markRedstoneUpdate = false;
+        if (dirtySave) {
+            dirtySave = false;
+            if (level != null)
+                level.blockEntityChanged(worldPosition);
+        }
+        if (dirtySignal) {
+            dirtySignal = false;
+            int[] current = computeSignals();
+            if (!Arrays.equals(cachedSignals, current)) {
+                if (nodeProperty.sendRedstoneSignal)
+                    level.updateNeighborsAt(worldPosition, getBlockState().getBlock());
+                level.updateNeighbourForOutputSignal(worldPosition, getBlockState().getBlock());
+                System.arraycopy(current, 0, cachedSignals, 0, 6);
+            }
         }
         ServerPerf.end(level);
     }
@@ -234,8 +247,11 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
 
     @Override
     public void setEtherNoUpdate(long amount) {
-        this.ether = validateMax(amount);
-        markRedstoneUpdate = true;
+        long v = validateMax(amount);
+        if (v != this.ether) {
+            this.ether = v;
+            markChanged();
+        }
     }
 
     @Override
@@ -433,7 +449,7 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
         if (overflow > 0)
             overflowConsumed = handleOverflow(stack, overflow, null);
         if (placed > 0 || overflowConsumed > 0)
-            setChanged();
+            markChanged();
         return earlyCosted + placed + overflowConsumed;
     }
 
@@ -739,20 +755,24 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
         return false;
     }
 
-    public List<AbstractNodePlugin> getPlugins() {
-        List<AbstractNodePlugin> list = new ArrayList<>();
-        for (int i = 0; i < functionStorage.getContainerSize(); i++) {
-            AbstractNodePlugin plugin = functionStorage.getPlugin(i);
-            if (plugin != null)
-                list.add(plugin);
+    private List<AbstractNodePlugin> cachedPluginList = null;
 
+    public List<AbstractNodePlugin> getPlugins() {
+        if (cachedPluginList == null) {
+            List<AbstractNodePlugin> list = new ArrayList<>();
+            for (int i = 0; i < functionStorage.getContainerSize(); i++) {
+                AbstractNodePlugin plugin = functionStorage.getPlugin(i);
+                if (plugin != null)
+                    list.add(plugin);
+            }
+            for (int i = 0; i < featureUpgradeStorage.getContainerSize(); i++) {
+                AbstractNodePlugin plugin = featureUpgradeStorage.getPlugin(i);
+                if (plugin != null)
+                    list.add(plugin);
+            }
+            cachedPluginList = list;
         }
-        for (int i = 0; i < featureUpgradeStorage.getContainerSize(); i++) {
-            AbstractNodePlugin plugin = featureUpgradeStorage.getPlugin(i);
-            if (plugin != null)
-                list.add(plugin);
-        }
-        return list;
+        return cachedPluginList;
     }
 
     public ItemStack getItemByInstalled(InstalledPlugin plugin) {
@@ -779,7 +799,8 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
     }
 
     public void pluginUpdate() {
-        setChanged();
+        markChanged();
+        cachedPluginList = null;
         if (level != null && !level.isClientSide()) {
             markUpdate = true;
             pluginBlockUpdateDirty = true;
@@ -804,6 +825,14 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
             }
         }
         return 0;
+    }
+
+    private int[] computeSignals() {
+        int[] s = new int[6];
+        for (Direction d : Direction.values()) {
+            s[d.get3DDataValue()] = getAnalogOutputSignal(d);
+        }
+        return s;
     }
 
     public void setSyncedPluginData(InstalledPlugin plugin, Identifier actionId, int value) {

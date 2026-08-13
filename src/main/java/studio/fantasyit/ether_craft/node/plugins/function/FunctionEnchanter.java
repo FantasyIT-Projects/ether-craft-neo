@@ -50,7 +50,7 @@ public class FunctionEnchanter extends AbstractNodePlugin implements ITickWorkPl
     public int progress = 0;
 
     public final SimpleContainer processSlot = new SimpleContainer(1);
-    public ItemFilter filter = new ItemFilter(21, nodeEntity::setChanged);
+    public ItemFilter filter = new ItemFilter(21, nodeEntity::markChanged);
 
     public FunctionEnchanter(EtherAdaptNodeEntity nodeEntity, InstalledPlugin installedId) {
         super(nodeEntity, installedId);
@@ -86,7 +86,7 @@ public class FunctionEnchanter extends AbstractNodePlugin implements ITickWorkPl
                     selectedLevel = level;
                 }
             }
-            nodeEntity.setChanged();
+            nodeEntity.markChanged();
         }
     }
 
@@ -167,7 +167,7 @@ public class FunctionEnchanter extends AbstractNodePlugin implements ITickWorkPl
 
         ItemStack result = makeResultAndCost(itemStack);
         processSlot.setItem(0, result);
-        nodeEntity.setChanged();
+        nodeEntity.markChanged();
     }
 
     private void tryPlaceToMain() {
@@ -181,7 +181,7 @@ public class FunctionEnchanter extends AbstractNodePlugin implements ITickWorkPl
             processSlot.setItem(0, ItemStack.EMPTY);
             progress = 0;
         }
-        nodeEntity.setChanged();
+        nodeEntity.markChanged();
     }
 
     private ItemStack makeResultAndCost(ItemStack itemStack) {

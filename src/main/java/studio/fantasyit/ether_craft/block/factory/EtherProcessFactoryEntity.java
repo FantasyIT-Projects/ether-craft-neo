@@ -80,6 +80,8 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
     public int leak = 0;
     boolean markUpdate = false;
     boolean chipLayoutDirty = true;
+    private boolean dirtySave = false;
+    private boolean internalDirty = false;
     final boolean[] inputDirty;
     final ItemStack[] lastInputStacks;
     //上次 processFactoryInput 的候选缓存（芯片布局不变时复用，仅刷新输入引用）
@@ -107,7 +109,7 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
         COLS = vector2i.x;
         filters = new ItemFilter[ROWS];
         for (int i = 0; i < ROWS; i++) {
-            filters[i] = new ItemFilter(9, this::setChanged);
+            filters[i] = new ItemFilter(9, this::markChanged);
             filters[i].whitelist = true;
         }
         possibleResults = new SimpleContainer(ROWS);
@@ -132,39 +134,56 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
     }
 
 
-    @Override
-    public void setChanged() {
-        super.setChanged();
-        if (level != null && !level.isClientSide())
+    public void markChanged() {
+        if (level != null && !level.isClientSide()) {
+            dirtySave = true;
             markUpdate = true;
+        }
+    }
+
+    @Override
+    protected void onInternalContainerChanged() {
+        markChanged();
+        internalDirty = true;
+    }
+
+    @Override
+    public void setEtherNoUpdate(long amount) {
+        long o = getEther();
+        super.setEtherNoUpdate(amount);
+        if (o != getEther())
+            dirtySave = true;
     }
 
     public void updateChips() {
-        for (int i = 0; i < ROWS; i++) {
-            for (int j = 0; j < COLS; j++) {
-                ItemStack itemStack = internalContainer.getItem(i * COLS + j);
-                @Nullable EtherProcessWorkingChip originalChip = slotChips[i][j];
-                if (originalChip != null && itemStack == originalChip.item)
-                    continue;
-                if (originalChip != null && !itemStack.isEmpty() && isSameChip(itemStack, originalChip.item)) {
-                    //重置为同一物品引用来节约时间
-                    originalChip.item = itemStack;
-                    continue;
+        if (internalDirty || chipLayoutDirty) {
+            for (int i = 0; i < ROWS; i++) {
+                for (int j = 0; j < COLS; j++) {
+                    ItemStack itemStack = internalContainer.getItem(i * COLS + j);
+                    @Nullable EtherProcessWorkingChip originalChip = slotChips[i][j];
+                    if (originalChip != null && itemStack == originalChip.item)
+                        continue;
+                    if (originalChip != null && !itemStack.isEmpty() && isSameChip(itemStack, originalChip.item)) {
+                        //重置为同一物品引用来节约时间
+                        originalChip.item = itemStack;
+                        continue;
+                    }
+                    if (itemStack.isEmpty() && originalChip == null)
+                        continue;
+                    //芯片布局变化时，完整重新计算所有配方
+                    chipLayoutDirty = true;
+                    long o = 0;
+                    if (originalChip != null)
+                        o = originalChip.ether;
+                    if (itemStack.is(Tags.PROCESS_CHIP))
+                        slotChips[i][j] = new EtherProcessWorkingChip(itemStack, o);
+                    else if (!itemStack.isEmpty())
+                        slotChips[i][j] = EtherProcessWorkingChip.DUMMY;
+                    else
+                        slotChips[i][j] = null;
                 }
-                if (itemStack.isEmpty() && originalChip == null)
-                    continue;
-                //芯片布局变化时，完整重新计算所有配方
-                chipLayoutDirty = true;
-                long o = 0;
-                if (originalChip != null)
-                    o = originalChip.ether;
-                if (itemStack.is(Tags.PROCESS_CHIP))
-                    slotChips[i][j] = new EtherProcessWorkingChip(itemStack, o);
-                else if (!itemStack.isEmpty())
-                    slotChips[i][j] = EtherProcessWorkingChip.DUMMY;
-                else
-                    slotChips[i][j] = null;
             }
+            internalDirty = false;
         }
 
         //计算最小输入量的总和（仅芯片布局变化或配置热改时重算缓存）
@@ -232,11 +251,13 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
         chipEtherTotal = etherTotal;
         chipEtherMax = (int) Math.min(storageTotal, Integer.MAX_VALUE);
         //输入物品变化检测
-        for (int i = 0; i < ROWS; i++) {
-            ItemStack current = inputContainer.getItem(i);
-            if (!ItemStack.matches(lastInputStacks[i], current)) {
-                inputDirty[i] = true;
-                lastInputStacks[i] = current.copy();
+        if (markUpdate) {
+            for (int i = 0; i < ROWS; i++) {
+                ItemStack current = inputContainer.getItem(i);
+                if (!ItemStack.matches(lastInputStacks[i], current)) {
+                    inputDirty[i] = true;
+                    lastInputStacks[i] = current.copy();
+                }
             }
         }
     }
@@ -391,7 +412,7 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
             }
         }
         if (changed) {
-            setChanged();
+            dirtySave = true;
         }
         if (chipLayoutDirty) {
             updateRecipe((ServerLevel) level, false);
@@ -417,6 +438,11 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
                     chip.ether = Math.max(0, chip.ether - deduct);
                     currentEther[i][j] = (int) Math.min(chip.ether, Integer.MAX_VALUE);
                 }
+        }
+        if (dirtySave) {
+            dirtySave = false;
+            if (level != null)
+                level.blockEntityChanged(worldPosition);
         }
         ServerPerf.end(level);
     }

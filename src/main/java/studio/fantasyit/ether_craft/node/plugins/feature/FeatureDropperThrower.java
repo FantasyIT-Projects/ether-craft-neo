@@ -90,7 +90,7 @@ public class FeatureDropperThrower extends AbstractDirectionalFilterFeature impl
         if (message.id().equals(SYNC_THROW_COUNT)) {
             throwCount = Math.clamp(message.data(), 1, 64);
             nodeEntity.setSyncedPluginData(installedId, SYNC_THROW_COUNT, throwCount);
-            nodeEntity.setChanged();
+            nodeEntity.markChanged();
         }
     }
 

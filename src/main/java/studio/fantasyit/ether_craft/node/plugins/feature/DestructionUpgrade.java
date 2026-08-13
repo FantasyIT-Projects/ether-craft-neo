@@ -29,7 +29,7 @@ public class DestructionUpgrade extends AbstractNodePlugin implements IEarlyHand
         OVERFLOW, ALL
     }
 
-    public ItemFilter filter = new ItemFilter(21, nodeEntity::setChanged);
+    public ItemFilter filter = new ItemFilter(21, nodeEntity::markChanged);
     public DestroyMode destroyMode = DestroyMode.OVERFLOW;
 
     public DestructionUpgrade(EtherAdaptNodeEntity nodeEntity, InstalledPlugin installedId) {
@@ -68,7 +68,7 @@ public class DestructionUpgrade extends AbstractNodePlugin implements IEarlyHand
         FilterGuiRegCommon.sync(message, filter,nodeEntity);
         if (message.id().equals(SYNC_MODE)) {
             destroyMode = message.data() == 1 ? DestroyMode.ALL : DestroyMode.OVERFLOW;
-            nodeEntity.setChanged();
+            nodeEntity.markChanged();
         }
     }
 

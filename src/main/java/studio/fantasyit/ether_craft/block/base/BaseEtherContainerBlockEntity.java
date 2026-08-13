@@ -51,9 +51,9 @@ public class BaseEtherContainerBlockEntity extends BlockEntity implements Resour
         this.internal = internal;
         this.output = outputs;
         this.extractableInput = extractableInput;
-        inputContainer = new SimpleNotifyContainer(input, this);
-        internalContainer = new SimpleNotifyContainer(internal, this);
-        outputContainer = new SimpleNotifyContainer(outputs, this);
+        inputContainer = new SimpleNotifyContainer(input, this::onInputContainerChanged);
+        internalContainer = new SimpleNotifyContainer(internal, this::onInternalContainerChanged);
+        outputContainer = new SimpleNotifyContainer(outputs, this::onOutputContainerChanged);
         container = new CompoundContainer(inputContainer, new CompoundContainer(internalContainer, outputContainer));
         handler = VanillaContainerWrapper.of(container);
         etherContainer = new EtherSlotContainer(this);
@@ -68,6 +68,21 @@ public class BaseEtherContainerBlockEntity extends BlockEntity implements Resour
     @Override
     public void setEtherNoUpdate(long amount) {
         this.ether = validateMax(amount);
+    }
+
+    protected void markChanged() {
+    }
+
+    protected void onInputContainerChanged() {
+        markChanged();
+    }
+
+    protected void onInternalContainerChanged() {
+        markChanged();
+    }
+
+    protected void onOutputContainerChanged() {
+        markChanged();
     }
 
     @Override

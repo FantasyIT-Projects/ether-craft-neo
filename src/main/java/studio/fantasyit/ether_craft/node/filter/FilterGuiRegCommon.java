@@ -4,6 +4,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.block.base.ItemFilter;
+import studio.fantasyit.ether_craft.block.node.EtherAdaptNodeEntity;
 import studio.fantasyit.ether_craft.menu.base.slot.BaseDataSlot;
 import studio.fantasyit.ether_craft.menu.base.slot.FilterSlot;
 import studio.fantasyit.ether_craft.menu.node.EtherAdaptNodeContainerMenu;
@@ -24,7 +25,8 @@ public class FilterGuiRegCommon {
     public static void sync(SyncScreenDataC2S message, ItemFilter filter, BlockEntity blockEntity) {
         if (message.id().equals(SYNC_FILTER)) {
             filter.whitelist = message.data() == 1;
-            blockEntity.setChanged();
+            if (blockEntity instanceof EtherAdaptNodeEntity node)
+                node.markChanged();
         }
     }
 }
