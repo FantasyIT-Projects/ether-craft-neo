@@ -114,7 +114,7 @@ public class VirtualEtherStreamHolder {
     }
 
     public VirtualEtherStream createStream(int ether, float offset, float speed, int managerTickCount) {
-        int subTick = (managerTickCount % simulateInterval + holderId) % simulateInterval;
+        int subTick = simulateInterval - (managerTickCount % simulateInterval + holderId) % simulateInterval;
         indexMappingManager().recordAndPrepareSend(posDir);
         VirtualEtherStream ves = new VirtualEtherStream(
                 nextId++,
@@ -607,7 +607,7 @@ public class VirtualEtherStreamHolder {
                     }
                     if (!fullPlayers.isEmpty()) {
                         EtherStreamInitialCreateS2C etherStreamCreateS2C = new EtherStreamInitialCreateS2C(
-                                posDirAI, ves.streamId, ves.startOffset, ves.startSpeed,
+                                posDirAI, ves.streamId, ves.tickCount, ves.startOffset, ves.startSpeed,
                                 ves.ether, ves.consumer.toState(), ves.toSyncData
                         );
                         acc.add(fullPlayers, etherStreamCreateS2C);
@@ -617,7 +617,7 @@ public class VirtualEtherStreamHolder {
                     }
                 } else {
                     EtherStreamInitialCreateS2C etherStreamCreateS2C = new EtherStreamInitialCreateS2C(
-                            posDirAI, ves.streamId, ves.startOffset, ves.startSpeed,
+                            posDirAI, ves.streamId, ves.tickCount, ves.startOffset, ves.startSpeed,
                             ves.ether, ves.consumer.toState(), ves.toSyncData
                     );
                     acc.add(ves.trackingPlayers, etherStreamCreateS2C);
@@ -709,13 +709,14 @@ public class VirtualEtherStreamHolder {
                 ves.startOffset,
                 ves.startSpeed,
                 ves.getEther(),
-                1,
+                ves.tickCount(),
                 ves.consumer.toState()
         );
     }
 
     private static boolean snapshotMatches(CachedEtherStreamEntry snapshot, VirtualEtherStream ves) {
         return snapshot.streamId() == ves.getStreamId() - 1
+                && ves.tickCount == snapshot.tickCount()
                 && Float.compare(snapshot.startOffset(), ves.startOffset) == 0
                 && Float.compare(snapshot.startSpeed(), ves.startSpeed) == 0
                 && snapshot.ether() == ves.getEther()

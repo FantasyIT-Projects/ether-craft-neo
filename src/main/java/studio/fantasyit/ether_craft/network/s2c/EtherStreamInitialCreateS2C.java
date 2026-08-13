@@ -28,6 +28,7 @@ import java.util.Optional;
 public record EtherStreamInitialCreateS2C(
         AutoIndexPosDir posDir,
         int streamId,
+        int tickCount,
         float startOffset,
         float startSpeed,
         int ether,
@@ -41,6 +42,7 @@ public record EtherStreamInitialCreateS2C(
     public static final StreamCodec<RegistryFriendlyByteBuf, @NotNull EtherStreamInitialCreateS2C> CODEC = StreamCodec.composite(
             AutoIndexPosDir.STREAM_CODEC, EtherStreamInitialCreateS2C::posDir,
             ByteBufCodecs.VAR_INT, EtherStreamInitialCreateS2C::streamId,
+            ByteBufCodecs.VAR_INT, EtherStreamInitialCreateS2C::tickCount,
             ByteBufCodecs.FLOAT, EtherStreamInitialCreateS2C::startOffset,
             ByteBufCodecs.FLOAT, EtherStreamInitialCreateS2C::startSpeed,
             ByteBufCodecs.VAR_INT, EtherStreamInitialCreateS2C::ether,
@@ -60,10 +62,5 @@ public record EtherStreamInitialCreateS2C(
             if (resolved == null) return;
             ClientVESHDataGetter.get().handleCreate(resolved, this);
         });
-    }
-
-    @Override
-    public int tickCount() {
-        return 1;
     }
 }
