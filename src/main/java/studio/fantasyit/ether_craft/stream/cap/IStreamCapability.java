@@ -50,4 +50,6 @@ public interface IStreamCapability extends ValueIOSerializable {
     default void runIntoNewBlock(IEtherStreamLike streamEntity, BlockPos newPos, BlockState newState){
 
     }
+
+    default void noSimulateTick(IEtherStreamLike streamEntity){}
 }

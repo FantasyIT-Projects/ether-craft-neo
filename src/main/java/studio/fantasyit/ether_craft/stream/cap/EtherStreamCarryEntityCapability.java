@@ -120,6 +120,23 @@ public class EtherStreamCarryEntityCapability implements IStreamCapability {
     }
 
     @Override
+    public void noSimulateTick(IEtherStreamLike streamEntity) {
+        EtherStreamCarryingEntityData data = getCarriedData(streamEntity);
+        if (data == null) {
+            return;
+        }
+        if (cachedEntity != null) {
+            if (cachedEntity instanceof ServerPlayer sp && sp.isShiftKeyDown()) {
+                EtherStreamCarryEntityCapability.dropEntityTo(sp.level(), streamEntity.position(), streamEntity.deltaMovement(), sp);
+                sp.setData(AttachmentDataRegistry.CARRY_COOLDOWN.get(), sp.tickCount);
+                sp.setData(AttachmentDataRegistry.CARRY_COOLDOWN_SOURCE.get(), Optional.empty());
+                streamEntity.clearSyncedData(EtherStreamCarryingEntityData.ID);
+                streamEntity.dirtyConsumer();
+            }
+        }
+    }
+
+    @Override
     public void getConsumption(EtherConsumer consumer, IEtherStreamLike entity) {
         EtherStreamCarryingEntityData data = getCarriedData(entity);
         if (data != null)

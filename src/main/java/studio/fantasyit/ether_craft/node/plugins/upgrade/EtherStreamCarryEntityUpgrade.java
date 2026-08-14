@@ -8,9 +8,9 @@ import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
 import studio.fantasyit.ether_craft.node.plugins.base.AbstractNodePlugin;
 import studio.fantasyit.ether_craft.node.plugins.base.IEtherStreamCapabilityProviderPlugin;
 import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
-import studio.fantasyit.ether_craft.stream.data.StreamExtraProperty;
 import studio.fantasyit.ether_craft.stream.cap.EtherStreamCarryEntityCapability;
 import studio.fantasyit.ether_craft.stream.cap.IStreamCapability;
+import studio.fantasyit.ether_craft.stream.data.StreamExtraProperty;
 
 import java.util.Optional;
 
@@ -31,6 +31,7 @@ public class EtherStreamCarryEntityUpgrade extends AbstractNodePlugin implements
         Identifier capId = playerOnly ? EtherStreamCarryEntityCapability.ID_PLAYER : EtherStreamCarryEntityCapability.ID;
         Optional<IStreamCapability> existing = entity.getCapability(capId);
         if (existing.isEmpty()) {
+            extraProperty.hasNoSimulateTick = true;
             entity.addCapability(new EtherStreamCarryEntityCapability(nodeEntity.getBlockPos(), playerOnly));
         }
     }

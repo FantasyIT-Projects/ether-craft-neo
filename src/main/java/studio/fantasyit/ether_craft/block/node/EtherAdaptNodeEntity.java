@@ -53,13 +53,7 @@ import studio.fantasyit.ether_craft.network.s2c.SyncEtherAdaptNodePluginDataS2C;
 import studio.fantasyit.ether_craft.node.NodePluginManager;
 import studio.fantasyit.ether_craft.node.NodeProperty;
 import studio.fantasyit.ether_craft.node.plugins.InstalledPlugin;
-import studio.fantasyit.ether_craft.node.plugins.base.AbstractNodePlugin;
-import studio.fantasyit.ether_craft.node.plugins.base.IEarlyHandleInputPlugin;
-import studio.fantasyit.ether_craft.node.plugins.base.IOnBlockUpdatePlugin;
-import studio.fantasyit.ether_craft.node.plugins.base.IOnWrenchRotatePlugin;
-import studio.fantasyit.ether_craft.node.plugins.base.IOverflowHandlerPlugin;
-import studio.fantasyit.ether_craft.node.plugins.base.IShouldSyncEtherPlugin;
-import studio.fantasyit.ether_craft.node.plugins.base.SimpleEtherSyncController;
+import studio.fantasyit.ether_craft.node.plugins.base.*;
 import studio.fantasyit.ether_craft.node.plugins.feature.AbstractDirectionalFeature;
 import studio.fantasyit.ether_craft.node.plugins.feature.FeatureRedstoneSignal;
 import studio.fantasyit.ether_craft.perf.ServerPerf;
@@ -344,14 +338,19 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
             return 0;
         if (index - 1 >= nodeProperty.slotUnlock)
             return 0;
-        if (!isValid(index, resource))
-            return 0;
         int earlyCosted = 0;
         ItemStack stack = resource.toStack();
         earlyCosted = handleEarlyInput(stack, amount, transaction);
         if (earlyCosted >= amount)
             return earlyCosted;
-        int handlerInserted = normalHandler.insert(index - 1, resource, amount - earlyCosted, transaction);
+
+        int handlerInserted;
+
+        if (!isValid(index, resource))
+            handlerInserted = 0;
+        else
+            handlerInserted = normalHandler.insert(index - 1, resource, amount - earlyCosted, transaction);
+
         int overflow = amount - earlyCosted - handlerInserted;
         int overflowConsumed = 0;
         if (index == nodeProperty.slotUnlock)

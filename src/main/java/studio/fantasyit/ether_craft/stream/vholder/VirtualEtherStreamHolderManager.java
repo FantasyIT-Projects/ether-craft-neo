@@ -85,7 +85,11 @@ public class VirtualEtherStreamHolderManager {
         tickCount++;
         for (int i = 0; i < holderList.size(); i++) {
             VirtualEtherStreamHolder holder = holderList.get(i);
-            if (!holder.shouldTick(tickCount)) continue;
+            if (!holder.shouldTick(tickCount)) {
+                if (holder.propertyCounter.isDoTickNoSimulate())
+                    holder.noSimulateTick();
+                continue;
+            }
             PosDir posDir = holder.posDir;
             holder.tick(acc);
             if (holder.isDead()) {

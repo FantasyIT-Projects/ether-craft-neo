@@ -9,23 +9,27 @@ public class StreamExtraProperty {
     public boolean noEntityHit = false;
     public boolean noBlockHit = false;
     public boolean noEtherCost = false;
+    public boolean hasNoSimulateTick = false;
 
     public StreamExtraProperty() {
     }
 
-    public StreamExtraProperty(boolean isDisplayTime, float maxTravelLength, boolean noEntityHit, boolean noBlockHit, boolean noEtherCost) {
+    public StreamExtraProperty(boolean isDisplayTime, float maxTravelLength, boolean noEntityHit, boolean noBlockHit, boolean noEtherCost, boolean hasNoSimulateTick) {
         this.isDisplayTime = isDisplayTime;
         this.maxTravelLength = maxTravelLength;
         this.noEntityHit = noEntityHit;
         this.noBlockHit = noBlockHit;
         this.noEtherCost = noEtherCost;
+        this.hasNoSimulateTick = hasNoSimulateTick;
     }
+
     public void from(StreamExtraProperty extraProperty) {
         this.isDisplayTime = extraProperty.isDisplayTime;
         this.maxTravelLength = extraProperty.maxTravelLength;
         this.noEntityHit = extraProperty.noEntityHit;
         this.noBlockHit = extraProperty.noBlockHit;
         this.noEtherCost = extraProperty.noEtherCost;
+        this.hasNoSimulateTick = extraProperty.hasNoSimulateTick;
     }
 
     public static final Codec<StreamExtraProperty> CODEC = RecordCodecBuilder.create(instance -> instance.group(
@@ -33,6 +37,7 @@ public class StreamExtraProperty {
             Codec.FLOAT.fieldOf("maxTravelLength").orElse(Float.MAX_VALUE).forGetter(p -> p.maxTravelLength),
             Codec.BOOL.fieldOf("noEntityHit").orElse(false).forGetter(p -> p.noEntityHit),
             Codec.BOOL.fieldOf("noBlockHit").orElse(false).forGetter(p -> p.noBlockHit),
-            Codec.BOOL.fieldOf("noEtherCost").orElse(false).forGetter(p -> p.noEtherCost)
+            Codec.BOOL.fieldOf("noEtherCost").orElse(false).forGetter(p -> p.noEtherCost),
+            Codec.BOOL.fieldOf("hasNoSimulateTick").orElse(false).forGetter(p -> p.hasNoSimulateTick)
     ).apply(instance, StreamExtraProperty::new));
 }

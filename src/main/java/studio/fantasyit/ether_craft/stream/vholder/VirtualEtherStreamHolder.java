@@ -34,6 +34,7 @@ import studio.fantasyit.ether_craft.plating.helper.PlatingUtil;
 import studio.fantasyit.ether_craft.register.AttachmentDataRegistry;
 import studio.fantasyit.ether_craft.register.ItemRegistry;
 import studio.fantasyit.ether_craft.register.Tags;
+import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
 import studio.fantasyit.ether_craft.stream.PosDir;
 import studio.fantasyit.ether_craft.stream.cap.IStreamCapability;
 import studio.fantasyit.ether_craft.stream.data.CachedEtherStreamEntry;
@@ -84,6 +85,13 @@ public class VirtualEtherStreamHolder {
 
 
     StreamHolderPropertyCounter propertyCounter = new StreamHolderPropertyCounter();
+
+    public void noSimulateTick() {
+        for (VirtualEtherStream stream : streams) {
+            for (IStreamCapability cap : stream.capabilities)
+                cap.noSimulateTick(stream);
+        }
+    }
 
     private record BlockCollision(BlockHitResult hit, BlockState state) {
     }
