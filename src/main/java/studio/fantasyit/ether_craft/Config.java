@@ -182,6 +182,10 @@ public class Config {
             .comment("Ticks between refreshing the block collision snapshot along an ether stream (1 = every tick)")
             .defineInRange("ether_stream.block_scan_interval", 1, 1, Integer.MAX_VALUE);
 
+    private static final ModConfigSpec.IntValue ETHER_STREAM_HOLDER_CLEANUP_INTERVAL = BUILDER
+            .comment("Ticks between sweeping dead virtual stream holder tombstones (20 ticks = 1 second)")
+            .defineInRange("ether_stream.holder_cleanup_interval", 100, 1, Integer.MAX_VALUE);
+
     // -- ether_stream.break_block --
 
     private static final ModConfigSpec.IntValue ETHER_STREAM_BREAK_BLOCK_HARDNESS_MULTIPLIER = BUILDER
@@ -495,6 +499,7 @@ public class Config {
     public static double etherStreamHandoffDistance;
     public static double etherStreamSyncDistance;
     public static int etherStreamBlockScanInterval;
+    public static int etherStreamHolderCleanupInterval;
     public static double etherStreamGlassTransformChance;
     public static double etherStreamConsumptionFactor;
     public static double etherStreamConsumptionByTimeFactor;
@@ -614,6 +619,7 @@ public class Config {
         etherStreamHandoffDistance = ETHER_STREAM_HANDOFF_DISTANCE.get();
         etherStreamSyncDistance = ETHER_STREAM_SYNC_DISTANCE.get();
         etherStreamBlockScanInterval = ETHER_STREAM_BLOCK_SCAN_INTERVAL.get();
+        etherStreamHolderCleanupInterval = ETHER_STREAM_HOLDER_CLEANUP_INTERVAL.get();
         nodeProcessEtherConsumePreUnmatched = ETHER_PROCESS_ETHER_CONSUME_PRE_UNMATCHED.get();
         etherAutoSupplyThreshold = NODE_AUTO_SUPPLY_THRESHOLD.get();
         etherAutoSupplyEtherPerTick = NODE_AUTO_SUPPLY_ETHER_PER_TICK.get();

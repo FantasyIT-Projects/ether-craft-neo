@@ -237,7 +237,10 @@ public class VirtualEtherStreamHolder {
         updateNoLongerTracking();
         unregisterPendingProperties();
         streams.removeIf(ves -> ves.markToRemove);
-        if (streams.isEmpty()) sameSpeedHolder = false;
+        if (streams.isEmpty()) {
+            sameSpeedHolder = false;
+            lastCreateSnapshot = null;
+        }
         lineSectorEntityGetter = null;
         ServerPerf.end(level);
     }

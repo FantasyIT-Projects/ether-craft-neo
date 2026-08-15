@@ -59,12 +59,13 @@ public class VirtualEtherStreamHolderManager {
 
     public VirtualEtherStreamHolder getHolderOrCreate(ServerLevel level, PosDir posDir) {
         ensureLazy(level);
-        if (holders.containsKey(posDir))
-            return holders.get(posDir);
-        VirtualEtherStreamHolder virtualEtherStreamHolder = createHolder(level, posDir);
-        holders.put(posDir, virtualEtherStreamHolder);
-        holderList.add(virtualEtherStreamHolder);
-        return holders.get(posDir);
+        VirtualEtherStreamHolder holder = holders.get(posDir);
+        if (holder == null) {
+            holder = createHolder(level, posDir);
+            holders.put(posDir, holder);
+            holderList.add(holder);
+        }
+        return holder;
     }
 
     public IEtherStreamLike createStream(Level level, PosDir posDir, int ether, float offset, float speed) {
@@ -85,20 +86,22 @@ public class VirtualEtherStreamHolderManager {
         tickCount++;
         for (int i = 0; i < holderList.size(); i++) {
             VirtualEtherStreamHolder holder = holderList.get(i);
+            if (holder.isDead()) continue;
             if (!holder.shouldTick(tickCount)) {
                 if (holder.propertyCounter.isDoTickNoSimulate())
                     holder.noSimulateTick();
                 continue;
             }
-            PosDir posDir = holder.posDir;
             holder.tick(acc);
-            if (holder.isDead()) {
-                holders.remove(posDir);
-                holderList.remove(i);
-                i--;
-            }
         }
         acc.send(level);
+        if (tickCount % Config.etherStreamHolderCleanupInterval == 0)
+            sweep();
+    }
+
+    private void sweep() {
+        holders.entrySet().removeIf(e -> e.getValue().isDead());
+        holderList.removeIf(VirtualEtherStreamHolder::isDead);
     }
 
     public void syncAndStratTrackingByPlayer(ServerPlayer player) {
@@ -126,6 +129,7 @@ public class VirtualEtherStreamHolderManager {
     public List<VESHEntry> toData() {
         List<VESHEntry> entries = new ArrayList<>();
         for (Map.Entry<PosDir, VirtualEtherStreamHolder> e : holders.entrySet()) {
+            if (e.getValue().isDead()) continue;
             entries.add(new VESHEntry(e.getKey(), e.getValue().toData()));
         }
         return entries;
