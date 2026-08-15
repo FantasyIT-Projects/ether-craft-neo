@@ -12,6 +12,7 @@ import studio.fantasyit.ether_craft.stream.client.render.RenderDataUtil;
 import studio.fantasyit.ether_craft.stream.client.render.VertexPrecomputer;
 import studio.fantasyit.ether_craft.stream.data.IEtherStreamEntryLike;
 import studio.fantasyit.ether_craft.stream.data.IEtherStreamSyncedData;
+import studio.fantasyit.ether_craft.stream.vholder.VirtualEtherStreamHolder;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -73,7 +74,7 @@ public class ClientVESHData {
         if (level.get() == null) return;
         ClientVESHEntry entry = entries.get(posDir);
         if (entry == null || !entry.hasLast()) return;
-        if (entry.streams.containsKey(entry.getLastCreateStreamId() + 1)) return;
+        if (entry.streams.containsKey((entry.getLastCreateStreamId() + 1) & VirtualEtherStreamHolder.STREAM_ID_MASK)) return;
         IEtherStreamEntryLike quickEntry = entry.getFromLastAndUpdate(msg.tickCount(), msg.ether());
         entry.addStream(quickEntry.streamId(), posDir, quickEntry);
         ClientStreamEntry created = entry.streams.get(quickEntry.streamId());

@@ -65,6 +65,7 @@ public class VirtualEtherStreamHolder {
     private final int holderId;
     Int2IntOpenHashMap trackingPlayers = new Int2IntOpenHashMap();
     Int2IntOpenHashMap playerLastCreateId = new Int2IntOpenHashMap();
+    public static final int STREAM_ID_MASK = 0x1FFF;
     int nextId = 0;
     private boolean lastHadStreamInUnloadedChunk = false;
     private int holderMaxDistance;
@@ -124,8 +125,10 @@ public class VirtualEtherStreamHolder {
     public VirtualEtherStream createStream(int ether, float offset, float speed, int managerTickCount) {
         int subTick = simulateInterval - (managerTickCount % simulateInterval + holderId) % simulateInterval - 1;
         indexMappingManager().recordAndPrepareSend(posDir);
+        int streamId = nextId;
+        nextId = (nextId + 1) & STREAM_ID_MASK;
         VirtualEtherStream ves = new VirtualEtherStream(
-                nextId++,
+                streamId,
                 ether,
                 subTick,
                 posDir,
@@ -734,7 +737,8 @@ public class VirtualEtherStreamHolder {
     }
 
     private static boolean snapshotMatches(CachedEtherStreamEntry snapshot, VirtualEtherStream ves) {
-        return snapshot.streamId() == ves.getStreamId() - 1
+        // streamId 取模语义：连续 == ((上次 + 1) & MASK)，回绕 8191→0 同样成立；与客户端 getFromLastAndUpdate 派生逻辑保持一致
+        return ves.getStreamId() == ((snapshot.streamId() + 1) & STREAM_ID_MASK)
                 && Float.compare(snapshot.startOffset(), ves.startOffset) == 0
                 && Float.compare(snapshot.startSpeed(), ves.startSpeed) == 0
                 && snapshot.consumerState().equals(ves.consumer.toState())
@@ -763,7 +767,7 @@ public class VirtualEtherStreamHolder {
 
 
     public void loadFromData(VirtualEtherStreamHolderData holderData) {
-        nextId = holderData.nextId();
+        nextId = holderData.nextId() & STREAM_ID_MASK;
         for (VirtualEtherStreamData data : holderData.streams()) {
             VirtualEtherStream ves = VirtualEtherStream.fromData(level, data, this);
             streams.add(ves);

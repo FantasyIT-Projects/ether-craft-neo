@@ -81,7 +81,7 @@ public class VirtualEtherStream implements IEtherStreamLike {
     public VirtualEtherStream(int streamId, int ether, int tickCount, PosDir posDir, float startOffset, float startSpeed, int simulateInterval, ServerLevel level, VirtualEtherStreamHolder holder) {
         this.startOffset = startOffset;
         this.startSpeed = startSpeed;
-        this.streamId = streamId;
+        this.streamId = streamId & VirtualEtherStreamHolder.STREAM_ID_MASK;
         this.ether = ether;
         this.level = level;
         this.blockOffsetUnit = posDir.dir().getUnitVec3i();

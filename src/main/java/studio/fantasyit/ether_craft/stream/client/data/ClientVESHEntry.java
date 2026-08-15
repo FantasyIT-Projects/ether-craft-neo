@@ -5,6 +5,7 @@ import net.minecraft.world.level.Level;
 import studio.fantasyit.ether_craft.stream.PosDir;
 import studio.fantasyit.ether_craft.stream.data.CachedEtherStreamEntry;
 import studio.fantasyit.ether_craft.stream.data.IEtherStreamEntryLike;
+import studio.fantasyit.ether_craft.stream.vholder.VirtualEtherStreamHolder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,7 +54,7 @@ public class ClientVESHEntry {
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     public IEtherStreamEntryLike getFromLastAndUpdate(Optional<Integer> tickCount, Optional<Integer> ether) {
         lastCreateEntry = lastCreateEntry.withNext(
-                lastCreateEntry.streamId() + 1,
+                (lastCreateEntry.streamId() + 1) & VirtualEtherStreamHolder.STREAM_ID_MASK,
                 tickCount.orElse(null),
                 ether.orElse(null)
         );
