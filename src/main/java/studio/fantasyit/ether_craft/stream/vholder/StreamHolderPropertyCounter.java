@@ -12,14 +12,14 @@ public class StreamHolderPropertyCounter {
         if (!streamExtraProperty.isDisplayTime) countNotDisplayTime++;
         if (!streamExtraProperty.noBlockHit) countBlockCollide++;
         if (!streamExtraProperty.noEntityHit) countEntityCollide++;
-        if (!streamExtraProperty.hasNoSimulateTick) countDoTickNoSimulate++;
+        if (streamExtraProperty.hasNoSimulateTick) countDoTickNoSimulate++;
     }
 
     public void removeStream(StreamExtraProperty streamExtraProperty) {
         if (!streamExtraProperty.isDisplayTime) countNotDisplayTime--;
         if (!streamExtraProperty.noBlockHit) countBlockCollide--;
         if (!streamExtraProperty.noEntityHit) countEntityCollide--;
-        if (!streamExtraProperty.hasNoSimulateTick) countDoTickNoSimulate--;
+        if (streamExtraProperty.hasNoSimulateTick) countDoTickNoSimulate--;
     }
 
     public boolean isNoBlockCollide() {
@@ -35,6 +35,6 @@ public class StreamHolderPropertyCounter {
     }
 
     public boolean isDoTickNoSimulate() {
-        return countDoTickNoSimulate >= 0;
+        return countDoTickNoSimulate > 0;
     }
 }

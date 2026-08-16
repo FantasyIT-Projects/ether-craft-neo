@@ -88,9 +88,12 @@ public class VirtualEtherStreamHolder {
     StreamHolderPropertyCounter propertyCounter = new StreamHolderPropertyCounter();
 
     public void noSimulateTick() {
-        for (VirtualEtherStream stream : streams) {
-            for (IStreamCapability cap : stream.capabilities)
-                cap.noSimulateTick(stream);
+        List<VirtualEtherStream> list = this.streams;
+        for (int i = 0, size = list.size(); i < size; i++) {
+            VirtualEtherStream stream = list.get(i);
+            if (!stream.getExtraProperty().hasNoSimulateTick) continue;
+            List<IStreamCapability> caps = stream.capabilities;
+            for (int j = 0, cs = caps.size(); j < cs; j++) caps.get(j).noSimulateTick(stream);
         }
     }
 

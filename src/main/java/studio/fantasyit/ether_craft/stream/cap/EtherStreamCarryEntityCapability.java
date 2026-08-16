@@ -121,18 +121,19 @@ public class EtherStreamCarryEntityCapability implements IStreamCapability {
 
     @Override
     public void noSimulateTick(IEtherStreamLike streamEntity) {
+        if (cachedEntity == null) {
+            return;
+        }
         EtherStreamCarryingEntityData data = getCarriedData(streamEntity);
         if (data == null) {
             return;
         }
-        if (cachedEntity != null) {
-            if (cachedEntity instanceof ServerPlayer sp && sp.isShiftKeyDown()) {
-                EtherStreamCarryEntityCapability.dropEntityTo(sp.level(), streamEntity.position(), streamEntity.deltaMovement(), sp);
-                sp.setData(AttachmentDataRegistry.CARRY_COOLDOWN.get(), sp.tickCount);
-                sp.setData(AttachmentDataRegistry.CARRY_COOLDOWN_SOURCE.get(), Optional.empty());
-                streamEntity.clearSyncedData(EtherStreamCarryingEntityData.ID);
-                streamEntity.dirtyConsumer();
-            }
+        if (cachedEntity instanceof ServerPlayer sp && sp.isShiftKeyDown()) {
+            EtherStreamCarryEntityCapability.dropEntityTo(sp.level(), streamEntity.position(), streamEntity.deltaMovement(), sp);
+            sp.setData(AttachmentDataRegistry.CARRY_COOLDOWN.get(), sp.tickCount);
+            sp.setData(AttachmentDataRegistry.CARRY_COOLDOWN_SOURCE.get(), Optional.empty());
+            streamEntity.clearSyncedData(EtherStreamCarryingEntityData.ID);
+            streamEntity.dirtyConsumer();
         }
     }
 

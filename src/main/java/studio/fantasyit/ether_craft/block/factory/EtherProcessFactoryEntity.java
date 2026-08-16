@@ -173,7 +173,7 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
                     //芯片布局变化时，完整重新计算所有配方
                     chipLayoutDirty = true;
                     long o = 0;
-                    if (originalChip != null)
+                    if (originalChip != null && Config.factoryKeepChipEtherOnSwap)
                         o = originalChip.ether;
                     if (itemStack.is(Tags.PROCESS_CHIP))
                         slotChips[i][j] = new EtherProcessWorkingChip(itemStack, o);

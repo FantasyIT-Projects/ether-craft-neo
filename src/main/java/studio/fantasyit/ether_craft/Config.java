@@ -470,6 +470,10 @@ public class Config {
             .comment("Minimum per-batch charging quota per chip: reservePer = max(min, round(k*consume))")
             .defineInRange("factory.min_reserve_per", 2L, 0L, 100000L);
 
+    private static final ModConfigSpec.BooleanValue FACTORY_KEEP_CHIP_ETHER_ON_SWAP = BUILDER
+            .comment("If true, replacing a chip in the factory keeps the old chip's ether amount. If false (default), the slot's chip ether resets to zero when the chip is replaced.")
+            .define("factory.keep_chip_ether_on_swap", false);
+
     static final ModConfigSpec SPEC = BUILDER.build();
 
     public static int etherConvert;
@@ -573,6 +577,7 @@ public class Config {
     public static double factoryPeakRatio;
     public static double factoryDecayLambda;
     public static long factoryMinReservePer;
+    public static boolean factoryKeepChipEtherOnSwap;
     public static int configVersion = 0;
 
     @SubscribeEvent
@@ -678,6 +683,7 @@ public class Config {
         factoryPeakRatio = FACTORY_PEAK_RATIO.get();
         factoryDecayLambda = FACTORY_DECAY_LAMBDA.get();
         factoryMinReservePer = FACTORY_MIN_RESERVE_PER.get();
+        factoryKeepChipEtherOnSwap = FACTORY_KEEP_CHIP_ETHER_ON_SWAP.get();
         configVersion++;
     }
 }
