@@ -33,7 +33,7 @@ public record EtherStreamSyncDataS2C(AutoIndexPosDir posDir, int streamId,
     public static final StreamCodec<RegistryFriendlyByteBuf, @NotNull EtherStreamSyncDataS2C> CODEC = StreamCodec.composite(
             AutoIndexPosDir.STREAM_CODEC,
             EtherStreamSyncDataS2C::posDir,
-            ByteBufCodecs.INT, EtherStreamSyncDataS2C::streamId,
+            ByteBufCodecs.VAR_INT, EtherStreamSyncDataS2C::streamId,
             ByteBufCodecs.collection(ArrayList::new, SyncedEtherStreamDataManager.STREAM_CODEC), EtherStreamSyncDataS2C::data,
             EtherStreamSyncDataS2C::new
     );

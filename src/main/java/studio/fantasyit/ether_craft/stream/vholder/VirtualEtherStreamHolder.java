@@ -638,7 +638,11 @@ public class VirtualEtherStreamHolder {
                                 ? Optional.empty() : Optional.of(ves.tickCount);
                         Optional<Integer> etherOpt = (ves.getEther() == lastCreateSnapshot.ether())
                                 ? Optional.empty() : Optional.of(ves.getEther());
-                        acc.add(quickPlayers, new EtherStreamQuickCreateS2C(posDirAI, tickCountOpt, etherOpt));
+                        if (ves.toSyncData.isEmpty()) {
+                            acc.add(quickPlayers, new EtherStreamQuickCreateS2C(posDirAI, tickCountOpt, etherOpt));
+                        } else {
+                            acc.add(quickPlayers, new EtherStreamQuickCreateWithSyncDataS2C(posDirAI, tickCountOpt, etherOpt, ves.toSyncData));
+                        }
                     }
                 } else {
                     EtherStreamInitialCreateS2C etherStreamCreateS2C = new EtherStreamInitialCreateS2C(
@@ -728,7 +732,6 @@ public class VirtualEtherStreamHolder {
 
 
     private static CachedEtherStreamEntry createSnapshot(VirtualEtherStream ves) {
-        if (!ves.toSyncData.isEmpty()) return null;
         return new CachedEtherStreamEntry(
                 ves.getStreamId(),
                 ves.startOffset,
@@ -744,8 +747,7 @@ public class VirtualEtherStreamHolder {
         return ves.getStreamId() == ((snapshot.streamId() + 1) & STREAM_ID_MASK)
                 && Float.compare(snapshot.startOffset(), ves.startOffset) == 0
                 && Float.compare(snapshot.startSpeed(), ves.startSpeed) == 0
-                && snapshot.consumerState().equals(ves.consumer.toState())
-                && ves.toSyncData.isEmpty();
+                && snapshot.consumerState().equals(ves.consumer.toState());
     }
 
     private static void addEtherToPlatedItem(VirtualEtherStream ves, ItemEntity ie) {

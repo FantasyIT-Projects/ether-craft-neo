@@ -79,6 +79,12 @@ public class ClientVESHData {
         entry.addStream(quickEntry.streamId(), posDir, quickEntry);
         ClientStreamEntry created = entry.streams.get(quickEntry.streamId());
         if (created != null) {
+            // quickWithSyncData：派生后补发与快照不同的 syncedData（label/显示物品/携带实体等）
+            if (msg instanceof EtherStreamQuickCreateWithSyncDataS2C quickWithSync) {
+                for (IEtherStreamSyncedData data : quickWithSync.syncedData())
+                    created.syncedData.put(data.getId(), data);
+                created.updateDynamic();
+            }
             EtherStreamSyncMarker.record(EtherStreamSyncMarker.Type.QUICK_CREATE, created.currentPos, msg.posDir().hasIndex(), quickEntry.streamId());
         }
     }

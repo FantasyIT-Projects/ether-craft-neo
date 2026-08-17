@@ -28,8 +28,8 @@ public record EtherStreamUpdateS2C(
 
     public record StreamEntry(int streamId, int ether, Optional<EtherConsumer.State> consumerState) {
         public static final StreamCodec<RegistryFriendlyByteBuf, StreamEntry> CODEC = StreamCodec.composite(
-                ByteBufCodecs.INT, StreamEntry::streamId,
-                ByteBufCodecs.INT, StreamEntry::ether,
+                ByteBufCodecs.VAR_INT, StreamEntry::streamId,
+                ByteBufCodecs.VAR_INT, StreamEntry::ether,
                 ByteBufCodecs.optional(EtherConsumer.State.STREAM_CODEC), StreamEntry::consumerState,
                 StreamEntry::new
         );

@@ -86,6 +86,11 @@ public class Network {
                 EtherStreamQuickCreateS2C::handle
         );
         event.playToClient(
+                EtherStreamQuickCreateWithSyncDataS2C.TYPE,
+                EtherStreamQuickCreateWithSyncDataS2C.CODEC,
+                EtherStreamQuickCreateWithSyncDataS2C::handle
+        );
+        event.playToClient(
                 IndexMappingSyncS2C.TYPE,
                 IndexMappingSyncS2C.CODEC,
                 IndexMappingSyncS2C::handle

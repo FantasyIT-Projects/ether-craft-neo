@@ -28,15 +28,9 @@ public record EtherStreamSetDyingS2C(
             Identifier.fromNamespaceAndPath(EtherCraft.MODID, "es_die")
     );
 
-    private static final StreamCodec<RegistryFriendlyByteBuf, @Nullable Component> NULLABLE_COMPONENT_CODEC =
-            ComponentSerialization.TRUSTED_OPTIONAL_STREAM_CODEC.map(
-                    opt -> opt.orElse(null),
-                    Optional::ofNullable
-            );
-
     public static final StreamCodec<RegistryFriendlyByteBuf, @NotNull EtherStreamSetDyingS2C> CODEC = StreamCodec.composite(
             AutoIndexPosDir.STREAM_CODEC, EtherStreamSetDyingS2C::posDir,
-            ByteBufCodecs.collection(ArrayList::new, ByteBufCodecs.INT), EtherStreamSetDyingS2C::entries,
+            ByteBufCodecs.collection(ArrayList::new, ByteBufCodecs.VAR_INT), EtherStreamSetDyingS2C::entries,
             EtherStreamSetDyingS2C::new
     );
 
