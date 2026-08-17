@@ -47,6 +47,14 @@ public class ClientVESHEntry {
         return lastCreateEntry != null;
     }
 
+    /**
+     * 仅推进 lastCreateEntry（不重复添加流）。用于 full 创建包的目标 streamId 已在本地
+     * （batch 历史流 / 回绕撞 id）时，仍与服务端 lastCreateSnapshot 保持派生基座同步。
+     */
+    public void updateLastCreate(IEtherStreamEntryLike entry) {
+        lastCreateEntry = CachedEtherStreamEntry.from(entry);
+    }
+
     public int getLastCreateStreamId() {
         return lastCreateEntry.streamId();
     }

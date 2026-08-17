@@ -8,6 +8,7 @@ import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.core.BlockPos;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Pose;
@@ -16,6 +17,7 @@ import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.*;
+import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.register.AttachmentDataRegistry;
 import studio.fantasyit.ether_craft.register.Tags;
 import studio.fantasyit.ether_craft.stream.cap.EtherStreamCarryEntityCapability;
@@ -24,6 +26,8 @@ import studio.fantasyit.ether_craft.stream.data.EtherStreamCarryingEntityData;
 import studio.fantasyit.ether_craft.stream.data.IEtherStreamSyncedData;
 
 public class EtherStreamCarriedEntityLogic implements IEtherStreamExtraClientLogic {
+    public static Identifier ID = EtherCraft.id("carried_entity_local");
+
     @Override
     public boolean shouldAttach(ClientStreamEntry entry) {
         IEtherStreamSyncedData syncedData = entry.getSyncedData(EtherStreamCarryingEntityData.ID);
@@ -31,7 +35,16 @@ public class EtherStreamCarriedEntityLogic implements IEtherStreamExtraClientLog
     }
 
     @Override
+    public void onAttach(ClientStreamEntry entry) {
+        IEtherStreamSyncedData syncedData = entry.getSyncedData(EtherStreamCarryingEntityData.ID);
+        if (syncedData instanceof EtherStreamCarryingEntityData esced) {
+            entry.localData.put(ID, esced.entityId());
+        }
+    }
+
+    @Override
     public void onTick(ClientStreamEntry entry) {
+
         EtherStreamCarryingEntityData data = (EtherStreamCarryingEntityData)
                 entry.getSyncedData(EtherStreamCarryingEntityData.ID);
         if (entry.isDying || entry.removed) return;
@@ -115,5 +128,24 @@ public class EtherStreamCarriedEntityLogic implements IEtherStreamExtraClientLog
                 entry.getSyncedData(EtherStreamCarryingEntityData.ID);
         LocalPlayer player = Minecraft.getInstance().player;
         return data == null || player == null || !player.getUUID().equals(data.entityUUID());
+    }
+
+    @Override
+    public void onDestroy(ClientStreamEntry entry) {
+        clearForcePose(entry);
+    }
+
+    @Override
+    public void onDetach(ClientStreamEntry entry) {
+        clearForcePose(entry);
+    }
+
+    private void clearForcePose(ClientStreamEntry entry) {
+        ClientLevel level = Minecraft.getInstance().level;
+        if (level == null) return;
+        Integer remove = entry.localData.remove(ID);
+        if (remove != null && level.getEntity(remove) instanceof Player p) {
+            p.setForcedPose(null);
+        }
     }
 }

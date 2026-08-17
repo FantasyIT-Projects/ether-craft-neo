@@ -43,8 +43,11 @@ public class IndexMappingManager {
                 counter.addTo(posDir, -1);
             }
             counter.object2IntEntrySet().removeIf(t -> t.getIntValue() <= 0);
-            strategy.tick(this);
         }
+        // 每 tick 执行策略：frequency_threshold 统一晋升 / frequency_topk 按间隔重排。
+        // 依赖 LevelTickHandler 顺序（本方法先于 VESHM.tick），保证「晋升 + toSyncPosDir 广播」
+        // 永远先于同 tick 的创建包到达客户端，杜绝 resolve(null) 丢包。
+        strategy.tick(this);
 
         if (!toSyncPosDir.isEmpty() || !toRemoveIds.isEmpty()) {
             List<IndexMappingSyncS2C.Entry> entries = new ArrayList<>();

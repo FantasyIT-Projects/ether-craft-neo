@@ -449,6 +449,10 @@ public class Config {
             .comment("Index mapping strategy: 'frequency_threshold' (legacy, permanent ids) or 'frequency_topk' (top-249 by frequency, reordered every 100 ticks). Takes effect after re-entering the world.")
             .define("ether_stream.index_mapping_strategy", "frequency_threshold");
 
+    private static final ModConfigSpec.IntValue INDEX_MAPPING_TOPK_REORDER_INTERVAL = BUILDER
+            .comment("Ticks between top-k index reordering. Only used by 'frequency_topk' strategy.")
+            .defineInRange("ether_stream.index_mapping_topk_reorder_interval", 100, 1, Integer.MAX_VALUE);
+
     // ===== factory — Ether Process Factory chip mechanics =====
 
     private static final ModConfigSpec.DoubleValue FACTORY_BASE_RATIO = BUILDER
@@ -571,6 +575,7 @@ public class Config {
     public static int indexMappingDecayInterval;
     public static int indexMappingRegisterThreshold;
     public static String indexMappingStrategy;
+    public static int indexMappingTopkReorderInterval;
     public static double factoryBaseRatio;
     public static double factoryReserveMultiplier;
     public static double factoryOvershoot;
@@ -677,6 +682,7 @@ public class Config {
         indexMappingDecayInterval = INDEX_MAPPING_DECAY_INTERVAL.get();
         indexMappingRegisterThreshold = INDEX_MAPPING_REGISTER_THRESHOLD.get();
         indexMappingStrategy = INDEX_MAPPING_STRATEGY.get();
+        indexMappingTopkReorderInterval = INDEX_MAPPING_TOPK_REORDER_INTERVAL.get();
         factoryBaseRatio = FACTORY_BASE_RATIO.get();
         factoryReserveMultiplier = FACTORY_RESERVE_MULTIPLIER.get();
         factoryOvershoot = FACTORY_OVERSHOOT.get();

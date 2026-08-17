@@ -3,11 +3,14 @@ package studio.fantasyit.ether_craft.stream.client.data;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.level.Level;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import studio.fantasyit.ether_craft.client.debug.EtherStreamSyncMarker;
 import studio.fantasyit.ether_craft.network.base.IEtherQuickCreator;
+import studio.fantasyit.ether_craft.network.c2s.EtherStreamQuickMissC2S;
 import studio.fantasyit.ether_craft.network.s2c.*;
 import studio.fantasyit.ether_craft.stream.PosDir;
 import studio.fantasyit.ether_craft.stream.client.render.ClientVirtualEtherStreamRenderer;
+import studio.fantasyit.ether_craft.stream.idx.AutoIndexPosDir;
 import studio.fantasyit.ether_craft.stream.client.render.RenderDataUtil;
 import studio.fantasyit.ether_craft.stream.client.render.VertexPrecomputer;
 import studio.fantasyit.ether_craft.stream.data.IEtherStreamEntryLike;
@@ -21,6 +24,10 @@ import java.util.List;
 public class ClientVESHData {
     private final Object2ObjectOpenHashMap<PosDir, ClientVESHEntry> entries = new Object2ObjectOpenHashMap<>();
     private final List<ClientVESHEntry> entriesIterable = new ArrayList<>();
+
+    // quick 派生链缺失自愈：同一 posDir 的回退请求限流间隔（tick）
+    private static final long QUICK_MISS_RESYNC_INTERVAL = 20;
+    private final Object2ObjectOpenHashMap<PosDir, Long> lastQuickMissRequest = new Object2ObjectOpenHashMap<>();
 
     private final WeakReference<Level> level;
 
@@ -54,6 +61,8 @@ public class ClientVESHData {
                 EtherStreamSyncMarker.record(EtherStreamSyncMarker.Type.CREATE, created.currentPos, msg.posDir().hasIndex(), msg.streamId());
             }
         }
+        // 即使 streamId 已存在（batch 历史流 / id 回绕撞车），也推进派生基座，保持与服务端 lastCreateSnapshot 同步
+        entry.updateLastCreate(msg);
     }
 
     public void handleCreate(PosDir posDir, EtherStreamBatchCreateS2C msg) {
@@ -73,7 +82,11 @@ public class ClientVESHData {
     public void handleQuickCreate(PosDir posDir, IEtherQuickCreator msg) {
         if (level.get() == null) return;
         ClientVESHEntry entry = entries.get(posDir);
-        if (entry == null || !entry.hasLast()) return;
+        if (entry == null || !entry.hasLast()) {
+            // 缺少派生基座（全量创建包曾在索引映射竞速等场景下被丢弃）→ 请求服务端回退全量，自愈 quick 派生链
+            requestQuickResync(posDir);
+            return;
+        }
         if (entry.streams.containsKey((entry.getLastCreateStreamId() + 1) & VirtualEtherStreamHolder.STREAM_ID_MASK)) return;
         IEtherStreamEntryLike quickEntry = entry.getFromLastAndUpdate(msg.tickCount(), msg.ether());
         entry.addStream(quickEntry.streamId(), posDir, quickEntry);
@@ -87,6 +100,21 @@ public class ClientVESHData {
             }
             EtherStreamSyncMarker.record(EtherStreamSyncMarker.Type.QUICK_CREATE, created.currentPos, msg.posDir().hasIndex(), quickEntry.streamId());
         }
+    }
+
+    /**
+     * 向服务端请求回退全量：本 posDir 的 quick 派生链缺失（entry 不存在或 !hasLast()）。
+     * 用全量 posDir 编码（idx=-1），不依赖客户端索引映射（丢包场景下索引可能缺失）。
+     * 限流：同一 posDir 至少间隔 QUICK_MISS_RESYNC_INTERVAL tick 才发送一次。
+     */
+    private void requestQuickResync(PosDir posDir) {
+        Level lv = level.get();
+        if (lv == null) return;
+        long now = lv.getGameTime();
+        Long last = lastQuickMissRequest.get(posDir);
+        if (last != null && now - last < QUICK_MISS_RESYNC_INTERVAL) return;
+        lastQuickMissRequest.put(posDir, now);
+        ClientPacketDistributor.sendToServer(new EtherStreamQuickMissC2S(new AutoIndexPosDir(posDir)));
     }
 
     public void handleUpdate(PosDir posDir, EtherStreamUpdateS2C msg) {

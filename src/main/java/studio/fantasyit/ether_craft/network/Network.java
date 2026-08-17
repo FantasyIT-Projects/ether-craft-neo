@@ -147,6 +147,11 @@ public class Network {
                 PlatingKeyTriggerC2S.CODEC,
                 wrapWithPlayer(PlatingKeyTriggerC2SHandler::handle)
         );
+        event.playToServer(
+                EtherStreamQuickMissC2S.TYPE,
+                EtherStreamQuickMissC2S.CODEC,
+                wrapWithPlayer(EtherStreamQuickMissC2S::handle)
+        );
     }
 
 

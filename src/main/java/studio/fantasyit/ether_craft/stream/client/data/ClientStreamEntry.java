@@ -15,10 +15,7 @@ import studio.fantasyit.ether_craft.stream.client.extra.IEtherStreamExtraClientL
 import studio.fantasyit.ether_craft.stream.data.IEtherStreamEntryLike;
 import studio.fantasyit.ether_craft.stream.data.IEtherStreamSyncedData;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 public class ClientStreamEntry {
     public Vec3 startPos = Vec3.ZERO;
@@ -40,6 +37,7 @@ public class ClientStreamEntry {
     public boolean shouldRender = true;
     public final EtherConsumer consumer = new EtherConsumer();
     public Map<Identifier, IEtherStreamSyncedData> syncedData = new Object2ObjectOpenHashMap<>();
+    public Map<Identifier, Integer> localData = new IdentityHashMap<>();
 
     public List<IEtherStreamExtraClientLogic> attachedLogic = new ArrayList<>();
 
