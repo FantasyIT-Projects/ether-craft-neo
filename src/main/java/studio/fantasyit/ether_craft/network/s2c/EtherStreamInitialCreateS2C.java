@@ -1,16 +1,12 @@
 package studio.fantasyit.ether_craft.network.s2c;
 
 import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.Identifier;
-import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import studio.fantasyit.ether_craft.EtherCraft;
 import studio.fantasyit.ether_craft.register.AttachmentDataRegistry;
 import studio.fantasyit.ether_craft.stream.EtherConsumer;
@@ -33,7 +29,8 @@ public record EtherStreamInitialCreateS2C(
         float startSpeed,
         int ether,
         EtherConsumer.State consumerState,
-        List<IEtherStreamSyncedData> syncedData
+        List<IEtherStreamSyncedData> syncedData,
+        Optional<Float> maxTravelLengthValue
 ) implements CustomPacketPayload, IEtherStreamEntryLike {
 
     public static final Type<@NotNull EtherStreamInitialCreateS2C> TYPE = new Type<>(
@@ -48,6 +45,7 @@ public record EtherStreamInitialCreateS2C(
             ByteBufCodecs.VAR_INT, EtherStreamInitialCreateS2C::ether,
             EtherConsumer.State.STREAM_CODEC, EtherStreamInitialCreateS2C::consumerState,
             ByteBufCodecs.collection(ArrayList::new, SyncedEtherStreamDataManager.STREAM_CODEC), EtherStreamInitialCreateS2C::syncedData,
+            ByteBufCodecs.optional(ByteBufCodecs.FLOAT), EtherStreamInitialCreateS2C::maxTravelLengthValue,
             EtherStreamInitialCreateS2C::new
     );
 
@@ -62,5 +60,10 @@ public record EtherStreamInitialCreateS2C(
             if (resolved == null) return;
             ClientVESHDataGetter.get().handleCreate(resolved, this);
         });
+    }
+
+    @Override
+    public float maxTravelLength() {
+        return maxTravelLengthValue.orElse(Float.MAX_VALUE);
     }
 }

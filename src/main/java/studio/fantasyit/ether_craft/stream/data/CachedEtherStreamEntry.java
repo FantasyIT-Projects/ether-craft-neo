@@ -4,6 +4,7 @@ import org.jetbrains.annotations.Nullable;
 import studio.fantasyit.ether_craft.stream.EtherConsumer;
 
 import java.util.List;
+import java.util.Optional;
 
 public record CachedEtherStreamEntry(
         int streamId,
@@ -11,7 +12,8 @@ public record CachedEtherStreamEntry(
         float startSpeed,
         int ether,
         int tickCount,
-        EtherConsumer.State consumerState
+        EtherConsumer.State consumerState,
+        float maxTravelLength
 ) implements IEtherStreamEntryLike {
 
     public static CachedEtherStreamEntry from(IEtherStreamEntryLike source) {
@@ -21,7 +23,8 @@ public record CachedEtherStreamEntry(
                 source.startSpeed(),
                 source.ether(),
                 source.tickCount(),
-                source.consumerState()
+                source.consumerState(),
+                source.maxTravelLength()
         );
     }
 
@@ -31,7 +34,8 @@ public record CachedEtherStreamEntry(
                 newId, startOffset, startSpeed,
                 ether != null ? ether : this.ether,
                 tickCount != null ? tickCount : this.tickCount,
-                consumerState
+                consumerState,
+                maxTravelLength
         );
     }
 

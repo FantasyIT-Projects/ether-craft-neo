@@ -3,6 +3,7 @@ package studio.fantasyit.ether_craft.stream.data;
 import studio.fantasyit.ether_craft.stream.EtherConsumer;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface IEtherStreamEntryLike {
     int streamId();
@@ -12,4 +13,5 @@ public interface IEtherStreamEntryLike {
     int tickCount();
     EtherConsumer.State consumerState();
     List<IEtherStreamSyncedData> syncedData();
+    float maxTravelLength();
 }

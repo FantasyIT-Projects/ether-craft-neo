@@ -34,7 +34,6 @@ import studio.fantasyit.ether_craft.plating.helper.PlatingUtil;
 import studio.fantasyit.ether_craft.register.AttachmentDataRegistry;
 import studio.fantasyit.ether_craft.register.ItemRegistry;
 import studio.fantasyit.ether_craft.register.Tags;
-import studio.fantasyit.ether_craft.stream.IEtherStreamLike;
 import studio.fantasyit.ether_craft.stream.PosDir;
 import studio.fantasyit.ether_craft.stream.cap.IStreamCapability;
 import studio.fantasyit.ether_craft.stream.data.CachedEtherStreamEntry;
@@ -629,7 +628,7 @@ public class VirtualEtherStreamHolder {
                     if (!fullPlayers.isEmpty()) {
                         EtherStreamInitialCreateS2C etherStreamCreateS2C = new EtherStreamInitialCreateS2C(
                                 posDirAI, ves.streamId, ves.tickCount, ves.startOffset, ves.startSpeed,
-                                ves.ether, ves.consumer.toState(), ves.toSyncData
+                                ves.ether, ves.consumer.toState(), ves.toSyncData, syncMaxTravelLength(ves)
                         );
                         acc.add(fullPlayers, etherStreamCreateS2C);
                     }
@@ -647,7 +646,7 @@ public class VirtualEtherStreamHolder {
                 } else {
                     EtherStreamInitialCreateS2C etherStreamCreateS2C = new EtherStreamInitialCreateS2C(
                             posDirAI, ves.streamId, ves.tickCount, ves.startOffset, ves.startSpeed,
-                            ves.ether, ves.consumer.toState(), ves.toSyncData
+                            ves.ether, ves.consumer.toState(), ves.toSyncData, syncMaxTravelLength(ves)
                     );
                     acc.add(ves.trackingPlayers, etherStreamCreateS2C);
                 }
@@ -692,6 +691,11 @@ public class VirtualEtherStreamHolder {
         }
     }
 
+    private Optional<Float> syncMaxTravelLength(VirtualEtherStream ves) {
+        float maxTravelLength = ves.getExtraProperty().maxTravelLength;
+        return maxTravelLength >= Float.MAX_VALUE ? Optional.empty() : Optional.of(maxTravelLength);
+    }
+
     public VirtualEtherStream findStreamById(int id) {
         for (VirtualEtherStream ves : streams) {
             if (ves.streamId == id) return ves;
@@ -716,7 +720,8 @@ public class VirtualEtherStreamHolder {
                         ves.ether,
                         ves.tickCount,
                         ves.consumer.toState(),
-                        new ArrayList<>(ves.toSyncData)
+                        new ArrayList<>(ves.toSyncData),
+                        syncMaxTravelLength(ves)
                 ));
             }
         }
@@ -730,7 +735,6 @@ public class VirtualEtherStreamHolder {
         return streams.isEmpty();
     }
 
-
     private static CachedEtherStreamEntry createSnapshot(VirtualEtherStream ves) {
         return new CachedEtherStreamEntry(
                 ves.getStreamId(),
@@ -738,7 +742,8 @@ public class VirtualEtherStreamHolder {
                 ves.startSpeed,
                 ves.getEther(),
                 ves.tickCount(),
-                ves.consumer.toState()
+                ves.consumer.toState(),
+                ves.getExtraProperty().maxTravelLength
         );
     }
 
@@ -747,7 +752,8 @@ public class VirtualEtherStreamHolder {
         return ves.getStreamId() == ((snapshot.streamId() + 1) & STREAM_ID_MASK)
                 && Float.compare(snapshot.startOffset(), ves.startOffset) == 0
                 && Float.compare(snapshot.startSpeed(), ves.startSpeed) == 0
-                && snapshot.consumerState().equals(ves.consumer.toState());
+                && snapshot.consumerState().equals(ves.consumer.toState())
+                && Float.compare(snapshot.maxTravelLength(), ves.getExtraProperty().maxTravelLength) == 0;
     }
 
     private static void addEtherToPlatedItem(VirtualEtherStream ves, ItemEntity ie) {

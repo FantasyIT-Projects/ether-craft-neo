@@ -35,6 +35,9 @@ public class ClientStreamEntry {
     public boolean removed;
     public int noEtherTicks = 0;
     public boolean shouldRender = true;
+    public float startSpeed;
+    public float startOffset;
+    public float maxTravelLength = Float.MAX_VALUE;
     public final EtherConsumer consumer = new EtherConsumer();
     public Map<Identifier, IEtherStreamSyncedData> syncedData = new Object2ObjectOpenHashMap<>();
     public Map<Identifier, Integer> localData = new IdentityHashMap<>();
@@ -62,10 +65,13 @@ public class ClientStreamEntry {
             this.startPos = posDir.pos().getCenter().add(posDir.dir().getUnitVec3().scale(entry.startOffset()));
             this.motion = posDir.dir().getUnitVec3().scale(entry.startSpeed());
             this.startTickCount = entry.tickCount();
+            this.startSpeed = entry.startSpeed();
             this.tickCount = entry.tickCount();
             this.currentPos = startPos.add(motion.scale(entry.tickCount()));
             this.ether = entry.ether();
             this.consumer.fromState(entry.consumerState());
+            this.startOffset = entry.startOffset();
+            this.maxTravelLength = entry.maxTravelLength();
             this.syncedData = new Object2ObjectOpenHashMap<>();
             for (IEtherStreamSyncedData data : entry.syncedData())
                 this.syncedData.put(data.getId(), data);
@@ -121,6 +127,7 @@ public class ClientStreamEntry {
 
         tickCount++;
         currentPos = currentPos.add(motion);
+        updateHiddenByMaxTravelLength();
         int consumption = consumer.getTotalConsumption(ether, tickCount);
         ether = Math.max(0, ether - consumption);
         for (IEtherStreamExtraClientLogic logic : attachedLogic)
@@ -158,5 +165,14 @@ public class ClientStreamEntry {
     public void updateDynamic() {
         EtherStreamClientLogicManager.reApplyAttach(this);
         shouldRender = attachedLogic.stream().allMatch(t -> t.shouldRender(this));
+        updateHiddenByMaxTravelLength();
+    }
+
+    public float getCurrentDistance() {
+        return startOffset + tickCount * startSpeed;
+    }
+
+    private void updateHiddenByMaxTravelLength() {
+        shouldRender = getCurrentDistance() < maxTravelLength;
     }
 }

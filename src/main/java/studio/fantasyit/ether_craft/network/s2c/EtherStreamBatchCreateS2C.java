@@ -37,8 +37,13 @@ public record EtherStreamBatchCreateS2C(
             int ether,
             int tickCount,
             EtherConsumer.State consumerState,
-            List<IEtherStreamSyncedData> syncedData
+            List<IEtherStreamSyncedData> syncedData,
+            Optional<Float> maxTravelLengthValue
     ) implements IEtherStreamEntryLike {
+        @Override
+        public float maxTravelLength() {
+            return maxTravelLengthValue.orElse(Float.MAX_VALUE);
+        }
     }
 
     public static final Type<@NotNull EtherStreamBatchCreateS2C> TYPE = new Type<>(
@@ -52,6 +57,7 @@ public record EtherStreamBatchCreateS2C(
             ByteBufCodecs.VAR_INT, StreamEntry::tickCount,
             EtherConsumer.State.STREAM_CODEC, StreamEntry::consumerState,
             ByteBufCodecs.collection(ArrayList::new, SyncedEtherStreamDataManager.STREAM_CODEC), StreamEntry::syncedData,
+            ByteBufCodecs.optional(ByteBufCodecs.FLOAT), StreamEntry::maxTravelLengthValue,
             StreamEntry::new
     );
 
