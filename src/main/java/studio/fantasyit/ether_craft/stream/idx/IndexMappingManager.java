@@ -71,8 +71,9 @@ public class IndexMappingManager {
         }
     }
 
-    public void recordAndPrepareSend(PosDir pos) {
-        strategy.recordAndPrepareSend(pos, this);
+    public void recordAndPrepareSend(PosDir pos, int count) {
+        if (count <= 0) return;
+        strategy.recordAndPrepareSend(pos, count, this);
     }
 
     /**

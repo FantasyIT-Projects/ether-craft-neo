@@ -120,13 +120,8 @@ public class VirtualEtherStreamHolder {
         return level.getData(AttachmentDataRegistry.INDEX_MAPPING_MANAGER);
     }
 
-    private AutoIndexPosDir posDirAutoIndexed() {
-        return indexMappingManager().get(posDir);
-    }
-
     public VirtualEtherStream createStream(int ether, float offset, float speed, int managerTickCount) {
         int subTick = simulateInterval - (managerTickCount % simulateInterval + holderId) % simulateInterval - 1;
-        indexMappingManager().recordAndPrepareSend(posDir);
         int streamId = nextId;
         nextId = (nextId + 1) & STREAM_ID_MASK;
         VirtualEtherStream ves = new VirtualEtherStream(
@@ -598,7 +593,10 @@ public class VirtualEtherStreamHolder {
             }
         }
         IntSet tracking = trackingPlayers.keySet();
-        AutoIndexPosDir posDirAI = posDirAutoIndexed();
+        // 计数依据 = 本次同步的包（流条目）总数；0 tick 死亡流（被 continue 跳过）计 0 次
+        AutoIndexPosDir posDirAI = AutoIndexPosDir.getOrRecord(indexMappingManager(), posDir,
+                collectedToCreate.size() + collectedToRemove.size()
+                        + collectedToSyncData.size() + collectedToSyncEtherConsume.size());
 
         if (!collectedToCreate.isEmpty()) {
             for (VirtualEtherStream ves : collectedToCreate) {
@@ -726,7 +724,8 @@ public class VirtualEtherStreamHolder {
             }
         }
         if (!entries.isEmpty()) {
-            EtherStreamBatchCreateS2C payload = new EtherStreamBatchCreateS2C(posDirAutoIndexed(), entries);
+            // batch 为玩家加入/进入范围的存量镜像同步，不代表实际频率：只读获取（有 idx 用 idx，否则全量），不参与计次
+            EtherStreamBatchCreateS2C payload = new EtherStreamBatchCreateS2C(indexMappingManager().get(posDir), entries);
             PacketDistributor.sendToPlayer(player, payload);
         }
     }

@@ -11,10 +11,9 @@ import studio.fantasyit.ether_craft.stream.PosDir;
  */
 public class FrequencyThresholdIndexMappingStrategy implements IndexMappingStrategy {
     @Override
-    public void recordAndPrepareSend(PosDir pos, IndexMappingManager manager) {
-        // 只记录频次，不在此晋升
+    public void recordAndPrepareSend(PosDir pos, int count, IndexMappingManager manager) {
         if (manager.pos2IdDir.containsKey(pos)) return;
-        manager.counter.addTo(pos, 1);
+        manager.counter.addTo(pos, count);
     }
 
     @Override

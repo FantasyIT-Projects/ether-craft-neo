@@ -6,6 +6,9 @@ import net.minecraft.network.codec.StreamCodec;
 import org.jetbrains.annotations.Nullable;
 import studio.fantasyit.ether_craft.stream.PosDir;
 
+/**
+ * 包装 posdir 的 autoIdx 编码（idx 模式）或全量 posdir（全量模式）。
+ */
 public class AutoIndexPosDir {
     /**
      * byte id 域上限（含）：首字节 6~254 表达 idx 0~248，共 IDX_LIMIT 个；
@@ -24,6 +27,15 @@ public class AutoIndexPosDir {
     public AutoIndexPosDir(PosDir posDir) {
         this.idx = -1;
         this.posDir = posDir;
+    }
+
+    /**
+     * 同步时计算：按本次同步的包数记录 posdir 出现次数，并返回其 autoIdx 包装。
+     * 仅在真正向客户端同步流数据时调用；0 tick 死亡流（创建后从未同步）计 0 次，不占用 autoIdx。
+     */
+    public static AutoIndexPosDir getOrRecord(IndexMappingManager imm, PosDir posDir, int syncPacketCount) {
+        imm.recordAndPrepareSend(posDir, syncPacketCount);
+        return imm.get(posDir);
     }
 
     public void init(ReverseIndexMappingManager imm) {

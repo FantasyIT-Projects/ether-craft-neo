@@ -23,8 +23,8 @@ public class TopKFrequencyIndexMappingStrategy implements IndexMappingStrategy {
     private int reorderCounter = 0;
 
     @Override
-    public void recordAndPrepareSend(PosDir pos, IndexMappingManager manager) {
-        manager.counter.addTo(pos, 1);
+    public void recordAndPrepareSend(PosDir pos, int count, IndexMappingManager manager) {
+        manager.counter.addTo(pos, count);
     }
 
     @Override
