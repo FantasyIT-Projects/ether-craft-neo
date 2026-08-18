@@ -21,4 +21,5 @@ public class Tags {
     public static final TagKey<EntityType<?>> ETHER_STREAM_CANNOT_CARRY =TagKey.create(Registries.ENTITY_TYPE,EtherCraft.id("ether_stream_cannot_carry"));
     public static final TagKey<Block> STONE_ABSORBABLE =TagKey.create(Registries.BLOCK,EtherCraft.id("stone_absorbable"));
     public static final TagKey<Block> ETHER_STREAM_SKIP_BREAKING =TagKey.create(Registries.BLOCK,EtherCraft.id("skip_breaking_by_stream"));
+    public static final TagKey<Item> TOOLS_WRENCH_COMMON = net.neoforged.neoforge.common.Tags.Items.TOOLS_WRENCH;
 }

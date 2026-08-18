@@ -16,6 +16,7 @@ import java.util.concurrent.CompletableFuture;
 import static studio.fantasyit.ether_craft.register.Tags.CONSUMABLE_EQUIPMENTS;
 import static studio.fantasyit.ether_craft.register.Tags.PLANT_FLOATING;
 import static studio.fantasyit.ether_craft.register.Tags.PROCESS_CHIP;
+import static studio.fantasyit.ether_craft.register.Tags.TOOLS_WRENCH_COMMON;
 import static studio.fantasyit.ether_craft.register.Tags.VINES;
 
 public class TagGenItem extends TagsProvider<Item> {
@@ -116,5 +117,9 @@ public class TagGenItem extends TagsProvider<Item> {
                 .addElement(BuiltInRegistries.ITEM.getKey(Items.BIG_DRIPLEAF))
                 .addElement(BuiltInRegistries.ITEM.getKey(Items.SMALL_DRIPLEAF))
                 .addElement(BuiltInRegistries.ITEM.getKey(Items.LILY_PAD));
+
+        // 使扳手可作为其他模组的扳手使用（AE2、Mekanism 等）
+        getOrCreateRawBuilder(TOOLS_WRENCH_COMMON)
+                .addElement(ItemRegistry.WRENCH.getKey().identifier());
     }
 }
