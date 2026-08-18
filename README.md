@@ -1,17 +1,21 @@
-# Ether Craft
+# Ether Craft (以太工艺)
 
-A tech mod for Minecraft (NeoForge) centered around **item transportation and slot placement**.
+A Minecraft (NeoForge) tech mod centered around **item transportation and slot placement**.
 
 ## Highlights
 
-- **Ether & Ether Energy** — Ether is the mod's "materialized energy". It is produced and stored by Ether Adapt Nodes; one Ether item equals 100 Ether Energy (E).
-- **Ether Adapt Node** — The core machine. It spawns as an empty block and must be customized with plugins (functions / traits / upgrades) before it can produce or consume Ether.
+- **Ether & Ether Energy** — Ether is the mod's basic energy, represented as an item that can also be transported in item form.
+- **Ether Adapt Node** — The core machine. Plugins (function / trait / upgrade) must be added before it can produce or use Ether, and perform logistics, transportation, and other functions.
 - **Ether Stream** — Energy beams fired via emitter plugins that handle both logistics and power: transporting Ether, carrying items, and recharging plated equipment.
-- **Ether Process Factory** — Four factory tiers in which you build production lines inside the machine by arranging channels and process chips.
-- **Plating System** — Apply plating to equipment using Ether Dust to unlock special effects (damage boost, dash, camouflage, Ether-stream flight, and more), fully compatible with enchantments.
+- **Ether Process Factory** — Build production lines inside the machine by arranging "channel + chip" layouts to execute process recipes.
+- **Plating System** — Spend Ether Dust to apply plating to equipment and gain various special effects (e.g. damage boost, dash, camouflage, Ether-stream flight, etc.), fully compatible with enchantments.
 
 ## Requirements
 
 - Minecraft 26.1.2
 - NeoForge 26.1.2.61-beta
 - Java 25
+
+## Contact
+
+QQ Group: 1038876287
