@@ -173,6 +173,6 @@ public class ClientStreamEntry {
     }
 
     private void updateHiddenByMaxTravelLength() {
-        shouldRender = getCurrentDistance() < maxTravelLength;
+        shouldRender &= getCurrentDistance() < maxTravelLength;
     }
 }
