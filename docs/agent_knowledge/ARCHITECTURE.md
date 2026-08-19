@@ -289,8 +289,14 @@ tickServer()
   - 峰值在 ratio*consume, e→∞ 渐近 consume*a
 
 速度倍率 p(e):
-  - p = floor(1 + e/storage)（始终取整）
+  - p = floor(1 + e/storage)（整数，供加工进度/leak，始终取整）
   - 配方进度 += floor(min(路径芯片 p))
+
+浮点开销计算（factory.float_calc，默认 false，可选）:
+  - 以太存量 = ether(long 整数部分) + etherFrac(double 浮点部分)，etherFrac 随 CODEC 持久化（旧存档 orElse 0）
+  - reservePer 不 round（max(min, k*consume)），批量充电产生小数以太
+  - 维持扣款 C(e) = base(e)*p(e)（倍率 p 仍取整，仅最终开销不 round），经 subtractEther 扣除
+  - 浮点仅用于开销数值与以太存量；速度倍率、canWork/consume、加工进度、leak、同步/显示（Jade/GUI/currentEther）仍为整数
 
 无限充能（批量脉冲）:
   - 机器缓存攒够 Σ(k·consume)，按批次因数一次性分发（每芯片 clamp 到 int 上限）

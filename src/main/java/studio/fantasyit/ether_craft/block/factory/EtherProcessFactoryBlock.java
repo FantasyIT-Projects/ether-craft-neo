@@ -24,6 +24,8 @@ import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.Nullable;
 import studio.fantasyit.ether_craft.block.base.BaseBlock;
+import studio.fantasyit.ether_craft.item.EtherProcessRecipeAnswerItem;
+import studio.fantasyit.ether_craft.register.DataComponentRegistry;
 import studio.fantasyit.ether_craft.register.ItemRegistry;
 
 public class EtherProcessFactoryBlock extends BaseBlock {
@@ -54,6 +56,20 @@ public class EtherProcessFactoryBlock extends BaseBlock {
 
     @Override
     protected InteractionResult useItemOn(ItemStack itemStack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+        if (itemStack.getItem() instanceof EtherProcessRecipeAnswerItem && player.isShiftKeyDown()) {
+            if (player.isCreative() && itemStack.has(DataComponentRegistry.GRID)) {
+                if (level.isClientSide()) {
+                    return level.getBlockEntity(pos) instanceof EtherProcessFactoryEntity
+                            ? InteractionResult.SUCCESS
+                            : super.useItemOn(itemStack, state, level, pos, player, hand, hitResult);
+                }
+                if (level.getBlockEntity(pos) instanceof EtherProcessFactoryEntity epfe) {
+                    epfe.applyGrid(itemStack.get(DataComponentRegistry.GRID));
+                    return InteractionResult.SUCCESS_SERVER;
+                }
+            }
+            return super.useItemOn(itemStack, state, level, pos, player, hand, hitResult);
+        }
         if (itemStack.is(ItemRegistry.WRENCH)) {
             if (!player.mayBuild())
                 return InteractionResult.PASS;

@@ -1,6 +1,6 @@
 # Ether Craft (以太工艺)
 
-A Minecraft (NeoForge) tech mod centered around **item transportation and slot placement**.
+A tech mod about **logistics and slot placement**.
 
 ## Highlights
 
@@ -18,4 +18,4 @@ A Minecraft (NeoForge) tech mod centered around **item transportation and slot p
 
 ## Contact
 
-QQ Group: 1038876287
+Mod QQ Group: 1038876287

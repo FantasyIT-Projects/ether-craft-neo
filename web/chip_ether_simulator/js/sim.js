@@ -37,6 +37,7 @@ const params = {
     maxProgress: 100,
     msm: 1,
     noInput: false,
+    floatCalc: false,
 };
 
 let chipDefs = [
@@ -51,7 +52,7 @@ let history = [];
 let windowSize = 2000;
 
 function getChips() {
-    return chipDefs.map(c => ({...c, e: chipE.get(c.id) || 0}));
+    return chipDefs.map(c => ({...c, e: Math.floor(chipE.get(c.id) || 0)}));
 }
 
 function baseCost(e, consume) {
@@ -87,14 +88,20 @@ function totalCost(e, consume, max) {
     return Math.round(baseCost(e, consume) * speedMul(e, max));
 }
 
+/* 浮点总开销：倍率仍取整（speedMul），仅最终开销不取整，仅浮点模式维持消耗使用 */
+function totalCostFloat(e, consume, max) {
+    return baseCost(e, consume) * speedMul(e, max);
+}
+
 /* 有效加工速度：以太不足 consume 时无法产出，速度为 0 */
 function effSpeed(e, chip) {
     return e >= chip.consume ? speedMul(e, chip.max) : 0;
 }
 
-/* 每颗芯片单批配额：max(最小配额, round(k*consume))，与模组 reservePer 一致 */
+/* 每颗芯片单批配额：max(最小配额, round(k*consume))；浮点模式不取整，与模组 reservePer 一致 */
 function reservePer(c) {
-    return Math.max(params.minReservePer, Math.round(params.k * c.consume));
+    const base = params.k * c.consume;
+    return params.floatCalc ? Math.max(params.minReservePer, base) : Math.max(params.minReservePer, Math.round(base));
 }
 
 function minSum() {
@@ -134,7 +141,7 @@ function step() {
             continue;
         }
         const e = chipE.get(c.id) || 0;
-        let ne = e - totalCost(e, c.consume, c.max);
+        let ne = params.floatCalc ? e - totalCostFloat(e, c.consume, c.max) : e - totalCost(e, c.consume, c.max);
         if (ne < 0) ne = 0;
         chipE.set(c.id, ne);
     }
@@ -391,7 +398,7 @@ function renderCharts() {
             const rawP = speedMul(e, ref.max);
             sp.push(rawP);
             es.push(e >= ref.consume ? rawP : 0);
-            tc.push(totalCost(e, ref.consume, ref.max));
+            tc.push(params.floatCalc ? totalCostFloat(e, ref.consume, ref.max) : totalCost(e, ref.consume, ref.max));
         }
         const sFn = [
             {name: 'base(e)', color: '#26c6da', data: bd, xvals: xs},
@@ -409,7 +416,7 @@ function renderStats() {
     const active = chips.filter(c => c.enabled);
     const cur = history.length ? history[history.length - 1] : null;
     const totalEther = active.reduce((s, c) => s + c.e * c.count, 0);
-    const maintRate = active.reduce((s, c) => s + totalCost(c.e, c.consume, c.max) * c.count, 0);
+    const maintRate = active.reduce((s, c) => s + (params.floatCalc ? totalCostFloat(c.e, c.consume, c.max) : totalCost(c.e, c.consume, c.max)) * c.count, 0);
     const pMin = cur ? cur.pMin : 0;
     const craftRate = (pMin > 0 && active.length) ? (pMin / (params.maxProgress * params.msm)) : 0; // 期望加工次数/tick
     const craftCost = active.reduce((s, c) => s + c.consume * c.count, 0);
@@ -454,7 +461,7 @@ function renderStats() {
         const row = document.querySelector(`.chip-row[data-id="${c.id}"]`);
         if (row) {
             row.querySelector('.chip-live').textContent =
-                `e=${fmt(c.e)}  base=${fmt(baseCost(c.e, c.consume))}  p=${effSpeed(c.e, c).toFixed(2)}  C=${fmt(totalCost(c.e, c.consume, c.max))}  total=${fmt(c.e * c.count)}`;
+                `e=${fmt(c.e)}  base=${fmt(baseCost(c.e, c.consume))}  p=${effSpeed(c.e, c).toFixed(2)}  C=${fmt(params.floatCalc ? totalCostFloat(c.e, c.consume, c.max) : totalCost(c.e, c.consume, c.max))}  total=${fmt(c.e * c.count)}`;
         }
     });
 }
@@ -542,6 +549,7 @@ function applyParamsToUI() {
     syncRangeVal('p-lambda', 'p-lambda-val', 2);
     document.getElementById('p-func').value = params.pFunc;
     document.getElementById('no-input').checked = !!params.noInput;
+    document.getElementById('float-calc').checked = !!params.floatCalc;
     setNum('p-maxprogress', params.maxProgress);
     setNum('p-msm', params.msm);
     setNum('window-size', windowSize);
@@ -569,6 +577,7 @@ function readParams() {
     params.maxProgress = Number(document.getElementById('p-maxprogress').value) || 1;
     params.msm = Number(document.getElementById('p-msm').value) || 1;
     params.noInput = document.getElementById('no-input').checked;
+    params.floatCalc = document.getElementById('float-calc').checked;
     windowSize = Number(document.getElementById('window-size').value) || 2000;
     saveConfig();
 }
@@ -673,6 +682,7 @@ function init() {
     });
     bindInput('p-func', el => readParams());
     bindInput('no-input', el => readParams());
+    bindInput('float-calc', el => readParams());
     bindInput('p-maxprogress', el => readParams());
     bindInput('p-msm', el => readParams());
     bindInput('rate-in', el => readParams());

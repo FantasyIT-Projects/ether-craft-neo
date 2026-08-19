@@ -472,7 +472,11 @@ public class Config {
             .defineInRange("factory.decay_lambda", 1.5, 0.01, 20);
     private static final ModConfigSpec.LongValue FACTORY_MIN_RESERVE_PER = BUILDER
             .comment("Minimum per-batch charging quota per chip: reservePer = max(min, round(k*consume))")
-            .defineInRange("factory.min_reserve_per", 2L, 0L, 100000L);
+            .defineInRange("factory.min_reserve_per", 1L, 0L, 100000L);
+
+    private static final ModConfigSpec.BooleanValue FACTORY_FLOAT_CALC = BUILDER
+            .comment("If true, chip maintenance cost / reserve quota use non-truncating floating-point math. Float is used only for cost calculation; sync/display keep integer ether. Default false keeps legacy integer behavior.")
+            .define("factory.float_calc", true);
 
     private static final ModConfigSpec.BooleanValue FACTORY_KEEP_CHIP_ETHER_ON_SWAP = BUILDER
             .comment("If true, replacing a chip in the factory keeps the old chip's ether amount. If false (default), the slot's chip ether resets to zero when the chip is replaced.")
@@ -582,6 +586,7 @@ public class Config {
     public static double factoryPeakRatio;
     public static double factoryDecayLambda;
     public static long factoryMinReservePer;
+    public static boolean factoryFloatCalc;
     public static boolean factoryKeepChipEtherOnSwap;
     public static int configVersion = 0;
 
@@ -689,6 +694,7 @@ public class Config {
         factoryPeakRatio = FACTORY_PEAK_RATIO.get();
         factoryDecayLambda = FACTORY_DECAY_LAMBDA.get();
         factoryMinReservePer = FACTORY_MIN_RESERVE_PER.get();
+        factoryFloatCalc = FACTORY_FLOAT_CALC.get();
         factoryKeepChipEtherOnSwap = FACTORY_KEEP_CHIP_ETHER_ON_SWAP.get();
         configVersion++;
     }

@@ -88,7 +88,7 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
     private List<EtherFactoryMultiStepInput> cachedCandidates = null;
     private int cachedLeak = 0;
     //服务端以太分配参数缓存（仅芯片布局变化或配置热改时重算）
-    private long cachedMinSum = 0;
+    private double cachedMinSum = 0;
     private int lastConfigVersion = Config.configVersion;
     //服务端累计芯片以太总和（Jade 显示用）
     public long chipEtherTotal = 0;
@@ -141,6 +141,28 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
         }
     }
 
+    /**
+     * 用配方答案物品的网格整体覆盖机器内部芯片布局（尺寸必须完全匹配才执行）。
+     *
+     * @param grid 答案物品中保存的网格（h 行 × w 列）
+     * @return 是否写入成功
+     */
+    public boolean applyGrid(List<List<ItemStack>> grid) {
+        if (grid.size() != ROWS)
+            return false;
+        for (List<ItemStack> row : grid)
+            if (row.size() != COLS)
+                return false;
+        for (int y = 0; y < ROWS; y++)
+            for (int x = 0; x < COLS; x++) {
+                ItemStack item = grid.get(y).get(x);
+                internalContainer.setItem(y * COLS + x, item.isEmpty() ? ItemStack.EMPTY : item.copy());
+            }
+        internalContainer.setChanged();
+        markChanged();
+        return true;
+    }
+
     @Override
     protected void onInternalContainerChanged() {
         markChanged();
@@ -172,9 +194,9 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
                         continue;
                     //芯片布局变化时，完整重新计算所有配方
                     chipLayoutDirty = true;
-                    long o = 0;
+                    double o = 0;
                     if (originalChip != null && Config.factoryKeepChipEtherOnSwap)
-                        o = originalChip.ether;
+                        o = originalChip.etherTotal();
                     if (itemStack.is(Tags.PROCESS_CHIP))
                         slotChips[i][j] = new EtherProcessWorkingChip(itemStack, o);
                     else if (!itemStack.isEmpty())
@@ -198,7 +220,7 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
                         chip.refreshReservePer();
                     }
             }
-            long sum = 0;
+            double sum = 0;
             for (int i = 0; i < ROWS; i++)
                 for (int j = 0; j < COLS; j++) {
                     EtherProcessWorkingChip chip = slotChips[i][j];
@@ -207,28 +229,28 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
                 }
             cachedMinSum = sum;
         }
-        long minSum = cachedMinSum;
+        double minSum = cachedMinSum;
 
         //如果有任何可以输入以太的芯片
         if (minSum > 0) {
             long machineEther = getEther();
-            long batches = machineEther / minSum;
+            long batches = (long) (machineEther / minSum);
             if (batches > 0) {
-                long distributed = 0;
+                double distributed = 0;
                 for (int i = 0; i < ROWS; i++)
                     for (int j = 0; j < COLS; j++) {
                         EtherProcessWorkingChip chip = slotChips[i][j];
                         if (chip == null || chip.item.isEmpty()) continue;
-                        long addPer = chip.reservePer;
-                        long add = addPer * batches;
-                        long capped;
-                        if (add >= Integer.MAX_VALUE - chip.ether) capped = Integer.MAX_VALUE;
-                        else capped = chip.ether + add;
-                        if (capped == chip.ether) continue;
-                        distributed += capped - chip.ether;
-                        chip.ether = capped;
+                        double addPer = chip.reservePer;
+                        double add = addPer * batches;
+                        double capped;
+                        if (add >= Integer.MAX_VALUE - chip.etherTotal()) capped = Integer.MAX_VALUE;
+                        else capped = chip.etherTotal() + add;
+                        if (capped == chip.etherTotal()) continue;
+                        distributed += capped - chip.etherTotal();
+                        chip.setEther(capped);
                     }
-                machineEther -= Math.min(distributed, machineEther);
+                machineEther -= (long) Math.min(distributed, machineEther);
                 if (machineEther != getEther())
                     setEtherNoUpdate(machineEther);
             }
@@ -480,7 +502,7 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
             for (int j = 0; j < COLS; j++) {
                 EtherProcessWorkingChip chip = slotChips[i][j];
                 if (chip != null && !chip.item.isEmpty())
-                    slotChips[i][j] = new EtherProcessWorkingChip(chip.item, chip.ether);
+                    slotChips[i][j] = new EtherProcessWorkingChip(chip.item, chip.etherTotal());
             }
         chipLayoutDirty = true;
     }
