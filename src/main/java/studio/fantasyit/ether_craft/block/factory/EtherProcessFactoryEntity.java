@@ -649,8 +649,12 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
 
         for (int j = 0; j < input.inputIds().size(); j++) {
             int cNum = recipe.inputs().get(matchingRecipes[j]).count();
-            inputContainer.getItem(input.inputIds().get(j)).shrink(cNum);
+            int slot = input.inputIds().get(j);
+            inputContainer.getItem(slot).shrink(cNum);
             inputContainer.setChanged();
+            // 输入被消耗后主动标记脏，确保同 tick 末尾触发配方复检（防止输入清空后机器空跑 0-100）
+            inputDirty[slot] = true;
+            lastInputStacks[slot] = inputContainer.getItem(slot).copy();
         }
 
         for (EtherProcessWorkingChip c : input.relevantChip()) {

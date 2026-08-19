@@ -107,6 +107,11 @@ main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 12px; 
 .btn.danger:hover { background: #f14b58; }
 .btn.small { padding: 3px 8px; font-size: 0.75em; }
 
+/* ---- 芯片导入导出 ---- */
+
+.chip-io { display: flex; gap: 6px; margin-top: 6px; }
+.chip-io .btn { flex: 1; padding: 6px 4px; font-size: 0.78em; }
+
 /* ---- 芯片配置行 ---- */
 
 .chip-row {

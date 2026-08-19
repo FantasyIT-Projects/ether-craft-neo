@@ -56,7 +56,7 @@ public class EtherProcessFactoryBlock extends BaseBlock {
 
     @Override
     protected InteractionResult useItemOn(ItemStack itemStack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
-        if (itemStack.getItem() instanceof EtherProcessRecipeAnswerItem && player.isShiftKeyDown()) {
+        if (itemStack.getItem() instanceof EtherProcessRecipeAnswerItem && player.getOffhandItem().is(ItemRegistry.WRENCH)) {
             if (player.isCreative() && itemStack.has(DataComponentRegistry.GRID)) {
                 if (level.isClientSide()) {
                     return level.getBlockEntity(pos) instanceof EtherProcessFactoryEntity

@@ -27,6 +27,7 @@
 const params = {
     rateIn: 200,
     batchSize: 1,
+    fillInterval: 1, // 最小填充间隔：最快 fillInterval tick 才向芯片填充一次
     a: 0.02,
     k: 5,
     minReservePer: 2,
@@ -47,7 +48,7 @@ let chipDefs = [
 let nextChipId = 2;
 let chipE = new Map(); // id -> 当前以太（每颗）
 
-let state = {tick: 0, buffer: 0, cache: 0, progress: 0, produced: 0};
+let state = {tick: 0, buffer: 0, cache: 0, progress: 0, produced: 0, nextFillTick: 0};
 let history = [];
 let windowSize = 2000;
 
@@ -124,14 +125,12 @@ function step() {
         state.buffer = 0;
     }
 
-    // 2) 批量脉冲分发（路径 B，按批次因数一次性分发）
+    // 2) 批量脉冲分发（路径 B：最快 fillInterval tick 才填充一次；每次最多一个批次；填充后清空机器缓存）
     const ms = minSum();
-    if (ms > 0) {
-        const batches = Math.floor(state.cache / ms);
-        if (batches > 0) {
-            for (const c of chipDefs) if (c.enabled) chipE.set(c.id, (chipE.get(c.id) || 0) + reservePer(c) * batches);
-            state.cache -= batches * ms;
-        }
+    if (ms > 0 && state.tick >= state.nextFillTick && state.cache >= ms) {
+        for (const c of chipDefs) if (c.enabled) chipE.set(c.id, (chipE.get(c.id) || 0) + reservePer(c));
+        state.cache = 0;
+        state.nextFillTick = state.tick + params.fillInterval;
     }
 
     // 3) 维持消耗（仅启用芯片）
@@ -179,7 +178,7 @@ function step() {
 }
 
 function resetSim() {
-    state = {tick: 0, buffer: 0, cache: 0, progress: 0, produced: 0};
+    state = {tick: 0, buffer: 0, cache: 0, progress: 0, produced: 0, nextFillTick: 0};
     history = [];
     chipE.clear();
 }
@@ -208,6 +207,20 @@ function niceTicks(mn, mx, n) {
     const t0 = Math.floor(mn / step) * step;
     const ticks = [];
     for (let v = t0; v <= mx; v += step) ticks.push(v);
+    return ticks;
+}
+
+/* 对数轴十进制刻度：落在 [mn, mx] 内的 1/2/5 × 10^n */
+function niceLogTicks(mn, mx) {
+    const ticks = [];
+    let mag = Math.pow(10, Math.floor(Math.log10(mn)));
+    while (mag <= mx * 1.0001) {
+        for (const m of [1, 2, 5]) {
+            const v = m * mag;
+            if (v >= mn && v <= mx) ticks.push(v);
+        }
+        mag *= 10;
+    }
     return ticks;
 }
 
@@ -261,7 +274,16 @@ function drawChart(canvas, series, opts) {
     if (rmin === rmax) rmax = rmin + 1;
 
     const X = i => pad.l + (n <= 1 ? 0 : (i / (n - 1)) * pw);
-    const xVal = opts.xMax ? (v => pad.l + (v / opts.xMax) * pw) : X;
+    let xVal = X;
+    if (opts.xMax) {
+        if (opts.xLog) {
+            const xMin = opts.xMin > 0 ? opts.xMin : 1e-3;
+            const lr = Math.log(opts.xMax / xMin);
+            xVal = v => pad.l + (v > 0 ? (Math.log(v / xMin) / lr) * pw : pad.l);
+        } else {
+            xVal = v => pad.l + (v / opts.xMax) * pw;
+        }
+    }
     const YL = v => pad.t + ph * (1 - (v - lmin) / (lmax - lmin));
     const YR = v => pad.t + ph * (1 - (v - rmin) / (rmax - rmin));
 
@@ -286,7 +308,8 @@ function drawChart(canvas, series, opts) {
     }
     // x 轴刻度
     if (opts.xMax) {
-        for (const v of niceTicks(0, opts.xMax, 5)) {
+        const ticks = opts.xLog ? niceLogTicks(opts.xMin > 0 ? opts.xMin : 1e-3, opts.xMax) : niceTicks(0, opts.xMax, 5);
+        for (const v of ticks) {
             const x = xVal(v);
             ctx.fillText(fmt(v), x - 12, H - 6);
         }
@@ -389,10 +412,12 @@ function renderCharts() {
     const ref = chips.find(c => c.id === refId) || chips[0];
     if (ref) {
         const xMax = Math.max(ref.consume * 20, ref.max * 3, 100);
+        const xMin = Math.max(ref.consume / 1000, 0.01);
         const N = 240;
+        const lr = Math.log(xMax / xMin);
         const xs = [], bd = [], sp = [], es = [], tc = [];
         for (let i = 0; i <= N; i++) {
-            const e = (xMax * i) / N;
+            const e = xMin * Math.exp(lr * i / N);   // 对数空间均匀采样
             xs.push(e);
             bd.push(baseCost(e, ref.consume));
             const rawP = speedMul(e, ref.max);
@@ -406,7 +431,7 @@ function renderCharts() {
             {name: '有效速度(e<consume=0)', color: '#f1c40f', data: es, xvals: xs},
             {name: 'C(e)=base·p', color: '#e94560', data: tc, xvals: xs, width: 2},
         ];
-        drawChart(document.getElementById('chart-fn'), sFn, {xMax: xMax, markX: ref.consume});
+        drawChart(document.getElementById('chart-fn'), sFn, {xMax: xMax, xMin: xMin, xLog: true, markX: ref.consume});
         setLegend('chart-fn', sFn.map(s => ({name: s.name, color: s.color})));
     }
 }
@@ -529,6 +554,61 @@ function loadConfig() {
     }
 }
 
+/* ============================== 芯片导入导出 ============================== */
+
+/* 导出当前芯片配置为 JSON 文件 */
+function exportChips() {
+    const payload = {version: 1, chips: chipDefs.map(c => ({...c}))};
+    const blob = new Blob([JSON.stringify(payload, null, 2)], {type: 'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'ether_chips.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+/* 从 JSON 文件导入芯片配置（id 重新编号，替换现有列表） */
+function importChipsFile(file) {
+    const reader = new FileReader();
+    reader.onload = () => {
+        try {
+            const cfg = JSON.parse(String(reader.result));
+            if (!cfg || !Array.isArray(cfg.chips) || !cfg.chips.length)
+                throw new Error('文件缺少有效的 chips 数组');
+            const chips = [];
+            for (const c of cfg.chips) {
+                if (typeof c !== 'object' || c === null || typeof c.name !== 'string' ||
+                    !('count' in c) || !('consume' in c) || !('max' in c))
+                    throw new Error('芯片字段不完整（需 name/count/consume/max）');
+                chips.push({
+                    id: nextChipId++,
+                    name: String(c.name).trim() || ('chip' + nextChipId),
+                    count: Math.max(0, Number(c.count) || 0),
+                    consume: Math.max(0, Number(c.consume) || 0),
+                    max: Math.max(1, Number(c.max) || 1),
+                    enabled: c.enabled !== false,
+                });
+            }
+            chipDefs = chips;
+            chipE.clear();
+            buildChipRows();
+            readChipsFromUI();
+            resetSim();
+            setPlaying(false);
+            renderCharts();
+            renderStats();
+            alert('导入成功：' + chips.length + ' 个芯片类型');
+        } catch (e) {
+            alert('导入失败：' + (e && e.message ? e.message : e));
+        }
+    };
+    reader.onerror = () => alert('读取文件失败');
+    reader.readAsText(file);
+}
+
 function applyParamsToUI() {
     const setNum = (id, v) => {
         const el = document.getElementById(id);
@@ -536,6 +616,7 @@ function applyParamsToUI() {
     };
     setNum('rate-in', params.rateIn);
     setNum('batch-size', params.batchSize);
+    setNum('fill-interval', params.fillInterval);
     setNum('min-reserve-per', params.minReservePer);
     setNum('p-a', params.a);
     syncRangeVal('p-a', 'p-a-val', 3);
@@ -567,6 +648,7 @@ function bindInput(id, setter) {
 function readParams() {
     params.rateIn = Number(document.getElementById('rate-in').value) || 0;
     params.batchSize = Math.max(1, Number(document.getElementById('batch-size').value) || 1);
+    params.fillInterval = Math.max(1, Number(document.getElementById('fill-interval').value) || 1);
     params.minReservePer = Math.max(0, Number(document.getElementById('min-reserve-per').value) || 2);
     params.a = Number(document.getElementById('p-a').value);
     params.k = Number(document.getElementById('p-k').value);
@@ -605,6 +687,7 @@ function readChipsFromUI() {
             enabled: enabled,
         };
         next.push(c);
+        row.classList.toggle('disabled', !enabled);   // 即时切换灰色效果
         // 禁用 = 移出机器（中途加入从 0 以太开始）
         if (!enabled) chipE.set(id, 0);
         else if (!chipE.has(id)) chipE.set(id, 0);
@@ -687,6 +770,7 @@ function init() {
     bindInput('p-msm', el => readParams());
     bindInput('rate-in', el => readParams());
     bindInput('batch-size', el => readParams());
+    bindInput('fill-interval', el => readParams());
     bindInput('min-reserve-per', el => readParams());
     bindInput('window-size', el => readParams());
 
@@ -715,6 +799,15 @@ function init() {
         setPlaying(false);
         renderCharts();
         renderStats();
+    });
+
+    // 芯片导入导出
+    document.getElementById('btn-export-chips').addEventListener('click', exportChips);
+    document.getElementById('btn-import-chips').addEventListener('click', () => document.getElementById('file-import-chips').click());
+    document.getElementById('file-import-chips').addEventListener('change', (ev) => {
+        const f = ev.target.files && ev.target.files[0];
+        if (f) importChipsFile(f);
+        ev.target.value = ''; // 允许重复选择同一文件
     });
 
     // 芯片行变更（事件委托：参数、启用开关）
