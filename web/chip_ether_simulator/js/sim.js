@@ -27,7 +27,7 @@
 const params = {
     rateIn: 200,
     batchSize: 1,
-    fillInterval: 1, // 最小填充间隔：最快 fillInterval tick 才向芯片填充一次
+    fillInterval: 1, // 发射冷却间隔：以太流发射器成功发射一波后冷却 fillInterval tick
     a: 0.02,
     k: 5,
     minReservePer: 2,
@@ -48,7 +48,7 @@ let chipDefs = [
 let nextChipId = 2;
 let chipE = new Map(); // id -> 当前以太（每颗）
 
-let state = {tick: 0, buffer: 0, cache: 0, progress: 0, produced: 0, nextFillTick: 0};
+let state = {tick: 0, buffer: 0, cache: 0, progress: 0, produced: 0, nextEmitTick: 0};
 let history = [];
 let windowSize = 2000;
 
@@ -116,21 +116,26 @@ function minSum() {
 function step() {
     state.tick++;
 
-    // 1) 外部产生 → 外部缓存
+    // 1) 外部产生 → 外部缓存（发射器节点积累）
     state.buffer += params.rateIn;
-    // 2) 攒够单批次 → 整批注入机器缓存（残量留在外部缓存继续攒；batchSize=1 时每 tick 全注入，退化为原均匀输入）
-    const batches = Math.floor(state.buffer / params.batchSize);
-    if (batches > 0) {
-        state.cache += state.buffer;
-        state.buffer = 0;
+    // 2) 以太流发射器脉冲注入：阈值(batchSize≈minEther) + 冷却(fillInterval≈发射CD) 共同作用；
+    //    达到阈值且冷却结束 → 全量注入并进入冷却；冷却期间即使超过阈值也不发射；不足阈值不发射不冷却
+    if (state.tick >= state.nextEmitTick) {
+        if (state.buffer >= params.batchSize) {
+            state.cache += state.buffer;   // 全量注入（发射器把节点全部积累打包发出）
+            state.buffer = 0;
+            state.nextEmitTick = state.tick + params.fillInterval;
+        }
     }
 
-    // 2) 批量脉冲分发（路径 B：最快 fillInterval tick 才填充一次；每次最多一个批次；填充后清空机器缓存）
+    // 3) 芯片充能（EtherProcessFactoryEntity.updateChips）：每 tick 分尽可分的全部批次；只扣实际分发量，余量保留
     const ms = minSum();
-    if (ms > 0 && state.tick >= state.nextFillTick && state.cache >= ms) {
-        for (const c of chipDefs) if (c.enabled) chipE.set(c.id, (chipE.get(c.id) || 0) + reservePer(c));
-        state.cache = 0;
-        state.nextFillTick = state.tick + params.fillInterval;
+    if (ms > 0) {
+        const batches = Math.floor(state.cache / ms);
+        if (batches > 0) {
+            for (const c of chipDefs) if (c.enabled) chipE.set(c.id, (chipE.get(c.id) || 0) + reservePer(c) * batches);
+            state.cache -= batches * ms;
+        }
     }
 
     // 3) 维持消耗（仅启用芯片）
@@ -178,7 +183,7 @@ function step() {
 }
 
 function resetSim() {
-    state = {tick: 0, buffer: 0, cache: 0, progress: 0, produced: 0, nextFillTick: 0};
+    state = {tick: 0, buffer: 0, cache: 0, progress: 0, produced: 0, nextEmitTick: 0};
     history = [];
     chipE.clear();
 }

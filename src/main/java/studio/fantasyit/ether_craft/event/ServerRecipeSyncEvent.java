@@ -4,6 +4,7 @@ import net.minecraft.world.item.crafting.RecipeManager;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.OnDatapackSyncEvent;
+import net.neoforged.neoforge.event.TagsUpdatedEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 import studio.fantasyit.ether_craft.factory.EtherProcessChipManager;
 import studio.fantasyit.ether_craft.recipe.factory.EtherProcessRecipeManager;
@@ -19,9 +20,6 @@ public class ServerRecipeSyncEvent {
     public static void onDatapackSync(OnDatapackSyncEvent event) {
         event.sendRecipes(RecipeTypeRegistry.ETHER_PROCESS_FACTORY_RECIPE.get());
         event.sendRecipes(RecipeTypeRegistry.PLATING_RECIPE.get());
-        RecipeManager recipeManager = event.getPlayerList().getServer().getRecipeManager();
-        EtherProcessRecipeManager.onReload(recipeManager);
-        NodePluginTipManager.INSTANCE.collect(recipeManager);
         event.getRelevantPlayers().forEach(player -> {
             PacketDistributor.sendToPlayer(player,
                     new SyncExtraRecipesS2C(EtherProcessRecipeManager.extraRecipes)
@@ -37,5 +35,12 @@ public class ServerRecipeSyncEvent {
                     )
             );
         });
+    }
+
+    @SubscribeEvent
+    public static void onServerDataLoad(TagsUpdatedEvent.ServerDataLoad event) {
+        RecipeManager recipeManager = event.getServerResources().getRecipeManager();
+        EtherProcessRecipeManager.onReload(recipeManager);
+        NodePluginTipManager.INSTANCE.collect(recipeManager);
     }
 }
