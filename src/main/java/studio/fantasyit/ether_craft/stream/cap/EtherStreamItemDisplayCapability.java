@@ -62,7 +62,7 @@ public class EtherStreamItemDisplayCapability implements IStreamCapability {
 
     @Override
     public void tick(IEtherStreamLike streamEntity) {
-        if (streamEntity.tickCount() / 10 != lastTickP) return;
+        if (streamEntity.tickCount() / 10 == lastTickP) return;
         int idx = streamEntity.tickCount() / 10;
         lastTickP = idx;
         updateDisplayItem(streamEntity, idx);
