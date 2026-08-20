@@ -28,6 +28,8 @@ public class EtherStreamItemDisplayCapability implements IStreamCapability {
             ItemStack.OPTIONAL_CODEC.fieldOf("item").forGetter(EtherStreamItemDisplayCapability::getItemStack)
     ).apply(i, EtherStreamItemDisplayCapability::new));
 
+    int lastTickP = 0;
+
     @Override
     public Identifier getId() {
         return ID;
@@ -60,8 +62,9 @@ public class EtherStreamItemDisplayCapability implements IStreamCapability {
 
     @Override
     public void tick(IEtherStreamLike streamEntity) {
-        if (streamEntity.tickCount() % 10 != 0) return;
+        if (streamEntity.tickCount() / 10 != lastTickP) return;
         int idx = streamEntity.tickCount() / 10;
+        lastTickP = idx;
         updateDisplayItem(streamEntity, idx);
     }
 
