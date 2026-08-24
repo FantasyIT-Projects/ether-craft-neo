@@ -99,12 +99,6 @@ public class VirtualEtherStream implements IEtherStreamLike {
         this.hasRunFirstTick = this.tickCount >= this.simulateInterval;
         this.simulateSpeed = startSpeed * simulateInterval;
         this.simulateMotion = motion.scale(simulateInterval);
-        if (level instanceof ServerLevel sl) {
-            sl.getServer().getPlayerList().getPlayers().forEach(player -> {
-                if (player.distanceToSqr(startPos) <= Config.etherStreamSyncDistance * Config.etherStreamSyncDistance)
-                    trackingPlayers.add(player.getId());
-            });
-        }
     }
 
     @Override
@@ -461,6 +455,13 @@ public class VirtualEtherStream implements IEtherStreamLike {
         trackingPlayers.add(id);
         trackingDirty = true;
         holder.markTrackingPending(this);
+    }
+
+    void computeInitialTracking() {
+        level.getServer().getPlayerList().getPlayers().forEach(player -> {
+            if (player.distanceToSqr(startPos) <= Config.etherStreamSyncDistance * Config.etherStreamSyncDistance)
+                trackingPlayers.add(player.getId());
+        });
     }
 
     @Override

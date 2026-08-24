@@ -213,7 +213,6 @@ public class VirtualEtherStreamHolder {
 
         ServerPerf.startRecording(posDir);
         updateMaxDistance();
-        updateTracking();
         registerPendingProperties();
 
         if (!propertyCounter.isNoBlockCollide() && !propertyCounter.isDisplayTime()) {
@@ -233,6 +232,7 @@ public class VirtualEtherStreamHolder {
         }
         //合并单格过密项
         mergeAll(holderMaxDistance);
+        updateTracking();
         collectSync(acc);
         updateNoLongerTracking();
         unregisterPendingProperties();
@@ -531,6 +531,9 @@ public class VirtualEtherStreamHolder {
             VirtualEtherStream ves = pendingTrackingStreams.get(i);
             ves.trackingPending = false;
             if (ves.markToRemove) continue;
+            if (ves.trackingInitial) {
+                ves.computeInitialTracking();
+            }
             if (ves.trackingDirty) {
                 for (int j : ves.lastTrackingPlayers)
                     trackingPlayers.addTo(j, -1);
