@@ -26,4 +26,7 @@ public abstract class AbstractNodePlugin {
     public PluginMenuContext<?> makeContext(EtherAdaptNodeContainerMenu etherAdaptNodeContainerMenu) {
         return PluginMenuContext.of(etherAdaptNodeContainerMenu, this);
     }
+
+    public void update() {
+    }
 }

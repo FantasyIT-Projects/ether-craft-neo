@@ -166,6 +166,10 @@ public class Config {
             .comment("...")
             .defineInRange("ether_stream.ether_glass_prevent_consume", 20, 0, Integer.MAX_VALUE);
 
+    private static final ModConfigSpec.BooleanValue ETHER_GLASS_SERVER_RAY_THROUGH = BUILDER
+            .comment("When true, the server-side ray/selection shape of Ether Glass is treated as empty, so server-side raycasts (e.g. other mods' open-menu source detection) also pass through the glass. This fixes see-through interaction / access-control inconsistencies, at the cost that server-side OUTLINE raycasts treat Ether Glass as non-blocking. Default false = keep vanilla behavior.")
+            .define("ether_glass.server_ray_through", false);
+
     private static final ModConfigSpec.IntValue ETHER_STREAM_DESTROY_THRESHOLD = BUILDER
             .comment("When more than this many same-source ether streams are in one block, destroy the first one")
             .defineInRange("ether_stream.destroy_threshold", 100, 1, Integer.MAX_VALUE);
@@ -527,6 +531,7 @@ public class Config {
     public static int nodeEnchanterMaxProgress;
     public static double etherStorageMultiplier;
     public static int etherGlassPreventConsume;
+    public static boolean etherGlassServerRayThrough;
     public static int nodeProcessEtherConsumePreUnmatched;
     public static int etherAutoSupplyThreshold;
     public static int etherAutoSupplyEtherPerTick;
@@ -630,6 +635,7 @@ public class Config {
         nodeEnchanterMaxProgress = NODE_ENCHANTER_MAX_PROGRESS.get();
         etherStorageMultiplier = ETHER_STORAGE_MULTIPLIER.get();
         etherGlassPreventConsume = ETHER_GLASS_PREVENT_CONSUME.get();
+        etherGlassServerRayThrough = ETHER_GLASS_SERVER_RAY_THROUGH.get();
         etherStreamDestroyThreshold = ETHER_STREAM_DESTROY_THRESHOLD.get();
         etherStreamHandoffDistance = ETHER_STREAM_HANDOFF_DISTANCE.get();
         etherStreamSyncDistance = ETHER_STREAM_SYNC_DISTANCE.get();

@@ -805,6 +805,9 @@ public class EtherAdaptNodeEntity extends BlockEntity implements ResourceHandler
             markUpdate = true;
             pluginBlockUpdateDirty = true;
         }
+        for (AbstractNodePlugin plugin : getPlugins()) {
+            plugin.update();
+        }
     }
 
     public void onNeighborChanged() {

@@ -4,6 +4,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.SoundType;
@@ -16,6 +17,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.fml.loading.FMLEnvironment;
 import org.jetbrains.annotations.NotNull;
+import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.client.key.EtherGlassKeyHandler;
 import studio.fantasyit.ether_craft.register.BlockRegistry;
 
@@ -41,9 +43,12 @@ public class EtherGlassBlock extends TransparentBlock {
 
     @Override
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        if (FMLEnvironment.getDist() != Dist.DEDICATED_SERVER)
-            if (EtherGlassKeyHandler.isAltThroughGlassDown())
+        if (level instanceof ServerLevel) {
+            if (Config.etherGlassServerRayThrough)
                 return Shapes.empty();
+        } else if (FMLEnvironment.getDist() != Dist.DEDICATED_SERVER &&
+                EtherGlassKeyHandler.isAltThroughGlassDown())
+            return Shapes.empty();
         return super.getShape(state, level, pos, context);
     }
 
