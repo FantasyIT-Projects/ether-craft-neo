@@ -709,6 +709,7 @@ public class VirtualEtherStreamHolder {
         for (int i = 0, size = streams.size(); i < size; i++) {
             VirtualEtherStream ves = streams.get(i);
             if (ves.markToRemove) continue;
+            if (ves.trackingInitial) continue;
             if (ves.consumer.isDirty()) {
                 ves.consumer.recompute(ves, ves.capabilities);
             }

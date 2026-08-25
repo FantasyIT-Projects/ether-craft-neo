@@ -436,6 +436,7 @@ public class VirtualEtherStream implements IEtherStreamLike {
         ves.extraProperty.noBlockHit = data.extraProperty().noBlockHit;
         ves.extraProperty.noEtherCost = data.extraProperty().noEtherCost;
         ves.markToSyncCreation = false;
+        ves.trackingInitial = false;
         return ves;
     }
 
