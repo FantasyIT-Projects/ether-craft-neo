@@ -183,8 +183,6 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
                 for (int j = 0; j < COLS; j++) {
                     ItemStack itemStack = internalContainer.getItem(i * COLS + j);
                     @Nullable EtherProcessWorkingChip originalChip = slotChips[i][j];
-                    if (originalChip != null && itemStack == originalChip.item)
-                        continue;
                     if (originalChip != null && !itemStack.isEmpty() && isSameChip(itemStack, originalChip.item)) {
                         //重置为同一物品引用来节约时间
                         originalChip.item = itemStack;

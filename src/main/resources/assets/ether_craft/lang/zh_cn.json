@@ -39,6 +39,7 @@
   "message.ether_craft.plugin_installed": "已安装插件",
   "message.ether_craft.plugin_slots_full": "没有可用的插件槽位",
   "command.ether_craft.stream_label.toggled": "以太流文本: %s",
+  "item.ether_craft.logo": "工作室Logo",
   "item.ether_craft.direct_input": "直接输入",
   "item.ether_craft.ether_dust": "以太粉",
   "item.ether_craft.ether": "以太",

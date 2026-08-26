@@ -40,6 +40,7 @@
   "message.ether_craft.plugin_installed": "Plugin installed",
   "message.ether_craft.plugin_slots_full": "No empty plugin slot available",
   "command.ether_craft.stream_label.toggled": "Ether stream labels: %s",
+  "item.ether_craft.logo": "Studio Logo",
   "item.ether_craft.direct_input": "Direct Input",
   "item.ether_craft.ether_dust": "Ether Dust",
   "item.ether_craft.ether": "Ether",

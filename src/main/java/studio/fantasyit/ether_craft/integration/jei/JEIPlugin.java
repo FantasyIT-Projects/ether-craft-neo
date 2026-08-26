@@ -246,7 +246,7 @@ public class JEIPlugin implements IModPlugin {
         List<EtherProcessCategory.EtherProcessFactoryRecipeWrapper> toHide =
                 recipeManager.createRecipeLookup(ETHER_PROCESS_TYPE)
                         .get()
-                        .filter(r -> r.id().equals(EtherCraft.id("ether_process/extra/logo")))
+                        .filter(r -> r.id().equals(EtherCraft.id("ether_process/logo")))
                         .toList();
         if (!toHide.isEmpty()) {
             recipeManager.hideRecipes(ETHER_PROCESS_TYPE, toHide);
