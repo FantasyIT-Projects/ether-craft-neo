@@ -486,6 +486,12 @@ public class Config {
             .comment("If true, replacing a chip in the factory keeps the old chip's ether amount. If false (default), the slot's chip ether resets to zero when the chip is replaced.")
             .define("factory.keep_chip_ether_on_swap", false);
 
+    // ===== block_name — Block name editing =====
+
+    private static final ModConfigSpec.BooleanValue LIMITED_BLOCK_NAME_CHANGE = BUILDER
+            .comment("When true, non-creative players cannot change the name of Ether Adapt Node / Ether Process Factory blocks. Creative players are always allowed. Default false keeps the open behavior.")
+            .define("block_name.limited_change", false);
+
     static final ModConfigSpec SPEC = BUILDER.build();
 
     public static int etherConvert;
@@ -593,6 +599,7 @@ public class Config {
     public static long factoryMinReservePer;
     public static boolean factoryFloatCalc;
     public static boolean factoryKeepChipEtherOnSwap;
+    public static boolean limitedBlockNameChange;
     public static int configVersion = 0;
 
     @SubscribeEvent
@@ -702,6 +709,7 @@ public class Config {
         factoryMinReservePer = FACTORY_MIN_RESERVE_PER.get();
         factoryFloatCalc = FACTORY_FLOAT_CALC.get();
         factoryKeepChipEtherOnSwap = FACTORY_KEEP_CHIP_ETHER_ON_SWAP.get();
+        limitedBlockNameChange = LIMITED_BLOCK_NAME_CHANGE.get();
         configVersion++;
     }
 }

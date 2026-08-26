@@ -8,6 +8,7 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityReference;
 import net.minecraft.world.entity.EntityType;
@@ -257,10 +258,14 @@ public class EtherStreamEntity extends Projectile implements IEtherStreamLike {
         if (entity instanceof LivingEntity l && this.entityData.get(HIT_EXCLUDE).map(t -> t.matches(l)).orElse(false)) {
             return true;
         }
+        if(entity instanceof ServerPlayer sp && sp.isSpectator())
+            return true;
         if (entity instanceof ItemEntity ie) {
             if (PlatingUtil.isPlatedItemEntity(ie)) return false;
             return !ie.getItem().is(Items.GLASS);
         }
+        if(entity instanceof ServerPlayer sp && sp.isSpectator())
+            return true;
         for (IStreamCapability cap : capabilities)
             if (cap.shouldPassThrough(entity))
                 return true;
