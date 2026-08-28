@@ -8,6 +8,7 @@ import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
@@ -42,7 +43,7 @@ public class EtherStreamDisplayItemLogic implements IEtherStreamExtraClientLogic
             int lightCoords = LevelRenderer.getLightCoords(level, BlockPos.containing(currentPos));
             ItemStackRenderState state = new ItemStackRenderState();
             Minecraft.getInstance().getItemModelResolver().appendItemLayers(state, is, ItemDisplayContext.NONE, level, null, 0);
-            state.submit(poseStack, collector, lightCoords, 0, 0);
+            state.submit(poseStack, collector, lightCoords, OverlayTexture.NO_OVERLAY, 0);
 
             poseStack.popPose();
         }

@@ -247,7 +247,7 @@ public class EtherProcessFactoryScreen extends AbstractContainerScreen<@NotNull 
         UIUtil.renderEtherBarProgress(etherTotal, Math.max(1, be.chipEtherMax), lpx + 1, lpy + 22, 16, 2, graphics);
         if (mouseX >= lpx && mouseX < lpx + BAR.w && mouseY >= lpy + 21 && mouseY < lpy + 21 + BAR.h)
             graphics.setTooltipForNextFrame(List.of(
-                    Component.translatable("menu.ether_craft.ether_bar_tooltip", etherTotal).getVisualOrderText(),
+                    Component.translatable("menu.ether_craft.factory.ether_bar_tooltip", etherTotal).getVisualOrderText(),
                     Component.translatable("menu.ether_craft.ether_bar_tooltip_leak", be.leak).getVisualOrderText()
             ), mouseX, mouseY);
 
