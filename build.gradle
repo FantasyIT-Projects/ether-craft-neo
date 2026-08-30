@@ -3,9 +3,10 @@ plugins {
     id 'maven-publish'
     id 'idea'
     id 'net.neoforged.moddev' version '2.0.141'
+    id "me.modmuss50.mod-publish-plugin" version "1.1.0"
 }
 
-version = mod_version
+version = "${mod_version}_mc${minecraft_version}"
 group = mod_group_id
 
 repositories {
@@ -42,6 +43,7 @@ base {
 }
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(25)
+java.withSourcesJar()
 
 neoForge {
     // Specify the version of NeoForge to use.
@@ -223,6 +225,26 @@ publishing {
         maven {
             url "file://${project.projectDir}/repo"
         }
+    }
+}
+
+publishMods {
+    type = ALPHA
+    file = jar.archiveFile
+    modLoaders.add("neoforge")
+    changelog = file("changelog").text
+
+    curseforge {
+        projectId = "1658499"
+        accessToken = CURSEFORGE_TOKEN
+        minecraftVersions.add(minecraft_version)
+        optional("jei", "jade", "sodium", "iris", "guideme")
+    }
+    modrinth {
+        projectId = "wFeGatYt"
+        accessToken = MODRINTH_TOKEN
+        minecraftVersions.add(minecraft_version)
+        optional("jei", "jade", "sodium", "iris", "guideme")
     }
 }
 
