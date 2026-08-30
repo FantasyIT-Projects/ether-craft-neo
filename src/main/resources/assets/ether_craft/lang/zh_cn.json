@@ -40,6 +40,8 @@
   "message.ether_craft.plugin_slots_full": "没有可用的插件槽位",
   "command.ether_craft.stream_label.toggled": "以太流文本: %s",
   "item.ether_craft.logo": "工作室Logo",
+  "tooltip.ether_craft.logo.desc": "开发团队工作室的logo，代表你发现了mod的一个秘密",
+  "tooltip.ether_craft.logo.warning": "该物品暂未正式推出，请勿将其记录到任何公开资料",
   "item.ether_craft.direct_input": "直接输入",
   "item.ether_craft.ether_dust": "以太粉",
   "item.ether_craft.ether": "以太",

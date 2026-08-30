@@ -41,6 +41,8 @@
   "message.ether_craft.plugin_slots_full": "No empty plugin slot available",
   "command.ether_craft.stream_label.toggled": "Ether stream labels: %s",
   "item.ether_craft.logo": "Studio Logo",
+  "tooltip.ether_craft.logo.desc": "The logo of the dev team studio, representing that you have discovered a secret of the mod.",
+  "tooltip.ether_craft.logo.warning": "This item has not been officially released. Please do not record it in any public materials.",
   "item.ether_craft.direct_input": "Direct Input",
   "item.ether_craft.ether_dust": "Ether Dust",
   "item.ether_craft.ether": "Ether",

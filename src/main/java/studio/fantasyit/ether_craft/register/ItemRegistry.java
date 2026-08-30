@@ -19,6 +19,7 @@ import studio.fantasyit.ether_craft.item.EtherAdaptNodeBlockItem;
 import studio.fantasyit.ether_craft.item.EtherProcessFactoryBlockItem;
 import studio.fantasyit.ether_craft.item.EtherProcessRecipeAnswerItem;
 import studio.fantasyit.ether_craft.item.ItemWrench;
+import studio.fantasyit.ether_craft.item.LogoItem;
 import studio.fantasyit.ether_craft.item.ProcessChipItem;
 
 public class ItemRegistry {
@@ -28,7 +29,7 @@ public class ItemRegistry {
         return ITEMS.register(block.getId().getPath(), (r) -> new BlockItem(block.get(), new Item.Properties().setId(ResourceKey.create(Registries.ITEM, r))));
     }
 
-    public static final DeferredHolder<Item, @NotNull Item> LOGO = ITEMS.register("logo", i -> new Item(new Item.Properties().stacksTo(64).setId(ResourceKey.create(Registries.ITEM, i))));
+    public static final DeferredHolder<Item, @NotNull Item> LOGO = ITEMS.register("logo", LogoItem::new);
 
     public static final DeferredHolder<Item, @NotNull Item> ETHER = ITEMS.register("ether", i -> new Item(new Item.Properties().stacksTo(64).setId(ResourceKey.create(Registries.ITEM, i))));
     public static final DeferredHolder<Item, @NotNull Item> ETHER_CREATIVE = ITEMS.register("ether_creative", i -> new Item(new Item.Properties().stacksTo(64).setId(ResourceKey.create(Registries.ITEM, i))));
