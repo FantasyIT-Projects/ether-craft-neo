@@ -236,13 +236,13 @@ publishMods {
 
     curseforge {
         projectId = "1658499"
-        accessToken = CURSEFORGE_TOKEN
+        accessToken =  System.getenv("CURSEFORGE_TOKEN") ?: ""
         minecraftVersions.add(minecraft_version)
         optional("jei", "jade", "sodium", "iris", "guideme")
     }
     modrinth {
         projectId = "wFeGatYt"
-        accessToken = MODRINTH_TOKEN
+        accessToken = System.getenv("MODRINTH_TOKEN") ?: ""
         minecraftVersions.add(minecraft_version)
         optional("jei", "jade", "sodium", "iris", "guideme")
     }
