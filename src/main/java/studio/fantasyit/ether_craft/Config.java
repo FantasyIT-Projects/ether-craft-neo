@@ -322,6 +322,11 @@ public class Config {
             .comment("Ether consumed per tick while blocking")
             .defineInRange("plating.block.ether_per_tick", 500, 0, Integer.MAX_VALUE);
 
+    // -- plating.damage --
+    private static final ModConfigSpec.IntValue PLATING_DAMAGE_COST = BUILDER
+            .comment("Ether consumed once attack")
+            .defineInRange("plating.damage.cost", 10, 0, Integer.MAX_VALUE);
+
     // -- plating.crit --
     private static final ModConfigSpec.IntValue PLATING_CRIT_ETHER_PER_ATTACK = BUILDER
             .comment("Ether consumed per attack by Crit plating")
@@ -557,6 +562,7 @@ public class Config {
     public static int platingCamouflageEtherCost;
     public static double platingBlockDamageReduction;
     public static int platingBlockEtherPerTick;
+    public static int platingDamageCost;
     public static int platingCritEtherPerAttack;
     public static int platingCritDamageEtherPerAttack;
     public static int platingHeadHuntEtherPerKill;
@@ -667,6 +673,7 @@ public class Config {
         platingCamouflageSpeedThreshold = PLATING_CAMOUFLAGE_SPEED_THRESHOLD.get();
         platingBlockDamageReduction = PLATING_BLOCK_DAMAGE_REDUCTION.get();
         platingBlockEtherPerTick = PLATING_BLOCK_ETHER_PER_TICK.get();
+        platingDamageCost = PLATING_DAMAGE_COST.get();
         platingCritEtherPerAttack = PLATING_CRIT_ETHER_PER_ATTACK.get();
         platingCritDamageEtherPerAttack = PLATING_CRIT_DAMAGE_ETHER_PER_ATTACK.get();
         platingHeadHuntEtherPerKill = PLATING_HEAD_HUNT_ETHER_PER_KILL.get();

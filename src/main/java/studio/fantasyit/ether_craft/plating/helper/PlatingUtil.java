@@ -7,6 +7,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import studio.fantasyit.ether_craft.plating.data.PlatingData;
 import studio.fantasyit.ether_craft.plating.data.ProgressingPlatingData;
+import studio.fantasyit.ether_craft.plating.trigger.inst.IPlatingClearingTrigger;
 import studio.fantasyit.ether_craft.register.DataComponentRegistry;
 
 import java.util.ArrayList;
@@ -59,6 +60,10 @@ public class PlatingUtil {
     }
 
     public static void clearPlating(ItemStack stack) {
+        PlatingEventHelper.forEachPlating(stack, (t, d, a) -> {
+            if (t instanceof IPlatingClearingTrigger ipct)
+                ipct.onClear(d, a);
+        });
         stack.remove(DataComponentRegistry.PLATING_DATA);
         stack.remove(DataComponentRegistry.PLATING_ETHER);
         stack.remove(DataComponentRegistry.PLATING_IN_PROGRESS);

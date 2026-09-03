@@ -13,11 +13,12 @@ import studio.fantasyit.ether_craft.plating.data.PlatingData;
 import studio.fantasyit.ether_craft.plating.helper.PlatingUtil;
 import studio.fantasyit.ether_craft.plating.trigger.event.IPlatingBlockingTrigger;
 import studio.fantasyit.ether_craft.plating.trigger.inst.IInstanceTrigger;
+import studio.fantasyit.ether_craft.plating.trigger.inst.IPlatingClearingTrigger;
 
 import java.util.List;
 import java.util.Optional;
 
-public class BlockPlatingEffect implements IPlatingEffect, IInstanceTrigger,IPlatingBlockingTrigger {
+public class BlockPlatingEffect implements IPlatingEffect, IInstanceTrigger, IPlatingBlockingTrigger, IPlatingClearingTrigger {
     public static final Identifier ID = EtherCraft.id("block");
 
     @Override
@@ -54,5 +55,10 @@ public class BlockPlatingEffect implements IPlatingEffect, IInstanceTrigger,IPla
         if (!PlatingUtil.canExtractEther(stack, Config.platingBlockEtherPerTick)) {
             removeBlocking(stack);
         }
+    }
+
+    @Override
+    public void onClear(PlatingData data, ItemStack stack) {
+        removeBlocking(stack);
     }
 }
