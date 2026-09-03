@@ -53,7 +53,7 @@ public class DamagePlatingEffect implements IPlatingEffect, IInstanceTrigger, IP
 
     @Override
     public void apply(IPlatingEffect effect, PlatingData data, ItemStack stack, LivingEntity entity, AttackEntityEvent event) {
-        if (!event.isCanceled()) return;
+        if (event.isCanceled()) return;
         PlatingUtil.extractEtherWithEntityContext(entity, stack, Config.platingDamageCost);
         if (!PlatingUtil.canExtractEther(stack, Config.platingDamageCost)) {
             clearModifier(stack);
