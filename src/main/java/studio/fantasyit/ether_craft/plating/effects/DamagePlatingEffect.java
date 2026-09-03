@@ -41,11 +41,13 @@ public class DamagePlatingEffect implements IPlatingEffect, IInstanceTrigger, IP
                     )
                     .build();
         } else {
-            itemAttributeModifiers = itemAttributeModifiers.withModifierAdded(
-                    Attributes.ATTACK_DAMAGE,
-                    new AttributeModifier(ATTR_ID, data.effect(), AttributeModifier.Operation.ADD_VALUE),
-                    EquipmentSlotGroup.HAND
-            );
+            if(itemAttributeModifiers.modifiers().stream().noneMatch(t->t.modifier().is(ATTR_ID))) {
+                itemAttributeModifiers = itemAttributeModifiers.withModifierAdded(
+                        Attributes.ATTACK_DAMAGE,
+                        new AttributeModifier(ATTR_ID, data.effect(), AttributeModifier.Operation.ADD_VALUE),
+                        EquipmentSlotGroup.HAND
+                );
+            }
         }
         stack.set(DataComponents.ATTRIBUTE_MODIFIERS, itemAttributeModifiers);
     }

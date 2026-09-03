@@ -9,7 +9,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
@@ -79,8 +78,10 @@ public class EtherStreamPlatingCapability implements IStreamCapability {
             availableItems = getStorageItems(storage);
 
         if (availableItems.isEmpty()) {
-            if (stack.has(DataComponentRegistry.PLATING_DATA))
+            if (stack.has(DataComponentRegistry.PLATING_DATA) || stack.has(DataComponentRegistry.PLATING_IN_PROGRESS)) {
                 PlatingUtil.clearPlating(stack);
+                streamEntity.consumeEther(streamEntity.getEther());
+            }
             return false;
         }
 
@@ -101,6 +102,8 @@ public class EtherStreamPlatingCapability implements IStreamCapability {
                 storage.setItem(slot, ItemStack.EMPTY);
             }
         }
+        if (stack.has(DataComponentRegistry.PLATING_DATA))
+            PlatingUtil.clearPlating(stack);
         List<ProgressingPlatingData> effectIds = matched.stream().map(PlatingRecipe::makeProcessing).toList();
         PlatingUtil.startPlating(stack, effectIds, level.getGameTime());
         return true;
