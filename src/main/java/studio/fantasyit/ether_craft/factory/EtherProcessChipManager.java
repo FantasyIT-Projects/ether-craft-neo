@@ -44,11 +44,18 @@ public class EtherProcessChipManager {
         );
     }
 
-    public record ProcessChipRecord(long storage, long etherConsume,
+    public record ProcessChipRecord(long storage, long etherConsume, int color,
                                     ProcessChipEffectConfig effect) {
         public static final Codec<ProcessChipRecord> CODEC = RecordCodecBuilder.create(inst -> inst.group(
                 Codec.LONG.fieldOf("storage").forGetter(ProcessChipRecord::storage),
                 Codec.LONG.fieldOf("etherConsume").forGetter(ProcessChipRecord::etherConsume),
+                Codec.STRING.fieldOf("color").xmap(t -> {
+                    try {
+                        return Integer.valueOf(t, 16);
+                    } catch (NumberFormatException e) {
+                        return 0;
+                    }
+                }, Integer::toHexString).orElse(0).forGetter(ProcessChipRecord::color),
                 ProcessChipEffectConfig.CODEC.optionalFieldOf("effect", ProcessChipEffectConfig.DEFAULT).forGetter(ProcessChipRecord::effect)
         ).apply(inst, ProcessChipRecord::new));
 
@@ -56,6 +63,7 @@ public class EtherProcessChipManager {
                 StreamCodec.composite(
                         ByteBufCodecs.VAR_LONG, EtherProcessChipManager.ProcessChipRecord::storage,
                         ByteBufCodecs.VAR_LONG, EtherProcessChipManager.ProcessChipRecord::etherConsume,
+                        ByteBufCodecs.INT, EtherProcessChipManager.ProcessChipRecord::color,
                         ProcessChipEffectConfig.STREAM_CODEC, ProcessChipRecord::effect,
                         EtherProcessChipManager.ProcessChipRecord::new
                 );

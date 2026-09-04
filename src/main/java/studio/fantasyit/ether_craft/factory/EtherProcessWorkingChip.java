@@ -5,6 +5,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import studio.fantasyit.ether_craft.Config;
+import studio.fantasyit.ether_craft.item.ProcessChipItem;
 import studio.fantasyit.ether_craft.register.DataComponentRegistry;
 
 public class EtherProcessWorkingChip {
@@ -25,6 +26,8 @@ public class EtherProcessWorkingChip {
     public long etherConsume;
     public EtherProcessChipManager.ProcessChipEffectConfig effect;
     public double reservePer;
+    public int color = -1;
+    public boolean isSeparator = false;
 
     private EtherProcessWorkingChip() {
         this(ItemStack.EMPTY, 0, 0, 0);
@@ -48,10 +51,13 @@ public class EtherProcessWorkingChip {
             this.storage = 0;
             this.etherConsume = 0;
             this.effect = EtherProcessChipManager.ProcessChipEffectConfig.DEFAULT;
+            isSeparator = false;
         } else {
             this.storage = r.storage();
             this.etherConsume = r.etherConsume();
+            this.color = r.color();
             this.effect = r.effect();
+            this.isSeparator = ProcessChipItem.isSeparator(item);
         }
         setEther(Math.max(0, beforeEther));
         this.reservePer = calcReservePer(this.etherConsume);
@@ -87,12 +93,16 @@ public class EtherProcessWorkingChip {
         return Math.max(Config.factoryMinReservePer, Math.round(base));
     }
 
-    /** 总以太（整数部分 + 浮点部分） */
+    /**
+     * 总以太（整数部分 + 浮点部分）
+     */
     public double etherTotal() {
         return ether + etherFrac;
     }
 
-    /** 设置总以太，拆分为整数部分与浮点部分并归一化 */
+    /**
+     * 设置总以太，拆分为整数部分与浮点部分并归一化
+     */
     public void setEther(double total) {
         if (total <= 0) {
             ether = 0;
@@ -104,7 +114,9 @@ public class EtherProcessWorkingChip {
         normalizeFrac();
     }
 
-    /** 增加以太（允许小数），整合累加并归一化 */
+    /**
+     * 增加以太（允许小数），整合累加并归一化
+     */
     public void addEther(double amount) {
         if (amount <= 0) return;
         setEther(etherTotal() + amount);

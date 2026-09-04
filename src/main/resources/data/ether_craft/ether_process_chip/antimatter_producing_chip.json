@@ -1,4 +1,5 @@
 {
   "storage": 500000,
-  "etherConsume": 500
+  "etherConsume": 500,
+  "color": "ddd1fc"
 }

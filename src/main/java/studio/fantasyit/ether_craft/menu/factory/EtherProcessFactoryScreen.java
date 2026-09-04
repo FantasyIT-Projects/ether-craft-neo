@@ -224,12 +224,26 @@ public class EtherProcessFactoryScreen extends AbstractContainerScreen<@NotNull 
                     }
                 }
             }
-        }
-        for (int i = 0; i < be.processingRecipes.length; i++) {
-            ItemStack it = be.possibleResults.getItem(i);
-            if (it.isEmpty()) continue;
-            if (be.outputContainer.getItem(i).isEmpty())
-                UIUtil.renderItemStackSlotPlaceholder(graphics, it, getLeftPos() + f.posOutput().x + 1, getTopPos() + f.posOutput().y + i * 18 + 1);
+            for (int i = 0; i < be.processingRecipes.length; i++) {
+                ItemStack it = be.possibleResults.getItem(i);
+                if (it.isEmpty()) continue;
+                if (be.outputContainer.getItem(i).isEmpty())
+                    UIUtil.renderItemStackSlotPlaceholder(graphics, it, getLeftPos() + f.posOutput().x + 1, getTopPos() + f.posOutput().y + i * 18 + 1);
+            }
+
+            for (int i = 0; i < be.ROWS; i++) {
+                for (int j = 0; j < be.COLS; j++) {
+                    if (be.pathBelongings[j][i] == -1) continue;
+                    if (i > 0 && be.chipColor[i - 1][j] != -1)
+                        drawChipEffectTip(graphics, internalX, internalY, i, j, -1, 0, be.chipColor[i - 1][j]);
+                    if (j > 0 && be.chipColor[i][j - 1] != -1)
+                        drawChipEffectTip(graphics, internalX, internalY, i, j, 0, -1, be.chipColor[i][j - 1]);
+                    if (j + 1 < be.COLS && be.chipColor[i][j + 1] != -1)
+                        drawChipEffectTip(graphics, internalX, internalY, i, j, 0, 1, be.chipColor[i][j + 1]);
+                    if (i + 1 < be.ROWS && be.chipColor[i + 1][j] != -1)
+                        drawChipEffectTip(graphics, internalX, internalY, i, j, 1, 0, be.chipColor[i + 1][j]);
+                }
+            }
         }
         int lpx = getLeftPos() + f.panelLeft().x;
         int lpy = getTopPos() + f.panelLeft().y;
@@ -277,6 +291,36 @@ public class EtherProcessFactoryScreen extends AbstractContainerScreen<@NotNull 
                 );
             }
         }
+    }
+
+    private void drawChipEffectTip(GuiGraphicsExtractor graphics, int internalX, int internalY, int i, int j, int di, int dj, int color) {
+        int oSlotX = getLeftPos() + internalX + j * 18 + 9;
+        int oSlotY = getTopPos() + internalY + i * 18 + 9;
+        int sX = dj == 0 ? 1 : 0;
+        int sY = di == 0 ? 1 : 0;
+        final int dShade = 1;
+        final int alphaColor = 0x20000000;
+        graphics.fill(
+                oSlotX + dj * 8 + sX * (3 + dShade),
+                oSlotY + di * 8 + sY * (3 + dShade),
+                oSlotX + dj * (8 - dShade) - sX * (4 + dShade),
+                oSlotY + di * (8 - dShade) - sY * (4 + dShade),
+                alphaColor | color
+        );
+        graphics.fill(
+                oSlotX + dj * 8 + sX * 3,
+                oSlotY + di * 8 + sY * 3,
+                oSlotX + dj * (8 - 2 * dShade) - sX * 4,
+                oSlotY + di * (8 - 2 * dShade) - sY * 4,
+                alphaColor | color
+        );
+        graphics.fill(
+                oSlotX + dj * 8 + sX * 3,
+                oSlotY + di * 8 + sY * 3,
+                oSlotX + dj * (8 - dShade) - sX * 4,
+                oSlotY + di * (8 - dShade) - sY * 4,
+                alphaColor | color
+        );
     }
 
     private void fillProgressSlot(GuiGraphicsExtractor graphics, int internalX, int internalY, int ox, int oy, float localProgress, boolean up, boolean down, boolean left, boolean right) {

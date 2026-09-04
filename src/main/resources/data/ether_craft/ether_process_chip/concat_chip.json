@@ -1,6 +1,7 @@
 {
   "storage": 10000,
   "etherConsume": 10,
+  "color": "cbdbfc",
   "effect": {
     "separate": false,
     "effectSelf": true,

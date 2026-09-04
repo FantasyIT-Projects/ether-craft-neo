@@ -70,6 +70,7 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
     public EtherFactoryMultiStepInput[] processingInputs;
     public @Nullable EtherProcessWorkingChip[][] slotChips;
     //渲染用数据
+    public int[][] chipColor;
     public int[][] pathBelongings;
     public int[][] pathDepth;
     public int[][] pathDirection;
@@ -122,6 +123,12 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
         pathDepth = new int[ROWS][COLS];
         pathDirection = new int[ROWS][COLS];
         pathMaxDepth = new int[ROWS];
+        chipColor = new int[ROWS][COLS];
+        for (int i = 0; i < ROWS; i++) {
+            for (int j = 0; j < COLS; j++) {
+                chipColor[i][j] = -1;
+            }
+        }
         currentEther = new int[ROWS][COLS];
         maxMultiplier = new int[ROWS];
         inputDirty = new boolean[ROWS];
@@ -201,6 +208,16 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
                         slotChips[i][j] = EtherProcessWorkingChip.DUMMY;
                     else
                         slotChips[i][j] = null;
+                }
+            }
+            for (int i = 0; i < ROWS; i++) {
+                for (int j = 0; j < COLS; j++) {
+                    @Nullable EtherProcessWorkingChip originalChip = slotChips[i][j];
+                    if (originalChip != null && originalChip.effect.effectSide() && !originalChip.isSeparator) {
+                        chipColor[i][j] = originalChip.color;
+                    } else {
+                        chipColor[i][j] = -1;
+                    }
                 }
             }
             internalDirty = false;
@@ -313,11 +330,13 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
         }
         leak = factoryStructure.leakingSpeed;
         boolean[] hasRecipe = new boolean[ROWS];
+        boolean[] hasPath = new boolean[ROWS];
         boolean[][] affected = new boolean[ROWS][COLS];
         for (int i = 0; i < factoryStructure.recipes.size(); i++) {
             EtherFactoryMultiStepInput candidate = factoryStructure.recipes.get(i);
             Integer outputId = candidate.outputI();
-
+            hasPath[outputId] = true;
+            processingInputs[outputId] = candidate;
             if (inputChangeOnly && processingRecipes[outputId] != null) {
                 MultiStepMatchIO existingRecipe = processingRecipes[outputId];
                 int[] matching = EtherProcessorRecipeUtil.getToCostCountByInputAndIngredient(
@@ -357,7 +376,6 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
                 processingRecipes[outputId] = currentRecipe;
                 processingProgress[outputId] = 0;
                 maxMultiplier[outputId] = currentRecipe.maxStepMultiplier();
-                processingInputs[outputId] = candidate;
                 possibleResults.setItem(outputId, currentRecipe.outputs().stream().findFirst().orElse(ItemStack.EMPTY));
             } else {
                 hasRecipe[outputId] = false;
@@ -367,9 +385,11 @@ public class EtherProcessFactoryEntity extends BaseEtherContainerBlockEntity imp
             if (!hasRecipe[i]) {
                 processingRecipes[i] = null;
                 processingProgress[i] = 0;
-                processingInputs[i] = null;
                 possibleResults.setItem(i, ItemStack.EMPTY);
                 maxMultiplier[i] = 1;
+            }
+            if (!hasPath[i]) {
+                processingInputs[i] = null;
             }
         }
         for (int i = 0; i < ROWS; i++)

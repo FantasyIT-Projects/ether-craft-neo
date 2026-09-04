@@ -95,6 +95,7 @@ public class EtherProcessFactoryContainerMenu extends BaseContainerMenu<@NotNull
                 addDataSlot(new BaseDataSlot(() -> entity.pathDepth[finalI][finalJ], (v) -> entity.pathDepth[finalI][finalJ] = v));
                 addDataSlot(new BaseDataSlot(() -> entity.pathDirection[finalI][finalJ], (v) -> entity.pathDirection[finalI][finalJ] = v));
                 addDataSlot(new BaseDataSlot(() -> entity.currentEther[finalI][finalJ], (v) -> entity.currentEther[finalI][finalJ] = v));
+                addDataSlot(new BaseDataSlot(() -> entity.chipColor[finalI][finalJ], (v) -> entity.chipColor[finalI][finalJ] = v));
             }
         }
 
