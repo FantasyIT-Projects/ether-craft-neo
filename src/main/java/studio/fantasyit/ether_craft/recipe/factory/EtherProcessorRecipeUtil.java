@@ -277,7 +277,9 @@ public class EtherProcessorRecipeUtil {
             TreeLike.TreeNode<List<Integer>, RecipeNode> node = queue.poll();
             //第一步：获取当前可能处在配方树的节点位置
             node.value.forEach((id) -> {
-
+                //2.0:如果节点中边数不同，则不记录可能匹配
+                if (recipeProcess.getNode(id).edges.size() != node.edges.size())
+                    return;
                 //2.1:获取当前实际位置向前传播的边（输入边）
                 for (TreeLike.TreeEdge<List<Integer>, RecipeNode> edge : node.edges) {
                     //2.2:获取当前虚拟位置向前传播的边（配方边）

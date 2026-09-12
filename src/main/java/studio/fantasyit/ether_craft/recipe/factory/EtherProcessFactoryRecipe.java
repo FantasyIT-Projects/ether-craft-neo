@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 
 public class EtherProcessFactoryRecipe implements Recipe<@NotNull EtherFactoryRecipeInput> {
-    private static final String DIRECT_INPUT = "DIRECT_INPUT";
     public final EtherProcessRecipeJson json;
     public final TreeLike<Integer, List<DelayedIngredient>> process;
     public final List<SizedIngredient> input;
@@ -60,27 +59,26 @@ public class EtherProcessFactoryRecipe implements Recipe<@NotNull EtherFactoryRe
             idMapping.put(id, currentId[0]++);
             inputNodeIds.add(assignedId);
         }
-        for (EtherProcessRecipeJson.InputEntry entry : inputEntries) {
-            String id = DIRECT_INPUT + entry.id();
-            idMapping.put(id, currentId[0]++);
-        }
         for (EtherProcessRecipeJson.ProcessEntry entry : processEntries) {
             String id = entry.id();
             idMapping.put(id, currentId[0]++);
         }
+        // 真根 + 唯一的 DIRECT_INPUT 虚拟节点
+        final int rootId = currentId[0]++;
+        final int directId = currentId[0]++;
 
         // Step 3: 建树
-        TreeLike<Integer, List<DelayedIngredient>> recipeTree = new TreeLike<>(currentId[0], currentId[0]);
+        TreeLike<Integer, List<DelayedIngredient>> recipeTree = new TreeLike<>(rootId, rootId);
         for (EtherProcessRecipeJson.InputEntry entry : inputEntries) {
             int id = idMapping.get(entry.id());
-            int dirId = idMapping.get(DIRECT_INPUT + entry.id());
             recipeTree.addNode(id, id);
-            recipeTree.addNode(dirId, dirId);
         }
         for (EtherProcessRecipeJson.ProcessEntry entry : processEntries) {
             int id = idMapping.get(entry.id());
             recipeTree.addNode(id, id);
         }
+        recipeTree.addNode(directId, directId);
+        recipeTree.addEdge(rootId, directId, List.of(DelayedIngredient.of(ItemRegistry.DIRECT_INPUT_ITEM_CHIP.get())));
 
         // Step 4.1: 虚拟节点 -> 处理器列表
         Map<Integer, List<DelayedIngredient>> vid2ProcessIngredient = new HashMap<>();
@@ -88,45 +86,25 @@ public class EtherProcessFactoryRecipe implements Recipe<@NotNull EtherFactoryRe
             int id = idMapping.get(entry.id());
             vid2ProcessIngredient.put(id, entry.delayedItem()); // entry.item() 已经是 List<Ingredient>
         }
-        vid2ProcessIngredient.put(currentId[0], List.of(DelayedIngredient.of(ItemRegistry.DIRECT_INPUT_ITEM_CHIP.get())));
 
-        // Step 4.2: 输入到 DirectInputItem 芯片的边
+        // Step 4.2: 输入边（input 直接挂到父工序节点 / V 上）
         for (EtherProcessRecipeJson.InputEntry entry : inputEntries) {
             int id = idMapping.get(entry.id());
-            int dirId = idMapping.get(DIRECT_INPUT + entry.id());
-            recipeTree.addEdge(dirId, id, List.of(DelayedIngredient.of(ItemRegistry.DIRECT_INPUT_ITEM_CHIP.get())));
+            String nextIdStr = entry.next();
+            Integer nxtId = (nextIdStr == null || nextIdStr.isEmpty()) ? null : idMapping.get(nextIdStr);
+            if (nxtId == null || !vid2ProcessIngredient.containsKey(nxtId))
+                nxtId = directId;
+            recipeTree.addEdge(nxtId, id, List.of(DelayedIngredient.of(ItemRegistry.DIRECT_INPUT_ITEM_CHIP.get())));
         }
 
-        // Step 4.3: 加入边（输入和工序）
-        for (EtherProcessRecipeJson.InputEntry entry : inputEntries) {
-            int id = idMapping.get(DIRECT_INPUT + entry.id()); // 注意这里使用 DIRECT_INPUT + id
-            String nextIdStr = entry.next();
-            Integer nxtId = null;
-            if (nextIdStr != null && !nextIdStr.isEmpty()) {
-                nxtId = idMapping.get(nextIdStr);
-            }
-            if (nxtId == null) {
-                nxtId = recipeTree.getRoot().value;
-            }
-            List<DelayedIngredient> ingredients = vid2ProcessIngredient.get(nxtId);
-            if (ingredients != null) {
-                recipeTree.addEdge(nxtId, id, ingredients);
-            }
-        }
+        // Step 4.3: 工序边（边值取该工序自己的芯片）
         for (EtherProcessRecipeJson.ProcessEntry entry : processEntries) {
             int id = idMapping.get(entry.id());
             String nextIdStr = entry.next();
-            Integer nxtId = null;
-            if (nextIdStr != null && !nextIdStr.isEmpty()) {
-                nxtId = idMapping.get(nextIdStr);
-            }
-            if (nxtId == null) {
-                nxtId = recipeTree.getRoot().value;
-            }
-            List<DelayedIngredient> ingredients = vid2ProcessIngredient.get(nxtId);
-            if (ingredients != null) {
-                recipeTree.addEdge(nxtId, id, ingredients);
-            }
+            Integer nxtId = (nextIdStr == null || nextIdStr.isEmpty()) ? null : idMapping.get(nextIdStr);
+            if (nxtId == null || !vid2ProcessIngredient.containsKey(nxtId))
+                nxtId = directId;
+            recipeTree.addEdge(nxtId, id, vid2ProcessIngredient.get(id));
         }
 
         // Step 5: 构建输入输出 Ingredient 列表
