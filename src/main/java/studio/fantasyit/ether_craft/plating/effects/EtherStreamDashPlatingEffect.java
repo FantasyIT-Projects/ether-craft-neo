@@ -45,7 +45,6 @@ public class EtherStreamDashPlatingEffect implements IPlatingEffect, IPlatingRig
         if (!PlatingUtil.canExtractEther(stack, Config.platingEtherStreamDashEtherCost)) return true;
         if (entity.hasData(AttachmentDataRegistry.TAKEN_BY_ETHER_STREAM) && entity.getData(AttachmentDataRegistry.TAKEN_BY_ETHER_STREAM))
             return true;
-        PlatingUtil.extractEtherWithEntityContext(entity, stack, Config.platingEtherStreamDashEtherCost);
         int streamEther = Math.max(1, getEtherContains(data));
 
         Vec3 pos = entity.getEyePosition();
@@ -53,10 +52,13 @@ public class EtherStreamDashPlatingEffect implements IPlatingEffect, IPlatingRig
         EtherStreamEntity stream = EtherStreamEntity.create(level, streamEther, pos, motion);
         stream.setRealCanReceiveEther(Config.platingEtherStreamDashEtherCost);
         stream.setHitExclude(entity);
-        EtherStreamCarryEntityCapability etherStreamCarryEntityCapability = new EtherStreamCarryEntityCapability(entity.blockPosition());
-        etherStreamCarryEntityCapability.forceTakeEntity(stream, entity);
+        EtherStreamCarryEntityCapability etherStreamCarryEntityCapability = new EtherStreamCarryEntityCapability(entity.blockPosition(), true);
         stream.addCapability(etherStreamCarryEntityCapability);
-        level.addFreshEntity(stream);
+
+        // 先成功加入世界，再抓取实体；加入失败时尚未扣费、也未写冷却，直接放弃
+        if (!level.addFreshEntity(stream)) return true;
+        etherStreamCarryEntityCapability.forceTakeEntity(stream, entity);
+        PlatingUtil.extractEtherWithEntityContext(entity, stack, Config.platingEtherStreamDashEtherCost);
 
         PlatingData updated = data.copyWithCoolDown(level, Config.platingEtherStreamDashCdTicks);
         PlatingUtil.updatePlatingData(stack, updated);

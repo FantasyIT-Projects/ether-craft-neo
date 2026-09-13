@@ -34,7 +34,7 @@ Java 25 is required. Use the IDE MCP build tool to compile and verify code:
 - `idea_execute_run_configuration` — launches `runClient`, `runServer`, `runData`, `runGameTestServer` via existing IDE run configurations, or from a code location (`filePath` + `line`).
 - `idea_get_run_configurations` — lists available run configurations.
 
-There is no lint/typecheck step beyond `build`. No test suite aside from gametests.
+There is no lint/typecheck step beyond `build`. The only test suite is GameTest, run via the `GameTestServer` run configuration (Gradle `runGameTestServer`): test functions live in `src/main/java/studio/fantasyit/ether_craft/gametest/` (registered in `GameTestFunctions`, test instances in `GameTestRegistration`), and the run reports per-test pass/fail then exits.
 
 ## Architecture
 

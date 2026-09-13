@@ -7,6 +7,7 @@ import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
 import org.slf4j.Logger;
+import studio.fantasyit.ether_craft.gametest.GameTestFunctions;
 import studio.fantasyit.ether_craft.register.*;
 import studio.fantasyit.ether_craft.stream.CapabilityFactoryManager;
 import studio.fantasyit.ether_craft.stream.cap.*;
@@ -30,6 +31,7 @@ public class EtherCraft
         EntityRegistry.register(modEventBus);
         EntityDataSerializerRegistry.register(modEventBus);
         SoundRegistry.register(modEventBus);
+        GameTestFunctions.register(modEventBus);
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
     }
     public static Identifier id(String path){
