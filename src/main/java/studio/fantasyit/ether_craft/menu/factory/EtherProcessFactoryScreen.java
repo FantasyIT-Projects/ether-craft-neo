@@ -214,7 +214,7 @@ public class EtherProcessFactoryScreen extends AbstractContainerScreen<@NotNull 
                         int maxDepth = be.pathMaxDepth[i];
                         float localProgress = (((float) progress / (EtherProcessFactoryEntity.MAX_PROGRESS * be.maxMultiplier[i]) - ((float) currentDepth / (maxDepth + 1))) * (maxDepth + 1));
 
-                        fillProgressSlot(graphics, internalX, internalY, k * 18, j * 18,
+                        fillProgressSlot(graphics, internalX, internalY, j * 18, k * 18,
                                 localProgress,
                                 PathNode.isDirect(PathNode.Direction.UP, be.pathDirection[k][j]),
                                 PathNode.isDirect(PathNode.Direction.DOWN, be.pathDirection[k][j]),
@@ -233,7 +233,7 @@ public class EtherProcessFactoryScreen extends AbstractContainerScreen<@NotNull 
 
             for (int i = 0; i < be.ROWS; i++) {
                 for (int j = 0; j < be.COLS; j++) {
-                    if (be.pathBelongings[j][i] == -1) continue;
+                    if (be.pathBelongings[i][j] == -1) continue;
                     if (i > 0 && be.chipColor[i - 1][j] != -1)
                         drawChipEffectTip(graphics, internalX, internalY, i, j, -1, 0, be.chipColor[i - 1][j]);
                     if (j > 0 && be.chipColor[i][j - 1] != -1)
