@@ -248,6 +248,12 @@
 
   "ether_craft.gui.node.destruction.mode_overflow": "Using: Overflow",
   "ether_craft.gui.node.destruction.mode_all": "Using: Destroy All",
+  "ether_craft.gui.node.destruction.line_1_overflow": "Overflow",
+  "ether_craft.gui.node.destruction.line_1_all": "Destroy All",
+  "ether_craft.gui.node.destruction.line_2_whitelist": "Whitelist",
+  "ether_craft.gui.node.destruction.line_2_blacklist": "Blacklist",
+  "ether_craft.gui.node.destruction.line_3_overflow": "When full",
+  "ether_craft.gui.node.destruction.line_3_all": "On insert",
 
   "ether_craft.gui.node.redstone_signal.mode_ether": "Using: Ether",
   "ether_craft.gui.node.redstone_signal.mode_inventory": "Using: Inventory",

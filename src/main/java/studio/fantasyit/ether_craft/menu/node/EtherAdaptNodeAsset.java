@@ -36,6 +36,8 @@ public class EtherAdaptNodeAsset {
     public static final ImageAsset BTN_ICON_CONTAINER = ImageAsset.gridOffset(BTN_BLANK_DOWN, 1, 5);
     public static final ImageAsset BTN_ICON_REDSTONE_INVERT = ImageAsset.gridOffset(BTN_BLANK_DOWN, 0, 6);
     public static final ImageAsset BTN_ICON_REDSTONE = ImageAsset.gridOffset(BTN_BLANK_DOWN, 1, 6);
+    public static final ImageAsset BTN_ICON_OVERFLOW = ImageAsset.from4Point(BACKGROUND, 212, 240, 220, 247);
+    public static final ImageAsset BTN_ICON_DESTROY_ALL = ImageAsset.from4Point(BACKGROUND, 228, 240, 235, 247);
     public static final ImageAsset ICON_UPGRADE = ImageAsset.from4Point(BACKGROUND, 212, 31, 223, 42);
     public static final ImageAsset SCROLL_BLOCK = ImageAsset.from4Point(BACKGROUND, 208, 92, 217, 104);
     public static final ImageAsset SCROLL_BLOCK_HOVER = ImageAsset.from4Point(BACKGROUND, 208, 156, 217, 168);

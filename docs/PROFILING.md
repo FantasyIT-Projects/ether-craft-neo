@@ -8,7 +8,8 @@
    "存档名"
    ```
 2. 通过 IDE 启动 `Client` 运行配置（`waitForExit=false`）
-3. 等待 90s 让游戏完全加载
+3. **窗口出现后立即最小化**（`ShowWindow(hwnd, SW_MINIMIZE)`，见 `docs/TEST.md` §2.4）—— 避免 Minecraft 抢占鼠标；最小化不影响 JProfiler 采集（世界仍满速 tick）
+4. 等待 90s 让游戏完全加载
 
 ## 二、附加 JProfiler
 

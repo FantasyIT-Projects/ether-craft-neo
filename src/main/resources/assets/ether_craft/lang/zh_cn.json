@@ -242,6 +242,12 @@
 
   "ether_craft.gui.node.destruction.mode_overflow": "当前: 溢出销毁",
   "ether_craft.gui.node.destruction.mode_all": "当前: 全部销毁",
+  "ether_craft.gui.node.destruction.line_1_overflow": "模式: 溢出销毁",
+  "ether_craft.gui.node.destruction.line_1_all": "模式: 全部销毁",
+  "ether_craft.gui.node.destruction.line_2_whitelist": "过滤: 白名单",
+  "ether_craft.gui.node.destruction.line_2_blacklist": "过滤: 黑名单",
+  "ether_craft.gui.node.destruction.line_3_overflow": "容器满时销毁",
+  "ether_craft.gui.node.destruction.line_3_all": "进入时销毁",
 
   "ether_craft.gui.node.redstone_signal.mode_ether": "当前: 以太检测",
   "ether_craft.gui.node.redstone_signal.mode_inventory": "当前: 物品检测",
