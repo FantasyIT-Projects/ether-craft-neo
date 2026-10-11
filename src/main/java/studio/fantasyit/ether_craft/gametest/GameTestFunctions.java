@@ -29,6 +29,24 @@ public final class GameTestFunctions {
     public static final DeferredHolder<Consumer<GameTestHelper>, Consumer<GameTestHelper>> FACTORY_RECIPE_COST_MAPPING =
             FUNCTIONS.register("factory_recipe_cost_mapping", () -> FactoryRecipeMatchGameTests::recipeCostMapping);
 
+    public static final DeferredHolder<Consumer<GameTestHelper>, Consumer<GameTestHelper>> FACTORY_TREE_MODEL_FIXTURE =
+            FUNCTIONS.register("factory_tree_model_fixture", () -> FactoryTreeViewGameTests::treeModelFixture);
+
+    public static final DeferredHolder<Consumer<GameTestHelper>, Consumer<GameTestHelper>> FACTORY_TREE_MODEL_SIGNATURE =
+            FUNCTIONS.register("factory_tree_model_signature", () -> FactoryTreeViewGameTests::treeModelSignature);
+
+    public static final DeferredHolder<Consumer<GameTestHelper>, Consumer<GameTestHelper>> FACTORY_TREE_LAYOUT_COMPOSE =
+            FUNCTIONS.register("factory_tree_layout_compose", () -> FactoryTreeViewGameTests::treeLayoutCompose);
+
+    public static final DeferredHolder<Consumer<GameTestHelper>, Consumer<GameTestHelper>> FACTORY_CONCAT_FLOW_FIXTURE =
+            FUNCTIONS.register("factory_concat_flow_fixture", () -> FactoryConcatFlowGameTests::concatFlowFixture);
+
+    public static final DeferredHolder<Consumer<GameTestHelper>, Consumer<GameTestHelper>> FACTORY_CONCAT_GUIDE_LAYOUT =
+            FUNCTIONS.register("factory_concat_guide_layout", () -> FactoryConcatFlowGameTests::concatGuideLayoutFixture);
+
+    public static final DeferredHolder<Consumer<GameTestHelper>, Consumer<GameTestHelper>> FACTORY_TREE_MODEL_CONCAT =
+            FUNCTIONS.register("factory_tree_model_concat", () -> FactoryTreeViewGameTests::treeModelConcatSplit);
+
     public static void register(IEventBus modEventBus) {
         FUNCTIONS.register(modEventBus);
     }

@@ -5,16 +5,18 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import studio.fantasyit.ether_craft.recipe.factory.render.data.TreeDiagramLayout;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class TreeDiagramWidget {
-    private final int viewX, viewY;
+    private int viewX, viewY;
     private final TreeDiagramViewport viewport;
     private final ViewportInputHandler inputHandler;
     private TreeDiagramLayout layout;
     private final Map<String, Binding<?>> bindings = new HashMap<>();
+    private final List<Decoration<?>> decorations = new ArrayList<>();
     private String hoveredNodeId;
 
     private record Binding<T>(NodeRenderer<? super T> renderer, NodeTooltipProvider<? super T> tooltip,
@@ -33,6 +35,11 @@ public class TreeDiagramWidget {
             }
         }
 
+    /** 只渲染、不参与命中测试的装饰块（如分组表头）。 */
+    private record Decoration<T>(int x, int y, int width, int height,
+                                 NodeRenderer<? super T> renderer, T data) {
+    }
+
     public TreeDiagramWidget(int viewX, int viewY, int viewWidth, int viewHeight) {
         this.viewX = viewX;
         this.viewY = viewY;
@@ -42,9 +49,28 @@ public class TreeDiagramWidget {
 
     public void setLayout(TreeDiagramLayout layout) {
         this.layout = layout;
-        this.viewport.canvasWidth = layout.canvasWidth;
-        this.viewport.canvasHeight = layout.canvasHeight;
+        this.viewport.setCanvasSize(layout.canvasWidth, layout.canvasHeight);
         viewport.centerPan();
+    }
+
+    /** 浮层窗口移动/缩放后更新控件位置与视口尺寸（保留当前缩放与平移状态）。 */
+    public void setBounds(int x, int y, int width, int height) {
+        this.viewX = x;
+        this.viewY = y;
+        this.viewport.setViewSize(width, height);
+    }
+
+    /** 添加一个只渲染、不参与命中测试的装饰块（用于分组表头等）。 */
+    public <T> void addDecoration(int x, int y, int width, int height, NodeRenderer<T> renderer, T data) {
+        decorations.add(new Decoration<>(x, y, width, height, renderer, data));
+    }
+
+    public void clearDecorations() {
+        decorations.clear();
+    }
+
+    public void clearBindings() {
+        bindings.clear();
     }
 
     public <T> void bindNode(String id, NodeRenderer<T> renderer,
@@ -75,6 +101,10 @@ public class TreeDiagramWidget {
         double worldMX = viewport.toWorldX(mouseX - viewX);
         double worldMY = viewport.toWorldY(mouseY - viewY);
 
+        for (Decoration<?> decoration : decorations) {
+            renderDecoration(decoration, g, worldMX, worldMY);
+        }
+
         hoveredNodeId = null;
         for (var positioned : layout.nodes) {
             Binding<?> binding = bindings.get(positioned.id());
@@ -101,6 +131,16 @@ public class TreeDiagramWidget {
     }
 
     @SuppressWarnings("unchecked")
+    private <T> void renderDecoration(Decoration<T> decoration, GuiGraphicsExtractor g,
+                                      double worldMX, double worldMY) {
+        NodeRenderer<T> renderer = (NodeRenderer<T>) decoration.renderer;
+        TreeDiagramLayout.PositionedNode area = new TreeDiagramLayout.PositionedNode(
+                "decoration", decoration.x, decoration.y, decoration.width, decoration.height,
+                decoration.height / 2, decoration.x + decoration.width);
+        renderer.render(g, area, decoration.data, worldMX, worldMY);
+    }
+
+    @SuppressWarnings("unchecked")
     private <T> void renderNode(Binding<T> binding, GuiGraphicsExtractor g,
                                  TreeDiagramLayout.PositionedNode node,
                                  double worldMX, double worldMY) {
@@ -117,10 +157,12 @@ public class TreeDiagramWidget {
         for (var positioned : layout.nodes) {
             if (mouseInNode(positioned, worldMX, worldMY)) {
                 Binding<?> binding = bindings.get(positioned.id());
-                if (binding != null) {
+                if (binding != null && binding.click != null) {
                     binding.handleClick(positioned, button);
+                    return true;
                 }
-                return true;
+                // 命中节点但没有点击行为：继续走视口逻辑，使"从节点上按下"也能拖拽平移
+                break;
             }
         }
 

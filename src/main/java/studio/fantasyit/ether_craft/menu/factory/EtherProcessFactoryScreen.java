@@ -40,9 +40,16 @@ public class EtherProcessFactoryScreen extends AbstractContainerScreen<@NotNull 
     FactoryLevelDef f;
     Rect2i etherShowArea;
     boolean isFiltering = false;
+    private static final int TREE_PANEL_SIZE = 26;
+    private static final int TREE_PANEL_GAP = 2;
+    private static final int TREE_BTN_INSET = 5;
+    private static final int TREE_VIEW_MARGIN = 4;
     private EditBox nameEdit;
     private NamePencilButton namePencil;
     private boolean wasFocused = false;
+    private FactoryTreeButton treeButton;
+    private FactoryTreeOverlay treeOverlay;
+    private boolean treeOpen = false;
 
     public EtherProcessFactoryScreen(EtherProcessFactoryContainerMenu menu, Inventory p_97742_, Component p_97743_) {
         super(menu, p_97742_, p_97743_, menu.entity.getLevelDef().guiSize().x, menu.entity.getLevelDef().guiSize().y);
@@ -99,6 +106,24 @@ public class EtherProcessFactoryScreen extends AbstractContainerScreen<@NotNull 
         ));
         iaSwitchButton.setDown(menu.isFilterActive());
         setUsingFilter(menu.isFilterActive());
+
+        // 过滤器面板正上方的"树形可视化"小面板
+        int treeX = getLeftPos() + f.panelRight().x;
+        int treeY = getTopPos() + f.panelRight().y - TREE_PANEL_GAP - TREE_PANEL_SIZE;
+        treeButton = addRenderableWidget(new FactoryTreeButton(
+                treeX + TREE_BTN_INSET, treeY + TREE_BTN_INSET,
+                BTN_NORMAL, BTN_HOVER, BTN_DOWN, BTN_DOWN_HOVER,
+                Component.translatable("menu.ether_craft.factory.tree_view"),
+                open -> {
+                    treeOpen = open;
+                    if (open && treeOverlay != null) treeOverlay.rebuild();
+                }));
+        treeButton.setDown(treeOpen);
+
+        // 默认与工厂 GUI 同宽、左边缘对齐，位于 GUI 正上方；之后可以随意拖动/缩放
+        treeOverlay = new FactoryTreeOverlay(be, getLeftPos(), TREE_VIEW_MARGIN,
+                imageWidth,
+                Math.max(0, getTopPos() - TREE_VIEW_MARGIN * 2));
     }
 
     @Override
@@ -120,17 +145,30 @@ public class EtherProcessFactoryScreen extends AbstractContainerScreen<@NotNull 
         if (isFiltering != serverState) {
             setUsingFilter(serverState);
         }
+        if (treeOpen && treeOverlay != null) {
+            treeOverlay.rebuild();
+        }
     }
 
     @Override
     public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        if (treeOpen && treeOverlay != null
+                && treeOverlay.mouseClicked(event.x(), event.y(), event.button())) {
+            blurNameEdit(event.x(), event.y());
+            return true;
+        }
         boolean result = super.mouseClicked(event, doubleClick);
+        blurNameEdit(event.x(), event.y());
+        return result;
+    }
+
+    /** 点击名称输入框以外的位置时取消其焦点（浮层点击同样适用）。 */
+    private void blurNameEdit(double mouseX, double mouseY) {
         if (nameEdit != null && nameEdit.isFocused()) {
-            if (!nameEdit.isMouseOver(event.x(), event.y()) && !namePencil.isMouseOver(event.x(), event.y())) {
+            if (!nameEdit.isMouseOver(mouseX, mouseY) && !namePencil.isMouseOver(mouseX, mouseY)) {
                 this.setFocused(null);
             }
         }
-        return result;
     }
 
     @Override
@@ -169,6 +207,10 @@ public class EtherProcessFactoryScreen extends AbstractContainerScreen<@NotNull 
             ItemStack itemStack = menu.playerInventory.getItem(menu.quickPlaceChipSlotId);
             graphics.item(itemStack, mouseX - 18, mouseY - 15);
             graphics.setTooltipForNextFrame(font, itemStack, mouseX, mouseY);
+        }
+
+        if (treeOpen && treeOverlay != null) {
+            treeOverlay.render(graphics, font, mouseX, mouseY);
         }
     }
 
@@ -264,6 +306,11 @@ public class EtherProcessFactoryScreen extends AbstractContainerScreen<@NotNull 
                     Component.translatable("menu.ether_craft.factory.ether_bar_tooltip", etherTotal).getVisualOrderText(),
                     Component.translatable("menu.ether_craft.ether_bar_tooltip_leak", be.leak).getVisualOrderText()
             ), mouseX, mouseY);
+
+        // 树形可视化小面板（过滤器面板正上方）
+        int treePanelX = getLeftPos() + f.panelRight().x;
+        int treePanelY = getTopPos() + f.panelRight().y - TREE_PANEL_GAP - TREE_PANEL_SIZE;
+        UIUtil.nineSliced(graphics, MAIN_BG, treePanelX, treePanelY, TREE_PANEL_SIZE, TREE_PANEL_SIZE, 5);
 
         int rpx = getLeftPos() + f.panelRight().x;
         int rpy = getTopPos() + f.panelRight().y;
@@ -398,6 +445,9 @@ public class EtherProcessFactoryScreen extends AbstractContainerScreen<@NotNull 
                 return;
             }
         super.extractTooltip(graphics, mouseX, mouseY);
+        if (treeOpen && treeOverlay != null) {
+            treeOverlay.renderTooltips(graphics, font, mouseX, mouseY);
+        }
     }
 
     @Override
@@ -412,6 +462,10 @@ public class EtherProcessFactoryScreen extends AbstractContainerScreen<@NotNull 
 
     @Override
     public boolean mouseDragged(MouseButtonEvent event, double dx, double dy) {
+        if (treeOpen && treeOverlay != null
+                && treeOverlay.mouseDragged(event.x(), event.y(), event.button(), dx, dy)) {
+            return true;
+        }
         if (menu.getCarried().is(ItemRegistry.WRENCH) && menu.quickPlaceChipSlotId != -1 && this.isQuickCrafting) {
             Slot slot = this.getHoveredSlot();
             if (slot != null && menu.internalSlotMapping.containsKey(slot.index)) {
@@ -424,10 +478,37 @@ public class EtherProcessFactoryScreen extends AbstractContainerScreen<@NotNull 
 
     @Override
     public boolean mouseScrolled(double x, double y, double scrollX, double scrollY) {
+        if (treeOpen && treeOverlay != null
+                && treeOverlay.mouseScrolled(x, y, scrollX, scrollY)) {
+            return true;
+        }
         if (menu.getCarried().is(ItemRegistry.WRENCH)) {
             ClientPacketDistributor.sendToServer(new FactoryMenuSwitchItemC2S(scrollY > 0));
             return true;
         }
         return super.mouseScrolled(x, y, scrollX, scrollY);
+    }
+
+    @Override
+    public boolean mouseReleased(MouseButtonEvent event) {
+        if (treeOpen && treeOverlay != null) {
+            treeOverlay.onMouseReleased();
+        }
+        return super.mouseReleased(event);
+    }
+
+    @Override
+    public boolean keyPressed(KeyEvent event) {
+        if (treeOpen && treeOverlay != null) {
+            if (event.key() == GLFW.GLFW_KEY_ESCAPE) {
+                treeOpen = false;
+                if (treeButton != null) treeButton.setDown(false);
+                return true;
+            }
+            if ((nameEdit == null || !nameEdit.isFocused()) && treeOverlay.keyPressed(event.key())) {
+                return true;
+            }
+        }
+        return super.keyPressed(event);
     }
 }

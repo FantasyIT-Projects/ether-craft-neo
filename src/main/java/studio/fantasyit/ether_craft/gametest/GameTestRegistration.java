@@ -42,6 +42,18 @@ public final class GameTestRegistration {
                 GameTestFunctions.FACTORY_RECIPE_MATCH_DATAPACK.getKey());
         registerTest(event, environment, "factory_recipe_cost_mapping",
                 GameTestFunctions.FACTORY_RECIPE_COST_MAPPING.getKey());
+        registerTest(event, environment, "factory_tree_model_fixture",
+                GameTestFunctions.FACTORY_TREE_MODEL_FIXTURE.getKey());
+        registerTest(event, environment, "factory_tree_model_signature",
+                GameTestFunctions.FACTORY_TREE_MODEL_SIGNATURE.getKey());
+        registerTest(event, environment, "factory_tree_layout_compose",
+                GameTestFunctions.FACTORY_TREE_LAYOUT_COMPOSE.getKey());
+        registerTest(event, environment, "factory_tree_model_concat",
+                GameTestFunctions.FACTORY_TREE_MODEL_CONCAT.getKey());
+        registerTest(event, environment, "factory_concat_flow_fixture",
+                GameTestFunctions.FACTORY_CONCAT_FLOW_FIXTURE.getKey());
+        registerTest(event, environment, "factory_concat_guide_layout",
+                GameTestFunctions.FACTORY_CONCAT_GUIDE_LAYOUT.getKey());
     }
 
     private static void registerTest(RegisterGameTestsEvent event,

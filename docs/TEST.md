@@ -261,3 +261,90 @@ $h = (Get-Process -Id <PID>).MainWindowHandle
 | 定位 | 回归主力 | 场景补充 |
 
 建议：能用 GameTest 覆盖的逻辑一律用 GameTest；只有必须“真的在游戏里跑一遍”的场景才走本流程。
+
+---
+
+## 9. 实测补充与修正（2026-09-15 · ether_craft 树形浮层）
+
+以下结论均在 MC 26.1.2 / Windows 上复核过（起始窗口 698×422，后调整为 860×420；DPI 120 → 内容缩放 1.25）。
+
+### 9.1 F2 截图与最小化（修正 §2.4 的“F2 失效”说法）
+
+| 状态 | 结果 |
+| --- | --- |
+| 启动即最小化、**窗口从未渲染过** | F2 仍提示“已将截图保存为 …”，但落盘的是 **1×1 空 PNG**（68 字节） |
+| 曾经显示过一次（哪怕之后又最小化） | F2 得到**完整截图**，尺寸 = 帧缓冲尺寸，且内容是最新帧 |
+
+⇒ §2.4 的结论应改为：“最小化不必然导致截图失效；**只有帧缓冲尚未建立时**才会得到 1×1 图”。
+**断言前必须校验尺寸**（PNG 头部 / `read_image`），否则会拿着 1×1 图白忙。
+
+### 9.2 鼠标消息的粒度（重要）
+
+| 输入 | 未聚焦（后台/最小化） | 说明 |
+| --- | --- | --- |
+| 左/中/右键**点击** | ✅ 有效 | 世界内右键开容器 GUI、GUI 内点按钮/滑槽都实测通过 |
+| 滚轮 | ✅ 有效 | 但见 §9.3 的 lParam 要求 |
+| **移动 / 拖拽 / 悬停** | ❌ 无效 | `MouseHandler.handleAccumulatedMovement()` 整块被 `isWindowActive()` 门控 |
+
+`isWindowActive()` = GLFW `focused` = **WM_SETFOCUS / WM_KILLFOCUS（键盘焦点）**，与“前台窗口”无关。
+实测：`GetForegroundWindow()` 已命中游戏窗口（并用 `AttachThreadInput` + `SetForegroundWindow` 强行前置）后，
+`isWindowActive()` 仍为 false —— **拖拽类交互无法在后台窗口上测试**；要测必须让窗口真正获得键盘焦点
+（代价是 `grabMouse()` 抓走鼠标，见 §2.4）。
+
+### 9.3 滚轮：`WM_MOUSEWHEEL` 的 lParam 必须带屏幕坐标
+
+`WM_MOUSEWHEEL` 的 `lParam` 语义是**屏幕坐标**（不是客户区）。若传 0，GLFW 会把光标位置重置到原点，
+MC 随后按错误位置派发滚轮事件（表现为“滚到了别的控件/热栏”，目标控件收不到）。
+
+```csharp
+// 目标客户区坐标 (cx, cy) → 屏幕坐标
+RECT r; GetWindowRect(h, out r);
+int sx = r.Left + cx, sy = r.Top + cy;
+PostMessage(h, WM_MOUSEWHEEL, (IntPtr)((long)(delta & 0xFFFF) << 16),
+            (IntPtr)((long)(uint)(sx & 0xFFFF) | ((long)(uint)(sy & 0xFFFF) << 16)));
+```
+
+### 9.4 窗口尺寸 / GUI 缩放（决定浮层有没有空间）
+
+`com.mojang.blaze3d.platform.Window#calculateScale(maxScale, enforceUnicode)`：
+
+```java
+for (scale = 1; scale != maxScale && scale < fbW && scale < fbH
+     && fbW / (scale + 1) >= 320 && fbH / (scale + 1) >= 240; ++scale) {}
+```
+
+- 帧缓冲宽/高每翻一倍才允许升一级，且必须满足 320×240 的最小 GUI 空间，否则停在低倍率。
+- 854×480 帧缓冲、`guiScale=4` 时实际倍率只有 **2×**；把帧缓冲高度压到 < 480（客户区高度 < 384 物理像素）即可降到 **1×**。
+- 240 GUI 高的大型界面（如 7×7 工厂 GUI）需要 1× 才能完整显示 + 给上方浮层留出高度。
+
+坐标换算（DPI 上例中 framebuffer/window ≈ 1.25）：
+
+```
+scaled   = clientPx * (framebufferW / windowW)   // move/click 注入用 clientPx
+clientPx = imagePx  * (windowW / framebufferW)   // 从截图量到像素后反推
+```
+
+### 9.5 JEI 会吞掉字母键
+
+GUI 内注入字母（A/W/S/D…）会被 JEI 的搜索框捕获，目标界面收不到按键。
+**测键盘操作请用方向键/功能键**，或先用鼠标点一下非输入类控件。
+
+### 9.6 用世界数据包搭建场景（强烈推荐）
+
+比几十条 `/data modify` 聊天命令快一个数量级（且不受聊天框 256 字符限制）：
+
+- 目录：`saves/<世界>/datapacks/<名字>/`，必须含 `pack.mcmeta`；
+- `pack_format` 取 `version.json` 的 `pack_version.data_major`（26.1 = **101**）；
+- 函数放 `data/<命名空间>/function/<名>.mcfunction`（1.21+ 为单数 `function`）；
+- 世界运行中也能加载：写入文件 → `/reload` → `/datapack list` 出现 `file/<名字>（世界）` → `/function …`；
+- 实测一个 function 里 35 行 `setblock` + `data modify block … content[i] set value {…}` 即可一次性灌好含芯片（含连接芯片）的工厂布局。
+
+### 9.7 注入脚本
+
+参考实现保留在 `build/agent-test/driver.ps1`（`build/` 已被忽略，不入库）：步骤脚本支持
+`cmd:/…`、`key:0x…`、`shot`、`move:x,y`、`click:l|r|m`、`scroll:delta`、`drag:x1,y1,x2,y2`、
+`show`（SW_SHOWNOACTIVATE，不抢焦点）、`focus`、`min`、`size:w,h`、`info`。
+
+- 每个 `cmd:` 约 1.2 s + 8 ms/字符，**单批命令别超过 ~10 条**，否则前台调用 200 s 超时；
+- 句柄每次重取（`(Get-Process -Id <pid>).MainWindowHandle`）。
+

@@ -48,12 +48,13 @@ public class ViewportInputHandler {
     public boolean handleMouseClicked(double mouseX, double mouseY, int button,
                                        boolean isSimulate, boolean isOverNode) {
         if (button == GLFW.GLFW_MOUSE_BUTTON_LEFT) {
+            // 模拟阶段只回答"是否希望接管这次输入"；真实点击才真正开始拖拽，
+            // 否则真实点击会把模拟阶段设好的 dragging 清掉，导致拖拽平移失效。
             if (isSimulate) {
-                dragging = !isOverNode;
-                return dragging;
+                return !isOverNode;
             }
-            dragging = false;
-            return false;
+            dragging = !isOverNode;
+            return dragging;
         }
         return false;
     }
