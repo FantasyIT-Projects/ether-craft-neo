@@ -129,6 +129,9 @@
   "tooltip.ether_craft.welding_chip": "焊接芯片",
   "tooltip.ether_craft.energizing_chip": "注能芯片",
   "tooltip.ether_craft.concat_chip": "连接芯片",
+  "tooltip.ether_craft.craft_table_chip": "工作台芯片",
+  "tooltip.ether_craft.craft_table_chip.recipe": "配方: %s",
+  "tooltip.ether_craft.craft_table_chip.unset": "未配置配方",
 
   "tooltip.ether_craft.ether_process_recipe_answer.target": "目标: %s",
   "tooltip.ether_craft.adapt_node.plugin": "插件: %s",

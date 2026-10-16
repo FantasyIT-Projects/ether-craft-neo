@@ -7,6 +7,7 @@ import net.neoforged.neoforge.event.OnDatapackSyncEvent;
 import net.neoforged.neoforge.event.TagsUpdatedEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 import studio.fantasyit.ether_craft.factory.EtherProcessChipManager;
+import studio.fantasyit.ether_craft.factory.special.SpecialRecipeManager;
 import studio.fantasyit.ether_craft.recipe.factory.EtherProcessRecipeManager;
 import studio.fantasyit.ether_craft.network.s2c.SyncChipInfoS2C;
 import studio.fantasyit.ether_craft.network.s2c.SyncExtraRecipesS2C;
@@ -41,6 +42,7 @@ public class ServerRecipeSyncEvent {
     public static void onServerDataLoad(TagsUpdatedEvent.ServerDataLoad event) {
         RecipeManager recipeManager = event.getServerResources().getRecipeManager();
         EtherProcessRecipeManager.onReload(recipeManager);
+        SpecialRecipeManager.onReload(recipeManager);
         NodePluginTipManager.INSTANCE.collect(recipeManager);
     }
 }

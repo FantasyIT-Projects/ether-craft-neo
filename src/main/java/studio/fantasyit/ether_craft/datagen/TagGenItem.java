@@ -28,7 +28,8 @@ public class TagGenItem extends TagsProvider<Item> {
     @Override
     protected void addTags(HolderLookup.@NotNull Provider provider) {
         getOrCreateRawBuilder(PROCESS_CHIP)
-                .addElement(ItemRegistry.PROCESS_CHIP_ITEM.getKey().identifier());
+                .addElement(ItemRegistry.PROCESS_CHIP_ITEM.getKey().identifier())
+                .addElement(ItemRegistry.CRAFT_TABLE_CHIP_ITEM.getKey().identifier());
 
         var equip = getOrCreateRawBuilder(CONSUMABLE_EQUIPMENTS);
         equip.addElement(BuiltInRegistries.ITEM.getKey(Items.WOODEN_SWORD));

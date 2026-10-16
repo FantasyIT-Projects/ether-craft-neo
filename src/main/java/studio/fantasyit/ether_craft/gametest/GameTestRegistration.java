@@ -54,6 +54,16 @@ public final class GameTestRegistration {
                 GameTestFunctions.FACTORY_CONCAT_FLOW_FIXTURE.getKey());
         registerTest(event, environment, "factory_concat_guide_layout",
                 GameTestFunctions.FACTORY_CONCAT_GUIDE_LAYOUT.getKey());
+        registerTest(event, environment, "craft_table_not_special",
+                GameTestFunctions.CRAFT_TABLE_NOT_SPECIAL.getKey());
+        registerTest(event, environment, "craft_table_matched",
+                GameTestFunctions.CRAFT_TABLE_MATCHED.getKey());
+        registerTest(event, environment, "craft_table_no_match",
+                GameTestFunctions.CRAFT_TABLE_NO_MATCH.getKey());
+        registerTest(event, environment, "craft_table_inputs_ignored",
+                GameTestFunctions.CRAFT_TABLE_INPUTS_IGNORED.getKey());
+        registerTest(event, environment, "craft_table_cache_reuse",
+                GameTestFunctions.CRAFT_TABLE_CACHE_REUSE.getKey());
     }
 
     private static void registerTest(RegisterGameTestsEvent event,

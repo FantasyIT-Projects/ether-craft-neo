@@ -47,6 +47,21 @@ public final class GameTestFunctions {
     public static final DeferredHolder<Consumer<GameTestHelper>, Consumer<GameTestHelper>> FACTORY_TREE_MODEL_CONCAT =
             FUNCTIONS.register("factory_tree_model_concat", () -> FactoryTreeViewGameTests::treeModelConcatSplit);
 
+    public static final DeferredHolder<Consumer<GameTestHelper>, Consumer<GameTestHelper>> CRAFT_TABLE_NOT_SPECIAL =
+            FUNCTIONS.register("craft_table_not_special", () -> SpecialRecipeGameTests::craftTableNotSpecial);
+
+    public static final DeferredHolder<Consumer<GameTestHelper>, Consumer<GameTestHelper>> CRAFT_TABLE_MATCHED =
+            FUNCTIONS.register("craft_table_matched", () -> SpecialRecipeGameTests::craftTableMatched);
+
+    public static final DeferredHolder<Consumer<GameTestHelper>, Consumer<GameTestHelper>> CRAFT_TABLE_NO_MATCH =
+            FUNCTIONS.register("craft_table_no_match", () -> SpecialRecipeGameTests::craftTableNoMatch);
+
+    public static final DeferredHolder<Consumer<GameTestHelper>, Consumer<GameTestHelper>> CRAFT_TABLE_INPUTS_IGNORED =
+            FUNCTIONS.register("craft_table_inputs_ignored", () -> SpecialRecipeGameTests::craftTableInputsIgnored);
+
+    public static final DeferredHolder<Consumer<GameTestHelper>, Consumer<GameTestHelper>> CRAFT_TABLE_CACHE_REUSE =
+            FUNCTIONS.register("craft_table_cache_reuse", () -> SpecialRecipeGameTests::craftTableCacheReuse);
+
     public static void register(IEventBus modEventBus) {
         FUNCTIONS.register(modEventBus);
     }

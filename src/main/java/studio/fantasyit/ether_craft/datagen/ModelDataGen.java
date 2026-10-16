@@ -60,6 +60,7 @@ public class ModelDataGen extends ModelProvider {
     protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerators itemModels) {
         itemModels.generateFlatItem(ItemRegistry.PROCESS_CHIP_ITEM.get(), ITEM_SIMPLE);
         itemModels.generateFlatItem(ItemRegistry.DIRECT_INPUT_ITEM_CHIP.get(), ITEM_SIMPLE);
+        itemModels.generateFlatItem(ItemRegistry.CRAFT_TABLE_CHIP_ITEM.get(), ITEM_SIMPLE);
         itemModels.generateFlatItem(ItemRegistry.LOGO.get(), ITEM_SIMPLE);
         itemModels.generateFlatItem(ItemRegistry.ETHER.get(), ITEM_SIMPLE);
         itemModels.generateFlatItem(ItemRegistry.ETHER_CREATIVE.get(), ITEM_SIMPLE);
@@ -97,6 +98,9 @@ public class ModelDataGen extends ModelProvider {
                     _id.getNamespace(),
                     path.replace("ether_process_chip/", "").replace(".json", "")
             );
+            // 已经是独立物品的芯片（如工作台芯片）由 generateFlatItem 注册，避免重复定义
+            if (BuiltInRegistries.ITEM.containsKey(id))
+                return;
             Identifier identifier = ITEM_SIMPLE.create(id.withPrefix("item/"), new TextureMapping().put(TextureSlot.LAYER0, new Material(id.withPrefix("item/"))), itemModels.modelOutput);
             itemModels.itemModelOutput.register(id, new ClientItem(ItemModelUtils.plainModel(identifier), new ClientItem.Properties(false, false, 1)));
         });

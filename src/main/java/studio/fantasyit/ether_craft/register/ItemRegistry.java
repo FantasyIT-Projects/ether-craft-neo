@@ -15,6 +15,7 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import org.jetbrains.annotations.NotNull;
 import studio.fantasyit.ether_craft.EtherCraft;
+import studio.fantasyit.ether_craft.item.CraftTableChipItem;
 import studio.fantasyit.ether_craft.item.EtherAdaptNodeBlockItem;
 import studio.fantasyit.ether_craft.item.EtherProcessFactoryBlockItem;
 import studio.fantasyit.ether_craft.item.EtherProcessRecipeAnswerItem;
@@ -35,6 +36,7 @@ public class ItemRegistry {
     public static final DeferredHolder<Item, @NotNull Item> ETHER_CREATIVE = ITEMS.register("ether_creative", i -> new Item(new Item.Properties().stacksTo(64).setId(ResourceKey.create(Registries.ITEM, i))));
     public static final DeferredHolder<Item, @NotNull ProcessChipItem> PROCESS_CHIP_ITEM = ITEMS.register("process_chip", ProcessChipItem::new);
     public static final DeferredHolder<Item, @NotNull ProcessChipItem> DIRECT_INPUT_ITEM_CHIP = ITEMS.register("direct_input", ProcessChipItem::new);
+    public static final DeferredHolder<Item, @NotNull ProcessChipItem> CRAFT_TABLE_CHIP_ITEM = ITEMS.register("craft_table_chip", CraftTableChipItem::new);
 
     public static final DeferredHolder<Item, @NotNull ItemWrench> WRENCH = ITEMS.register("wrench", i -> new ItemWrench(new Item.Properties().stacksTo(1).setId(ResourceKey.create(Registries.ITEM, i))));
     public static final DeferredHolder<Item, @NotNull Item> BLADE = ITEMS.register("blade", i -> new Item(new Item.Properties().stacksTo(64).setId(ResourceKey.create(Registries.ITEM, i))));

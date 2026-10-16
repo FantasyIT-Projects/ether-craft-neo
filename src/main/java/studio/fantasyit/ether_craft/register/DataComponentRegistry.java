@@ -12,6 +12,7 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import org.jetbrains.annotations.NotNull;
 import studio.fantasyit.ether_craft.EtherCraft;
+import studio.fantasyit.ether_craft.item.CraftTableChipData;
 import studio.fantasyit.ether_craft.plating.data.PlatingData;
 import studio.fantasyit.ether_craft.plating.data.ProgressingPlatingData;
 
@@ -34,6 +35,10 @@ public class DataComponentRegistry {
     );
     public static final DeferredHolder<DataComponentType<?>, @NotNull DataComponentType<ItemStackTemplate>> TARGET = DATA_COMPONENT.register("ether_process_recipe_target",
             () -> DataComponentType.<ItemStackTemplate>builder().persistent(ItemStackTemplate.CODEC).networkSynchronized(ItemStackTemplate.STREAM_CODEC).build()
+    );
+
+    public static final DeferredHolder<DataComponentType<?>, @NotNull DataComponentType<CraftTableChipData>> CRAFT_TABLE_CHIP_DATA = DATA_COMPONENT.register("craft_table_chip_data",
+            () -> DataComponentType.<CraftTableChipData>builder().persistent(CraftTableChipData.CODEC).networkSynchronized(CraftTableChipData.STREAM_CODEC).build()
     );
 
     public static final DeferredHolder<DataComponentType<?>, @NotNull DataComponentType<List<PlatingData>>> PLATING_DATA = DATA_COMPONENT.register("plating_data",

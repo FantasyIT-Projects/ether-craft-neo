@@ -8,8 +8,8 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
+import studio.fantasyit.ether_craft.item.ProcessChipItem;
 import studio.fantasyit.ether_craft.register.DataComponentRegistry;
-import studio.fantasyit.ether_craft.register.ItemRegistry;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -75,7 +75,7 @@ public class EtherProcessChipManager {
     }
 
     public static @Nullable ProcessChipRecord get(ItemStack item) {
-        if (!item.is(ItemRegistry.PROCESS_CHIP_ITEM)) return null;
+        if (!(item.getItem() instanceof ProcessChipItem)) return null;
         @Nullable Identifier i = item.get(DataComponentRegistry.CHIP_ID);
         if (i == null) return null;
         return chipInfo.get(i);

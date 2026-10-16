@@ -1,5 +1,6 @@
 {
   "values": [
-    "ether_craft:process_chip"
+    "ether_craft:process_chip",
+    "ether_craft:craft_table_chip"
   ]
 }

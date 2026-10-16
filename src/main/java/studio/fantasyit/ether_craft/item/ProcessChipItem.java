@@ -17,6 +17,8 @@ import studio.fantasyit.ether_craft.factory.EtherProcessChipManager;
 import studio.fantasyit.ether_craft.register.DataComponentRegistry;
 import studio.fantasyit.ether_craft.register.ItemRegistry;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
 
@@ -24,12 +26,25 @@ public class ProcessChipItem extends Item {
     public static final Identifier SEPARATOR = EtherCraft.id("separator_chip");
     public static final Identifier CONCAT = EtherCraft.id("concat_chip");
 
+    /**
+     * 芯片 id → 承载该芯片的物品。
+     * 普通芯片全部由 {@link ItemRegistry#PROCESS_CHIP_ITEM} 承载；特殊芯片可以注册成自己的物品。
+     */
+    private static final Map<Identifier, ProcessChipItem> CHIP_ITEMS = new HashMap<>();
+
     public ProcessChipItem(Identifier identifier) {
         super(new Properties().setId(ResourceKey.create(Registries.ITEM, identifier)));
+        CHIP_ITEMS.put(identifier, this);
+    }
+
+    /** 取得承载指定芯片 id 的物品；未注册的芯片回落到通用处理芯片。 */
+    public static ProcessChipItem itemForChipId(Identifier chipId) {
+        ProcessChipItem item = CHIP_ITEMS.get(chipId);
+        return item != null ? item : ItemRegistry.PROCESS_CHIP_ITEM.get();
     }
 
     public static ItemStack getStackFor(Identifier id) {
-        ItemStack stack = ItemRegistry.PROCESS_CHIP_ITEM.get().getDefaultInstance().copy();
+        ItemStack stack = itemForChipId(id).getDefaultInstance().copy();
         stack.set(DataComponentRegistry.CHIP_ID, id);
         stack.set(DataComponents.ITEM_MODEL, Identifier.fromNamespaceAndPath(
                 id.getNamespace(),

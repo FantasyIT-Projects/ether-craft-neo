@@ -1,0 +1,10 @@
+{
+  "storage": 10000,
+  "etherConsume": 10,
+  "color": "8b5a2b",
+  "effect": {
+    "separate": false,
+    "effectSelf": true,
+    "effectSide": false
+  }
+}

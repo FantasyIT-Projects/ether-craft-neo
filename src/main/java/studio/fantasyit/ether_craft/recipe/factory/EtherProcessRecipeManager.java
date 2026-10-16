@@ -13,6 +13,8 @@ import org.apache.commons.lang3.mutable.MutableBoolean;
 import studio.fantasyit.ether_craft.base.TreeLike;
 import studio.fantasyit.ether_craft.factory.ExtraRecipeProvider;
 import studio.fantasyit.ether_craft.factory.special.ExtraFurnaceRecipe;
+import studio.fantasyit.ether_craft.factory.special.SpecialRecipeManager;
+import studio.fantasyit.ether_craft.factory.special.SpecialRecipeMatchResult;
 import studio.fantasyit.ether_craft.recipe.factory.multistep.EtherFactoryMultiStepInput;
 import studio.fantasyit.ether_craft.recipe.factory.multistep.MultiStepMatchIO;
 import studio.fantasyit.ether_craft.recipe.factory.multistep.MultiStepMatchIOTemp;
@@ -121,7 +123,20 @@ public class EtherProcessRecipeManager {
         }
 
         EtherFactoryRecipeInput etherFactoryRecipeInput = new EtherFactoryRecipeInput(inputStacks, inputTreeIds, value.tree());
-        Optional<EtherProcessFactoryRecipe> recipe = getRecipe(level, manager, etherFactoryRecipeInput);
+
+        // 提前匹配：树已被 concat 芯片切分完，在单树常规匹配之前先过一次特殊配方判定
+        Optional<EtherProcessFactoryRecipe> recipe;
+        switch (SpecialRecipeManager.match(level, manager, value.tree(), etherFactoryRecipeInput)) {
+            case SpecialRecipeMatchResult.Matched matched ->
+                    recipe = Optional.of(matched.recipe().recipe());
+            case SpecialRecipeMatchResult.NoMatch ignored -> {
+                // 是特殊配方树但没有匹配：严格失败，不回退到常规匹配
+                isFail.setTrue();
+                return;
+            }
+            case SpecialRecipeMatchResult.NotSpecial ignored ->
+                    recipe = getRecipe(level, manager, etherFactoryRecipeInput);
+        }
         if (recipe.isEmpty()) {
             isFail.setTrue();
             return;
