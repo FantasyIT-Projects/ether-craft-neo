@@ -56,14 +56,20 @@ public final class GameTestFunctions {
     public static final DeferredHolder<Consumer<GameTestHelper>, Consumer<GameTestHelper>> CRAFT_TABLE_MATCHED =
             FUNCTIONS.register("craft_table_matched", () -> SpecialRecipeGameTests::craftTableMatched);
 
+    public static final DeferredHolder<Consumer<GameTestHelper>, Consumer<GameTestHelper>> CRAFT_TABLE_SHAPED =
+            FUNCTIONS.register("craft_table_shaped", () -> SpecialRecipeGameTests::craftTableShaped);
+
     public static final DeferredHolder<Consumer<GameTestHelper>, Consumer<GameTestHelper>> CRAFT_TABLE_NO_MATCH =
             FUNCTIONS.register("craft_table_no_match", () -> SpecialRecipeGameTests::craftTableNoMatch);
 
-    public static final DeferredHolder<Consumer<GameTestHelper>, Consumer<GameTestHelper>> CRAFT_TABLE_INPUTS_IGNORED =
-            FUNCTIONS.register("craft_table_inputs_ignored", () -> SpecialRecipeGameTests::craftTableInputsIgnored);
+    public static final DeferredHolder<Consumer<GameTestHelper>, Consumer<GameTestHelper>> CRAFT_TABLE_FALLBACK_ROW =
+            FUNCTIONS.register("craft_table_fallback_row", () -> SpecialRecipeGameTests::craftTableFallbackRow);
 
-    public static final DeferredHolder<Consumer<GameTestHelper>, Consumer<GameTestHelper>> CRAFT_TABLE_CACHE_REUSE =
-            FUNCTIONS.register("craft_table_cache_reuse", () -> SpecialRecipeGameTests::craftTableCacheReuse);
+    public static final DeferredHolder<Consumer<GameTestHelper>, Consumer<GameTestHelper>> CRAFT_TABLE_FALLBACK_SHAPED =
+            FUNCTIONS.register("craft_table_fallback_shaped", () -> SpecialRecipeGameTests::craftTableFallbackShaped);
+
+    public static final DeferredHolder<Consumer<GameTestHelper>, Consumer<GameTestHelper>> CRAFT_TABLE_RELOAD =
+            FUNCTIONS.register("craft_table_reload", () -> SpecialRecipeGameTests::craftTableReload);
 
     public static void register(IEventBus modEventBus) {
         FUNCTIONS.register(modEventBus);

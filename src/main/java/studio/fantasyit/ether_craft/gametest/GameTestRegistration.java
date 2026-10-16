@@ -60,12 +60,16 @@ public final class GameTestRegistration {
                 GameTestFunctions.CRAFT_TABLE_NOT_SPECIAL.getKey());
         registerTest(event, environment, "craft_table_matched",
                 GameTestFunctions.CRAFT_TABLE_MATCHED.getKey());
+        registerTest(event, environment, "craft_table_shaped",
+                GameTestFunctions.CRAFT_TABLE_SHAPED.getKey());
         registerTest(event, environment, "craft_table_no_match",
                 GameTestFunctions.CRAFT_TABLE_NO_MATCH.getKey());
-        registerTest(event, environment, "craft_table_inputs_ignored",
-                GameTestFunctions.CRAFT_TABLE_INPUTS_IGNORED.getKey());
-        registerTest(event, environment, "craft_table_cache_reuse",
-                GameTestFunctions.CRAFT_TABLE_CACHE_REUSE.getKey());
+        registerTest(event, environment, "craft_table_fallback_row",
+                GameTestFunctions.CRAFT_TABLE_FALLBACK_ROW.getKey());
+        registerTest(event, environment, "craft_table_fallback_shaped",
+                GameTestFunctions.CRAFT_TABLE_FALLBACK_SHAPED.getKey());
+        registerTest(event, environment, "craft_table_reload",
+                GameTestFunctions.CRAFT_TABLE_RELOAD.getKey());
     }
 
     private static void registerTest(RegisterGameTestsEvent event,
