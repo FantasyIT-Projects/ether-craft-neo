@@ -54,6 +54,8 @@ public final class GameTestRegistration {
                 GameTestFunctions.FACTORY_CONCAT_FLOW_FIXTURE.getKey());
         registerTest(event, environment, "factory_concat_guide_layout",
                 GameTestFunctions.FACTORY_CONCAT_GUIDE_LAYOUT.getKey());
+        registerTest(event, environment, "factory_chip_channel_arrows",
+                GameTestFunctions.FACTORY_CHIP_CHANNEL_ARROWS.getKey());
         registerTest(event, environment, "craft_table_not_special",
                 GameTestFunctions.CRAFT_TABLE_NOT_SPECIAL.getKey());
         registerTest(event, environment, "craft_table_matched",

@@ -134,6 +134,7 @@
   "tooltip.ether_craft.craft_table_chip": "Craft Table Chip",
   "tooltip.ether_craft.craft_table_chip.recipe": "Recipe: %s",
   "tooltip.ether_craft.craft_table_chip.unset": "No recipe configured",
+  "tooltip.ether_craft.transmuting_chip": "Transmuting Chip",
 
   "tooltip.ether_craft.ether_process_recipe_answer.target": "Target: %s",
 

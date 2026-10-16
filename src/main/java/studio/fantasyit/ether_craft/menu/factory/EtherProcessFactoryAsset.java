@@ -22,4 +22,9 @@ public class EtherProcessFactoryAsset {
 
     public static final ImageAsset PENCIL_ON = EtherAdaptNodeAsset.PENCIL_ON;
     public static final ImageAsset PENCIL_OFF = EtherAdaptNodeAsset.PENCIL_OFF;
+
+    // 芯片槽位渲染用的 80x16 贴图（背景/图标/封闭箭头/入箭头/出箭头）
+    public static final Identifier CHIP_CONCAT = EtherCraft.id("textures/gui/chips/concat.png");
+    public static final Identifier CHIP_CRAFTING = EtherCraft.id("textures/gui/chips/crafting.png");
+    public static final Identifier CHIP_TRANSMUTING = EtherCraft.id("textures/gui/chips/transmuting.png");
 }

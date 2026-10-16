@@ -194,6 +194,22 @@ public class EtherProcessFactoryContainerMenu extends BaseContainerMenu<@NotNull
         this.filterActive = active;
     }
 
+    /**
+     * 由 GUI 局部槽位坐标反算内部网格坐标。
+     *
+     * @return (x = 列, y = 行)；不在内部芯片格上时返回 null
+     */
+    public @Nullable Vector2i internalCellAt(int slotX, int slotY) {
+        FactoryLevelDef factoryDef = entity.getLevelDef();
+        int baseX = factoryDef.posInternal().x + 1;
+        int baseY = factoryDef.posInternal().y + 1;
+        int col = (slotX - baseX) / 18;
+        int row = (slotY - baseY) / 18;
+        if (col < 0 || row < 0 || col >= entity.COLS || row >= entity.ROWS) return null;
+        if (baseX + col * 18 != slotX || baseY + row * 18 != slotY) return null;
+        return new Vector2i(col, row);
+    }
+
     /// /// 扳手快速放置
     public void onSwitchItem(boolean reverse) {
         if (quickPlaceChipSlotId == -1 && reverse) {

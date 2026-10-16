@@ -47,6 +47,9 @@ public final class GameTestFunctions {
     public static final DeferredHolder<Consumer<GameTestHelper>, Consumer<GameTestHelper>> FACTORY_TREE_MODEL_CONCAT =
             FUNCTIONS.register("factory_tree_model_concat", () -> FactoryTreeViewGameTests::treeModelConcatSplit);
 
+    public static final DeferredHolder<Consumer<GameTestHelper>, Consumer<GameTestHelper>> FACTORY_CHIP_CHANNEL_ARROWS =
+            FUNCTIONS.register("factory_chip_channel_arrows", () -> FactoryChipArrowGameTests::channelArrowsFixture);
+
     public static final DeferredHolder<Consumer<GameTestHelper>, Consumer<GameTestHelper>> CRAFT_TABLE_NOT_SPECIAL =
             FUNCTIONS.register("craft_table_not_special", () -> SpecialRecipeGameTests::craftTableNotSpecial);
 

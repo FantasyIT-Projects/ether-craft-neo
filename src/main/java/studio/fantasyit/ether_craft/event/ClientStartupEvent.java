@@ -6,6 +6,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import studio.fantasyit.ether_craft.entity.stream.render.EtherStreamEntityRenderer;
+import studio.fantasyit.ether_craft.menu.factory.chip.ChipSlotRenderManager;
 import studio.fantasyit.ether_craft.node.EtherAdaptNodeUpgradeTabManager;
 import studio.fantasyit.ether_craft.node.PluginRenderManager;
 import studio.fantasyit.ether_craft.stream.client.extra.EtherStreamClientLogicManager;
@@ -19,6 +20,7 @@ public class ClientStartupEvent {
         EtherAdaptNodeUpgradeTabManager.instance.collect();
         PluginRenderManager.Instance.collect();
         EtherStreamClientLogicManager.collect();
+        ChipSlotRenderManager.collect();
 
         EntityRenderers.register(ETHER_STREAM_ENTITY.get(), EtherStreamEntityRenderer::new);
     }

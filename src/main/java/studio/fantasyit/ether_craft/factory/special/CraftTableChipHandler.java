@@ -104,7 +104,7 @@ public class CraftTableChipHandler implements SpecialRecipeHandler {
     }
 
     private static @Nullable ItemStackTemplate resultOf(CraftingRecipe crafting, Level level) {
-        //FIXME 傻逼大肥鱼。此处需要重写
+        //FIXME 此处需要重写
         for (RecipeDisplay display : crafting.display()) {
             SlotDisplay result = null;
             if (display instanceof ShapedCraftingRecipeDisplay shaped) {

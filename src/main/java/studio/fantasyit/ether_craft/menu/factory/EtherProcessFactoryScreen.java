@@ -24,6 +24,7 @@ import studio.fantasyit.ether_craft.factory.FactoryLevelDef;
 import studio.fantasyit.ether_craft.menu.base.slot.BaseSlot;
 import studio.fantasyit.ether_craft.menu.base.widget.IASwitchButton;
 import studio.fantasyit.ether_craft.menu.base.widget.NamePencilButton;
+import studio.fantasyit.ether_craft.menu.factory.chip.ChipSlotRenderManager;
 import studio.fantasyit.ether_craft.network.c2s.FactoryMenuSwitchItemC2S;
 import studio.fantasyit.ether_craft.network.c2s.SetBlockNameC2S;
 import studio.fantasyit.ether_craft.network.c2s.SyncFilterActiveC2S;
@@ -162,7 +163,9 @@ public class EtherProcessFactoryScreen extends AbstractContainerScreen<@NotNull 
         return result;
     }
 
-    /** 点击名称输入框以外的位置时取消其焦点（浮层点击同样适用）。 */
+    /**
+     * 点击名称输入框以外的位置时取消其焦点（浮层点击同样适用）。
+     */
     private void blurNameEdit(double mouseX, double mouseY) {
         if (nameEdit != null && nameEdit.isFocused()) {
             if (!nameEdit.isMouseOver(mouseX, mouseY) && !namePencil.isMouseOver(mouseX, mouseY)) {
@@ -236,7 +239,8 @@ public class EtherProcessFactoryScreen extends AbstractContainerScreen<@NotNull 
                 for (int k = 0; k < be.ROWS; k++) {
                     int idx = k * be.COLS + j;
                     ItemStack item = menu.entity.possibleIntermediateResults.getItem(idx);
-                    if (!item.isEmpty())
+                    // 命中芯片渲染器的格子由渲染器自己画预览，避免与这里的占位预览叠两层
+                    if (!item.isEmpty() && !ChipSlotRenderManager.hasRenderer(menu.internalAndOutputSlots.get(idx).getItem()))
                         UIUtil.renderItemStackSlotPlaceholder(
                                 graphics,
                                 item,
@@ -338,6 +342,18 @@ public class EtherProcessFactoryScreen extends AbstractContainerScreen<@NotNull 
                 );
             }
         }
+    }
+
+    /**
+     * 命中芯片渲染器的内部芯片格：属于 Slot 的原版物品不再绘制（改由渲染器画），
+     * 槽位底图仍由 {@link #extractBackground} 负责（底图属于界面，不属于 Slot）。
+     */
+    @Override
+    protected void extractSlot(GuiGraphicsExtractor graphics, Slot slot, int mouseX, int mouseY) {
+        if (menu.internalSlotMapping.containsKey(slot.index)
+                && ChipSlotRenderManager.render(graphics, menu, slot, slot.getItem(), mouseX, mouseY, getLeftPos(), getTopPos()))
+            return;
+        super.extractSlot(graphics, slot, mouseX, mouseY);
     }
 
     private void drawChipEffectTip(GuiGraphicsExtractor graphics, int internalX, int internalY, int i, int j, int di, int dj, int color) {

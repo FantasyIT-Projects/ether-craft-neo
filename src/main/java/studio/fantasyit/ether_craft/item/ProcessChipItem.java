@@ -25,6 +25,7 @@ import java.util.function.Consumer;
 public class ProcessChipItem extends Item {
     public static final Identifier SEPARATOR = EtherCraft.id("separator_chip");
     public static final Identifier CONCAT = EtherCraft.id("concat_chip");
+    public static final Identifier TRANSMUTING = EtherCraft.id("transmuting_chip");
 
     /**
      * 芯片 id → 承载该芯片的物品。
