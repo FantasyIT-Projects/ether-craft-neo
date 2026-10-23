@@ -87,6 +87,8 @@
   "menu.ether_craft.ether_bar_tooltip_leak": "Leak: %d",
   "menu.ether_craft.scroll_tooltip": "Scroll to adjust, hold Ctrl/Shift to adjust faster",
   "menu.ether_craft.factory.filter": "Using: Setting Filter",
+  "menu.ether_craft.factory.recipe": "Recipe (coming soon)",
+  "jei.ether_craft.craft_grid.closed": "Right-click a crafting-table chip first to open the crafting grid",
   "menu.ether_craft.factory.tree_view": "Factory Tree View",
   "menu.ether_craft.factory.tree_view.empty": "No valid processing tree in this factory",
   "menu.ether_craft.factory.tree_view.step": "Output Slot #%d · Step %d/%d",

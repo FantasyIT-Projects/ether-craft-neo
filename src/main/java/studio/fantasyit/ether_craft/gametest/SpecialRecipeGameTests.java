@@ -165,8 +165,8 @@ public final class SpecialRecipeGameTests {
                 "应存在 " + FALLBACK_ROW_RECIPE);
 
         ItemStack chipStack = CraftTableChipItem.getStack(FALLBACK_ROW_RECIPE, List.of(
-                new ItemStackTemplate(Items.PAPER),
-                new ItemStackTemplate(Items.GUNPOWDER)));
+                new ItemStack(Items.PAPER),
+                new ItemStack(Items.GUNPOWDER)));
         EtherFactoryMultiStepInput candidate = layout(helper, chipStack,
                 List.of(new ItemStack(Items.PAPER), new ItemStack(Items.GUNPOWDER)));
         EtherFactoryRecipeInput refInput = refInput(candidate);
@@ -188,9 +188,9 @@ public final class SpecialRecipeGameTests {
                 "应存在 " + FALLBACK_SHAPED_RECIPE);
 
         ItemStack chipStack = CraftTableChipItem.getStack(FALLBACK_SHAPED_RECIPE, List.of(
-                new ItemStackTemplate(ItemRegistry.INACTIVATED_ETHER.get()),
-                new ItemStackTemplate(ItemRegistry.GOLD_SCREW.get()),
-                new ItemStackTemplate(ItemRegistry.ETHER_PROCESS_FACTORY_ITEM_LV_1.get())));
+                new ItemStack(ItemRegistry.INACTIVATED_ETHER.get()),
+                new ItemStack(ItemRegistry.GOLD_SCREW.get()),
+                new ItemStack(ItemRegistry.ETHER_PROCESS_FACTORY_ITEM_LV_1.get())));
         // 3×3 图案：# ×4、B ×4、A ×1；各输入格子用数量补齐
         EtherFactoryMultiStepInput candidate = layout(helper, chipStack, List.of(
                 new ItemStack(ItemRegistry.ETHER_PROCESS_FACTORY_ITEM_LV_1.get(), 1),

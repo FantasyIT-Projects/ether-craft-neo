@@ -4,6 +4,7 @@ import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
+import mezz.jei.api.constants.RecipeTypes;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.recipe.IRecipeManager;
 import mezz.jei.api.recipe.types.IRecipeHolderType;
@@ -226,6 +227,13 @@ public class JEIPlugin implements IModPlugin {
                 UpgradeShapedRecipe.class,
                 new UpgradeShapedRecipeExtension()
         );
+    }
+
+    @Override
+    public void registerRecipeTransferHandlers(IRecipeTransferRegistration registration) {
+        registration.addRecipeTransferHandler(
+                new CraftGridRecipeTransferHandler(registration.getTransferHelper()),
+                RecipeTypes.CRAFTING);
     }
 
     @Override

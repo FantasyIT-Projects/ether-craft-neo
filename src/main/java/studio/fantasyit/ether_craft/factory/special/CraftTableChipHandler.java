@@ -100,7 +100,7 @@ public class CraftTableChipHandler implements SpecialRecipeHandler {
             grid = validated(gridFromShapeless(shapeless, actual), crafting, level);
         } else {
             // fallback：芯片预存列表与实际输入做网格无关匹配（组件无关，实际侧允许富余）
-            if (!markedSatisfiedBy(data.inputs(), actual)) return Optional.empty();
+            if (!markedSatisfiedBy(data.marked(), actual)) return Optional.empty();
             grid = validated(gridFromInputCells(actual), crafting, level);
             if (grid == null) {
                 for (Grid candidate : gridsFromPlacement(crafting, actual)) {
@@ -253,14 +253,15 @@ public class CraftTableChipHandler implements SpecialRecipeHandler {
      * <p>网格无关：只比较物品类型（组件无关），不要求两侧长度相等或一一对应，实际侧允许富余。
      * 二分图里只有同物品之间才连边，因此等价于按物品类型的数量比较。
      */
-    private static boolean markedSatisfiedBy(List<ItemStackTemplate> marked, List<ItemStack> actual) {
+    private static boolean markedSatisfiedBy(List<ItemStack> marked, List<ItemStack> actual) {
         Map<Item, Integer> available = new HashMap<>();
         for (ItemStack stack : actual) {
             available.merge(stack.getItem(), stack.getCount(), Integer::sum);
         }
-        for (ItemStackTemplate need : marked) {
-            int count = Math.max(1, need.count());
-            Item item = need.item().value();
+        for (ItemStack need : marked) {
+            if (need.isEmpty()) continue;
+            int count = Math.max(1, need.getCount());
+            Item item = need.getItem();
             int have = available.getOrDefault(item, 0);
             if (have < count) return false;
             available.put(item, have - count);

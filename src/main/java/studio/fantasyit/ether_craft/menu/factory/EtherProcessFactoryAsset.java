@@ -18,7 +18,11 @@ public class EtherProcessFactoryAsset {
 
     public static ImageAsset ARROW = ImageAsset.from4Point(BACKGROUND, 194, 16, 207, 25);
     public static ImageAsset BAR = ImageAsset.from4Point(BACKGROUND, 194, 26, 211, 29);
-    public static ImageAsset FILTER = ImageAsset.from4Point(BACKGROUND, 208, 16, 215, 24);
+    public static ImageAsset FILTER = ImageAsset.from4Point(BACKGROUND, 208, 16, 215, 25);
+    public static ImageAsset RECIPE = ImageAsset.from4Point(BACKGROUND, 216, 16, 224, 23);
+    public static ImageAsset VIEWER = ImageAsset.from4Point(BACKGROUND, 225, 16, 234, 23);
+
+    public static ImageAsset CRAFTING_GRID = ImageAsset.from4Point(BACKGROUND, 0, 90, 65, 155);
 
     public static final ImageAsset PENCIL_ON = EtherAdaptNodeAsset.PENCIL_ON;
     public static final ImageAsset PENCIL_OFF = EtherAdaptNodeAsset.PENCIL_OFF;

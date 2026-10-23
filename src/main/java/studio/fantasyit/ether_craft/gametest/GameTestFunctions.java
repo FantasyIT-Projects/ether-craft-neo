@@ -71,6 +71,15 @@ public final class GameTestFunctions {
     public static final DeferredHolder<Consumer<GameTestHelper>, Consumer<GameTestHelper>> CRAFT_TABLE_RELOAD =
             FUNCTIONS.register("craft_table_reload", () -> SpecialRecipeGameTests::craftTableReload);
 
+    public static final DeferredHolder<Consumer<GameTestHelper>, Consumer<GameTestHelper>> FACTORY_LAYOUT_INVARIANTS =
+            FUNCTIONS.register("factory_layout_invariants", () -> FactoryLayoutGameTests::layoutInvariants);
+
+    public static final DeferredHolder<Consumer<GameTestHelper>, Consumer<GameTestHelper>> FACTORY_CRAFT_GRID_RESOLVE =
+            FUNCTIONS.register("factory_craft_grid_resolve", () -> FactoryLayoutGameTests::craftChipGridResolve);
+
+    public static final DeferredHolder<Consumer<GameTestHelper>, Consumer<GameTestHelper>> FACTORY_CRAFT_GRID_MARK =
+            FUNCTIONS.register("factory_craft_grid_mark", () -> FactoryLayoutGameTests::craftChipGridMark);
+
     public static void register(IEventBus modEventBus) {
         FUNCTIONS.register(modEventBus);
     }

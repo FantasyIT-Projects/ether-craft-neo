@@ -70,6 +70,12 @@ public final class GameTestRegistration {
                 GameTestFunctions.CRAFT_TABLE_FALLBACK_SHAPED.getKey());
         registerTest(event, environment, "craft_table_reload",
                 GameTestFunctions.CRAFT_TABLE_RELOAD.getKey());
+        registerTest(event, environment, "factory_layout_invariants",
+                GameTestFunctions.FACTORY_LAYOUT_INVARIANTS.getKey());
+        registerTest(event, environment, "factory_craft_grid_resolve",
+                GameTestFunctions.FACTORY_CRAFT_GRID_RESOLVE.getKey());
+        registerTest(event, environment, "factory_craft_grid_mark",
+                GameTestFunctions.FACTORY_CRAFT_GRID_MARK.getKey());
     }
 
     private static void registerTest(RegisterGameTestsEvent event,

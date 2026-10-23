@@ -152,6 +152,16 @@ public class Network {
                 EtherStreamQuickMissC2S.CODEC,
                 wrapWithPlayer(EtherStreamQuickMissC2S::handle)
         );
+        event.playToServer(
+                CraftChipGridC2S.TYPE,
+                CraftChipGridC2S.CODEC,
+                wrapWithPlayer(CraftChipGridC2SHandler::handle)
+        );
+        event.playToServer(
+                CraftChipEditorStateC2S.TYPE,
+                CraftChipEditorStateC2S.CODEC,
+                wrapWithPlayer(CraftChipEditorStateC2SHandler::handle)
+        );
     }
 
 

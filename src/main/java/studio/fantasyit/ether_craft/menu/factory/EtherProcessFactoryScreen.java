@@ -9,6 +9,7 @@ import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.Mth;
 import net.minecraft.util.Util;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
@@ -21,10 +22,13 @@ import studio.fantasyit.ether_craft.Config;
 import studio.fantasyit.ether_craft.block.factory.EtherProcessFactoryEntity;
 import studio.fantasyit.ether_craft.factory.EtherProcessChipManager;
 import studio.fantasyit.ether_craft.factory.FactoryLevelDef;
+import org.jetbrains.annotations.Nullable;
 import studio.fantasyit.ether_craft.menu.base.slot.BaseSlot;
+import studio.fantasyit.ether_craft.menu.base.slot.FilterSlot;
 import studio.fantasyit.ether_craft.menu.base.widget.IASwitchButton;
 import studio.fantasyit.ether_craft.menu.base.widget.NamePencilButton;
 import studio.fantasyit.ether_craft.menu.factory.chip.ChipSlotRenderManager;
+import studio.fantasyit.ether_craft.network.c2s.CraftChipEditorStateC2S;
 import studio.fantasyit.ether_craft.network.c2s.FactoryMenuSwitchItemC2S;
 import studio.fantasyit.ether_craft.network.c2s.SetBlockNameC2S;
 import studio.fantasyit.ether_craft.network.c2s.SyncFilterActiveC2S;
@@ -32,7 +36,9 @@ import studio.fantasyit.ether_craft.recipe.factory.PathNode;
 import studio.fantasyit.ether_craft.register.ItemRegistry;
 import studio.fantasyit.ether_craft.util.UIUtil;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static studio.fantasyit.ether_craft.menu.factory.EtherProcessFactoryAsset.*;
 
@@ -41,16 +47,24 @@ public class EtherProcessFactoryScreen extends AbstractContainerScreen<@NotNull 
     FactoryLevelDef f;
     Rect2i etherShowArea;
     boolean isFiltering = false;
-    private static final int TREE_PANEL_SIZE = 26;
-    private static final int TREE_PANEL_GAP = 2;
-    private static final int TREE_BTN_INSET = 5;
     private static final int TREE_VIEW_MARGIN = 4;
+    /** 工作台网格浮层：66×66 底板，槽位自 6px 边框 + 1px 起、18px 栅格。 */
+    private static final int CRAFT_GRID_SIZE = 66;
+    private static final int CRAFT_GRID_SLOT_OFFSET = 7;
+    private static final int CRAFT_GRID_GAP = 4;
     private EditBox nameEdit;
     private NamePencilButton namePencil;
     private boolean wasFocused = false;
     private FactoryTreeButton treeButton;
     private FactoryTreeOverlay treeOverlay;
     private boolean treeOpen = false;
+    private boolean craftGridOpen = false;
+    private int craftGridPanelX = 0;
+    private int craftGridPanelY = 0;
+    /** 浮层打开时刻：用于吞掉"打开这一下"自身的后续点击事件，避免开了立刻被关掉。 */
+    private long craftGridOpenedAt = 0;
+    /** 被浮层盖住、临时置为不可用的槽位（避免 hover / 点击穿透到下层）。 */
+    private final Set<BaseSlot> craftGridOccludedSlots = new HashSet<>();
 
     public EtherProcessFactoryScreen(EtherProcessFactoryContainerMenu menu, Inventory p_97742_, Component p_97743_) {
         super(menu, p_97742_, p_97743_, menu.entity.getLevelDef().guiSize().x, menu.entity.getLevelDef().guiSize().y);
@@ -63,8 +77,8 @@ public class EtherProcessFactoryScreen extends AbstractContainerScreen<@NotNull 
     protected void init() {
         super.init();
 
-        int nameX = getLeftPos() + 5;
-        int nameY = getTopPos() + 5;
+        int nameX = getLeftPos() + f.mainOrigin().x + 5;
+        int nameY = getTopPos() + f.mainOrigin().y + 5;
         nameEdit = new EditBox(font, nameX, nameY, 80, 12,
                 Component.translatable("ether_craft.gui.name_placeholder")) {
             @Override
@@ -85,17 +99,14 @@ public class EtherProcessFactoryScreen extends AbstractContainerScreen<@NotNull 
                 PENCIL_ON, PENCIL_OFF);
         addRenderableWidget(namePencil);
 
-        int rpx = getLeftPos() + f.panelRight().x;
-        int rpy = getTopPos() + f.panelRight().y;
-        if (f.showPanel()) {
-            rpx += 5;
-            rpy += 6;
-        }
+        // 右侧工具组：一个 26×65 底板 + 竖排 3 个 16×16 按钮（过滤 / 配方占位 / 树形可视化）
+        int rpx = getLeftPos() + f.panelRight().x + FactoryLevelDef.TOOL_BTN_OFFSET_X;
+        int rpy = getTopPos() + f.panelRight().y + FactoryLevelDef.TOOL_BTN_OFFSET_Y;
         IASwitchButton iaSwitchButton = addRenderableWidget(new IASwitchButton(
                 rpx, rpy,
                 BTN_NORMAL, BTN_HOVER,
                 BTN_DOWN, BTN_DOWN_HOVER,
-                null,
+                FILTER,
                 Component.translatable("menu.ether_craft.factory.filter"),
                 Component.translatable("menu.ether_craft.factory.filter"),
                 f -> {
@@ -109,11 +120,20 @@ public class EtherProcessFactoryScreen extends AbstractContainerScreen<@NotNull 
         setUsingFilter(menu.isFilterActive());
 
         // 过滤器面板正上方的"树形可视化"小面板
-        int treeX = getLeftPos() + f.panelRight().x;
-        int treeY = getTopPos() + f.panelRight().y - TREE_PANEL_GAP - TREE_PANEL_SIZE;
+        // 配方按钮：暂未开放，点按无响应
+        addRenderableWidget(new IASwitchButton(
+                rpx, rpy + FactoryLevelDef.TOOL_BTN_GAP,
+                BTN_NORMAL, BTN_HOVER,
+                BTN_DOWN, BTN_DOWN_HOVER,
+                RECIPE,
+                Component.translatable("menu.ether_craft.factory.recipe"),
+                Component.translatable("menu.ether_craft.factory.recipe"),
+                down -> false
+        ));
+
         treeButton = addRenderableWidget(new FactoryTreeButton(
-                treeX + TREE_BTN_INSET, treeY + TREE_BTN_INSET,
-                BTN_NORMAL, BTN_HOVER, BTN_DOWN, BTN_DOWN_HOVER,
+                rpx, rpy + FactoryLevelDef.TOOL_BTN_GAP * 2,
+                BTN_NORMAL, BTN_HOVER, BTN_DOWN, BTN_DOWN_HOVER, VIEWER,
                 Component.translatable("menu.ether_craft.factory.tree_view"),
                 open -> {
                     treeOpen = open;
@@ -158,6 +178,27 @@ public class EtherProcessFactoryScreen extends AbstractContainerScreen<@NotNull 
             blurNameEdit(event.x(), event.y());
             return true;
         }
+        if (craftGridOpen) {
+            if (!isInCraftGridPanel(event.x(), event.y())) {
+                // 同一次点击的下行/重复事件不算"点击面板外"，否则会开了立刻关
+                if (Util.getMillis() - craftGridOpenedAt < 250) return true;
+                closeCraftGrid();
+                return true;
+            }
+            // 面板内：走原版槽位点击（标记写入本地 craftGrid），再整包上传给服务端
+            Slot hit = slotAt(event.x(), event.y());
+            boolean handled = super.mouseClicked(event, doubleClick);
+            if (hit != null && menu.craftGridSlots.contains(hit)) menu.uploadCraftGrid();
+            blurNameEdit(event.x(), event.y());
+            return handled;
+        } else if (event.button() == 1 && slotAt(event.x(), event.y()) instanceof Slot clickedSlot
+                && menu.internalSlotMapping.containsKey(clickedSlot.index)
+                && clickedSlot.getItem().is(ItemRegistry.CRAFT_TABLE_CHIP_ITEM)) {
+            // 右键工作台芯片：在芯片格左侧展开工作台网格
+            openCraftGrid(clickedSlot.index);
+            blurNameEdit(event.x(), event.y());
+            return true;
+        }
         boolean result = super.mouseClicked(event, doubleClick);
         blurNameEdit(event.x(), event.y());
         return result;
@@ -187,6 +228,10 @@ public class EtherProcessFactoryScreen extends AbstractContainerScreen<@NotNull 
                     if (r == null) continue;
                     int ether = be.currentEther[i][j];
                     long consume = r.etherConsume();
+                    // 指示灯画在背景层之上，浮层打开时要让位，否则会叠在浮层面板上
+                    if (craftGridOpen && overlapsCraftGridPanel(internalX + j * 18 + 2, internalY + i * 18 + 2, 3, 3))
+                        continue;
+
                     int color = 0xff26c6da;
                     if (ether >= (long) (Config.factoryPeakRatio * consume))
                         color = 0xff81c784; // 稳态省电区（绿）
@@ -220,15 +265,19 @@ public class EtherProcessFactoryScreen extends AbstractContainerScreen<@NotNull 
     @Override
     public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
         super.extractBackground(graphics, mouseX, mouseY, a);
-        UIUtil.nineSliced(graphics, MAIN_BG, getLeftPos(), getTopPos(), f.mainSize().x, f.mainSize().y, 5);
+        UIUtil.nineSliced(graphics, MAIN_BG,
+                getLeftPos() + f.mainOrigin().x, getTopPos() + f.mainOrigin().y,
+                f.mainSize().x, f.mainSize().y, 5);
         PLAYER_INV.blit(graphics, getLeftPos() + f.posPlayer().x, getTopPos() + f.posPlayer().y);
 
+        // 槽位底图：被工作台网格浮层盖住的槽位虽然被置为不可用，但底图仍照常画，
+        // 这样浮层边缘露出的部分不会是光秃秃的主板底色。
         for (Slot s : menu.mainUiSlots) {
-            if (s instanceof BaseSlot bs && bs.isActive())
+            if (s instanceof BaseSlot bs && isSlotBaseVisible(bs))
                 SLOT.blit(graphics, getLeftPos() + s.x - 1, getTopPos() + s.y - 1);
         }
         for (Slot s : menu.filterSlots) {
-            if (s instanceof BaseSlot bs && bs.isActive())
+            if (s instanceof BaseSlot bs && isSlotBaseVisible(bs))
                 SLOT.blit(graphics, getLeftPos() + s.x - 1, getTopPos() + s.y - 1);
         }
 
@@ -311,19 +360,12 @@ public class EtherProcessFactoryScreen extends AbstractContainerScreen<@NotNull 
                     Component.translatable("menu.ether_craft.ether_bar_tooltip_leak", be.leak).getVisualOrderText()
             ), mouseX, mouseY);
 
-        // 树形可视化小面板（过滤器面板正上方）
-        int treePanelX = getLeftPos() + f.panelRight().x;
-        int treePanelY = getTopPos() + f.panelRight().y - TREE_PANEL_GAP - TREE_PANEL_SIZE;
-        UIUtil.nineSliced(graphics, MAIN_BG, treePanelX, treePanelY, TREE_PANEL_SIZE, TREE_PANEL_SIZE, 5);
-
         int rpx = getLeftPos() + f.panelRight().x;
         int rpy = getTopPos() + f.panelRight().y;
         if (f.showPanel()) {
-            UIUtil.nineSliced(graphics, MAIN_BG, rpx, rpy, 26, 36, 5);
-            rpx += 4;
-            rpy += 7;
+            UIUtil.nineSliced(graphics, MAIN_BG, rpx, rpy,
+                    FactoryLevelDef.TOOL_PANEL_W, FactoryLevelDef.TOOL_PANEL_H, 5);
         }
-        FILTER.blit(graphics, rpx + 4, rpy + 18);
 
         if (isFiltering) {
             for (int i = 0; i < be.ROWS; i++) {
@@ -340,6 +382,17 @@ public class EtherProcessFactoryScreen extends AbstractContainerScreen<@NotNull 
                         getLeftPos() + menu.mainUiSlots.get(i).x,
                         getTopPos() + menu.mainUiSlots.get(i).y
                 );
+            }
+        }
+
+        // 工作台网格浮层（3×3 标记格子）
+        if (craftGridOpen) {
+            int gx = getLeftPos() + craftGridPanelX;
+            int gy = getTopPos() + craftGridPanelY;
+            CRAFTING_GRID.blit(graphics, gx, gy);
+            for (Slot slot : menu.craftGridSlots) {
+                if (slot.isActive())
+                    SLOT.blit(graphics, getLeftPos() + slot.x - 1, getTopPos() + slot.y - 1);
             }
         }
     }
@@ -515,6 +568,10 @@ public class EtherProcessFactoryScreen extends AbstractContainerScreen<@NotNull 
 
     @Override
     public boolean keyPressed(KeyEvent event) {
+        if (craftGridOpen && event.key() == GLFW.GLFW_KEY_ESCAPE) {
+            closeCraftGrid();
+            return true;
+        }
         if (treeOpen && treeOverlay != null) {
             if (event.key() == GLFW.GLFW_KEY_ESCAPE) {
                 treeOpen = false;
@@ -526,5 +583,116 @@ public class EtherProcessFactoryScreen extends AbstractContainerScreen<@NotNull 
             }
         }
         return super.keyPressed(event);
+    }
+
+    /**
+     * 按鼠标坐标现算命中的槽位。
+     *
+     * <p>不能用 {@link #hoveredSlot}：那个字段是"上一帧渲染"时算出来的，
+     * 点击事件到达时鼠标可能已经移动（脚本/键鼠混合操作时尤其明显）。
+     */
+    @Nullable
+    private Slot slotAt(double mouseX, double mouseY) {
+        // 注意：{@link #isHovering(int, int, int, int, double, double)} 内部会自行加上
+        // leftPos/topPos，而 slot.x/slot.y 是 GUI 相对坐标，所以这里直接传屏幕坐标即可。
+        for (Slot slot : menu.slots) {
+            if (slot.isActive() && this.isHovering(slot.x, slot.y, 16, 16, mouseX, mouseY))
+                return slot;
+        }
+        return null;
+    }
+
+    private boolean isInCraftGridPanel(double mouseX, double mouseY) {
+        return mouseX >= getLeftPos() + craftGridPanelX
+                && mouseX < getLeftPos() + craftGridPanelX + CRAFT_GRID_SIZE
+                && mouseY >= getTopPos() + craftGridPanelY
+                && mouseY < getTopPos() + craftGridPanelY + CRAFT_GRID_SIZE;
+    }
+
+    /**
+     * 打开工作台网格：面板贴在被右键的芯片格左侧（左侧放不下则翻到右侧），
+     * 并把 9 个标记格子挪进面板。
+     *
+     * <p>{@code Slot.x/y} 是 final，无法就地改坐标，因此这里在客户端重建 9 个
+     * {@link FilterSlot} 并按原列表索引替换；索引不变，远端槽位对齐不受影响，
+     * 服务端完全不参与定位。
+     */
+    private void openCraftGrid(int chipSlotIndex) {
+        Slot clicked = menu.getSlot(chipSlotIndex);
+        int px = getLeftPos() + clicked.x - CRAFT_GRID_SIZE - CRAFT_GRID_GAP;
+        if (px < getLeftPos() + 2)
+            px = getLeftPos() + clicked.x + 18 + CRAFT_GRID_GAP;
+        int py = Mth.clamp(getTopPos() + clicked.y + 9 - CRAFT_GRID_SIZE / 2,
+                getTopPos() + 2, getTopPos() + imageHeight - CRAFT_GRID_SIZE - 2);
+        craftGridPanelX = px - getLeftPos();
+        craftGridPanelY = py - getTopPos();
+
+        for (int i = 0; i < menu.craftGridSlots.size(); i++) {
+            FilterSlot old = menu.craftGridSlots.get(i);
+            FilterSlot replacement = new FilterSlot(menu.craftGrid, i,
+                    craftGridPanelX + CRAFT_GRID_SLOT_OFFSET + (i % 3) * 18,
+                    craftGridPanelY + CRAFT_GRID_SLOT_OFFSET + (i / 3) * 18);
+            replacement.index = old.index;
+            replacement.setActive(true);
+            menu.slots.set(old.index, replacement);
+            menu.craftGridSlots.set(i, replacement);
+        }
+
+        menu.editingChipSlot = chipSlotIndex;
+        menu.clearCraftGrid();
+        craftGridOpen = true;
+        craftGridOpenedAt = Util.getMillis();
+        applyCraftGridOcclusion();
+        // 回填由服务端完成：它把芯片配方解成 3×3 写进 craftGrid，原版槽位同步推到这边
+        ClientPacketDistributor.sendToServer(new CraftChipEditorStateC2S(chipSlotIndex, true));
+    }
+
+    private void closeCraftGrid() {
+        if (!craftGridOpen) return;
+        int edited = menu.editingChipSlot;
+        craftGridOpen = false;
+        menu.editingChipSlot = -1;
+        menu.clearCraftGrid();
+        for (FilterSlot slot : menu.craftGridSlots) slot.setActive(false);
+        restoreCraftGridOcclusion();
+        if (edited >= 0)
+            ClientPacketDistributor.sendToServer(new CraftChipEditorStateC2S(edited, false));
+    }
+
+    /**
+     * 浮层是叠在主板上的，原版命中检测只认槽位坐标，所以这里把与浮层矩形相交的槽位
+     * 临时置为不可用：{@code getHoveredSlot} 会跳过它们，不会出现下层槽位的高亮 / tooltip / 误点。
+     */
+    private void applyCraftGridOcclusion() {
+        craftGridOccludedSlots.clear();
+        for (Slot slot : menu.slots) {
+            if (!(slot instanceof BaseSlot baseSlot)) continue;
+            if (!baseSlot.isActive() || menu.craftGridSlots.contains(slot)) continue;
+            if (!slotOverlapsCraftGridPanel(slot)) continue;
+            baseSlot.setActive(false);
+            craftGridOccludedSlots.add(baseSlot);
+        }
+    }
+
+    private boolean slotOverlapsCraftGridPanel(Slot slot) {
+        return overlapsCraftGridPanel(slot.x, slot.y, 18, 18);
+    }
+
+    /** GUI 相对坐标的矩形是否与工作台网格浮层相交。 */
+    private boolean overlapsCraftGridPanel(int guiX, int guiY, int w, int h) {
+        return guiX < craftGridPanelX + CRAFT_GRID_SIZE && guiX + w > craftGridPanelX
+                && guiY < craftGridPanelY + CRAFT_GRID_SIZE && guiY + h > craftGridPanelY;
+    }
+
+    /** 槽位底图是否要画：正常激活的都画，另外被浮层临时遮挡的也要画（只隐藏物品，不隐藏底图）。 */
+    private boolean isSlotBaseVisible(BaseSlot slot) {
+        return slot.isActive() || craftGridOccludedSlots.contains(slot);
+    }
+
+    private void restoreCraftGridOcclusion() {
+        for (BaseSlot slot : craftGridOccludedSlots) slot.setActive(true);
+        craftGridOccludedSlots.clear();
+        // 按当前过滤态重新套一遍（过滤模式下内部/输出槽本来就不该激活）
+        setUsingFilter(this.isFiltering);
     }
 }

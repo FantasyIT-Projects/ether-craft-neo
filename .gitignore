@@ -213,3 +213,8 @@ test_saves/
 /.tmp/preview_up/up_ether_adapt_node_lv2_empty.png
 /.tmp/preview_up/up_ether_adapt_node_lv3.png
 /.tmp/preview_up/up_ether_adapt_node_lv3_empty.png
+/.dsh_tmp3/ACM.java
+/.dsh_tmp3/ClientPacketListener.java
+/.dsh_tmp3/RecipeTransferLifecycleManager.java
+/.dsh_tmp3/RecipeTransferService.java
+/.dsh_tmp3/RecipeTransferUtil.java

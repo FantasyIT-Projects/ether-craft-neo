@@ -8,12 +8,16 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.CraftingRecipe;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2i;
 import studio.fantasyit.ether_craft.block.base.ItemFilter;
 import studio.fantasyit.ether_craft.block.factory.EtherProcessFactoryEntity;
+import studio.fantasyit.ether_craft.factory.CraftGridResolver;
 import studio.fantasyit.ether_craft.factory.FactoryLevelDef;
+import studio.fantasyit.ether_craft.item.CraftTableChipData;
 import studio.fantasyit.ether_craft.menu.base.BaseContainerMenu;
 import studio.fantasyit.ether_craft.menu.base.IFilterSwitchable;
 import studio.fantasyit.ether_craft.menu.base.ether.EtherContainerSyncer;
@@ -25,6 +29,7 @@ import studio.fantasyit.ether_craft.menu.base.slot.ResultSlot;
 import studio.fantasyit.ether_craft.menu.factory.slot.FactoryInputSlot;
 import studio.fantasyit.ether_craft.menu.factory.slot.InvisibleSlot;
 import studio.fantasyit.ether_craft.menu.factory.slot.SingleStackSlot;
+import studio.fantasyit.ether_craft.network.c2s.CraftChipGridC2S;
 import studio.fantasyit.ether_craft.register.DataComponentRegistry;
 
 import java.util.*;
@@ -47,6 +52,12 @@ public class EtherProcessFactoryContainerMenu extends BaseContainerMenu<@NotNull
     public int playerSlotStart;
     private EtherContainerSyncer syncer;
 
+    /** 工作台网格（3×3 标记格子）：只存 1 个样本、不吞物品、拿不走。 */
+    public ItemFilter craftGrid;
+    public List<FilterSlot> craftGridSlots;
+    /** 正在编辑的芯片所在槽位索引；-1 表示浮层未打开。 */
+    public int editingChipSlot = -1;
+
     public EtherProcessFactoryContainerMenu(int windowId, Player player, BlockPos pos) {
         super(windowId, player, pos, ETHER_PROCESS_FACTORY_CONTAINER.get());
     }
@@ -57,6 +68,10 @@ public class EtherProcessFactoryContainerMenu extends BaseContainerMenu<@NotNull
         mainUiSlots = new ArrayList<>();
         internalAndOutputSlots = new ArrayList<>();
         filterSlots = new ArrayList<>();
+        // 注意：不能挂在 setChanged 上——原版槽位同步落盘时也会触发它，会造成"同步→上传"回环。
+        craftGrid = new ItemFilter(9, () -> {
+        });
+        craftGridSlots = new ArrayList<>();
         FactoryLevelDef factoryDef = entity.getLevelDef();
         addSlotArea(entity.container, 0, factoryDef.posInput().x + 1, factoryDef.posInput().y + 1, 1, 18, entity.ROWS, 18,
                 (a, b, c, d, e, f) -> new FactoryInputSlot(a, b, c, d, entity.internalContainer, f * internalSlots / inputSlots),
@@ -136,6 +151,16 @@ public class EtherProcessFactoryContainerMenu extends BaseContainerMenu<@NotNull
         int invBaseY = factoryDef.posPlayer().y + 8;
         addSlotArea(playerInventory, 9, invBaseX, invBaseY, 9, 18, 3, 18, SlotSupplier.of(Slot::new));
         addSlotArea(playerInventory, 0, invBaseX, invBaseY + 58, 9, 18, 1, 18, SlotSupplier.of(Slot::new));
+
+        // 工作台网格的 9 个标记格子：追加在玩家背包之后，保证 machineSlotEnd / playerSlotStart 不变。
+        // 位置由客户端在打开浮层时重建槽位对象决定（Slot.x/y 为 final）。
+        addSlotArea(craftGrid, 0, 0, 0, 3, 18, 3, 18,
+                SlotSupplier.of((a, b, c, d) -> new FilterSlot((ItemFilter) a, b, c, d)),
+                (s, _, _) -> {
+                    FilterSlot slot = (FilterSlot) s;
+                    slot.setActive(false);
+                    craftGridSlots.add(slot);
+                });
     }
 
     @Override
@@ -146,7 +171,8 @@ public class EtherProcessFactoryContainerMenu extends BaseContainerMenu<@NotNull
             ItemStack stack = slot.getItem();
             itemstack = stack.copy();
 
-            if (mainUiSlots.contains(slot) || slot == etherSlot || filterSlots.contains(slot)) {
+            if (mainUiSlots.contains(slot) || slot == etherSlot || filterSlots.contains(slot)
+                    || (craftGridSlots != null && craftGridSlots.contains(slot))) {
                 if (!this.moveItemStackTo(stack, machineSlotEnd, machineSlotEnd + 36, true)) {
                     return ItemStack.EMPTY;
                 }
@@ -249,6 +275,20 @@ public class EtherProcessFactoryContainerMenu extends BaseContainerMenu<@NotNull
 
     @Override
     public void clicked(int slotIndex, int buttonNum, ContainerInput containerInput, Player player) {
+        // 浮层关闭时，9 个工作台网格格子不参与交互
+        if (editingChipSlot < 0 && craftGridSlots != null
+                && slotIndex >= 0 && slotIndex < slots.size()
+                && craftGridSlots.contains(getSlot(slotIndex))) {
+            return;
+        }
+        // 工作台芯片的右键语义是"打开工作台网格"（由界面层处理）；浮层未开时这里也拒绝拿起，
+        // 避免界面层没拦到（例如坐标/时序问题）时把芯片叼在手上。
+        if (containerInput == ContainerInput.PICKUP && buttonNum == 1 && editingChipSlot < 0
+                && slotIndex >= 0 && slotIndex < slots.size()
+                && internalSlotMapping.containsKey(slotIndex)
+                && getSlot(slotIndex).getItem().is(CRAFT_TABLE_CHIP_ITEM)) {
+            return;
+        }
         if (containerInput == ContainerInput.PICKUP_ALL && internalSlotMapping.containsKey(slotIndex)) {
             return;
         }
@@ -339,5 +379,63 @@ public class EtherProcessFactoryContainerMenu extends BaseContainerMenu<@NotNull
             quickPlaceChipSlotId = -1;
             selectedChips.clear();
         }
+    }
+
+    public void clearCraftGrid() {
+        if (craftGrid == null) return;
+        for (int i = 0; i < 9; i++) craftGrid.setItemNoTrigger(i, ItemStack.EMPTY);
+    }
+
+    /**
+     * 服务端：进入编辑态，并把芯片里已存的配方解成 3×3 图案写进 {@code craftGrid}。
+     *
+     * <p>{@code craftGrid} 是普通槽位容器，写完由原版槽位同步推给客户端，
+     * 客户端不做任何配方解析（客户端拿不到 {@code RecipeManager}）。
+     */
+    public void beginCraftGridEditing(int chipSlotIndex) {
+        if (chipSlotIndex < 0 || chipSlotIndex >= slots.size()) return;
+        ItemStack chip = getSlot(chipSlotIndex).getItem();
+        if (!chip.is(CRAFT_TABLE_CHIP_ITEM)) return;
+        editingChipSlot = chipSlotIndex;
+        clearCraftGrid();
+        CraftTableChipData data = chip.get(DataComponentRegistry.CRAFT_TABLE_CHIP_DATA);
+        if (data != null) CraftGridResolver.fill(data, craftGrid);
+        broadcastChanges();
+    }
+
+    /** 服务端：退出编辑态并清空网格。 */
+    public void endCraftGridEditing() {
+        editingChipSlot = -1;
+        clearCraftGrid();
+        broadcastChanges();
+    }
+
+    /** 客户端：把当前 9 个标记上传给服务端（用户改动 / JEI 转移后调用）。 */
+    public void uploadCraftGrid() {
+        if (editingChipSlot < 0 || craftGrid == null || playerInventory == null) return;
+        if (!playerInventory.player.level().isClientSide()) return;
+        List<ItemStack> grid = new ArrayList<>(9);
+        for (int i = 0; i < 9; i++) grid.add(craftGrid.getItem(i));
+        ClientPacketDistributor.sendToServer(new CraftChipGridC2S(editingChipSlot, grid));
+    }
+
+    /** 客户端：把一条合成配方按图案写进工作台网格（JEI「+」转移走这条路），并同步给服务端。 */
+    public void applyRecipeToCraftGrid(CraftingRecipe recipe) {
+        if (craftGrid == null) return;
+        CraftGridResolver.markFromRecipe(playerInventory.player.level(), recipe, craftGrid);
+        uploadCraftGrid();
+    }
+
+    /** 服务端：把 3×3 标记解析成原版合成配方，写回芯片数据组件。 */
+    public void applyCraftGridToChip(int chipSlotIndex, List<ItemStack> grid) {
+        if (chipSlotIndex < 0 || chipSlotIndex >= slots.size()) return;
+        Slot slot = getSlot(chipSlotIndex);
+        ItemStack chip = slot.getItem();
+        if (!chip.is(CRAFT_TABLE_CHIP_ITEM)) return;
+        CraftTableChipData data = CraftGridResolver.resolve(playerInventory.player.level(), grid);
+        if (data == null) chip.remove(DataComponentRegistry.CRAFT_TABLE_CHIP_DATA);
+        else chip.set(DataComponentRegistry.CRAFT_TABLE_CHIP_DATA, data);
+        slot.set(chip);
+        slot.setChanged();
     }
 }

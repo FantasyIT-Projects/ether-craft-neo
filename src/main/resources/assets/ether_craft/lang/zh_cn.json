@@ -85,6 +85,8 @@
   "menu.ether_craft.ether_bar_tooltip_leak": "泄漏: %d",
   "menu.ether_craft.scroll_tooltip": "滚动调节，按住Ctrl/Shift可加速调节",
   "menu.ether_craft.factory.filter": "当前: 设置过滤器",
+  "menu.ether_craft.factory.recipe": "配方（暂未开放）",
+  "jei.ether_craft.craft_grid.closed": "请先右键工作台芯片打开工作台网格",
   "menu.ether_craft.factory.tree_view": "工厂树形可视化",
   "menu.ether_craft.factory.tree_view.empty": "当前工厂没有有效的加工树",
   "menu.ether_craft.factory.tree_view.step": "输出槽 #%d · 步骤 %d/%d",

@@ -7,14 +7,16 @@ import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
+import org.jetbrains.annotations.Nullable;
 import studio.fantasyit.ether_craft.menu.base.ImageAsset;
 
 import java.util.function.Consumer;
 
 /**
- * 工厂 GUI 右侧"树形可视化"小面板中的开关按钮。
+ * 工厂 GUI 右侧工具组中的开关按钮。
  *
- * <p>图标用 {@code graphics.fill} 现场绘制一棵迷你树，不需要新增贴图资源。
+ * <p>可传入 {@code icon} 直接使用图集图标（如 {@code VIEWER}）；
+ * 为空时退回用 {@code graphics.fill} 现场绘制一棵迷你树。
  */
 public class FactoryTreeButton extends AbstractWidget {
     private final ImageAsset normal;
@@ -23,17 +25,32 @@ public class FactoryTreeButton extends AbstractWidget {
     private final ImageAsset downHover;
     private final Consumer<Boolean> onToggle;
     private boolean down;
+    private final @Nullable ImageAsset icon;
+    private int iconOffsetX = 0;
+    private int iconOffsetY = 0;
 
     public FactoryTreeButton(int x, int y, ImageAsset normal, ImageAsset hover,
                              ImageAsset downNormal, ImageAsset downHover,
+                             Component message, Consumer<Boolean> onToggle) {
+        this(x, y, normal, hover, downNormal, downHover, null, message, onToggle);
+    }
+
+    public FactoryTreeButton(int x, int y, ImageAsset normal, ImageAsset hover,
+                             ImageAsset downNormal, ImageAsset downHover,
+                             @Nullable ImageAsset icon,
                              Component message, Consumer<Boolean> onToggle) {
         super(x, y, normal.w, normal.h, message);
         this.normal = normal;
         this.hover = hover;
         this.downNormal = downNormal;
         this.downHover = downHover;
+        this.icon = icon;
         this.onToggle = onToggle;
         this.setTooltip(Tooltip.create(message));
+        if (icon != null) {
+            this.iconOffsetX = (this.getWidth() - icon.w) / 2;
+            this.iconOffsetY = (this.getHeight() - icon.h) / 2;
+        }
     }
 
     @Override
@@ -43,7 +60,11 @@ public class FactoryTreeButton extends AbstractWidget {
         } else {
             (isHoveredOrFocused() ? hover : normal).blit(graphics, getX(), getY());
         }
-        drawGlyph(graphics);
+        if (icon != null) {
+            icon.blit(graphics, getX() + iconOffsetX, getY() + iconOffsetY);
+        } else {
+            drawGlyph(graphics);
+        }
     }
 
     private void drawGlyph(GuiGraphicsExtractor graphics) {
