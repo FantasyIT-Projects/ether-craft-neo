@@ -234,6 +234,14 @@ public class JEIPlugin implements IModPlugin {
         registration.addRecipeTransferHandler(
                 new CraftGridRecipeTransferHandler(registration.getTransferHelper()),
                 RecipeTypes.CRAFTING);
+
+        // 以太加工配方的「+」：不搬运物品，按配方在工厂界面里新建一个树形配方窗口
+        registration.addRecipeTransferHandler(
+                new EtherProcessRecipeViewTransferHandler(ETHER_PROCESS_TYPE), ETHER_PROCESS_TYPE);
+        for (DynamicCategory dyn : dynamicCategories) {
+            registration.addRecipeTransferHandler(
+                    new EtherProcessRecipeViewTransferHandler(dyn.type()), dyn.type());
+        }
     }
 
     @Override

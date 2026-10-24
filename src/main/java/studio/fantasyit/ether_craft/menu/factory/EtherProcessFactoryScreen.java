@@ -1,6 +1,7 @@
 package studio.fantasyit.ether_craft.menu.factory;
 
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -9,6 +10,7 @@ import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.util.Util;
 import net.minecraft.world.entity.player.Inventory;
@@ -28,14 +30,18 @@ import studio.fantasyit.ether_craft.menu.base.slot.FilterSlot;
 import studio.fantasyit.ether_craft.menu.base.widget.IASwitchButton;
 import studio.fantasyit.ether_craft.menu.base.widget.NamePencilButton;
 import studio.fantasyit.ether_craft.menu.factory.chip.ChipSlotRenderManager;
+import studio.fantasyit.ether_craft.menu.factory.window.FactoryWindowLayer;
+import studio.fantasyit.ether_craft.menu.factory.window.RecipeTreeWindow;
 import studio.fantasyit.ether_craft.network.c2s.CraftChipEditorStateC2S;
 import studio.fantasyit.ether_craft.network.c2s.FactoryMenuSwitchItemC2S;
 import studio.fantasyit.ether_craft.network.c2s.SetBlockNameC2S;
 import studio.fantasyit.ether_craft.network.c2s.SyncFilterActiveC2S;
+import studio.fantasyit.ether_craft.recipe.factory.EtherProcessFactoryRecipe;
 import studio.fantasyit.ether_craft.recipe.factory.PathNode;
 import studio.fantasyit.ether_craft.register.ItemRegistry;
 import studio.fantasyit.ether_craft.util.UIUtil;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -48,6 +54,9 @@ public class EtherProcessFactoryScreen extends AbstractContainerScreen<@NotNull 
     Rect2i etherShowArea;
     boolean isFiltering = false;
     private static final int TREE_VIEW_MARGIN = 4;
+    /** 配方窗口默认高度与层叠偏移。 */
+    private static final int RECIPE_WINDOW_HEIGHT = 120;
+    private static final int RECIPE_WINDOW_CASCADE = 12;
     /** 工作台网格浮层：66×66 底板，槽位自 6px 边框 + 1px 起、18px 栅格。 */
     private static final int CRAFT_GRID_SIZE = 66;
     private static final int CRAFT_GRID_SLOT_OFFSET = 7;
@@ -56,7 +65,12 @@ public class EtherProcessFactoryScreen extends AbstractContainerScreen<@NotNull 
     private NamePencilButton namePencil;
     private boolean wasFocused = false;
     private FactoryTreeButton treeButton;
+    private IASwitchButton recipeButton;
     private FactoryTreeOverlay treeOverlay;
+    /** 由 JEI 配方转移创建的配方窗口；与树形预览窗口共用同一个浮动窗口层。 */
+    private final List<RecipeTreeWindow> recipeWindows = new ArrayList<>();
+    /** 浮动窗口层：负责配方窗口 / 预览窗口的 z 序、输入派发与渲染。 */
+    private final FactoryWindowLayer windowLayer = new FactoryWindowLayer();
     private boolean treeOpen = false;
     private boolean craftGridOpen = false;
     private int craftGridPanelX = 0;
@@ -65,6 +79,8 @@ public class EtherProcessFactoryScreen extends AbstractContainerScreen<@NotNull 
     private long craftGridOpenedAt = 0;
     /** 被浮层盖住、临时置为不可用的槽位（避免 hover / 点击穿透到下层）。 */
     private final Set<BaseSlot> craftGridOccludedSlots = new HashSet<>();
+    /** 当前打开的工厂界面（JEI 配方页会把 Minecraft.screen 换成自己的界面，故另存一份）。 */
+    private static @Nullable EtherProcessFactoryScreen current;
 
     public EtherProcessFactoryScreen(EtherProcessFactoryContainerMenu menu, Inventory p_97742_, Component p_97743_) {
         super(menu, p_97742_, p_97743_, menu.entity.getLevelDef().guiSize().x, menu.entity.getLevelDef().guiSize().y);
@@ -73,9 +89,15 @@ public class EtherProcessFactoryScreen extends AbstractContainerScreen<@NotNull 
         f = be.getLevelDef();
     }
 
+    /** 当前打开的工厂界面；未打开时为 null。 */
+    public static @Nullable EtherProcessFactoryScreen current() {
+        return current;
+    }
+
     @Override
     protected void init() {
         super.init();
+        current = this;
 
         int nameX = getLeftPos() + f.mainOrigin().x + 5;
         int nameY = getTopPos() + f.mainOrigin().y + 5;
@@ -120,16 +142,21 @@ public class EtherProcessFactoryScreen extends AbstractContainerScreen<@NotNull 
         setUsingFilter(menu.isFilterActive());
 
         // 过滤器面板正上方的"树形可视化"小面板
-        // 配方按钮：暂未开放，点按无响应
-        addRenderableWidget(new IASwitchButton(
+        // 配方按钮：弹起 = 没有配方窗口（点击无效），按下 = 存在配方窗口（点击关闭全部）
+        recipeButton = addRenderableWidget(new IASwitchButton(
                 rpx, rpy + FactoryLevelDef.TOOL_BTN_GAP,
                 BTN_NORMAL, BTN_HOVER,
                 BTN_DOWN, BTN_DOWN_HOVER,
                 RECIPE,
-                Component.translatable("menu.ether_craft.factory.recipe"),
-                Component.translatable("menu.ether_craft.factory.recipe"),
-                down -> false
-        ));
+                Component.translatable("menu.ether_craft.factory.recipe.hint"),
+                Component.translatable("menu.ether_craft.factory.recipe.close_all"),
+                down -> {
+                    // 弹起态不可交互；按下态点击 = 关闭所有配方窗口
+                    if (!down) return false;
+                    closeAllRecipeWindows();
+                    return true;
+                }));
+        recipeButton.setDown(!recipeWindows.isEmpty());
 
         treeButton = addRenderableWidget(new FactoryTreeButton(
                 rpx, rpy + FactoryLevelDef.TOOL_BTN_GAP * 2,
@@ -137,14 +164,25 @@ public class EtherProcessFactoryScreen extends AbstractContainerScreen<@NotNull 
                 Component.translatable("menu.ether_craft.factory.tree_view"),
                 open -> {
                     treeOpen = open;
-                    if (open && treeOverlay != null) treeOverlay.rebuild();
+                    if (treeOverlay == null) return;
+                    if (open) {
+                        windowLayer.add(treeOverlay);
+                        treeOverlay.rebuild();
+                    } else {
+                        windowLayer.remove(treeOverlay);
+                    }
                 }));
         treeButton.setDown(treeOpen);
 
-        // 默认与工厂 GUI 同宽、左边缘对齐，位于 GUI 正上方；之后可以随意拖动/缩放
-        treeOverlay = new FactoryTreeOverlay(be, getLeftPos(), TREE_VIEW_MARGIN,
-                imageWidth,
-                Math.max(0, getTopPos() - TREE_VIEW_MARGIN * 2));
+        // 窗口只创建一次：GUI 尺寸变化导致重新 init 时，不丢用户拖动/缩放后的窗口位置
+        if (treeOverlay == null) {
+            // 默认与工厂 GUI 同宽、左边缘对齐，位于 GUI 正上方；之后可以随意拖动/缩放
+            treeOverlay = new FactoryTreeOverlay(be, getLeftPos(), TREE_VIEW_MARGIN,
+                    imageWidth,
+                    Math.max(0, getTopPos() - TREE_VIEW_MARGIN * 2));
+        }
+        if (treeOpen) windowLayer.add(treeOverlay);
+        else windowLayer.remove(treeOverlay);
     }
 
     @Override
@@ -169,12 +207,16 @@ public class EtherProcessFactoryScreen extends AbstractContainerScreen<@NotNull 
         if (treeOpen && treeOverlay != null) {
             treeOverlay.rebuild();
         }
+        // 配方按钮的按下态完全由"是否存在配方窗口"驱动
+        boolean hasRecipeWindows = !recipeWindows.isEmpty();
+        if (recipeButton != null && recipeButton.isDown() != hasRecipeWindows) {
+            recipeButton.setDown(hasRecipeWindows);
+        }
     }
 
     @Override
     public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
-        if (treeOpen && treeOverlay != null
-                && treeOverlay.mouseClicked(event.x(), event.y(), event.button())) {
+        if (windowLayer.mouseClicked(event.x(), event.y(), event.button())) {
             blurNameEdit(event.x(), event.y());
             return true;
         }
@@ -202,6 +244,41 @@ public class EtherProcessFactoryScreen extends AbstractContainerScreen<@NotNull 
         boolean result = super.mouseClicked(event, doubleClick);
         blurNameEdit(event.x(), event.y());
         return result;
+    }
+
+    /**
+     * 从 JEI 配方转移创建配方窗口。
+     *
+     * <p>纯客户端行为：不产生任何网络包，配方数据在客户端已同步。
+     */
+    public void openRecipeWindow(Identifier recipeId, EtherProcessFactoryRecipe recipe) {
+        if (recipe == null || recipe.json == null) return;
+        int[] pos = nextRecipeWindowPos();
+        RecipeTreeWindow window = new RecipeTreeWindow(recipeId, recipe, pos[0], pos[1],
+                Math.max(140, imageWidth), RECIPE_WINDOW_HEIGHT);
+        recipeWindows.add(window);
+        // 新窗口置顶
+        windowLayer.add(window);
+        if (recipeButton != null) recipeButton.setDown(true);
+    }
+
+    /** 关闭所有配方窗口（R 按钮按下态的点击行为）。 */
+    private void closeAllRecipeWindows() {
+        for (RecipeTreeWindow window : recipeWindows) windowLayer.remove(window);
+        recipeWindows.clear();
+        if (recipeButton != null) recipeButton.setDown(false);
+    }
+
+    /** 依次层叠摆放：以屏幕居中为基准，每个新窗口右下偏移，越界则夹回屏幕内。 */
+    private int[] nextRecipeWindowPos() {
+        int w = Math.max(140, imageWidth);
+        int h = RECIPE_WINDOW_HEIGHT;
+        int offset = (recipeWindows.size() % 8) * RECIPE_WINDOW_CASCADE;
+        int x = (width - w) / 2 + offset;
+        int y = (height - h) / 2 + offset;
+        x = Mth.clamp(x, 0, Math.max(0, width - w));
+        y = Mth.clamp(y, 0, Math.max(0, height - h));
+        return new int[]{x, y};
     }
 
     /**
@@ -257,9 +334,7 @@ public class EtherProcessFactoryScreen extends AbstractContainerScreen<@NotNull 
             graphics.setTooltipForNextFrame(font, itemStack, mouseX, mouseY);
         }
 
-        if (treeOpen && treeOverlay != null) {
-            treeOverlay.render(graphics, font, mouseX, mouseY);
-        }
+        windowLayer.render(graphics, font, mouseX, mouseY);
     }
 
     @Override
@@ -514,9 +589,7 @@ public class EtherProcessFactoryScreen extends AbstractContainerScreen<@NotNull 
                 return;
             }
         super.extractTooltip(graphics, mouseX, mouseY);
-        if (treeOpen && treeOverlay != null) {
-            treeOverlay.renderTooltips(graphics, font, mouseX, mouseY);
-        }
+        windowLayer.renderTooltips(graphics, font, mouseX, mouseY);
     }
 
     @Override
@@ -531,8 +604,7 @@ public class EtherProcessFactoryScreen extends AbstractContainerScreen<@NotNull 
 
     @Override
     public boolean mouseDragged(MouseButtonEvent event, double dx, double dy) {
-        if (treeOpen && treeOverlay != null
-                && treeOverlay.mouseDragged(event.x(), event.y(), event.button(), dx, dy)) {
+        if (windowLayer.mouseDragged(event.x(), event.y(), event.button(), dx, dy)) {
             return true;
         }
         if (menu.getCarried().is(ItemRegistry.WRENCH) && menu.quickPlaceChipSlotId != -1 && this.isQuickCrafting) {
@@ -547,8 +619,7 @@ public class EtherProcessFactoryScreen extends AbstractContainerScreen<@NotNull 
 
     @Override
     public boolean mouseScrolled(double x, double y, double scrollX, double scrollY) {
-        if (treeOpen && treeOverlay != null
-                && treeOverlay.mouseScrolled(x, y, scrollX, scrollY)) {
+        if (windowLayer.mouseScrolled(x, y, scrollX, scrollY)) {
             return true;
         }
         if (menu.getCarried().is(ItemRegistry.WRENCH)) {
@@ -560,9 +631,7 @@ public class EtherProcessFactoryScreen extends AbstractContainerScreen<@NotNull 
 
     @Override
     public boolean mouseReleased(MouseButtonEvent event) {
-        if (treeOpen && treeOverlay != null) {
-            treeOverlay.onMouseReleased();
-        }
+        windowLayer.onMouseReleased();
         return super.mouseReleased(event);
     }
 
@@ -572,15 +641,9 @@ public class EtherProcessFactoryScreen extends AbstractContainerScreen<@NotNull 
             closeCraftGrid();
             return true;
         }
-        if (treeOpen && treeOverlay != null) {
-            if (event.key() == GLFW.GLFW_KEY_ESCAPE) {
-                treeOpen = false;
-                if (treeButton != null) treeButton.setDown(false);
-                return true;
-            }
-            if ((nameEdit == null || !nameEdit.isFocused()) && treeOverlay.keyPressed(event.key())) {
-                return true;
-            }
+        // 窗口内的视口键盘操作（平移 / 缩放）；ESC 不再关闭子窗口，直接交给原版关闭界面
+        if ((nameEdit == null || !nameEdit.isFocused()) && windowLayer.keyPressed(event.key())) {
+            return true;
         }
         return super.keyPressed(event);
     }
